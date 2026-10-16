@@ -8,6 +8,7 @@ let BUILD='dev';try{BUILD=fs.readFileSync(path.join(__dirname,'BUILD'),'utf8').t
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
 const server=http.createServer((req,res)=>{
   const u=decodeURIComponent((req.url||'/').split('?')[0]);if(u==='/health'){res.end('ok');return}
+  if(u==='/robots.txt'){res.writeHead(200,{'content-type':'text/plain'});res.end('User-agent: *\nAllow: /\n');return}
   if(u==='/status'){res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(Object.assign({ok:true,build:BUILD,up:Math.round(process.uptime()),online:world.authed().length,connections:world.conns.size,node:process.version},world.stats())));return}
   let f=path.normalize(path.join(PUB,u==='/'?'index.html':u));if(!f.startsWith(PUB)||!fs.existsSync(f)||fs.statSync(f).isDirectory())f=path.join(PUB,'index.html');
   res.writeHead(200,{'content-type':TYPES[path.extname(f)]||'application/octet-stream','cache-control':f.endsWith('index.html')?'no-cache':'max-age=3600','x-content-type-options':'nosniff'});
