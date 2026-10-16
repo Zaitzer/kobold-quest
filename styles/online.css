@@ -23,3 +23,6 @@
 .rptip.online{grid-column:1/-1;font-size:11.5px;margin:2px 0}
 #v-rpg[data-mode="map"] .rprow2 .pill[data-net="chat"]{flex:0 0 auto;padding:0 12px}
 #v-rpg[data-mode="map"] .netrow{position:absolute;top:48px;left:8px;max-width:44%}
+/* Quill's letter */
+.chatin.letter textarea{flex:1;min-width:0;font:600 15px var(--font-ui);color:#fff;background:#1a0d4a;border:3px solid var(--line);border-radius:14px;padding:8px 12px;resize:none;text-shadow:none}
+.chatin.letter textarea:focus{outline:3px solid var(--amber);outline-offset:1px}

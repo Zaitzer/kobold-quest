@@ -1,11 +1,12 @@
 /* Kobold Quest server: serves the website and runs the one shared world over a WebSocket at /ws.
    PORT (default 8080), DATA (default ./data), PUBLIC (default ./public). Put Caddy or another HTTPS proxy in front. */
 const http=require('http'),fs=require('fs'),path=require('path');const {WebSocketServer}=require('ws');
-const {World}=require('./world.js');const {FileStore}=require('./store.js');
+const {World}=require('./world.js');const {Mail}=require('./mail.js');
+const CONFIG=JSON.parse(fs.readFileSync(path.join(__dirname,'config.json'),'utf8'));const {FileStore}=require('./store.js');
 const PORT=+process.env.PORT||8080,DATA=process.env.DATA||path.join(__dirname,'data'),PUB=process.env.PUBLIC||path.join(__dirname,'public');
 /* which version of the game this server hands out; players on an older page are told to reload */
 let BUILD=process.env.KQ_BUILD||'dev';if(!process.env.KQ_BUILD)try{BUILD=fs.readFileSync(path.join(__dirname,'BUILD'),'utf8').trim()}catch(e){}
-const store=new FileStore(DATA),world=new World(store,{build:BUILD});
+const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG)});
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
 const server=http.createServer((req,res)=>{
   const u=decodeURIComponent((req.url||'/').split('?')[0]);if(u==='/health'){res.end('ok');return}

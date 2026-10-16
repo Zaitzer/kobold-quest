@@ -12,6 +12,7 @@ const RP_NPC=[
   {id:'clink',name:'Clink the smith',x:12,y:25,team:0,w:'club',hat:'bucket',face:-1},
   {id:'pebble',name:'Pebble',x:7,y:27,team:0,w:'spoon',hat:'none',face:1,size:.8},
   {id:'vexx',name:'King Vexx',x:20,y:2,team:3,w:'sword',hat:'crown',face:1,size:1.4,show:s=>!s.q.vexx},
+  {id:'quill',name:'Quill the scribe',place:'inn',x:10,y:3,team:2,w:'healwand',hat:'wizard',face:-1},
   {id:'tikka',name:'Tikka',place:'inn',x:2,y:5,team:2,w:'squirt',hat:'flower',face:1},
   {id:'nettle',name:'Granny Nettle',place:'elder',x:6,y:2,team:0,w:'spoon',hat:'flower',face:-1,size:.9}
 ];

@@ -24,7 +24,8 @@ function rpUI(force){
   const sig=rp.mode+'|'+(pn.sig?pn.sig():'');
   /* never rebuild the panel under a thumb that is holding the joystick */
   if(rp.joyP&&rp.mode==='map'&&P.querySelector&&P.querySelector('[data-joy]'))return;
-  if(force||sig!==rp.sig){rp.sig=sig;const ae=document.activeElement,keep=ae&&ae.id==='kq-chat'?ae.value:null;P.innerHTML=h;if(keep!=null){const i=document.getElementById('kq-chat');if(i){i.value=keep;i.focus()}}}
+  if(force||sig!==rp.sig){rp.sig=sig;/* keep what the player is typing (chat, a letter) when the sheet redraws */
+    const ae=document.activeElement,keep=ae&&ae.id&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)?{id:ae.id,v:ae.value}:null;P.innerHTML=h;if(keep){const i=document.getElementById(keep.id);if(i){i.value=keep.v;i.focus()}}}
 }
 function rpMenuClick(e){
   const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;

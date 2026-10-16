@@ -291,6 +291,9 @@ button,.rpb,.pill{touch-action:manipulation}
 .rptip.online{grid-column:1/-1;font-size:11.5px;margin:2px 0}
 #v-rpg[data-mode="map"] .rprow2 .pill[data-net="chat"]{flex:0 0 auto;padding:0 12px}
 #v-rpg[data-mode="map"] .netrow{position:absolute;top:48px;left:8px;max-width:44%}
+/* Quill's letter */
+.chatin.letter textarea{flex:1;min-width:0;font:600 15px var(--font-ui);color:#fff;background:#1a0d4a;border:3px solid var(--line);border-radius:14px;padding:8px 12px;resize:none;text-shadow:none}
+.chatin.letter textarea:focus{outline:3px solid var(--amber);outline-offset:1px}
 </style>
 <section class="view title" id="v-title">
   <div class="tlogo">Kobold<span>Quest</span></div>
@@ -388,9 +391,9 @@ button,.rpb,.pill{touch-action:manipulation}
         return fallback;
       }
     },
-    set(key, val) {
+    set(key, val2) {
       try {
-        return this.raw().setItem(key, JSON.stringify(val)), !0;
+        return this.raw().setItem(key, JSON.stringify(val2)), !0;
       } catch {
         return !1;
       }
@@ -1269,6 +1272,7 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { hat: 2 }, now: { set: { hat: 3 }, item: "cap_cone", xp: 40 }, say: ["MY HAT! Thank you thank you! Here, take my spare lucky cone. Grandpa says it brings crits."], then: { toast: "Quest done! +40 XP, Lucky cone{up}" } },
       { say: ["I'm going to be an adventurer just like you!"] }
     ] },
+    quill: { who: "Quill the scribe", rules: [{ then: { open: "letter" } }] },
     tikka: { who: "Tikka", rules: [
       { if: { vexx: 1 }, say: ["A toast! To the kobold who sent King Vexx running! ...Not you, Toast. Sit down."] },
       { if: { gorb: 1 }, say: ["You beat Chief Gorb? I heard he cried. Toast says the next round is on the house!", "Toast did not say that."] },
@@ -1324,6 +1328,7 @@ button,.rpb,.pill{touch-action:manipulation}
     { id: "clink", name: "Clink the smith", x: 12, y: 25, team: 0, w: "club", hat: "bucket", face: -1 },
     { id: "pebble", name: "Pebble", x: 7, y: 27, team: 0, w: "spoon", hat: "none", face: 1, size: 0.8 },
     { id: "vexx", name: "King Vexx", x: 20, y: 2, team: 3, w: "sword", hat: "crown", face: 1, size: 1.4, show: (s) => !s.q.vexx },
+    { id: "quill", name: "Quill the scribe", place: "inn", x: 10, y: 3, team: 2, w: "healwand", hat: "wizard", face: -1 },
     { id: "tikka", name: "Tikka", place: "inn", x: 2, y: 5, team: 2, w: "squirt", hat: "flower", face: 1 },
     { id: "nettle", name: "Granny Nettle", place: "elder", x: 6, y: 2, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 }
   ], RP_BOSSES = {
@@ -1705,27 +1710,27 @@ button,.rpb,.pill{touch-action:manipulation}
   saveSources.push({ id: "cloud", get: () => net.cloud });
 
   // src/net/gift.js
-  function netGive(kind, val) {
+  function netGive(kind, val2) {
     if (!netOnline()) return;
     let s = rp.s, label = "";
     if (kind === "gold") {
-      if (val = Math.min(+val, Math.floor(s.gold)), val <= 0) return;
-      s.gold -= val, label = val + " gold";
+      if (val2 = Math.min(+val2, Math.floor(s.gold)), val2 <= 0) return;
+      s.gold -= val2, label = val2 + " gold";
     } else if (kind === "mat") {
       let M = rpMats();
-      if (!(M[val] > 0)) return;
-      M[val]--, label = "a " + RP_MATS[val].n.toLowerCase();
+      if (!(M[val2] > 0)) return;
+      M[val2]--, label = "a " + RP_MATS[val2].n.toLowerCase();
     } else if (kind === "item") {
-      let i = s.inv.indexOf(val);
+      let i = s.inv.indexOf(val2);
       if (i < 0) return;
-      s.inv.splice(i, 1), label = RP_IT[val].n;
+      s.inv.splice(i, 1), label = RP_IT[val2].n;
     } else if (kind === "bag") {
-      if (!(s.bag[val] > 0)) return;
-      s.bag[val]--, label = "a " + RP_ITEMS[val].n.toLowerCase();
+      if (!(s.bag[val2] > 0)) return;
+      s.bag[val2]--, label = "a " + RP_ITEMS[val2].n.toLowerCase();
     }
     if (!net.partner) return;
     let gid = netRid();
-    net.gifts[gid] = { kind, val, label, t: performance.now(), last: performance.now(), to: net.partner.peer }, netEmit({ t: "gift", gid, to: net.partner.peer, kind, val }), rpToast("Sent " + label + " to " + netName() + "."), rpSave();
+    net.gifts[gid] = { kind, val: val2, label, t: performance.now(), last: performance.now(), to: net.partner.peer }, netEmit({ t: "gift", gid, to: net.partner.peer, kind, val: val2 }), rpToast("Sent " + label + " to " + netName() + "."), rpSave();
   }
   function netGotGift(d, msg) {
     if (!rp.s) return;
@@ -1995,25 +2000,25 @@ button,.rpb,.pill{touch-action:manipulation}
   function netMkValid(m) {
     return m && Number.isFinite(+m.price) && +m.price > 0 && (m.kind === "item" && RP_IT[m.val] || m.kind === "mat" && RP_MATS[m.val] || m.kind === "bag" && RP_ITEMS[m.val]);
   }
-  function netMarketPrice(kind, val) {
-    let base = kind === "item" ? (RP_IT[val] || {}).price || 40 : kind === "mat" ? 12 : (RP_ITEMS[val] || {}).price || 15;
+  function netMarketPrice(kind, val2) {
+    let base = kind === "item" ? (RP_IT[val2] || {}).price || 40 : kind === "mat" ? 12 : (RP_ITEMS[val2] || {}).price || 15;
     return Math.max(1, Math.round(base * 0.6));
   }
-  function netTake(kind, val) {
+  function netTake(kind, val2) {
     let s = rp.s;
     if (kind === "gold") return !1;
     if (kind === "mat") {
       let M = rpMats();
-      return M[val] > 0 ? (M[val]--, !0) : !1;
+      return M[val2] > 0 ? (M[val2]--, !0) : !1;
     }
     if (kind === "bag")
-      return s.bag[val] > 0 ? (s.bag[val]--, !0) : !1;
-    let i = s.inv.indexOf(val);
+      return s.bag[val2] > 0 ? (s.bag[val2]--, !0) : !1;
+    let i = s.inv.indexOf(val2);
     return i < 0 ? !1 : (s.inv.splice(i, 1), !0);
   }
-  function netPut(kind, val) {
+  function netPut(kind, val2) {
     let s = rp.s;
-    kind === "mat" ? rpMats()[val]++ : kind === "bag" ? s.bag[val] = (s.bag[val] || 0) + 1 : rpGive(val);
+    kind === "mat" ? rpMats()[val2]++ : kind === "bag" ? s.bag[val2] = (s.bag[val2] || 0) + 1 : rpGive(val2);
   }
   async function netMarketList() {
     let S = net.mkSell;
@@ -2368,10 +2373,10 @@ button,.rpb,.pill{touch-action:manipulation}
     let sig = rp.mode + "|" + (pn.sig ? pn.sig() : "");
     if (!(rp.joyP && rp.mode === "map" && P.querySelector && P.querySelector("[data-joy]")) && (force || sig !== rp.sig)) {
       rp.sig = sig;
-      let ae = document.activeElement, keep = ae && ae.id === "kq-chat" ? ae.value : null;
-      if (P.innerHTML = h, keep != null) {
-        let i = document.getElementById("kq-chat");
-        i && (i.value = keep, i.focus());
+      let ae = document.activeElement, keep = ae && ae.id && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? { id: ae.id, v: ae.value } : null;
+      if (P.innerHTML = h, keep) {
+        let i = document.getElementById(keep.id);
+        i && (i.value = keep.v, i.focus());
       }
     }
   }
@@ -2485,6 +2490,348 @@ button,.rpb,.pill{touch-action:manipulation}
   });
   feature({ id: "town-spots", tiles: { S: { use: () => rpShrine() }, N: { use: () => rpBoard() }, A: { use: () => rpTalk("clink") } } });
 
+  // src/adapters/online.js
+  var TOKEN_KEY = "kq-token";
+  function createOnline(url) {
+    let S = {
+      ws: null,
+      open: !1,
+      token: store.get(TOKEN_KEY, null),
+      me: null,
+      peer: null,
+      others: /* @__PURE__ */ new Map(),
+      mine: {},
+      handlers: {},
+      peerH: [],
+      connH: [],
+      pending: /* @__PURE__ */ new Map(),
+      seq: 0,
+      docSubs: /* @__PURE__ */ new Map(),
+      colSubs: [],
+      authed: !1,
+      authWait: null,
+      retry: 0,
+      closing: !1,
+      queue: []
+    };
+    function connect() {
+      if (S.ws && S.ws.readyState < 2) return;
+      S.closing = !1;
+      let ws = new WebSocket(url);
+      S.ws = ws, ws.onopen = () => {
+        S.open = !0, S.retry = 0;
+        let q = S.queue;
+        S.queue = [], S.token && !q.some((m) => m.k === "login" || m.k === "register") && send({ k: "resume", token: S.token }), q.forEach(send);
+      }, ws.onmessage = (e) => {
+        let m;
+        try {
+          m = JSON.parse(e.data);
+        } catch {
+          return;
+        }
+        got(m);
+      }, ws.onclose = () => {
+        let was = S.authed;
+        S.open = !1, S.authed = !1, S.others.clear();
+        for (let [, p] of S.pending) p.no(new Error("offline"));
+        S.pending.clear(), was && (S.connH.forEach((h) => h(!1)), firePeers()), S.authWait && (S.authWait.no("Can't reach the game server."), S.authWait = null), !S.closing && S.token && (S.retry = Math.min(S.retry + 1, 6), setTimeout(connect, 500 * Math.pow(1.8, S.retry)));
+      }, ws.onerror = () => {
+      };
+    }
+    function send(m) {
+      S.open && S.ws.readyState === 1 ? S.ws.send(JSON.stringify(m)) : (S.queue.push(m), connect());
+    }
+    function rpc(m) {
+      return new Promise((ok, no) => {
+        let id = ++S.seq;
+        S.pending.set(id, { ok, no }), send(Object.assign({ rid: id }, m)), setTimeout(() => {
+          S.pending.has(id) && (S.pending.delete(id), no(new Error("timeout")));
+        }, 15e3);
+      });
+    }
+    function got(m) {
+      switch (m.k) {
+        case "authok": {
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T11:38:46Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          break;
+        }
+        case "autherr":
+          m.stale && (S.token = null, store.set(TOKEN_KEY, null)), S.authWait && (S.authWait.no(m.why), S.authWait = null);
+          break;
+        case "loggedout":
+          break;
+        case "pres":
+          S.others.set(m.peer, mk(m)), firePeers();
+          break;
+        case "gone":
+          S.others.delete(m.peer), firePeers();
+          break;
+        case "emit":
+          (S.handlers[m.topic] || []).forEach((h) => h({ topic: m.topic, data: m.data, peer: m.peer, by: m.by, isMe: !1, sameTab: !1, kind: "viewer", guest: !1 }));
+          break;
+        case "dbchg":
+          refetch((p) => p === m.path || m.path.startsWith(p + "/"));
+          break;
+        case "res": {
+          let p = S.pending.get(m.rid);
+          if (!p) break;
+          if (S.pending.delete(m.rid), m.ok === !1) {
+            let e = new Error(m.err);
+            e.code = m.err === "missing" ? "invalid_argument" : m.err, p.no(e);
+          } else p.ok(m.val);
+        }
+      }
+    }
+    let mk = (p) => ({ peer: p.peer, by: p.by, isMe: !1, sameTab: !1, kind: "viewer", guest: !1, presence: Object.freeze(Object.assign({}, p.presence)), updatedAt: Date.now() }), meP = () => ({ peer: S.peer, by: S.me && S.me.id, isMe: !0, sameTab: !0, kind: "viewer", guest: !1, presence: S.mine, updatedAt: Date.now() }), peers = () => S.authed ? [meP(), ...S.others.values()] : [];
+    function firePeers() {
+      setTimeout(() => {
+        let ps = peers();
+        S.peerH.forEach((h) => h({ peers: ps, joined: [], left: [], updated: ps }));
+      }, 0);
+    }
+    function auth(m) {
+      return new Promise((ok, no) => {
+        S.authWait && S.authWait.no("cancelled"), S.authWait = { ok, no }, send(m);
+      });
+    }
+    let account = {
+      onNewVersion: null,
+      /* server-only requests (the messenger, the admin screen): resolves with the reply's value */
+      call: (m) => rpc(m),
+      /* set by the page: called when the server runs a newer build than this page */
+      get loggedIn() {
+        return S.authed;
+      },
+      get me() {
+        return S.me;
+      },
+      hasToken: () => !!S.token,
+      resume: () => S.token ? auth({ k: "resume", token: S.token }) : Promise.reject("Not logged in."),
+      login: (name, pass) => auth({ k: "login", name, pass }),
+      register: (name, pass) => auth({ k: "register", name, pass }),
+      logout() {
+        S.token && send({ k: "logout", token: S.token }), S.token = null, store.set(TOKEN_KEY, null), S.closing = !0, S.authed = !1, S.me = null;
+        try {
+          S.ws && S.ws.close();
+        } catch {
+        }
+      }
+    }, room = {
+      emit: (topic, data) => (send({ k: "emit", topic, data }), Promise.resolve()),
+      on: (t, h) => ((S.handlers[t] = S.handlers[t] || []).push(h), () => {
+        S.handlers[t] = S.handlers[t].filter((x) => x !== h);
+      }),
+      presence: (p) => {
+        S.mine = Object.assign({}, S.mine, p);
+        for (let k in S.mine) S.mine[k] === null && delete S.mine[k];
+        return S.authed && send({ k: "pres", presence: S.mine }), firePeers(), Promise.resolve();
+      },
+      peers,
+      onPeers: (h) => (S.peerH.push(h), firePeers(), () => {
+        S.peerH = S.peerH.filter((x) => x !== h);
+      }),
+      connected: () => S.authed,
+      onConnection: (h) => (S.connH.push(h), setTimeout(() => h(S.authed), 0), () => {
+      })
+    }, user = {
+      id: async () => S.me && S.me.id,
+      me: async () => S.me && { id: S.me.id, name: S.me.name, avatarUrl: "", color: "#fff", email: null, isOwner: !1, canEdit: !0 },
+      profiles: async (ids) => {
+        let r = await rpc({ k: "profiles", ids: [].concat(ids) });
+        for (let id in r) r[id] = Object.assign({ avatarUrl: "", color: "#fff", email: null, isMe: S.me && id === S.me.id, guest: !1 }, r[id]);
+        return r;
+      },
+      isOwner: async () => !1,
+      canEdit: async () => !0,
+      can: async () => !0
+    }, snapOf = (id, d) => ({ id, exists: d != null, data: () => d, metadata: {} }), colSnap = (rows) => ({ docs: rows.map((r) => snapOf(r.id, r.data)), size: rows.length, empty: !rows.length, docChanges: () => [], metadata: {} });
+    function refetch(match) {
+      for (let [path, fs] of S.docSubs) match(path) && rpc({ k: "db", op: "get", path }).then((d) => fs.forEach((f) => f(snapOf(path.split("/").pop(), d)))).catch(() => {
+      });
+      for (let q of S.colSubs) match(q.path) && rpc({ k: "db", op: "col", path: q.path, where: q.w }).then((rows) => q.f(colSnap(rows))).catch((e) => q.err && q.err(e));
+    }
+    let newId = () => Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4), docRef = (path) => ({
+      path,
+      id: path.split("/").pop(),
+      get: async () => snapOf(path.split("/").pop(), await rpc({ k: "db", op: "get", path })),
+      set: async (data) => {
+        await rpc({ k: "db", op: "set", path, data: JSON.parse(JSON.stringify(data)) });
+      },
+      update: async (data) => {
+        await rpc({ k: "db", op: "upd", path, data: JSON.parse(JSON.stringify(data)) });
+      },
+      delete: async () => {
+        await rpc({ k: "db", op: "del", path });
+      },
+      acquire: async (o) => rpc({ k: "db", op: "acq", path, ttl: o && o.ttlMs || 3e4 }),
+      onSnapshot: (f, err) => (S.docSubs.has(path) || S.docSubs.set(path, []), S.docSubs.get(path).push(f), rpc({ k: "db", op: "get", path }).then((d) => f(snapOf(path.split("/").pop(), d))).catch((e) => err && err(e)), () => {
+        S.docSubs.set(path, (S.docSubs.get(path) || []).filter((x) => x !== f));
+      })
+    }), colRef = (path, w) => ({
+      path,
+      where: (f, op, v) => colRef(path, w.concat([[f, op, v]])),
+      orderBy() {
+        return this;
+      },
+      limit() {
+        return this;
+      },
+      doc: (id) => docRef(path + "/" + (id || newId())),
+      add: async (data) => {
+        let id = newId();
+        return await rpc({ k: "db", op: "set", path: path + "/" + id, data: JSON.parse(JSON.stringify(data)) }), docRef(path + "/" + id);
+      },
+      get: async () => colSnap(await rpc({ k: "db", op: "col", path, where: w })),
+      onSnapshot: (f, err) => {
+        let q = { path, w, f, err };
+        return S.colSubs.push(q), rpc({ k: "db", op: "col", path, where: w }).then((r) => f(colSnap(r))).catch((e) => err && err(e)), () => {
+          S.colSubs = S.colSubs.filter((x) => x !== q);
+        };
+      }
+    }), db = { doc: docRef, collection: (p) => colRef(p, []) };
+    return { account, provider: { use: async (n) => n === "room" ? room : n === "user" ? user : n === "db" ? db : null } };
+  }
+
+  // src/ui/login.js
+  var online = null;
+  function updateWhenSafe() {
+    if (rp.s && (rp.mode === "battle" || rp.mode === "lobby")) {
+      setTimeout(updateWhenSafe, 3e3);
+      return;
+    }
+    try {
+      rp.s && view === "rpg" && rpSave();
+    } catch {
+    }
+    rp.s && view === "rpg" && rpToast("Updating to the newest version…"), setTimeout(() => location.reload(), view === "rpg" ? 900 : 100);
+  }
+  function wsUrl() {
+    return (location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host + "/ws";
+  }
+  function say(t, bad) {
+    let m = $("login-msg");
+    m.textContent = t || "", m.classList.toggle("bad", !!bad);
+  }
+  function showLoggedOut() {
+    $("login").hidden = !1, $("go-rpg").hidden = !0, $("tuser").hidden = !0, setTimeout(() => {
+      try {
+        $("login-name").focus();
+      } catch {
+      }
+    }, 50);
+  }
+  async function loggedIn(me) {
+    setSaveKey("kq-save-" + me.id), platform.provider = online.provider, say("Loading your kobolds…"), await netInit(), say(""), $("login").hidden = !0, $("tuser-name").textContent = me.name, $("tuser").hidden = !1, $("go-rpg").hidden = !1, $("login-pass").value = "";
+  }
+  async function attempt(kind) {
+    let name = $("login-name").value.trim(), pass = $("login-pass").value;
+    if (!name || !pass) {
+      say("Type a name and a password.", !0);
+      return;
+    }
+    $("login-go").disabled = $("login-new").disabled = !0, say(kind === "register" ? "Making your account…" : "Logging in…");
+    try {
+      await loggedIn(await online.account[kind](name, pass));
+    } catch (e) {
+      say(typeof e == "string" ? e : "Can't reach the game server.", !0);
+    }
+    $("login-go").disabled = $("login-new").disabled = !1;
+  }
+  feature({ id: "site-login", init() {
+    online = createOnline(wsUrl()), online.account.onNewVersion = updateWhenSafe, $("login").addEventListener("submit", (e) => {
+      e.preventDefault(), attempt("login");
+    }), $("login-new").addEventListener("click", () => attempt("register")), $("logout").addEventListener("click", () => {
+      online.account.logout(), location.reload();
+    }), $("go-rpg").hidden = !0, online.account.hasToken() ? (say("Logging in…"), $("login").hidden = !1, online.account.resume().then(loggedIn).catch((e) => {
+      say(typeof e == "string" ? e : "", !!e), showLoggedOut();
+    })) : showLoggedOut();
+  } });
+
+  // src/net/mail.js
+  var mail = { sending: !1, msg: "", admin: null };
+  function rpOpenLetter() {
+    mail.msg = "", rp.mode = "letter", rpUI(!0);
+    let me = mailMe();
+    me && online.account.call({ k: "mailcheck" }).then((r) => {
+      me.canMail = r.canMail, rp.sig = "", rpUI(!0);
+    }).catch(() => {
+    });
+  }
+  function mailMe() {
+    return online && online.account.me;
+  }
+  function letterHtml() {
+    let me = mailMe(), who = '<div class="who">Quill the scribe</div>';
+    return me ? !me.canMail && !me.admin ? '<div class="rpdlg">' + who + '<p>"Sorry, little one. I only carry letters for friends of the village. Ask Zaitzer to put your name on my list."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + `<p>"A letter for the makers of this world? Tell them what you'd like to see, or what went wrong. I'll send it by pigeon."</p></div><div class="chatin letter"><textarea id="kq-letter" maxlength="1000" rows="4" placeholder="Dear makers…"></textarea></div>` + (mail.msg ? '<p class="rptip">' + esc2(mail.msg) + "</p>" : "") + '<div class="tbar"><button class="rpb go" type="button" data-net="mailsend"' + (mail.sending ? " disabled" : "") + ">" + (mail.sending ? "Sending…" : "Send letter") + '</button><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + '<p>"My pigeons only fly from the website: joakimskar.no. Log in there and come see me."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>';
+  }
+  async function mailSend() {
+    let i = document.getElementById("kq-letter"), text = i ? i.value.trim() : "";
+    if (text.length < 3) {
+      mail.msg = "Write a little more first.", rpUI(!0);
+      return;
+    }
+    mail.sending = !0, rpUI(!0);
+    try {
+      let r = await online.account.call({ k: "mail", text, where: rpArea(rp.s.x, rp.s.y) });
+      mail.msg = r.delivered ? '"Off it goes!" The pigeon flaps away.' : `"I'll send it as soon as the pigeons are back." (It is saved.)`;
+      let j = document.getElementById("kq-letter");
+      j && (j.value = ""), rp.headless || sfx("win");
+    } catch (e) {
+      mail.msg = e.message === "too many" ? '"My pigeons are tired. Try again in an hour."' : e.message === "not on the list" ? '"You are not on my list."' : '"The pigeon came back. Try again in a moment."';
+    }
+    mail.sending = !1, rpUI(!0);
+  }
+  function adminHtml() {
+    let A = mail.admin, h = '<div class="rpdlg"><div class="who">Admin: the messenger</div>';
+    return A ? (h += "<p>GitHub token: <b>" + (A.tokenSet ? "set" + (A.tokenAt ? " (" + esc2(A.tokenAt.slice(0, 10)) + ")" : "") : "not set") + "</b>. Letters: " + A.letters + (A.waiting ? ", " + A.waiting + " waiting to send" : "") + ".</p><p>On the list: " + esc2(A.fixed.concat(A.added).join(", ") || "nobody") + '</p></div><div class="chatin"><input id="kq-token" type="password" autocomplete="off" placeholder="Paste a GitHub token"><button class="rpb go" type="button" data-net="admintoken">Save</button></div><div class="chatin"><input id="kq-wl" type="text" autocomplete="off" autocapitalize="off" placeholder="Player name"><button class="rpb" type="button" data-net="wladd">Add</button><button class="rpb" type="button" data-net="wldel">Remove</button></div>' + (mail.msg ? '<p class="rptip">' + esc2(mail.msg) + "</p>" : "") + '<div class="tbar"><button class="rpb x" type="button" data-net="adminclose">Back</button></div>', h) : h + '<p>Loading…</p></div><div class="tbar"><button class="rpb x" type="button" data-net="adminclose">Back</button></div>';
+  }
+  async function adminCall(m) {
+    try {
+      mail.admin = await online.account.call(Object.assign({ k: "admin" }, m)), mail.msg = m.op === "token" ? "Token saved and checked with GitHub." : m.op === "wladd" ? "Added." : m.op === "wldel" ? "Removed." : "";
+    } catch (e) {
+      mail.msg = e.message;
+    }
+    rpUI(!0);
+  }
+  var val = (id) => {
+    let i = document.getElementById(id), v = i ? i.value.trim() : "";
+    return i && (i.value = ""), v;
+  };
+  feature({
+    id: "messenger",
+    panels: { letter: { sig: () => mail.sending + "|" + mail.msg + "|" + !!mailMe(), html: letterHtml }, admin: { sig: () => JSON.stringify(mail.admin) + mail.msg, html: adminHtml } },
+    menu: [{ order: 20, html: () => {
+      let me = mailMe();
+      return me && me.admin ? '<button class="rpb" type="button" data-net="admin">Admin<small>Messenger token and list</small></button>' : "";
+    } }],
+    actions: {
+      "net:mailsend"() {
+        mailSend();
+      },
+      "net:mailclose"() {
+        rp.mode = "map", mail.msg = "";
+      },
+      "net:admin"() {
+        rp.mode = "admin", mail.msg = "", adminCall({ op: "state" });
+      },
+      "net:adminclose"() {
+        rp.mode = "menu", mail.msg = "";
+      },
+      "net:admintoken"() {
+        let t = val("kq-token");
+        t && adminCall({ op: "token", token: t });
+      },
+      "net:wladd"() {
+        let n = val("kq-wl");
+        n && adminCall({ op: "wladd", name: n });
+      },
+      "net:wldel"() {
+        let n = val("kq-wl");
+        n && adminCall({ op: "wldel", name: n });
+      }
+    }
+  });
+
   // src/core/rules.js
   var OPS = { lt: (a, b) => a < b, lte: (a, b) => a <= b, gt: (a, b) => a > b, gte: (a, b) => a >= b, ne: (a, b) => a !== b };
   function value(k) {
@@ -2536,7 +2883,7 @@ button,.rpb,.pill{touch-action:manipulation}
     heal: () => rpHealAll(),
     save: () => rpSave(),
     open: (w) => {
-      w === "shop" ? rpOpenShop() : w === "smith" && rpOpenSmith();
+      w === "shop" ? rpOpenShop() : w === "smith" ? rpOpenSmith() : w === "letter" && rpOpenLetter();
     },
     fight: ([keys, opt]) => rpFight(keys, opt),
     toast: (t, ctx2) => rpToast(fill(t, ctx2))
@@ -3784,7 +4131,7 @@ button,.rpb,.pill{touch-action:manipulation}
       rp.held = null;
     })), document.addEventListener("keydown", (e) => {
       if (view !== "rpg") return;
-      if (e.target && e.target.tagName === "INPUT") {
+      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) {
         e.key === "Enter" && e.target.id === "kq-chat" && (netSay(e.target.value), e.target.value = "", e.preventDefault());
         return;
       }
@@ -4493,12 +4840,12 @@ button,.rpb,.pill{touch-action:manipulation}
     }), u.side === 0 && b.exits && (s += 0), u.x = ox, u.y = oy, s;
   }
   function tcOptions(b, u, apLeft) {
-    let out = [], foes = tcFoes(b, u), w = tcW(u), pay = (c) => c === "end" ? apLeft >= 1 : apLeft >= c, val = (t, mul, o) => {
+    let out = [], foes = tcFoes(b, u), w = tcW(u), pay = (c) => c === "end" ? apLeft >= 1 : apLeft >= c, val2 = (t, mul, o) => {
       let H = o && o.spell ? { h: 100, fl: !1 } : tcHit(b, u, t, o), dm = tcAvg(tcDmg(b, u, t, mul, o)) * (1 + tcCrit(b, u, t, H.fl) * 0.5);
       return H.h / 100 * dm / Math.max(10, t.max) * 55 + (dm >= t.hp ? 22 * H.h / 100 : 0);
     };
     if (pay(tcActCost(u, { k: "atk" })) && foes.forEach((t) => {
-      tcInReach(b, u, t) && out.push({ act: { k: "atk", t }, v: val(t, 1, {}) + (rpTW(w).splash ? 4 : 0) });
+      tcInReach(b, u, t) && out.push({ act: { k: "atk", t }, v: val2(t, 1, {}) + (rpTW(w).splash ? 4 : 0) });
     }), u.m) {
       let m = u.m, st = rpStats(m);
       rpMemSkills(m).forEach((sk) => {
@@ -4510,13 +4857,13 @@ button,.rpb,.pill{touch-action:manipulation}
             if (!tcInReach(b, u, { x: t.x, y: t.y, sz: 1 }, T.rng === "w" ? rpTW(w).r : T.rng)) return;
             let v = 0;
             b.units.forEach((x) => {
-              !tcLive(x) || Math.hypot(x.x - t.x, x.y - t.y) > T.area + 0.01 || (x.side !== u.side ? v += val(x, S.mul, { spell: T.spell }) * (T.chan ? 0.7 : 1) : T.ff && (v -= 25));
+              !tcLive(x) || Math.hypot(x.x - t.x, x.y - t.y) > T.area + 0.01 || (x.side !== u.side ? v += val2(x, S.mul, { spell: T.spell }) * (T.chan ? 0.7 : 1) : T.ff && (v -= 25));
             }), out.push({ act: { k: "sk", sk, cx: t.x, cy: t.y }, v: v - mpc - (T.chan ? 6 : 0) });
           });
         else if (T.around) {
           let v = 0;
           foes.forEach((t) => {
-            tcCheb(u, t) <= rpTW(w).r && (v += val(t, S.mul, {}));
+            tcCheb(u, t) <= rpTW(w).r && (v += val2(t, S.mul, {}));
           }), v && out.push({ act: { k: "sk", sk }, v: v - mpc });
         } else if (T.self) {
           let al = b.units.filter((t) => t.side === u.side && tcLive(t) && tcCheb(u, t) <= T.self);
@@ -4532,7 +4879,7 @@ button,.rpb,.pill{touch-action:manipulation}
           t.side === u.side && !t.fled && t.hp <= 0 && tcCheb(u, t) <= 1 && out.push({ act: { k: "sk", sk, t }, v: 40 });
         }) : foes.forEach((t) => {
           if (!tcInReach(b, u, t, T.rng)) return;
-          let o = { spell: T.spell, aim: T.aim }, v = val(t, S.mul, o) - mpc;
+          let o = { spell: T.spell, aim: T.aim }, v = val2(t, S.mul, o) - mpc;
           S.stun && !(t.E && t.E.boss) && (v += 6), T.chain && (v *= 1.8), out.push({ act: { k: "sk", sk, t }, v });
         });
       }), ["potion", "feather"].forEach((k) => {
@@ -4546,13 +4893,13 @@ button,.rpb,.pill{touch-action:manipulation}
         t.side === 1 && tcLive(t) && t.hp < t.max * 0.6 && tcInReach(b, u, t, 5) && out.push({ act: { k: "eheal", t }, v: (t.max - t.hp) / t.max * 35 });
       }), E.smash && pay(2)) {
         let adj = foes.filter((t) => tcCheb(u, t) <= 1);
-        adj.length && (u.turns % E.smash === 0 || adj.length > 1) && out.push({ act: { k: "esmash" }, v: adj.reduce((a, t) => a + val(t, 0.75, {}), 0) + 8 });
+        adj.length && (u.turns % E.smash === 0 || adj.length > 1) && out.push({ act: { k: "esmash" }, v: adj.reduce((a, t) => a + val2(t, 0.75, {}), 0) + 8 });
       }
       E.all && pay(2) && foes.forEach((t) => {
         if (!tcInReach(b, u, t)) return;
         let v = 0;
         foes.forEach((x) => {
-          Math.hypot(x.x - t.x, x.y - t.y) <= 1.01 && (v += val(x, 0.7, { spell: WEAPONS[E.w].magic }));
+          Math.hypot(x.x - t.x, x.y - t.y) <= 1.01 && (v += val2(x, 0.7, { spell: WEAPONS[E.w].magic }));
         }), foes.filter((x) => Math.hypot(x.x - t.x, x.y - t.y) <= 1.01).length > 1 && out.push({ act: { k: "eall", cx: t.x, cy: t.y }, v: v + 2 });
       });
     }
@@ -5519,261 +5866,6 @@ button,.rpb,.pill{touch-action:manipulation}
       } }
     ]
   });
-
-  // src/adapters/online.js
-  var TOKEN_KEY = "kq-token";
-  function createOnline(url) {
-    let S = {
-      ws: null,
-      open: !1,
-      token: store.get(TOKEN_KEY, null),
-      me: null,
-      peer: null,
-      others: /* @__PURE__ */ new Map(),
-      mine: {},
-      handlers: {},
-      peerH: [],
-      connH: [],
-      pending: /* @__PURE__ */ new Map(),
-      seq: 0,
-      docSubs: /* @__PURE__ */ new Map(),
-      colSubs: [],
-      authed: !1,
-      authWait: null,
-      retry: 0,
-      closing: !1,
-      queue: []
-    };
-    function connect() {
-      if (S.ws && S.ws.readyState < 2) return;
-      S.closing = !1;
-      let ws = new WebSocket(url);
-      S.ws = ws, ws.onopen = () => {
-        S.open = !0, S.retry = 0;
-        let q = S.queue;
-        S.queue = [], S.token && !q.some((m) => m.k === "login" || m.k === "register") && send({ k: "resume", token: S.token }), q.forEach(send);
-      }, ws.onmessage = (e) => {
-        let m;
-        try {
-          m = JSON.parse(e.data);
-        } catch {
-          return;
-        }
-        got(m);
-      }, ws.onclose = () => {
-        let was = S.authed;
-        S.open = !1, S.authed = !1, S.others.clear();
-        for (let [, p] of S.pending) p.no(new Error("offline"));
-        S.pending.clear(), was && (S.connH.forEach((h) => h(!1)), firePeers()), S.authWait && (S.authWait.no("Can't reach the game server."), S.authWait = null), !S.closing && S.token && (S.retry = Math.min(S.retry + 1, 6), setTimeout(connect, 500 * Math.pow(1.8, S.retry)));
-      }, ws.onerror = () => {
-      };
-    }
-    function send(m) {
-      S.open && S.ws.readyState === 1 ? S.ws.send(JSON.stringify(m)) : (S.queue.push(m), connect());
-    }
-    function rpc(m) {
-      return new Promise((ok, no) => {
-        let id = ++S.seq;
-        S.pending.set(id, { ok, no }), send(Object.assign({ rid: id }, m)), setTimeout(() => {
-          S.pending.has(id) && (S.pending.delete(id), no(new Error("timeout")));
-        }, 15e3);
-      });
-    }
-    function got(m) {
-      switch (m.k) {
-        case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T11:20:10Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
-          break;
-        }
-        case "autherr":
-          m.stale && (S.token = null, store.set(TOKEN_KEY, null)), S.authWait && (S.authWait.no(m.why), S.authWait = null);
-          break;
-        case "loggedout":
-          break;
-        case "pres":
-          S.others.set(m.peer, mk(m)), firePeers();
-          break;
-        case "gone":
-          S.others.delete(m.peer), firePeers();
-          break;
-        case "emit":
-          (S.handlers[m.topic] || []).forEach((h) => h({ topic: m.topic, data: m.data, peer: m.peer, by: m.by, isMe: !1, sameTab: !1, kind: "viewer", guest: !1 }));
-          break;
-        case "dbchg":
-          refetch((p) => p === m.path || m.path.startsWith(p + "/"));
-          break;
-        case "res": {
-          let p = S.pending.get(m.rid);
-          if (!p) break;
-          if (S.pending.delete(m.rid), m.ok === !1) {
-            let e = new Error(m.err);
-            e.code = m.err === "missing" ? "invalid_argument" : m.err, p.no(e);
-          } else p.ok(m.val);
-        }
-      }
-    }
-    let mk = (p) => ({ peer: p.peer, by: p.by, isMe: !1, sameTab: !1, kind: "viewer", guest: !1, presence: Object.freeze(Object.assign({}, p.presence)), updatedAt: Date.now() }), meP = () => ({ peer: S.peer, by: S.me && S.me.id, isMe: !0, sameTab: !0, kind: "viewer", guest: !1, presence: S.mine, updatedAt: Date.now() }), peers = () => S.authed ? [meP(), ...S.others.values()] : [];
-    function firePeers() {
-      setTimeout(() => {
-        let ps = peers();
-        S.peerH.forEach((h) => h({ peers: ps, joined: [], left: [], updated: ps }));
-      }, 0);
-    }
-    function auth(m) {
-      return new Promise((ok, no) => {
-        S.authWait && S.authWait.no("cancelled"), S.authWait = { ok, no }, send(m);
-      });
-    }
-    let account = {
-      onNewVersion: null,
-      /* set by the page: called when the server runs a newer build than this page */
-      get loggedIn() {
-        return S.authed;
-      },
-      get me() {
-        return S.me;
-      },
-      hasToken: () => !!S.token,
-      resume: () => S.token ? auth({ k: "resume", token: S.token }) : Promise.reject("Not logged in."),
-      login: (name, pass) => auth({ k: "login", name, pass }),
-      register: (name, pass) => auth({ k: "register", name, pass }),
-      logout() {
-        S.token && send({ k: "logout", token: S.token }), S.token = null, store.set(TOKEN_KEY, null), S.closing = !0, S.authed = !1, S.me = null;
-        try {
-          S.ws && S.ws.close();
-        } catch {
-        }
-      }
-    }, room = {
-      emit: (topic, data) => (send({ k: "emit", topic, data }), Promise.resolve()),
-      on: (t, h) => ((S.handlers[t] = S.handlers[t] || []).push(h), () => {
-        S.handlers[t] = S.handlers[t].filter((x) => x !== h);
-      }),
-      presence: (p) => {
-        S.mine = Object.assign({}, S.mine, p);
-        for (let k in S.mine) S.mine[k] === null && delete S.mine[k];
-        return S.authed && send({ k: "pres", presence: S.mine }), firePeers(), Promise.resolve();
-      },
-      peers,
-      onPeers: (h) => (S.peerH.push(h), firePeers(), () => {
-        S.peerH = S.peerH.filter((x) => x !== h);
-      }),
-      connected: () => S.authed,
-      onConnection: (h) => (S.connH.push(h), setTimeout(() => h(S.authed), 0), () => {
-      })
-    }, user = {
-      id: async () => S.me && S.me.id,
-      me: async () => S.me && { id: S.me.id, name: S.me.name, avatarUrl: "", color: "#fff", email: null, isOwner: !1, canEdit: !0 },
-      profiles: async (ids) => {
-        let r = await rpc({ k: "profiles", ids: [].concat(ids) });
-        for (let id in r) r[id] = Object.assign({ avatarUrl: "", color: "#fff", email: null, isMe: S.me && id === S.me.id, guest: !1 }, r[id]);
-        return r;
-      },
-      isOwner: async () => !1,
-      canEdit: async () => !0,
-      can: async () => !0
-    }, snapOf = (id, d) => ({ id, exists: d != null, data: () => d, metadata: {} }), colSnap = (rows) => ({ docs: rows.map((r) => snapOf(r.id, r.data)), size: rows.length, empty: !rows.length, docChanges: () => [], metadata: {} });
-    function refetch(match) {
-      for (let [path, fs] of S.docSubs) match(path) && rpc({ k: "db", op: "get", path }).then((d) => fs.forEach((f) => f(snapOf(path.split("/").pop(), d)))).catch(() => {
-      });
-      for (let q of S.colSubs) match(q.path) && rpc({ k: "db", op: "col", path: q.path, where: q.w }).then((rows) => q.f(colSnap(rows))).catch((e) => q.err && q.err(e));
-    }
-    let newId = () => Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4), docRef = (path) => ({
-      path,
-      id: path.split("/").pop(),
-      get: async () => snapOf(path.split("/").pop(), await rpc({ k: "db", op: "get", path })),
-      set: async (data) => {
-        await rpc({ k: "db", op: "set", path, data: JSON.parse(JSON.stringify(data)) });
-      },
-      update: async (data) => {
-        await rpc({ k: "db", op: "upd", path, data: JSON.parse(JSON.stringify(data)) });
-      },
-      delete: async () => {
-        await rpc({ k: "db", op: "del", path });
-      },
-      acquire: async (o) => rpc({ k: "db", op: "acq", path, ttl: o && o.ttlMs || 3e4 }),
-      onSnapshot: (f, err) => (S.docSubs.has(path) || S.docSubs.set(path, []), S.docSubs.get(path).push(f), rpc({ k: "db", op: "get", path }).then((d) => f(snapOf(path.split("/").pop(), d))).catch((e) => err && err(e)), () => {
-        S.docSubs.set(path, (S.docSubs.get(path) || []).filter((x) => x !== f));
-      })
-    }), colRef = (path, w) => ({
-      path,
-      where: (f, op, v) => colRef(path, w.concat([[f, op, v]])),
-      orderBy() {
-        return this;
-      },
-      limit() {
-        return this;
-      },
-      doc: (id) => docRef(path + "/" + (id || newId())),
-      add: async (data) => {
-        let id = newId();
-        return await rpc({ k: "db", op: "set", path: path + "/" + id, data: JSON.parse(JSON.stringify(data)) }), docRef(path + "/" + id);
-      },
-      get: async () => colSnap(await rpc({ k: "db", op: "col", path, where: w })),
-      onSnapshot: (f, err) => {
-        let q = { path, w, f, err };
-        return S.colSubs.push(q), rpc({ k: "db", op: "col", path, where: w }).then((r) => f(colSnap(r))).catch((e) => err && err(e)), () => {
-          S.colSubs = S.colSubs.filter((x) => x !== q);
-        };
-      }
-    }), db = { doc: docRef, collection: (p) => colRef(p, []) };
-    return { account, provider: { use: async (n) => n === "room" ? room : n === "user" ? user : n === "db" ? db : null } };
-  }
-
-  // src/ui/login.js
-  var online = null;
-  function updateWhenSafe() {
-    if (rp.s && (rp.mode === "battle" || rp.mode === "lobby")) {
-      setTimeout(updateWhenSafe, 3e3);
-      return;
-    }
-    try {
-      rp.s && view === "rpg" && rpSave();
-    } catch {
-    }
-    rp.s && view === "rpg" && rpToast("Updating to the newest version…"), setTimeout(() => location.reload(), view === "rpg" ? 900 : 100);
-  }
-  function wsUrl() {
-    return (location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host + "/ws";
-  }
-  function say(t, bad) {
-    let m = $("login-msg");
-    m.textContent = t || "", m.classList.toggle("bad", !!bad);
-  }
-  function showLoggedOut() {
-    $("login").hidden = !1, $("go-rpg").hidden = !0, $("tuser").hidden = !0, setTimeout(() => {
-      try {
-        $("login-name").focus();
-      } catch {
-      }
-    }, 50);
-  }
-  async function loggedIn(me) {
-    setSaveKey("kq-save-" + me.id), platform.provider = online.provider, say("Loading your kobolds…"), await netInit(), say(""), $("login").hidden = !0, $("tuser-name").textContent = me.name, $("tuser").hidden = !1, $("go-rpg").hidden = !1, $("login-pass").value = "";
-  }
-  async function attempt(kind) {
-    let name = $("login-name").value.trim(), pass = $("login-pass").value;
-    if (!name || !pass) {
-      say("Type a name and a password.", !0);
-      return;
-    }
-    $("login-go").disabled = $("login-new").disabled = !0, say(kind === "register" ? "Making your account…" : "Logging in…");
-    try {
-      await loggedIn(await online.account[kind](name, pass));
-    } catch (e) {
-      say(typeof e == "string" ? e : "Can't reach the game server.", !0);
-    }
-    $("login-go").disabled = $("login-new").disabled = !1;
-  }
-  feature({ id: "site-login", init() {
-    online = createOnline(wsUrl()), online.account.onNewVersion = updateWhenSafe, $("login").addEventListener("submit", (e) => {
-      e.preventDefault(), attempt("login");
-    }), $("login-new").addEventListener("click", () => attempt("register")), $("logout").addEventListener("click", () => {
-      online.account.logout(), location.reload();
-    }), $("go-rpg").hidden = !0, online.account.hasToken() ? (say("Logging in…"), $("login").hidden = !1, online.account.resume().then(loggedIn).catch((e) => {
-      say(typeof e == "string" ? e : "", !!e), showLoggedOut();
-    })) : showLoggedOut();
-  } });
 
   // src/main.js
   boot();

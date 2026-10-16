@@ -43,6 +43,7 @@ const TALK={
     {if:{hat:1},say:['Did you find it? It\'s orange and pointy!']},
     {if:{hat:2},now:{set:{hat:3},item:'cap_cone',xp:40},say:['MY HAT! Thank you thank you! Here, take my spare lucky cone. Grandpa says it brings crits.'],then:{toast:'Quest done! +40 XP, Lucky cone{up}'}},
     {say:['I\'m going to be an adventurer just like you!']}]},
+  quill:{who:'Quill the scribe',rules:[{then:{open:'letter'}}]},
   tikka:{who:'Tikka',rules:[
     {if:{vexx:1},say:['A toast! To the kobold who sent King Vexx running! ...Not you, Toast. Sit down.']},
     {if:{gorb:1},say:['You beat Chief Gorb? I heard he cried. Toast says the next round is on the house!','Toast did not say that.']},

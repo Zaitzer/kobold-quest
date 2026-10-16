@@ -32,7 +32,7 @@ rpcv.addEventListener('click',e=>{
 $('rp-panel').addEventListener('click',rpMenuClick);
 $('rp-panel').addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button[data-dir]');if(b){rp.held=b.dataset.dir;rp.path=null;e.preventDefault()}});
 ['pointerup','pointercancel','pointerleave'].forEach(t=>$('rp-panel').addEventListener(t,()=>{rp.held=null}));
-document.addEventListener('keydown',e=>{if(view!=='rpg')return;if(e.target&&e.target.tagName==='INPUT'){if(e.key==='Enter'&&e.target.id==='kq-chat'){netSay(e.target.value);e.target.value='';e.preventDefault()}return}const k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(view!=='rpg')return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){if(e.key==='Enter'&&e.target.id==='kq-chat'){netSay(e.target.value);e.target.value='';e.preventDefault()}return}const k=e.key.toLowerCase();
   if(RP_KEYS[k]&&rp.mode==='map'){rp.keys.add(RP_KEYS[k]);rp.path=null;e.preventDefault();return}
   if(k==='h'||k==='i'){if(rp.mode==='map')rpHeroOpen(0);else if(rp.mode==='hero')rpHeroClose();return}
   if(k==='enter'||k===' '||k==='e'){if(rp.mode==='dialog'&&(!rp.dlg.choices||rp.dlg.i<rp.dlg.lines.length-1))rpDlgNext();else if(rp.mode==='map')rpMenuClick({target:{closest:()=>({disabled:false,dataset:{rp:'act'}})}});e.preventDefault()}});

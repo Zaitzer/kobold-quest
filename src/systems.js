@@ -51,3 +51,4 @@ import './net/gift.js';
 import './net/cloud.js';
 import './net/chat.js';
 import './net/market.js';
+import './net/mail.js';

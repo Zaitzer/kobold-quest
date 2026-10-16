@@ -2,7 +2,7 @@
 const {execFileSync}=require('child_process'),fs=require('fs'),path=require('path'),os=require('os');
 const R=path.join(__dirname,'..');execFileSync('node',[R+'/tools/build.js'],{stdio:'inherit'});
 const T=fs.mkdtempSync(path.join(os.tmpdir(),'kqpack-')),D=T+'/kobold-quest';fs.mkdirSync(D+'/server',{recursive:true});
-for(const f of ['main.js','world.js','store.js','package.json'])fs.copyFileSync(R+'/server/'+f,D+'/server/'+f);
+for(const f of ['main.js','world.js','store.js','mail.js','config.json','package.json'])fs.copyFileSync(R+'/server/'+f,D+'/server/'+f);
 fs.cpSync(R+'/server/node_modules',D+'/server/node_modules',{recursive:true});fs.cpSync(R+'/server/public',D+'/server/public',{recursive:true});
 for(const f of ['install.sh','Caddyfile','kobold-quest.service','README.md'])fs.copyFileSync(R+'/deploy/'+f,D+'/'+f);
 const build=fs.readFileSync(R+'/dist/BUILD','utf8').trim();fs.writeFileSync(D+'/server/BUILD',build);
