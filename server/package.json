@@ -1,0 +1,9 @@
+{
+  "name": "kobold-quest-server",
+  "private": true,
+  "description": "The shared world for Kobold Quest: accounts, presence, chat, co-op, market and saves",
+  "main": "main.js",
+  "scripts": { "start": "node main.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.18.0" }
+}

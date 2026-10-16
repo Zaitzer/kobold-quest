@@ -1,0 +1,8 @@
+# HTTPS certificates are fetched and renewed by Caddy automatically.
+joakimskar.no {
+	encode gzip
+	reverse_proxy 127.0.0.1:8080
+}
+www.joakimskar.no, joakimskar.com, www.joakimskar.com {
+	redir https://joakimskar.no{uri} permanent
+}

@@ -1,0 +1,19 @@
+[Unit]
+Description=Kobold Quest game server
+After=network.target
+
+[Service]
+User=kobold
+WorkingDirectory=/opt/kobold-quest/server
+Environment=PORT=8080 DATA=/var/lib/kobold-quest
+ExecStart=/usr/bin/node /opt/kobold-quest/server/main.js
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/kobold-quest
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

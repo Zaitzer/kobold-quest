@@ -1,0 +1,25 @@
+/* Side sheets: dialogue, menu, shop, level-up, class, smith, promotion. */
+.pill.go{background:var(--gel-gold);border-color:var(--line);color:#4a2400;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.pill.go:hover{background:var(--gel-gold)}
+.tdhint{margin:2px 0;font-weight:600;font-size:13px}
+.rpmsg{font-weight:800;font-size:14px;min-height:20px}
+.rpcmd{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:5px}
+.rpb{font:inherit;text-align:left;padding:6px 8px;border-radius:11px;border:2.5px solid var(--line);background:linear-gradient(#b9a8ff,#7a62e8);color:#fff;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:0 2px 0 var(--line);display:flex;flex-direction:column;touch-action:manipulation}
+.rpb small{font-size:10.5px;font-weight:600;opacity:.92;line-height:1.15}
+.rpb.go{background:linear-gradient(#ffe27a,#ffb347);color:#3a1d00}
+.rpb.sk{background:linear-gradient(#8fd8ff,#4a9fe0);color:#06223a}
+.rpb.it{background:linear-gradient(#c8ff9e,#7ad65a);color:#1e3a10}
+.rpb.x{background:#3a2a8a}
+.rpb:disabled{filter:grayscale(.7);opacity:.5;cursor:default}
+.rpdlg .who{font:400 17px/1.1 var(--font-display);color:#ffe27a;-webkit-text-stroke:1px var(--line);paint-order:stroke fill;margin-bottom:2px}
+.rpdlg p{margin:0 0 6px;font-weight:600;font-size:14.5px;line-height:1.35}
+.rpch{display:flex;gap:6px;flex-wrap:wrap}
+.rpmenu p{margin:0 0 6px;font-size:12.5px}
+.rpcmd.lvl{grid-template-columns:1fr 1fr}
+.rpcmd.lvl .rpb{padding:10px;font-size:15px}
+.rpb.on{outline:3px solid #fff;outline-offset:-1px}
+.rpb.mg{background:linear-gradient(#a8d8ff,#5a8fe0);color:#06223a}
+.rpb.set{background:linear-gradient(#c8ff9e,#5fb04a);color:#1e3a10}
+.mats{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.mat{font-size:11px;font-weight:800;padding:1px 7px;border-radius:9px;background:rgba(20,10,53,.55);border:1.5px solid var(--mc);color:var(--mc)}
+button,.rpb,.pill{touch-action:manipulation}

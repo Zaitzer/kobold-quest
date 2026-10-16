@@ -1,0 +1,33 @@
+/* Base: colours and fonts, buttons and pills shared by every screen. */
+:root{
+  color-scheme:dark;
+}
+body{color:var(--fg);font-family:var(--font-ui);font-size:15px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.view{display:flex;flex-direction:column;gap:12px}
+@keyframes pulse{50%{opacity:.25}}
+[hidden]{display:none!important}
+:root{
+  --bg:#2a1a73;--panel:#4a35b0;--panel-hi:#6150d6;--line:#140a35;--fg:#ffffff;--muted:#d9cfff;--amber:#ffd23f;
+  --font-display:'Lilita One','Luckiest Guy',ui-rounded,system-ui,sans-serif;
+  --font-ui:'Fredoka','Baloo 2',ui-rounded,'Trebuchet MS',system-ui,sans-serif;
+  --gel-blue:linear-gradient(#a99bff 0%,#7459ee 48%,#5a3fd2 52%,#7459ee 100%);
+  --gel-gold:linear-gradient(#fff6a8 0%,#ffcf2e 48%,#ffa800 52%,#ffcf2e 100%);
+  --gel-lime:linear-gradient(#d4ff9a 0%,#79e033 48%,#4cbc16 52%,#79e033 100%);
+  --gel-red:linear-gradient(#ffb0a8 0%,#ff6a5a 48%,#e83c2c 52%,#ff6a5a 100%);
+}
+body{line-height:1.35;-webkit-tap-highlight-color:transparent;
+  background:radial-gradient(ellipse 120% 70% at 50% 0%,#8a6bff 0%,#5136d0 40%,#24146e 100%) fixed;
+  font-weight:500;text-shadow:0 1px 0 rgba(20,10,53,.55);
+}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg at 50% 12%,rgba(255,255,255,.075) 0 5deg,transparent 5deg 10deg)}
+.pill{position:relative;border:3px solid var(--line);background:var(--gel-blue);color:#fff;border-radius:999px;padding:3px 18px;font-weight:700;font-size:15px;min-height:42px;
+  text-shadow:0 2px 0 rgba(20,10,53,.6);box-shadow:0 4px 0 var(--line),inset 0 2px 0 rgba(255,255,255,.6);transition:transform .07s,box-shadow .07s,filter .1s}
+.pill:hover{background:var(--gel-blue);filter:brightness(1.12)}
+.pill:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line),inset 0 2px 0 rgba(255,255,255,.4)}
+.pill[aria-pressed="true"]{background:var(--gel-lime);border-color:var(--line);color:#173300;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.pill:disabled{filter:grayscale(.85) brightness(.8);cursor:default;transform:none}
+html,body{overflow-x:clip;max-width:100%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}

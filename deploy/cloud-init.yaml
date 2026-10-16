@@ -1,0 +1,7 @@
+#cloud-config
+# Paste this into "Cloud config" when creating the server. It installs Kobold Quest and keeps it updated from GitHub.
+package_update: true
+packages: [git]
+runcmd:
+  - git clone https://github.com/Zaitzer/kobold-quest /opt/kobold-quest/repo
+  - bash /opt/kobold-quest/repo/deploy/bootstrap.sh

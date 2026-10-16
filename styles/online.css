@@ -1,0 +1,25 @@
+/* Playing with friends: lobby, chat, trading, market board. */
+.netrow{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:800;background:rgba(20,10,53,.55);border-radius:10px;padding:3px 4px 3px 8px;min-height:28px}
+.netrow i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7ad67a;margin-right:5px;vertical-align:1px}
+.netrow .pill{padding:3px 10px;font-size:12px}
+.lobp{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.lobp>small{width:100%;font-size:11px;font-weight:800;opacity:.85}
+.lobk{font:inherit;text-align:left;padding:5px 8px;border-radius:10px;border:2.5px solid var(--line);background:#3a2a8a;color:#fff;display:flex;flex-direction:column;font-size:12.5px;font-weight:800;min-width:96px}
+.lobk small{font-size:10px;font-weight:600;opacity:.9}
+.lobk.on{background:linear-gradient(#ffe27a,#ffb347);color:#3a1d00}
+.lobk.dn{opacity:.4}
+.lobk:disabled{cursor:default}
+.chatlog{max-height:120px;overflow-y:auto}
+.chatlog p{margin:2px 0;font-size:12.5px;line-height:1.3}
+.chatin{display:flex;gap:6px}
+.chatin input{flex:1;min-width:0;font:inherit;font-size:16px;padding:6px 10px;border-radius:10px;border:2.5px solid var(--line);background:#fff;color:#2a1a5e}
+.chatin .rpb{flex:none;justify-content:center}
+.says{display:flex;flex-wrap:wrap;gap:4px}
+.says .pill{padding:3px 9px;font-size:12.5px}
+.mktabs{display:flex;gap:6px;align-items:center;margin-top:4px}
+.mktabs .pill{padding:3px 12px}
+.mkgold{margin-left:auto;font-weight:800;color:#ffd54a}
+.mksell{grid-column:1/-1;margin:2px 0}
+.rptip.online{grid-column:1/-1;font-size:11.5px;margin:2px 0}
+#v-rpg[data-mode="map"] .rprow2 .pill[data-net="chat"]{flex:0 0 auto;padding:0 12px}
+#v-rpg[data-mode="map"] .netrow{position:absolute;top:48px;left:8px;max-width:44%}

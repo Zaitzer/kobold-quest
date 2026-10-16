@@ -1,0 +1,33 @@
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a1a73">
+<title>Kobold Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/*CSS*/
+</style>
+<section class="view title" id="v-title">
+  <div class="tlogo">Kobold<span>Quest</span></div>
+  <canvas id="title-cv" width="300" height="130" role="img" aria-label="Three kobolds ready for adventure"></canvas>
+  <form class="tlogin" id="login" hidden autocomplete="on">
+    <input id="login-name" name="username" autocomplete="username" placeholder="Kobold name" maxlength="16" autocapitalize="off" spellcheck="false" aria-label="Name">
+    <input id="login-pass" name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+    <div class="trow"><button class="pill go" id="login-go" type="submit">Log in</button><button class="pill" id="login-new" type="button">New account</button></div>
+    <p class="tlmsg" id="login-msg" role="status"></p>
+  </form>
+  <button class="bigplay" id="go-rpg" type="button">Play</button>
+  <p class="tuser" id="tuser" hidden>Playing as <b id="tuser-name"></b> · <button class="linkbtn" id="logout" type="button">Log out</button></p>
+  <div class="trow"><button class="pill" id="sound" type="button" aria-pressed="false">Sound off</button></div>
+  <p class="foot">&copy; 2004 Kobold Studios &middot; Best played sideways &middot; You are visitor <b>#0013337</b></p>
+</section>
+<section class="view rpview" id="v-rpg" hidden>
+  <div class="rptop" id="rp-top"><div id="rp-topt"></div></div>
+  <div class="rpboard"><canvas id="rpcv" role="img" aria-label="The world of Kobold Quest"></canvas></div>
+  <div class="rppanel" id="rp-panel"></div>
+  <div class="rphero" id="rp-hero" hidden></div>
+</section>
+<div id="boot" role="status"><div class="logo">Kobold<span>Quest</span></div><div class="bar"><i id="boot-bar"></i></div><p id="boot-t">Loading... 0%</p><small>Click anywhere to skip</small></div>
+<script>
+/*JS*/
+</script>
