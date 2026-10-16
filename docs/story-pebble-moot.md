@@ -81,7 +81,7 @@ All of it uses what the game already has; the only new kinds of thing are toll g
 
 ## Delivery (each part playable on its own)
 
-1. **Opening + Pebblebrook + Copperhollow:** steps 1–6b, the toll gates and the cave darkness.
+1. **Opening + Pebblebrook + Copperhollow:** steps 1–6b, the toll gates and the cave darkness. *Built.*
 2. **Thistledown + Sunhaven + Emberreach:** seals 3–5, the desert heat.
 3. **Frostwick + Glimmerfen:** seals 6–7, snow.
 4. **Saltspray + Brindlecove:** the boss and the last seal.

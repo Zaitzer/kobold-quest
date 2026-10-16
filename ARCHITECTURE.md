@@ -53,6 +53,8 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
 
 ## Content is data
 
+* **The story** is the Pebble Moot (`docs/story-pebble-moot.md`): quest flags are listed at the top of `data/dialogue.js`,
+  barriers across routes (`BARRIERS` in `data/overworld.js`) open on those flags, and `test/logic/moot.test.js` plays it through.
 * **Dialogue and quests** are rules in `data/dialogue.js`, read by `core/rules.js`. Each villager has a list of
   rules; the first whose `if` holds speaks. Effects (`set`, `add`, `gold`, `xp`, `item`, `join`, `fight`, `toast`…)
   run `now`, `then`, or on a choice. The quest log and the top-bar quest line are rule lists too.

@@ -4,14 +4,14 @@ import {run,test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
 import {rp,rpApplyWorld,rpPlace} from '../core/state.js';
 import {RP_IT} from '../data/items.js';
-import {OLD_H,OLD_W,WH,WW,overworldArea} from '../data/overworld.js';
+import {BARRIERS,OLD_H,OLD_W,SOLID_HERE,WH,WW,build,overworldArea} from '../data/overworld.js';
 import {RP_DOORS,RP_PLACES} from '../data/places.js';
 import {RP_NPC} from '../data/quests.js';
 import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay} from './dialogue.js';
 import {rpGive,rpItemDesc} from './items.js';
-function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);const c=rp.grid[y][x];if(c==='K'||c==='X')return"Dragon's Hoard";if(c==='C'||c==='g'||c==='c')return'Mushroom Cave';if(x<17&&y<15)return'Whisper Woods';if(y<15)return'North Road';if(x<14&&y>16)return'Burrowhome';return'Bandit Meadow'}
+function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Moot Meadow'}
 function rpNpcs(){const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
 function rpNpcAt(x,y){return rpNpcs().find(n=>n.x===x&&n.y===y)}
 function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
@@ -24,9 +24,6 @@ function rpLeavePlace(){const s=rp.s,id=s.place;const door=Object.keys(RP_DOORS)
   /* step out south of the door, or beside that if someone is standing there */
   if(door){const [x,y]=door.split(',').map(Number);const spot=[[0,1],[-1,1],[1,1],[0,2],[-1,2],[1,2]].find(([dx,dy])=>!rpSolid(x+dx,y+dy))||[0,1];s.x=x+spot[0];s.y=y+spot[1]}
   rp.pos=null;rp.path=null;rp.held=null;rp.grace=4;emit('place:leave',id);rpSave()}
-function rpGate(){const q=rp.s.q;if(q.gate)return;
-  if(q.key){q.gate=1;rp.grid[7][20]='K';rp.mapImg=null;rpSay([{who:'',text:'Gorb\'s key turns with a groan. The gate of the Dragon\'s Hoard swings open.'}]);sfx('win')}
-  else rpSay([{who:'',text:'A huge iron gate. It has a keyhole the size of a fist.'}])}
 function rpBfs(tx,ty,toNeighbor){
   const s=rp.s,key=(x,y)=>x+','+y,prev={},q=[[s.x,s.y]];let seen=0;prev[key(s.x,s.y)]=null;
   while(q.length){const [x,y]=q.shift();
@@ -46,11 +43,23 @@ function rpOpenChest(c){const s=rp.s;s.chests.push(rpChestKey(c));s.gold+=c.gold
 /* a save from a bigger or older world can stand somewhere that is now a wall or off the map: go home */
 feature({id:'world-fit',on:{'game:start'(){const s=rp.s;if(s.place&&!RP_PLACES[s.place]){delete s.place;rpApplyWorld()}
   if(!s.place&&(s.y>=WH||s.x>=WW||rpSolid(s.x,s.y))){s.x=7;s.y=23;s.face='down';rp.pos=null;rpSave()}}}});
-feature({id:'doors',tiles:{d:{use:(x,y)=>rpDoor(x,y)},X:{use:()=>rpGate()}}});
+feature({id:'doors',tiles:{d:{use:(x,y)=>rpDoor(x,y)}}});
+/* barriers across routes (BARRIERS in data/overworld.js): laid on open ground until their `until` holds */
+let barrierSig='';
+function rpBarriers(){barrierSig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'+(rp.s.place||'');if(rp.s.place||!rp.grid)return;const B=build().G;let changed=false;
+  for(const b of BARRIERS){const shut=!test(b.until);
+    for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++){const base=B[y][x];if(SOLID_HERE.has(base))continue;const want=shut?b.tile:base;if(rp.grid[y][x]!==want){rp.grid[y][x]=want;changed=true}}}
+  if(changed)rp.mapImg=null}
+const BARRIER_SAY={
+  Y:'A toll gate of planks and rope. "999 GOLD A KOBOLD, by order of Warden Snatchclaw." Nobody has 999 gold. That is the point.',
+  R:'A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.',
+  Z:'The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern.'};
+feature({id:'barriers',on:{'world:apply':rpBarriers},frame(){if(!rp.s)return;const sig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'+(rp.s.place||'');if(sig!==barrierSig)rpBarriers()},
+  tiles:{Y:{use:()=>rpSay([{who:'',text:BARRIER_SAY.Y}])},R:{use:()=>rpSay([{who:'',text:BARRIER_SAY.R}])},Z:{use:()=>rpSay([{who:'',text:BARRIER_SAY.Z}])}}});
 
 /* pickups and quest spots: when Pip steps on a tile (see RP_PICKUPS and RP_SPOTS) */
 feature({id:'pickups',on:{'tile:enter'(x,y,c){
   if(c==='e'&&rp.s.place){rpLeavePlace();return}
   const P=RP_PICKUPS[c];if(P){rp.grid[y][x]=P.becomes;rp.s.taken.push([x,y]);rp.mapImg=null;run(P.do)}
   for(const sp of RP_SPOTS)if((sp.place||'world')===rpPlace()&&sp.x===x&&sp.y===y&&test(sp.if)){if(sp.sfx&&!rp.headless)sfx(sp.sfx);run(sp.do)}}}});
-export {rpArea,rpBfs,rpChestAt,rpChestKey,rpDoor,rpEnterPlace,rpGate,rpLeavePlace,rpNpcAt,rpNpcs,rpOpenChest,rpSolid};
+export {BARRIER_SAY,barrierSig,rpArea,rpBarriers,rpBfs,rpChestAt,rpChestKey,rpDoor,rpEnterPlace,rpLeavePlace,rpNpcAt,rpNpcs,rpOpenChest,rpSolid};

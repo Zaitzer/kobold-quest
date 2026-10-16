@@ -202,6 +202,17 @@ const COTTAGES=[
   ['wwwwwwwwww','wssffffxfw','wffffffffw','wfltlffoow','wffffffffw','wyfrrrrffw','wwwwewwwww']];
 const LODGE=['wwwwwwwwwwwww','whfffsssfffow','wfffkkkkkfffw','wffffffffffow','wltlffffltlfw','wffffffffffyw','wffrrrrrrrffw','wffffffffffyw','wwwwwwewwwwww'];
 
+/* Barriers laid across a route until the story clears them (game/world.js lays them; `until` is a rule condition).
+   Each rect cuts its route from wall to wall; test/logic/moot.test.js checks that. */
+const BARRIERS=[
+  {id:'toll4',tile:'Y',x0:110,x1:119,y0:55,y1:55,until:{bc:1},route:'Route 4'},
+  {id:'toll6',tile:'Y',x0:55,x1:55,y0:130,y1:139,until:{bc:1},route:'Route 6'},
+  {id:'toll5',tile:'Y',x0:20,x1:39,y0:155,y1:155,until:{bc:1},route:'Route 5'},
+  {id:'toll12',tile:'Y',x0:305,x1:305,y0:180,y1:199,until:{bc:1},route:'Route 12'},
+  {id:'slide7',tile:'R',x0:315,x1:315,y0:50,y1:59,until:{fw:3},route:'Route 7'},
+  {id:'dark8',tile:'Z',x0:270,x1:279,y0:85,y1:85,until:{lantern:1},route:'Route 8'}];
+/* a spot near a town's square (dx, dy from the middle of the square), for villagers */
+function townSpot(L,dx,dy){const t=build().towns.find(t=>t.L===L);return{x:t.x+dx,y:t.y+dy}}
 /* the name for the top bar */
 function overworldArea(x,y){const B=build(),c=Math.floor(x/CELL),r=Math.floor(y/CELL),ch=cellAt(c,r);
   if(isTown(ch))return TOWNS[ch].name;const rt=B.routes.of(c,r);return rt?rt.name:'The wilds'}
@@ -213,4 +224,4 @@ function makeWorldGrid(oldRows){const B=build(),rows=new Array(WH);
   for(let y=0;y<WH;y++){const r=B.G[y].slice();if(y<OLD_H)for(let x=0;x<OLD_W;x++)r[x]=oldRows[y][x];rows[y]=r}
   return rows}
 build();
-export {BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,overworldArea,regionSign,routeTile,signText,sites,vnoise,voidTile,wallOf};
+export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,overworldArea,regionSign,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};

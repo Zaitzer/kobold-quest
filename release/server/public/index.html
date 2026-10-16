@@ -784,7 +784,18 @@ button,.rpb,.pill{touch-action:manipulation}
     ["wwwwwwwww", "whffsffpw", "wffffffpw", "wfftlfffw", "wyffrrffw", "wffffffow", "wwwwewwww"],
     ["wwwwwwwwwww", "wpfsssffhfw", "wpfffffffyw", "wfffftffffw", "wffflflfffw", "wofrrrrrfow", "wwwwwewwwww"],
     ["wwwwwwwwww", "wssffffxfw", "wffffffffw", "wfltlffoow", "wffffffffw", "wyfrrrrffw", "wwwwewwwww"]
-  ], LODGE = ["wwwwwwwwwwwww", "whfffsssfffow", "wfffkkkkkfffw", "wffffffffffow", "wltlffffltlfw", "wffffffffffyw", "wffrrrrrrrffw", "wffffffffffyw", "wwwwwwewwwwww"];
+  ], LODGE = ["wwwwwwwwwwwww", "whfffsssfffow", "wfffkkkkkfffw", "wffffffffffow", "wltlffffltlfw", "wffffffffffyw", "wffrrrrrrrffw", "wffffffffffyw", "wwwwwwewwwwww"], BARRIERS = [
+    { id: "toll4", tile: "Y", x0: 110, x1: 119, y0: 55, y1: 55, until: { bc: 1 }, route: "Route 4" },
+    { id: "toll6", tile: "Y", x0: 55, x1: 55, y0: 130, y1: 139, until: { bc: 1 }, route: "Route 6" },
+    { id: "toll5", tile: "Y", x0: 20, x1: 39, y0: 155, y1: 155, until: { bc: 1 }, route: "Route 5" },
+    { id: "toll12", tile: "Y", x0: 305, x1: 305, y0: 180, y1: 199, until: { bc: 1 }, route: "Route 12" },
+    { id: "slide7", tile: "R", x0: 315, x1: 315, y0: 50, y1: 59, until: { fw: 3 }, route: "Route 7" },
+    { id: "dark8", tile: "Z", x0: 270, x1: 279, y0: 85, y1: 85, until: { lantern: 1 }, route: "Route 8" }
+  ];
+  function townSpot(L, dx, dy) {
+    let t = build().towns.find((t2) => t2.L === L);
+    return { x: t.x + dx, y: t.y + dy };
+  }
   function overworldArea(x, y) {
     let B = build(), c = Math.floor(x / CELL), r = Math.floor(y / CELL), ch = cellAt(c, r);
     if (isTown(ch)) return TOWNS[ch].name;
@@ -822,7 +833,12 @@ button,.rpb,.pill{touch-action:manipulation}
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c);
     }, hash = (x, y) => (x * 73856093 ^ y * 19349663) >>> 0;
     for (let y = 1; y <= 13; y++) for (let x = 1; x <= 16; x++) set(x, y, hash(x, y) % 5 < 2 ? "T" : ";");
-    rect(17, 8, 38, 14, "."), rect(17, 0, 23, 7, "W"), rect(18, 1, 22, 6, "K"), set(20, 7, "X"), rect(24, 0, 38, 12, "#"), rect(26, 2, 37, 10, "C"), [[29, 4], [30, 4], [33, 7], [34, 7], [28, 8], [35, 3], [36, 9]].forEach(([x, y]) => set(x, y, "#")), set(35, 3, "C"), rect(31, 11, 31, 11, "c"), rect(1, 15, 38, 16, "~"), set(20, 15, "b"), set(20, 16, "b"), rect(14, 17, 38, 28, "."), [[16, 19, 22, 22], [26, 18, 33, 21], [24, 24, 30, 27], [33, 23, 37, 27], [15, 25, 20, 28]].forEach((r) => rect(r[0], r[1], r[2], r[3], ",")), rect(1, 17, 13, 28, ".");
+    rect(17, 1, 38, 14, "."), [[18, 2, 23, 5], [27, 9, 33, 12], [33, 2, 37, 5], [24, 6, 27, 8]].forEach((r) => rect(r[0], r[1], r[2], r[3], ",")), [[25, 1], [26, 1], [25, 2], [30, 6], [31, 6], [30, 7], [36, 8], [37, 8], [37, 9], [18, 10], [18, 11], [34, 13], [35, 13]].forEach(([x, y]) => set(x, y, "#")), rect(28, 2, 31, 4, "~");
+    for (let i = 0; i < 10; i++) {
+      let x = 17 + hash(i, 11) % 22, y = 1 + hash(i, 13) % 14;
+      g[y][x] === "." && set(x, y, "F");
+    }
+    rect(1, 15, 38, 16, "~"), set(20, 15, "b"), set(20, 16, "b"), rect(14, 17, 38, 28, "."), [[16, 19, 22, 22], [26, 18, 33, 21], [24, 24, 30, 27], [33, 23, 37, 27], [15, 25, 20, 28]].forEach((r) => rect(r[0], r[1], r[2], r[3], ",")), rect(1, 17, 13, 28, ".");
     for (let i = 0; i < 14; i++) {
       let x = 1 + hash(i, 3) % 13, y = 17 + hash(i, 7) % 12;
       set(x, y, "F");
@@ -833,23 +849,21 @@ button,.rpb,.pill{touch-action:manipulation}
     house(2, 18, 4, 3, 1), house(9, 18, 4, 3, 2), house(2, 24, 4, 3, 2);
     for (let x = 3; x <= 20; x++) set(x, 22, "=");
     for (let y = 17; y <= 22; y++) set(20, y, "=");
-    for (let y = 8; y <= 14; y++) set(20, y, "=");
+    for (let y = 5; y <= 14; y++) set(20, y, "=");
     for (let x = 8; x <= 20; x++) set(x, 12, "=");
     for (let y = 5; y <= 12; y++) set(8, y, "=");
-    for (let x = 20; x <= 31; x++) set(x, 13, "=");
-    set(31, 12, "=");
     for (let y = 21; y <= 22; y++)
       set(3, y, "="), set(11, y, "=");
     set(4, 27, "="), house(6, 2, 4, 3, 2), rect(5, 5, 11, 6, ";");
     for (let y = 5; y <= 12; y++) set(8, y, "=");
     for (let x = 0; x < RW; x++)
-      set(x, 0, x >= 17 && x <= 23 ? "W" : "#"), set(x, RH - 1, "#");
+      set(x, 0, "#"), set(x, RH - 1, "#");
     for (let y = 0; y < RH; y++)
       set(0, y, "#"), set(RW - 1, y, "#");
     for (let x = 21; x < RW; x++) set(x, 22, "=");
-    return set(RW - 1, 23, "="), set(4, 28, "="), set(4, RH - 1, "="), [[27, 3], [36, 5], [29, 9]].forEach(([x, y]) => set(x, y, "g")), g;
+    return set(RW - 1, 23, "="), set(4, 28, "="), set(4, RH - 1, "="), g;
   }
-  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", "P", "q", "n", "i", "O", ...RP_ROOM_SOLID]), RP_CHESTS = [
+  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", "P", "q", "n", "i", "O", "U", "Y", "R", "Z", ...RP_ROOM_SOLID]), RP_CHESTS = [
     { x: 13, y: 28, it: "sh_lid", gold: 10 },
     { x: 37, y: 27, it: "bt_frog", gold: 20 },
     { x: 2, y: 12, it: "cl_moss", gold: 25 },
@@ -857,12 +871,20 @@ button,.rpb,.pill{touch-action:manipulation}
     { x: 18, y: 1, it: "rg_haste", gold: 80 },
     { place: "elder", x: 9, y: 5, it: "rg_life", gold: 15 },
     { place: "hut", x: 9, y: 6, it: "am_shell", gold: 25 }
-  ], RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, RP_PICKUPS = { g: { becomes: "C", do: { add: { glow: 1 }, toast: "Found a glowcap! ({glow} found)", save: !0 } } }, RP_SPOTS = [
+  ], RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, RP_PICKUPS = {}, RP_SPOTS = [
     { id: "hat", x: 30, y: 20, if: { hat: 1 }, do: { set: { hat: 2 }, toast: "Found Pebble's hat!", save: !0 }, sfx: "win", draw: "hat" },
     { id: "needles", place: "hut", x: 2, y: 6, if: { needles: 1 }, do: { set: { needles: 2 }, toast: "Found Granny Nettle's knitting needles!", save: !0 }, sfx: "win", draw: "needles" }
-  ];
+  ], VALLEY_SIGNS = {
+    "14,23": "THE PEBBLE MOOT! Every kobold gets one pebble. Hear the candidates on the green, then drop yours in the urn.",
+    "21,5": "Pebble Hills. Lovely view. Lots of tall grass. Watch your tail.",
+    "21,14": "North: Pebble Hills. West: Whisper Woods and Witch Yarrow's hut."
+  };
   function rpWorldExtras(g) {
-    g[27][12] = "S", g[19][7] = "N", g[25][11] = "A", g[21][8] = "M";
+    g[27][12] = "S", g[19][7] = "N", g[25][11] = "A", g[21][8] = "M", g[26][17] = "U";
+    for (let k in VALLEY_SIGNS) {
+      let [x, y] = k.split(",").map(Number);
+      g[y][x] = "i";
+    }
   }
 
   // src/data/classes.js
@@ -1448,17 +1470,63 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/data/dialogue.js
-  var TALK = {
+  var PIP = "Pip", COUNT = {
+    skip: { say: "Snatchclaw 19, Gristle 16, Mumbletoes 4. Thirty-nine pebbles out of a hundred kobolds. Sixty-one stayed home. Including you, I noticed.", after: "He won by three pebbles. Three." },
+    blank: { say: "Snatchclaw 19, Gristle 16, Mumbletoes 4, and one blank pebble. Forty kobolds came to the urn. Sixty stayed home.", after: 'The blank one was yours, I guess. It was counted: everyone saw one kobold come and say "none of you". The sixty at home said nothing at all.' },
+    gristle: { say: "Snatchclaw 19, Gristle 17, Mumbletoes 4. Forty kobolds came to the urn. Sixty stayed home.", after: "Your pebble counted. He still won by two. If two of the sixty had bothered..." },
+    mumble: { say: "Snatchclaw 19, Gristle 16, Mumbletoes 5. Forty kobolds came to the urn. Sixty stayed home.", after: "Your pebble counted. He still won by three. Three of the sixty at home could have changed everything." },
+    snatch: { say: "Snatchclaw 20, Gristle 16, Mumbletoes 4. Forty kobolds came to the urn. Sixty stayed home.", after: "He won by four. Yours was one of them. Well. The cart rolls where it is shoved." }
+  }, RESULT_TAIL = [
+    'So Snatchclaw is our Warden. His first order: toll gates on the roads to Thistledown, the coast and the south. 999 gold a kobold. His "accountants" collect it.',
+    "There is one old law, older than me, which is saying something. If every town in the land sets its seal on a petition, a new Moot must be held.",
+    "Start with Pebblebrook, east along Route 1. The road south from there is tolled now, so you will have to take the long way. Good luck, Pip."
+  ], resultRule = (v) => ({ if: { moot: 3, vote: v }, say: ["The pebbles are counted.", COUNT[v].say, COUNT[v].after].concat(RESULT_TAIL), then: { set: { moot: 5 }, toast: "New quest: a seal from every town" } }), YARROW_OPEN = "Ah, Pip. Mumble says it is pebble day. Did you choose?", YARROW_SHOVE = [`A pebble isn't a love letter, Pip. You are not saying "I adore you, Gristle."`, "It's a shove. The cart rolls either way. A pebble only says which ditch you would rather it missed."], YARROW_END = ["Now. I have a feeling about tonight's count, and my feelings are rarely wrong. Take Wizzle with you. He has never seen the world, and the world should see him. He's just outside."], yarrowRule = (v, pip, extra) => ({ if: { moot: 2, vote: v }, now: { set: { moot: 3 } }, say: [YARROW_OPEN, { who: PIP, text: pip }].concat(extra, YARROW_END), then: { toast: "Back to Elder Mumble for the count" } }), miner = (id, excuse, answer, yes, idle, after) => ({ who: null, rules: [
+    { if: { ch: 1, ["m_" + id]: 0 }, say: [excuse, { who: PIP, text: answer }, yes], then: { set: { ["m_" + id]: 1 }, add: { miners: 1 }, toast: "{miners} of 4 miners will come to the meeting" } },
+    { if: { ch: { gte: 1 } }, say: [after] },
+    { say: [idle] }
+  ] }), TALK = {
     elder: { who: "Elder Mumble", rules: [
+      { if: { moot: 0 }, say: ["Pip! Big day. The Pebble Moot is today: every kobold in Burrowhome gets one pebble to choose our next Warden.", "Here is yours. The three candidates are on the green east of here, and the urn is just below them. Drop your pebble in. Or don't. It's your pebble."], then: { set: { moot: 1 }, toast: "Got a voting pebble" } },
+      { if: { moot: 1 }, say: ["Gristle, Mumbletoes and Snatchclaw are on the green, and the urn is right below them. Choose well, or at least choose."] },
+      { if: { moot: 2 }, say: ["The counting takes until sundown. Kobolds count slowly; we keep eating the pebbles.", "Witch Yarrow sent word that she wants to see you. Over the bridge north, then west into Whisper Woods."] },
+      resultRule("skip"),
+      resultRule("blank"),
+      resultRule("gristle"),
+      resultRule("mumble"),
+      resultRule("snatch"),
+      { if: { moot: 3 }, say: ["The pebbles are counted. Snatchclaw is our Warden, and he has put toll gates on the roads."].concat(RESULT_TAIL.slice(1)), then: { set: { moot: 5 }, toast: "New quest: a seal from every town" } },
+      { if: { moot: 5 }, say: ["Seals on the petition: {seals} of 8. Every town has its own reason to sign. Find it, and you'll find the seal."] },
+      { say: ["Burrowhome is waiting, little one."] }
+    ] },
+    urn: { who: "The Moot urn", rules: [
+      { if: { moot: 0 }, say: ["The Moot urn. You need a voting pebble from Elder Mumble first. He is by his house, south-west of here."] },
       {
-        if: { q1: 0 },
-        say: ["Ah, young Pip. Bandits from the Mossback clan have taken over the meadow east of the village.", "Knock out five of them and Guard Flint will let you cross the bridge north. The world is bigger than Burrowhome, you know."],
-        ask: [{ t: "I will do it!", do: { set: { q1: 1 }, toast: "New quest: clear the meadow bandits" } }, { t: "Maybe later" }]
+        if: { moot: 1 },
+        say: ["The Moot urn. Pebbles clink inside.", { who: PIP, text: "A wall-builder, a slowpoke and a smiling bandit-friend." }, { who: PIP, text: "Trash, garbage, or trash wearing a crown. Why bother choosing?" }],
+        ask: [
+          { t: "Pebble for Gristle", do: { set: { vote: "gristle", moot: 2 }, toast: "You voted for Gristle" } },
+          { t: "Pebble for Mumbletoes", do: { set: { vote: "mumble", moot: 2 }, toast: "You voted for Mumbletoes" } },
+          { t: "Pebble for Snatchclaw", do: { set: { vote: "snatch", moot: 2 }, toast: "You voted for Snatchclaw" } },
+          { t: "A blank pebble: none of you", do: { set: { vote: "blank", moot: 2 }, toast: "You dropped a blank pebble" } },
+          { t: "Keep the pebble. Why bother?", do: { set: { vote: "skip", moot: 2 }, toast: "You kept your pebble" } }
+        ]
       },
-      { if: { q1: 1, kills: { lt: 5 } }, say: ["Bandits knocked out: {kills} of 5. The tall grass east of here is where they lurk."] },
-      { if: { q1: 1 }, now: { set: { q1: 2 }, gold: 60 }, say: ["Five bandits! You are braver than your grandmother, and she bit a bear.", "Here are 60 gold. Flint will let you over the bridge now. They say a witch in the woods knows the way to the old hoard."], then: { toast: "Quest done! +60 gold" } },
-      { if: { vexx: 1 }, say: ["The hoard is ours again! Burrowhome will sing about you for a hundred years."] },
-      { say: ["King Vexx sits on the stolen hoard in the north. Be careful, little one."] }
+      { say: ["The urn is sealed with wax until the next Moot."] }
+    ] },
+    gristle: { who: "Gristle", rules: [
+      { if: { moot: { lt: 2 } }, say: ["GRISTLE FOR WARDEN! I will build a wall around Burrowhome. A big one. With a smaller wall inside it, for emergencies.", "Who pays? The mushroom farmers. They have mushrooms. Mushrooms are basically money."] },
+      { if: { moot: { lt: 3 } }, say: ["Whatever the urn says, the wall is a good idea. Walls are always a good idea. Ask any wall."] },
+      { say: ["I lost. But I'm not going anywhere. Next Moot, the wall will be TWICE as big."] }
+    ] },
+    mumbletoes: { who: "Mumbletoes", rules: [
+      { if: { moot: { lt: 2 } }, say: ["Oh! Hello. I'm Mumbletoes. I would like to fix the bridge, and the well, and the school roof...", "I made a list. It is very long. I am on page two of reading it. Please be patient, I am very honest."] },
+      { if: { moot: { lt: 3 } }, say: ["I hope people voted. I hope they voted for me. Mostly the first one. Also the second one."] },
+      { if: { seals: { lt: 2 } }, say: ["I came last. I think I read my list too slowly.", "If you find out what people actually want out there, Pip, could you tell me? I would write it on page one."] },
+      { say: ["Two seals already! I have been practising reading faster. I am on page three."] }
+    ] },
+    snatchclaw: { who: "Snatchclaw", rules: [
+      { if: { moot: { lt: 2 } }, say: ["Friends! Snatchclaw here. Lower taxes! Free mushrooms! A party every night!", "How will I pay for it? Ha ha! Next question. Don't mind my friends at the back. They are... accountants."] },
+      { say: ["The pebbles are being counted, little friend. I have a very good feeling. My accountants counted them already."] }
     ] },
     toast: { who: "Toast", rules: [
       {
@@ -1467,39 +1535,25 @@ button,.rpb,.pill{touch-action:manipulation}
       }
     ] },
     biscuit: { who: "Biscuit the trader", rules: [{ then: { open: "shop" } }] },
-    bork: { who: "Bork", rules: [
-      {
-        say: ["Bork. Bork hits things with bone. Bork hits YOUR enemies with bone, for 40 gold."],
-        ask: [{ t: "Hire Bork (40 gold)", if: { gold: { gte: 40 }, party: { lt: 3 } }, do: { gold: -40, set: { bork: 1 }, join: { name: "Bork", cls: "warrior", min: 1 }, toast: "Bork joins the party!" } }, { t: "Not now" }]
-      }
-    ] },
-    flint: { who: "Guard Flint", rules: [
-      { if: { q1: { gte: 2 } }, say: ["Off you go! Stay on the road if you want to keep your tail."] },
-      { say: ["Nobody crosses until the meadow bandits are dealt with. Elder's orders."] }
-    ] },
     yarrow: { who: "Witch Yarrow", rules: [
-      {
-        if: { q2: 0 },
-        say: ["A kobold from the village! How brave, how damp.", "The way to the Dragon's Hoard is locked, and Chief Gorb of the Mushroom Cave carries the key.", "I need three glowcaps from that cave for my brew. Bring them, and my apprentice Wizzle will go with you."],
-        ask: [{ t: "I will find them", do: { set: { q2: 1 }, toast: "New quest: find 3 glowcaps" } }, { t: "Not yet" }]
-      },
-      { if: { q2: 1, glow: { lt: 3 } }, say: ["Glowcaps: {glow} of 3. They grow on the cave floor, east past the bridge road."] },
-      { if: { q2: 1 }, now: { set: { q2: 2, wizzle: 1 }, bag: { ether: 2 }, join: { name: "Wizzle", cls: "mage", min: 2, slot: 2 } }, say: ["Lovely, they still wiggle! Wizzle, pack your staff. You are going on an adventure."], then: { toast: "Wizzle joins the party! +2 ethers" } },
-      { if: { q2: { gte: 2 }, wizzle: 0 }, now: { set: { wizzle: 1 }, bag: { ether: 2 }, join: { name: "Wizzle", cls: "mage", min: 2, slot: 2 } }, say: ["Your friend already brought me the glowcaps. Wizzle, go with this one too!"], then: { toast: "Wizzle joins the party! +2 ethers" } },
-      { say: ["Gorb is big but slow. Keep your healers healthy and your stick sharp."] }
+      { if: { moot: { lt: 2 } }, say: ["Pebble day, is it? Go and look at your candidates, little Pip. Then come and tell me what you did."] },
+      yarrowRule("skip", "I kept my pebble. They're all trash. Why pick between trash and garbage?", YARROW_SHOVE.concat(["Keeping your pebble doesn't stop the cart, Pip. It only means somebody else does the shoving."])),
+      yarrowRule("blank", "I dropped a blank one. None of them deserved it.", ['Good! A blank pebble is counted. Everyone sees that one kobold came, and said "not good enough".'].concat(YARROW_SHOVE, ["Next time, ask yourself which of them would do the least damage. That is also a fine reason to shove."])),
+      yarrowRule("gristle", "I picked Gristle. Not because I like walls. The others just seemed worse.", ["That is exactly what a pebble is for."].concat(YARROW_SHOVE)),
+      yarrowRule("mumble", "I picked Mumbletoes. He's slow, but at least he's honest.", ["That is exactly what a pebble is for."].concat(YARROW_SHOVE)),
+      yarrowRule("snatch", "I picked Snatchclaw. Free mushrooms!", YARROW_SHOVE.concat(["Snatchclaw, though? Hmm. Did you ask who his friends at the back were?"])),
+      { if: { moot: 2 }, now: { set: { moot: 3 } }, say: [YARROW_OPEN].concat(YARROW_SHOVE, YARROW_END) },
+      { say: ["A pebble isn't a love letter, Pip. It's a shove."] }
     ] },
-    wizzle: { who: "Wizzle", rules: [{ say: ["Grandmother Yarrow says I can only come along if you help her first."] }] },
-    scout: { who: "Wounded scout", rules: [
-      { if: { gorb: 1 }, say: ["You beat Gorb? Then the hoard gate in the north can finally open!"] },
-      { say: ["Chief Gorb lives deep in that cave. He carries the key to the Dragon's Hoard. His club hits everyone at once, so bring potions."] }
+    wizzle: { who: "Wizzle", rules: [
+      { if: { moot: { gte: 3 } }, now: { set: { wizzle: 1 }, bag: { ether: 2 }, join: { name: "Wizzle", cls: "mage", min: 2, slot: 2 } }, say: ["Grandma says I'm going with you! I packed my staff, two ethers and a sandwich. I ate the sandwich."], then: { toast: "Wizzle joins the party! +2 ethers" } },
+      { say: ["Grandma says I can come on an adventure one day. She says that every day."] }
     ] },
-    gorb: { who: "Chief Gorb", rules: [{ say: ["WHO STEPS ON GORB'S MUSHROOMS?", "Gorb will flatten you!"], ask: [{ t: "Fight!", do: { fight: [["gorb", "shaman"], { boss: "gorb" }] } }, { t: "Run away" }] }] },
-    vexx: { who: "King Vexx", rules: [{ say: ["So, a village kobold walks into my hoard. Every coin here is mine, and so is every kobold.", "Guards! Show this pup the way out."], ask: [{ t: "For Burrowhome!", do: { fight: [["guard", "vexx", "guard"], { boss: "vexx" }] } }, { t: "Step back" }] }] },
     clink: { who: "Clink the smith", rules: [
       { if: { forge: 0, smith: 1, "mat.spore": { gte: 3 } }, say: ["Glow spores! Watch this...", "FWOOM. The big forge is lit! Now I can put new bonuses on your gear."], then: { mat: { spore: -3 }, set: { forge: 1, smith: 2 }, xp: 100, toast: "Quest done! +100 XP{up}" } },
       {
         if: { smith: 0 },
-        say: ["A new face! I forge gear from monster bits: moss from the meadow, frost shards from the woods, spores from the cave, gold scrap from the hoard.", "My big forge is cold though. Three glow spores from cave monsters would light it."],
+        say: ["A new face! I forge gear from monster bits: moss from the tall grass, frost shards from the woods, spores from cave critters.", "My big forge is cold though. Three glow spores would light it. The critters in the old tunnel south of Copperhollow have them."],
         ask: [{ t: "I'll bring spores", do: { set: { smith: 1 }, toast: "New quest: 3 glow spores for Clink" } }, { t: "Show me your wares", do: { set: { smith: 1 }, open: "smith" } }]
       },
       { then: { open: "smith" } }
@@ -1508,30 +1562,89 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { hat: 0 }, say: ["Waaah! The wind took my lucky hat into the meadow! It's somewhere in the tall grass, east of the bridge road."], ask: [{ t: "I'll find it", do: { set: { hat: 1 }, toast: "New quest: find Pebble's hat" } }, { t: "Sorry, busy" }] },
       { if: { hat: 1 }, say: ["Did you find it? It's orange and pointy!"] },
       { if: { hat: 2 }, now: { set: { hat: 3 }, item: "cap_cone", xp: 40 }, say: ["MY HAT! Thank you thank you! Here, take my spare lucky cone. Grandpa says it brings crits."], then: { toast: "Quest done! +40 XP, Lucky cone{up}" } },
-      { say: ["I'm going to be an adventurer just like you!"] }
+      { say: ["When I'm big I'm going to vote EVERY time. Twice!", "...Mum says only once."] }
     ] },
     quill: { who: "Quill the scribe", rules: [{ then: { open: "letter" } }] },
     tikka: { who: "Tikka", rules: [
-      { if: { vexx: 1 }, say: ["A toast! To the kobold who sent King Vexx running! ...Not you, Toast. Sit down."] },
-      { if: { gorb: 1 }, say: ["You beat Chief Gorb? I heard he cried. Toast says the next round is on the house!", "Toast did not say that."] },
-      { say: ["Psst. The board outside pays good gold for knocking out monsters.", "And don't tell Biscuit I said so, but his potions taste like pond."] }
+      { if: { moot: { gte: 5 } }, say: ["Snatchclaw's toll gates! Toast says the inn is losing all its travellers.", "I didn't vote, you know. I was busy. Now I'm busy being annoyed. That's worse."] },
+      { say: ["Pebble day! I'm not voting. Why would I? They're all the same.", "Psst, and don't tell Biscuit I said so, but his potions taste like pond."] }
     ] },
     nettle: { who: "Granny Nettle", rules: [
       {
         if: { needles: 0 },
-        say: ["Oh! A visitor. Mumble is out pestering people about bandits again.", "Dearie, could you help an old kobold? I lent my knitting needles to Witch Yarrow, and she never gives anything back.", "Her hut is up the forest path, north-west of the bridge."],
+        say: ["Oh! A visitor. Mumble is out pestering people about the Moot again.", "Dearie, could you help an old kobold? I lent my knitting needles to Witch Yarrow, and she never gives anything back.", "Her hut is up the forest path, north-west of the bridge."],
         ask: [{ t: "I'll fetch them", do: { set: { needles: 1 }, toast: "New quest: Granny Nettle's knitting needles" } }, { t: "Maybe later" }]
       },
       { if: { needles: 1 }, say: ["They'll be somewhere in Yarrow's hut, dear. Probably under a pile of toad bits."] },
       { if: { needles: 2 }, now: { set: { needles: 3 }, item: "cl_scarf", xp: 60 }, say: ["My needles! And not a single toad bit on them.", "Here, I knitted this while I waited. Well, I knitted it with my claws. It's a bit lumpy."], then: { toast: "Quest done! +60 XP, Cozy scarf{up}" } },
-      { say: ["Stay warm out there, and wear the scarf!"] }
+      { say: ["I have voted at every Moot for ninety years. I have lost most of them. I still go. It annoys the winners."] }
+    ] },
+    /* Pebblebrook: one pebble */
+    turnip: { who: "Farmer Turnip", rules: [
+      { if: { moot: { lt: 5 } }, say: ["The Pebble Moot? Never voted. My whole family never votes, all five of us. Same old pebbles every time."] },
+      {
+        if: { pb: 0 },
+        say: ["A seal for a petition? Ha. Let me tell you about pebbles.", "Last spring Pebblebrook voted about the stream: water for the east fields or the west fields. East won by ONE pebble.", "My fields are west. My family is five kobolds. We stayed home, because what difference does one pebble make?", "And now Snatchclaw's toll boss Grubb has padlocked our fountain. Five gold a sip."],
+        ask: [{ t: "I'll deal with Grubb", do: { set: { pb: 1 }, toast: "New quest: get rid of Grubb" } }, { t: "Not yet" }]
+      },
+      { if: { pb: 1 }, say: ["Grubb is by the fountain. He's big, but he's mostly belly."] },
+      { if: { pb: 2 }, now: { set: { pb: 3 }, add: { seals: 1 }, xp: 80, gold: 50 }, say: ["The fountain's free! Grubb ran off holding his belly.", "Here: Pebblebrook's seal, on your petition. And Pip? Next Moot, all five of us are coming. Six, if goats count."], then: { toast: "Seal {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}" } },
+      { say: ["Water tastes better when nobody charges for it. Copperhollow is up the mountain road, Route 3, if you're after more seals."] }
+    ] },
+    grubb: { who: "Grubb", rules: [
+      { if: { pb: 0 }, say: ["Five gold a sip! Warden's orders. Don't like it? Shoulda voted. HAW HAW."] },
+      { say: ["You again? Five gold a sip, or I sit on you."], ask: [{ t: "Fight!", do: { fight: [["tollboss", "scout", "slinger"], { boss: "tollboss" }] } }, { t: "Back off" }] }
+    ] },
+    bork: { who: "Bork", rules: [
+      { if: { pb: { lt: 2 } }, say: ["Bork is visiting cousin Turnip. Bork did not vote either. Bork was napping.", "Bork wants to hit the toll man. Bork is waiting for someone else to go first."] },
+      { now: { set: { bork: 1 }, join: { name: "Bork", cls: "warrior", min: 2 } }, say: ["You hit the toll man! Bork saw. Bork is coming with you.", "Also, next Moot, Bork will not nap."], then: { toast: "Bork joins the party!" } }
+    ] },
+    /* Copperhollow: nobody comes to the meeting */
+    ruddle: { who: "Foreman Ruddle", rules: [
+      { if: { moot: { lt: 5 } }, say: ["Back to work! The mine doesn't dig itself. Well, sometimes it does. That's called a cave-in."] },
+      {
+        if: { ch: 0 },
+        say: ["A seal? Copperhollow decides things at the town meeting. I'd say yes, but Snatchclaw's tax man Snipe says the seal is his now.", "The miners could outvote us both, if any of them came. Nine years I've held that meeting. Nine years, just me and the snacks.", "So I decide everything. Everyone complains. Nobody comes."],
+        ask: [{ t: "I'll bring the miners", do: { set: { ch: 1 }, toast: "New quest: get 4 miners to the meeting" } }, { t: "Not now" }]
+      },
+      { if: { ch: 1, miners: { lt: 4 } }, say: ["Miners coming to the meeting: {miners} of 4. Two hang about the square, and two are indoors pretending to work."] },
+      { if: { ch: 1 }, say: ["Four miners at a meeting! I need to sit down.", "...Oh no. Snipe heard about it, and he brought friends."], ask: [{ t: "Fight!", do: { fight: [["collector", "thief", "gunner"], { boss: "collector", zone: "C" }] } }, { t: "Not yet" }] },
+      { if: { ch: 2 }, now: { set: { ch: 3, lantern: 1 }, add: { seals: 1 }, xp: 150, gold: 80 }, say: ["The meeting voted, all six of us: Copperhollow's seal goes on your petition. First vote in nine years! It was very loud.", "And take this lantern. The old tunnel south to Thistledown is pitch black, and Thistledown has a seal too."], then: { toast: "Seal {seals} of 8: Copperhollow! Got a lantern. +150 XP{up}" } },
+      { say: ["We're having another meeting next week. People are bringing snacks. Plural!"] }
+    ] },
+    snipe: { who: "Snipe", rules: [{ say: ["Copper tax! Half of everything, for Warden Snatchclaw.", "The town meeting? Nobody goes to the meeting. Heh. That's the best part."] }] },
+    pickett: Object.assign(miner("pickett", "Meetings are boring. And Ruddle does whatever he wants anyway.", "He does what he wants because nobody comes. If you come, he has to listen to you.", "...Huh. Never thought of it like that. Fine, I'm coming.", "Dig, dig, dig. Snipe takes half, I dig twice as much. That's maths.", "See you at the meeting. I'll bring a snack."), { who: "Pickett" }),
+    nugget: Object.assign(miner("nugget", "Taxes, seals, petitions... I don't understand any of it.", "Your pay got cut in half. You understand that. That's enough to start.", "Oh! Yes. I do understand that. I'm coming.", "I'm Nugget. I find nuggets. It's a family name and a job.", "Meeting! I'm going to a meeting! What do you wear to a meeting?"), { who: "Nugget" }),
+    dusty: Object.assign(miner("dusty", "I'm just one miner. One pickaxe never dug a tunnel.", "Every tunnel in this mountain was dug one pickaxe at a time.", "Hmph. Clever. All right, I'll come.", "Shh. I'm on my break. I've been on it since lunch.", "One pickaxe at a time. I keep saying that to myself now."), { who: "Dusty" }),
+    shale: Object.assign(miner("shale", "Back in my day we went to meetings, and nothing ever changed.", "Snipe takes half your copper now. Something changed. Just not the way you wanted.", "...Hrrm. I'll bring my cane. For shaking at people.", "Back in my day, the rocks were harder.", "I'll be there. Front row. Cane ready."), { who: "Old Shale" }),
+    /* Thistledown: next part of the story */
+    herald: { who: "Thistledown herald", rules: [
+      { if: { lantern: 1 }, say: ["Hear ye! The Thistledown council is quarrelling, as usual. Come back for our seal another day.", "(The story continues here in the next update.)"] },
+      { say: ["Hear ye! Welcome to Thistledown, the biggest town in the land. Mind the council; they are quarrelling."] }
     ] }
+  }, MARKERS = {
+    elder: (q) => !q.moot || q.moot === 3 ? "!" : "",
+    yarrow: (q) => q.moot === 2 ? "!" : "",
+    wizzle: (q) => q.moot >= 3 ? "!" : "",
+    turnip: (q) => q.moot >= 5 && !q.pb ? "!" : q.pb === 2 ? "?" : "",
+    grubb: (q) => q.pb === 1 ? "!" : "",
+    bork: (q) => q.pb >= 2 ? "!" : "",
+    ruddle: (q) => q.moot >= 5 && !q.ch ? "!" : q.ch === 1 && q.miners >= 4 || q.ch === 2 ? "?" : "",
+    pickett: (q) => q.ch === 1 && !q.m_pickett ? "!" : "",
+    nugget: (q) => q.ch === 1 && !q.m_nugget ? "!" : "",
+    dusty: (q) => q.ch === 1 && !q.m_dusty ? "!" : "",
+    shale: (q) => q.ch === 1 && !q.m_shale ? "!" : "",
+    pebble: (q) => q.hat === 2 ? "?" : "",
+    nettle: (q) => q.needles === 2 ? "?" : ""
   }, QUEST_LOG = [
-    { done: { q1: { gte: 2 } }, text: (q) => "Clear the meadow bandits (" + Math.min(q.kills, 5) + "/5)" },
-    { show: { q1: { gte: 2 } }, done: { q2: { gte: 2 } }, text: (q) => "Bring Witch Yarrow 3 glowcaps (" + Math.min(q.glow, 3) + "/3)" },
-    { show: { any: [{ q2: { gte: 1 } }, { gorb: 1 }] }, done: { gorb: 1 }, text: "Defeat Chief Gorb and take the hoard key" },
-    { show: { gorb: 1 }, done: { vexx: 1 }, text: "Defeat King Vexx in the Dragon's Hoard" },
-    { show: { bork: 0 }, hint: !0, text: "Bork in the village fights for 40 gold" },
+    { done: { moot: { gte: 2 } }, text: "The Pebble Moot: hear the candidates, then choose (or don't)" },
+    { show: { moot: { gte: 2 } }, done: { moot: { gte: 3 } }, text: "Visit Witch Yarrow in Whisper Woods" },
+    { show: { moot: { gte: 3 } }, done: { moot: { gte: 5 } }, text: "Hear the count from Elder Mumble" },
+    { show: { moot: { gte: 5 } }, text: (q) => "The petition: a seal from every town (" + (q.seals || 0) + "/8)" },
+    { show: { moot: { gte: 5 } }, done: { pb: 3 }, text: "Pebblebrook (Route 1): the fountain" },
+    { show: { moot: { gte: 5 } }, done: { ch: 3 }, text: (q) => "Copperhollow (Route 3): the town meeting" + (q.ch === 1 ? " (" + Math.min(4, q.miners || 0) + "/4 miners)" : "") },
+    { show: { ch: 3 }, text: "Thistledown: through the old tunnel (Route 8)" },
+    { show: { wizzle: 0, moot: { gte: 3 } }, hint: !0, text: "Wizzle is waiting outside Yarrow's hut" },
     { show: { hat: 1 }, text: "Find Pebble's lost hat in the meadow grass" },
     { show: { hat: 2 }, text: "Bring the hat back to Pebble" },
     { show: { hat: 3 }, done: { hat: 3 }, text: "Found Pebble's hat" },
@@ -1541,42 +1654,56 @@ button,.rpb,.pill{touch-action:manipulation}
     { show: { needles: 2 }, text: "Bring the needles back to Granny Nettle" },
     { show: { needles: 3 }, done: { needles: 3 }, text: "Found Granny Nettle's needles" }
   ], QUEST_LINE = [
-    { if: { vexx: 1 }, text: "The hoard is yours!" },
-    { if: { gate: 1 }, text: "Defeat King Vexx in the hoard" },
-    { if: { key: 1 }, text: "Open the hoard gate (north road)" },
-    { if: { q2: 1 }, text: "Glowcaps {glow}/3 · Mushroom Cave" },
-    { if: { q2: 2 }, text: "Defeat Chief Gorb in the cave" },
-    { if: { q1: 1, kills: { gte: 5 } }, text: "Report to Elder Mumble" },
-    { if: { q1: 1 }, text: "Meadow bandits {kills}/5" },
-    { if: { q1: 2 }, text: "Find the witch in Whisper Woods" },
+    { if: { ch: 3 }, text: "Seals {seals}/8 · tunnel to Thistledown" },
+    { if: { ch: 2 }, text: "Back to Foreman Ruddle" },
+    { if: { ch: 1, miners: { gte: 4 } }, text: "Back to Foreman Ruddle" },
+    { if: { ch: 1 }, text: "Miners for the meeting {miners}/4" },
+    { if: { pb: 3 }, text: "Seals {seals}/8 · Route 3 to Copperhollow" },
+    { if: { pb: 2 }, text: "Back to Farmer Turnip" },
+    { if: { pb: 1 }, text: "Deal with Grubb at the fountain" },
+    { if: { moot: 5 }, text: "Seals {seals}/8 · Route 1 to Pebblebrook" },
+    { if: { moot: 3 }, text: "Back to Elder Mumble for the count" },
+    { if: { moot: 2 }, text: "Visit Witch Yarrow in the woods" },
+    { if: { moot: 1 }, text: "The Pebble Moot · the green" },
     { text: "Talk to Elder Mumble" }
   ];
 
   // src/data/quests.js
-  var RP_NPC = [
+  var atA = (dx, dy) => townSpot("A", dx, dy), atE = (dx, dy) => townSpot("E", dx, dy), atD = (dx, dy) => townSpot("D", dx, dy), RP_NPC = [
     { id: "elder", name: "Elder Mumble", x: 5, y: 27, team: 0, w: "healwand", hat: "flower", face: 1 },
     { id: "toast", name: "Toast the innkeeper", place: "inn", x: 6, y: 3, team: 0, w: "spoon", hat: "pot", face: -1 },
     { id: "biscuit", name: "Biscuit the trader", place: "shop", x: 4, y: 4, team: 0, w: "pan", hat: "cone", face: -1 },
-    { id: "bork", name: "Bork", x: 10, y: 26, team: 0, w: "bone", hat: "bucket", face: 1, show: (s) => !s.q.bork },
-    { id: "flint", name: "Guard Flint", x: 20, y: 17, team: 0, w: "sword", hat: "pot", face: 1, pos: (s) => s.q.q1 >= 2 ? { x: 21, y: 17 } : null },
     { id: "yarrow", name: "Witch Yarrow", x: 9, y: 5, team: 3, w: "frostrod", hat: "wizard", face: -1 },
     { id: "wizzle", name: "Wizzle", x: 10, y: 6, team: 0, w: "frostrod", hat: "wizard", face: -1, show: (s) => !s.q.wizzle },
-    { id: "scout", name: "Wounded scout", x: 33, y: 13, team: 0, w: "popgun", hat: "leaf", face: -1 },
-    { id: "gorb", name: "Chief Gorb", x: 35, y: 3, team: 1, w: "club", hat: "pot", face: -1, size: 1.3, show: (s) => !s.q.gorb },
     { id: "clink", name: "Clink the smith", x: 12, y: 25, team: 0, w: "club", hat: "bucket", face: -1 },
     { id: "pebble", name: "Pebble", x: 7, y: 27, team: 0, w: "spoon", hat: "none", face: 1, size: 0.8 },
-    { id: "vexx", name: "King Vexx", x: 20, y: 2, team: 3, w: "sword", hat: "crown", face: 1, size: 1.4, show: (s) => !s.q.vexx },
     { id: "quill", name: "Quill the scribe", place: "inn", x: 10, y: 3, team: 2, w: "healwand", hat: "wizard", face: -1 },
     { id: "tikka", name: "Tikka", place: "inn", x: 2, y: 5, team: 2, w: "squirt", hat: "flower", face: 1 },
-    { id: "nettle", name: "Granny Nettle", place: "elder", x: 6, y: 2, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 }
+    { id: "nettle", name: "Granny Nettle", place: "elder", x: 6, y: 2, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 },
+    /* the three candidates on the green */
+    { id: "gristle", name: "Gristle", x: 15, y: 24, team: 1, w: "club", hat: "bucket", face: 1, size: 1.1 },
+    { id: "mumbletoes", name: "Mumbletoes", x: 17, y: 24, team: 0, w: "spoon", hat: "flower", face: 1, size: 0.95 },
+    { id: "snatchclaw", name: "Snatchclaw", x: 19, y: 24, team: 2, w: "sword", hat: "crown", face: -1, show: (s) => (s.q.moot || 0) < 3 },
+    /* Pebblebrook */
+    { id: "turnip", name: "Farmer Turnip", ...atA(-3, 2), team: 0, w: "stick", hat: "leaf", face: 1 },
+    { id: "grubb", name: "Grubb the toll boss", ...atA(1, -1), team: 2, w: "club", hat: "pot", face: -1, size: 1.2, show: (s) => (s.q.moot || 0) >= 5 && (s.q.pb || 0) < 2 },
+    { id: "bork", name: "Bork", ...atA(3, 2), team: 0, w: "bone", hat: "bucket", face: -1, show: (s) => !s.q.bork },
+    /* Copperhollow */
+    { id: "ruddle", name: "Foreman Ruddle", ...atE(-3, 2), team: 1, w: "pan", hat: "bucket", face: 1 },
+    { id: "snipe", name: "Snipe the tax collector", ...atE(-2, -2), team: 2, w: "blunder", hat: "bucket", face: 1, show: (s) => (s.q.moot || 0) >= 5 && (s.q.ch || 0) < 2 },
+    { id: "pickett", name: "Pickett", ...atE(3, 2), team: 1, w: "stick", hat: "pot", face: -1 },
+    { id: "nugget", name: "Nugget", ...atE(4, -2), team: 1, w: "pan", hat: "none", face: -1, size: 0.85 },
+    { id: "dusty", name: "Dusty", place: "hE0", x: 4, y: 5, team: 1, w: "club", hat: "pot", face: 1 },
+    { id: "shale", name: "Old Shale", place: "hE1", x: 2, y: 3, team: 1, w: "stick", hat: "none", face: 1, size: 0.9 },
+    /* Thistledown (the story goes on here next) */
+    { id: "herald", name: "Thistledown herald", ...atD(-3, 2), team: 3, w: "healwand", hat: "cone", face: 1 }
   ], RP_BOSSES = {
-    gorb: { win: { set: { gorb: 1, key: 1 } }, drops: ["ar_gorb"], after: [{ who: "", text: "Chief Gorb drops a heavy iron key: the key to the Dragon's Hoard! The gate is north of the bridge." }] },
-    vexx: { win: { set: { vexx: 1 } }, drops: ["cap_crown"], after: [{ who: "King Vexx", text: "Ugh... my beautiful hoard..." }, { who: "", text: "King Vexx scurries off into the dark. The stolen gold of Burrowhome is yours to bring home!" }, { who: "", text: "THE END. Thanks for playing Kobold Quest! You can keep exploring, and the Elder has something to say." }] }
-  }, RP_TALLIES = [{ zone: ",", if: { q1: 1 }, flag: "kills" }], RP_BOUNTY = [
-    { z: ",", n: 8, xp: 35, g: 20, zn: "Bandit Meadow" },
-    { z: ";", n: 10, xp: 90, g: 30, if: { q1: { gte: 2 } }, zn: "Whisper Woods" },
-    { z: "C", n: 10, xp: 180, g: 40, if: { q2: { gte: 1 } }, zn: "Mushroom Cave" },
-    { z: "K", n: 10, xp: 300, g: 60, if: { gate: 1 }, zn: "the Dragon's Hoard" }
+    tollboss: { win: { set: { pb: 2 } }, drops: ["sh_spike"], after: [{ who: "Grubb", text: "Ow! My belly! Fine, FINE, drink all you want!" }, { who: "", text: "Grubb waddles off towards Thistledown. Farmer Turnip will want to hear about this." }] },
+    collector: { win: { set: { ch: 2 } }, drops: ["rg_might"], after: [{ who: "Snipe", text: "You can't tax a kobold who is running away! Ha! ...Wait, that's me." }, { who: "", text: "Snipe flees down the mountain. The meeting can finally start. Foreman Ruddle looks very nervous and very happy." }] }
+  }, RP_TALLIES = [], RP_BOUNTY = [
+    { z: ",", n: 8, xp: 35, g: 20, zn: "the tall grass" },
+    { z: ";", n: 10, xp: 90, g: 30, if: { moot: { gte: 2 } }, zn: "Whisper Woods" },
+    { z: "C", n: 10, xp: 180, g: 40, if: { lantern: 1 }, zn: "the old tunnel" }
   ];
 
   // src/data/monsters.js
@@ -1595,7 +1722,10 @@ button,.rpb,.pill{touch-action:manipulation}
     cannoneer: { n: "Hoard cannoneer", w: "cannon", team: 3, hp: 99, atk: 31, def: 8, spd: 3, xp: 48, gold: 24 },
     gorb: { n: "Chief Gorb", w: "club", team: 1, hp: 540, atk: 27, def: 8, spd: 5, xp: 140, gold: 84, size: 1.5, boss: 1, smash: 3, hat: "pot" },
     vexx: { n: "King Vexx", w: "sword", team: 3, hp: 1450, atk: 47, def: 12, spd: 8, xp: 0, gold: 350, size: 1.8, boss: 1, smash: 3, hat: "crown" },
-    lancer: { n: "Hoard lancer", w: "spear", team: 3, hp: 95, atk: 22, def: 9, spd: 6, xp: 46, gold: 20 }
+    lancer: { n: "Hoard lancer", w: "spear", team: 3, hp: 95, atk: 22, def: 9, spd: 6, xp: 46, gold: 20 },
+    /* chapter: the Pebble Moot */
+    tollboss: { n: "Grubb the toll boss", w: "club", team: 2, hp: 170, atk: 12, def: 3, spd: 4, xp: 70, gold: 40, size: 1.3, boss: 1, hat: "pot" },
+    collector: { n: "Snipe the tax collector", w: "blunder", team: 2, hp: 300, atk: 17, def: 5, spd: 6, xp: 130, gold: 60, size: 1.2, boss: 1, hat: "bucket", all: 0.3 }
   }, RP_ZONE = {
     ",": { n: "Bandit Meadow", t: { scout: 3, slinger: 3, thief: 2 }, max: 2 },
     ";": { n: "Whisper Woods", t: { apprentice: 2, bruiser: 2, frostbandit: 2, scout: 1 }, max: 3 },
@@ -1606,10 +1736,7 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/game/world.js
   function rpArea(x, y) {
-    if (rp.s.place && RP_PLACES[rp.s.place]) return RP_PLACES[rp.s.place].name;
-    if (x >= OLD_W || y >= OLD_H) return overworldArea(x, y);
-    let c = rp.grid[y][x];
-    return c === "K" || c === "X" ? "Dragon's Hoard" : c === "C" || c === "g" || c === "c" ? "Mushroom Cave" : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "North Road" : x < 14 && y > 16 ? "Burrowhome" : "Bandit Meadow";
+    return rp.s.place && RP_PLACES[rp.s.place] ? RP_PLACES[rp.s.place].name : x >= OLD_W || y >= OLD_H ? overworldArea(x, y) : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "Pebble Hills" : x < 14 && y > 16 ? "Burrowhome" : "Moot Meadow";
   }
   function rpNpcs() {
     let pl = rpPlace();
@@ -1647,10 +1774,6 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, emit("place:leave", id), rpSave();
   }
-  function rpGate() {
-    let q = rp.s.q;
-    q.gate || (q.key ? (q.gate = 1, rp.grid[7][20] = "K", rp.mapImg = null, rpSay([{ who: "", text: "Gorb's key turns with a groan. The gate of the Dragon's Hoard swings open." }]), sfx("win")) : rpSay([{ who: "", text: "A huge iron gate. It has a keyhole the size of a fist." }]));
-  }
   function rpBfs(tx, ty, toNeighbor) {
     let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen = 0;
     for (prev[key(s.x, s.y)] = null; q.length; ) {
@@ -1686,7 +1809,36 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s;
     s.place && !RP_PLACES[s.place] && (delete s.place, rpApplyWorld()), !s.place && (s.y >= WH || s.x >= WW || rpSolid(s.x, s.y)) && (s.x = 7, s.y = 23, s.face = "down", rp.pos = null, rpSave());
   } } });
-  feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) }, X: { use: () => rpGate() } } });
+  feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) } } });
+  var barrierSig = "";
+  function rpBarriers() {
+    if (barrierSig = BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || ""), rp.s.place || !rp.grid) return;
+    let B = build().G, changed = !1;
+    for (let b of BARRIERS) {
+      let shut = !test(b.until);
+      for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
+        let base = B[y][x];
+        if (SOLID_HERE.has(base)) continue;
+        let want = shut ? b.tile : base;
+        rp.grid[y][x] !== want && (rp.grid[y][x] = want, changed = !0);
+      }
+    }
+    changed && (rp.mapImg = null);
+  }
+  var BARRIER_SAY = {
+    Y: 'A toll gate of planks and rope. "999 GOLD A KOBOLD, by order of Warden Snatchclaw." Nobody has 999 gold. That is the point.',
+    R: "A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.",
+    Z: "The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern."
+  };
+  feature({
+    id: "barriers",
+    on: { "world:apply": rpBarriers },
+    frame() {
+      if (!rp.s) return;
+      BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || "") !== barrierSig && rpBarriers();
+    },
+    tiles: { Y: { use: () => rpSay([{ who: "", text: BARRIER_SAY.Y }]) }, R: { use: () => rpSay([{ who: "", text: BARRIER_SAY.R }]) }, Z: { use: () => rpSay([{ who: "", text: BARRIER_SAY.Z }]) } }
+  });
   feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
     if (c === "e" && rp.s.place) {
       rpLeavePlace();
@@ -1904,7 +2056,7 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/game/play.js
   function rpIntro() {
-    rpSay([{ who: "", text: "Burrowhome is a sleepy kobold village. Too sleepy: King Vexx has stolen its whole hoard, and bandits roam the meadow." }, { who: "", text: "You are Pip, a small kobold with a big stick. Elder Mumble is waiting by his house, just south of here." }, { who: "", text: "Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk." }], null, () => {
+    rpSay([{ who: "", text: "Burrowhome is a sleepy kobold village, and today is the Pebble Moot: the day every kobold gets one pebble to choose the next Warden." }, { who: "", text: "You are Pip, a small kobold with a big stick and strong opinions. Elder Mumble is waiting by his house, just south of here." }, { who: "", text: "Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk." }], null, () => {
       rp.s.q.intro = 1, rp.mode = "class", rpSave(), rpUI(!0);
     });
   }
@@ -2735,8 +2887,14 @@ button,.rpb,.pill{touch-action:manipulation}
     N: { use: () => rpBoard() },
     A: { use: () => rpTalk("clink") },
     /* signs on roads and in towns, and the healing fountain in every town square */
-    i: { use: (x, y) => rpSay([{ who: "Sign", text: regionSign(x, y) || "The words have worn away." }]) },
-    O: { use: () => {
+    i: { use: (x, y) => rpSay([{ who: "Sign", text: VALLEY_SIGNS[x + "," + y] || regionSign(x, y) || "The words have worn away." }]) },
+    U: { use: () => rpTalk("urn") },
+    O: { use: (x, y) => {
+      let q = rp.s.q;
+      if (overworldArea(x, y) === "Pebblebrook" && (q.moot || 0) >= 5 && (q.pb || 0) < 2) {
+        rpSay([{ who: "", text: 'A big padlock on the fountain. A sign: "5 GOLD A SIP. By order of Warden Snatchclaw. Pay Grubb."' }]);
+        return;
+      }
       rpHealAll(), rpSay([{ who: "", text: "The fountain water is cold and sweet. Everyone feels fresh again." }]), rp.headless || sfx("pop");
     } }
   } });
@@ -2803,7 +2961,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T12:44:07Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T16:33:28Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -3152,7 +3310,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let ctx2 = run(r.now);
     if (!r.say)
       return run(r.then, ctx2), !0;
-    let lines = r.say.map((t) => ({ who: r.who || who, text: fill(t, ctx2) })), choices = r.ask && r.ask.map((c) => ({ t: c.t, ok: c.if ? () => test(c.if) : null, fn: c.do ? () => run(c.do) : null }));
+    let lines = r.say.map((t) => typeof t == "string" ? { who: r.who || who, text: fill(t, ctx2) } : { who: t.who, text: fill(t.text, ctx2) }), choices = r.ask && r.ask.map((c) => ({ t: c.t, ok: c.if ? () => test(c.if) : null, fn: c.do ? () => run(c.do) : null }));
     return rpSay(lines, choices || null, r.then ? () => run(r.then, ctx2) : null), !0;
   }
 
@@ -3431,6 +3589,31 @@ button,.rpb,.pill{touch-action:manipulation}
       case "O":
         under(), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 21, 15, 9, 0, 0, 7), g.fill(), g.fillStyle = "#a9a3bd", g.beginPath(), g.ellipse(X + 16, Y + 20, 13, 7.5, 0, 0, 7), g.fill(), g.fillStyle = "#4fb3ff", g.beginPath(), g.ellipse(X + 16, Y + 20, 10, 5, 0, 0, 7), g.fill(), g.fillStyle = OL, g.fillRect(X + 13, Y + 5, 6, 15), g.fillStyle = "#a9a3bd", g.fillRect(X + 14, Y + 6, 4, 13), g.fillStyle = "#bfe6ff", g.beginPath(), g.arc(X + 16, Y + 5, 3.5, 0, 7), g.fill(), g.fillStyle = "rgba(255,255,255,.8)", g.fillRect(X + 9, Y + 18, 4, 2), g.fillRect(X + 20, Y + 21, 3, 2);
         break;
+      /* the Moot urn, and the barriers the story lays across routes */
+      case "U":
+        under(), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 19, 11, 12, 0, 0, 7), g.fill(), g.fillRect(X + 9, Y + 4, 14, 6), g.fillStyle = "#c97a4a", g.beginPath(), g.ellipse(X + 16, Y + 19, 9, 10, 0, 0, 7), g.fill(), g.fillStyle = "#a8592f", g.fillRect(X + 11, Y + 5, 10, 5), g.fillStyle = "#e8a070", g.fillRect(X + 10, Y + 17, 12, 3), g.fillStyle = OL, g.fillRect(X + 13, Y + 6, 6, 2);
+        break;
+      case "Y":
+        under(), g.fillStyle = OL, g.fillRect(X, Y + 9, RT + 1, 16), g.fillRect(X + 3, Y + 4, 5, 26), g.fillRect(X + 24, Y + 4, 5, 26);
+        for (let i = 0; i < 4; i++)
+          g.fillStyle = i % 2 ? "#f4efe6" : "#d8433a", g.fillRect(X + i * 8, Y + 11, 8, 5), g.fillStyle = i % 2 ? "#d8433a" : "#f4efe6", g.fillRect(X + i * 8, Y + 18, 8, 5);
+        g.fillStyle = "#a8743f", g.fillRect(X + 4, Y + 5, 3, 24), g.fillRect(X + 25, Y + 5, 3, 24);
+        break;
+      case "R": {
+        under();
+        let rk = (cx, cy, rx, ry) => {
+          g.fillStyle = OL, g.beginPath(), g.ellipse(X + cx, Y + cy, rx + 2, ry + 2, 0, 0, 7), g.fill(), g.fillStyle = "#8c7f73", g.beginPath(), g.ellipse(X + cx, Y + cy, rx, ry, 0, 0, 7), g.fill(), g.fillStyle = "#a89b8e", g.beginPath(), g.ellipse(X + cx - 2, Y + cy - 2, rx * 0.5, ry * 0.4, 0, 0, 7), g.fill();
+        };
+        rk(9, 22, 8, 6), rk(23, 23, 8, 6), rk(16, 13, 9, 7);
+        break;
+      }
+      case "Z":
+        if (g.fillStyle = "#07040c", g.fillRect(X, Y, RT + 1, RT + 1), r() < 0.5) {
+          g.fillStyle = "rgba(255,226,122,.8)";
+          let ex = X + 6 + r() * 16, ey = Y + 8 + r() * 14;
+          g.fillRect(ex, ey, 3, 2), g.fillRect(ex + 6, ey, 3, 2);
+        }
+        break;
       default:
         grass();
     }
@@ -3510,8 +3693,8 @@ button,.rpb,.pill{touch-action:manipulation}
     set_ctx(ctx0);
   }
   function rpMarker(id) {
-    let q = rp.s.q;
-    return id === "elder" ? q.q1 === 0 ? "!" : q.q1 === 1 && q.kills >= 5 ? "?" : "" : id === "yarrow" ? q.q1 >= 2 && q.q2 === 0 ? "!" : q.q2 === 1 && q.glow >= 3 ? "?" : "" : id === "gorb" ? q.q2 >= 1 ? "!" : "" : id === "vexx" && q.gate ? "!" : "";
+    let f = MARKERS[id];
+    return f ? f(rp.s.q) : "";
   }
 
   // src/battle/draw.js
@@ -4750,7 +4933,7 @@ button,.rpb,.pill{touch-action:manipulation}
       bag: { potion: 3, ether: 1, feather: 0 },
       inv: [],
       chests: [],
-      q: { q1: 0, kills: 0, q2: 0, glow: 0, key: 0, gate: 0, gorb: 0, vexx: 0, bork: 0, wizzle: 0, intro: 0, cls: 0 },
+      q: { q1: 0, kills: 0, q2: 0, glow: 0, key: 0, gate: 0, gorb: 0, vexx: 0, bork: 0, wizzle: 0, intro: 0, cls: 0, moot: 0, seals: 0 },
       taken: [],
       steps: 0
     };
@@ -4764,11 +4947,9 @@ button,.rpb,.pill{touch-action:manipulation}
     if (rp.s.place && !P && delete rp.s.place, P) rp.grid = P.rows.map((r) => r.split(""));
     else {
       let old = rpBuildWorld();
-      rpWorldExtras(old), rp.s.taken.forEach(([x, y]) => {
-        old[y] && (old[y][x] = "C");
-      }), rp.s.q.gate && (old[7][20] = "K"), rp.grid = makeWorldGrid(old);
+      rpWorldExtras(old), rp.grid = makeWorldGrid(old);
     }
-    rp.mapImg = null;
+    rp.mapImg = null, emit("world:apply");
   }
 
   // src/core/options.js

@@ -2,7 +2,7 @@
    data around never silently changes the game. Update the fixture on purpose when content changes. */
 const G=require('../lib/game.js')(),O=require('../lib/oldgame.js')();
 const ser=v=>JSON.stringify(v,(k,x)=>typeof x==='function'?'fn:'+x.toString().replace(/\s+/g,'').replace(/\((\w+)\)=>/g,'$1=>'):x);
-const T=['RP_IT','RP_W','RP_SHOP','RP_SHOP2','RP_ITEMS','RP_LOOT','RP_CLS','RP_SK','RP_TAL','RP_ADV','RP_E','RP_ZONE','RP_ST','RP_TT','RP_TW','RP_AFFIX','RP_SETS','RP_MATS','RP_RECIPES','RP_NPC','RP_CHESTS'];
+const T=['RP_IT','RP_W','RP_SHOP','RP_SHOP2','RP_ITEMS','RP_LOOT','RP_CLS','RP_SK','RP_TAL','RP_ADV','RP_E','RP_ZONE','RP_ST','RP_TT','RP_TW','RP_AFFIX','RP_SETS','RP_MATS','RP_RECIPES','RP_CHESTS'];  // RP_NPC left v37 behind with the Pebble Moot story
 let fails=0;
 for(const t of T){if(!(t in G)){console.log('missing in new:',t);fails++;continue}
   let a=G[t],b=O[t];

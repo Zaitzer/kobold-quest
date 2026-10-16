@@ -1,7 +1,7 @@
 /* The world: towns joined by routes like a handheld adventure's region. The old valley is untouched, every town, route
    and door can be walked to from Burrowhome, every route has a sign at each end, and it is quick to build. */
 const G=require('../lib/game.js')();let fails=0;const bad=m=>{fails++;console.log('FAIL',m)};
-G.rp.s=G.rpNewState();const t0=Date.now();G.rpApplyWorld();const ms=Date.now()-t0;const g=G.rp.grid;
+G.rp.s=G.rpNewState();Object.assign(G.rp.s.q,{bc:1,fw:3,lantern:1});/* the story's barriers open (moot.test.js checks them) */const t0=Date.now();G.rpApplyWorld();const ms=Date.now()-t0;const g=G.rp.grid;
 if(g.length!==G.WH||g[0].length!==G.WW)bad('world is '+g[0].length+'×'+g.length);
 const old=G.rpBuildWorld();G.rpWorldExtras(old);
 for(let y=0;y<G.OLD_H;y++)for(let x=0;x<G.OLD_W;x++)if(g[y][x]!==old[y][x])bad('old valley changed at '+x+','+y);
@@ -18,7 +18,7 @@ for(const [pos,id] of Object.entries(G.RP_DOORS)){const [x,y]=pos.split(',').map
 // every route block has ground you can stand on, and each route is named and has a sign where it meets a town
 const R=G.nameRoutes();for(const rt of R.list){for(const [c,r] of rt.cells){let any=false;for(let y=r*G.CELL;y<r*G.CELL+G.CELL&&!any;y++)for(let x=c*G.CELL;x<c*G.CELL+G.CELL;x++)if(seen[y*W+x]){any=true;break}if(!any)bad(rt.name+' block '+c+','+r+' cannot be reached')}
   if(rt.ends.length<2)bad(rt.name+' leads nowhere: '+rt.ends.join(','))}
-const signs=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(g[y][x]==='i'){signs.push([x,y]);if(!G.regionSign(x,y))bad('sign at '+x+','+y+' says nothing')}
+const signs=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(g[y][x]==='i'){signs.push([x,y]);if(!G.regionSign(x,y)&&!G.VALLEY_SIGNS[x+','+y])bad('sign at '+x+','+y+' says nothing')}
 for(const rt of R.list)if(!signs.some(([x,y])=>(G.regionSign(x,y)||'').startsWith(rt.name+' ')))bad(rt.name+' has no sign');
 // the top bar names where you are
 if(G.overworldArea(S[4].x,S[4].y)!==S[4].name)bad('top bar in '+S[4].name+' says '+G.overworldArea(S[4].x,S[4].y));

@@ -6,7 +6,7 @@ function fight(X,seed,setup){return seeded(seed,()=>{
   X.rp.headless=true;X.rp.autoParty=true;X.rp.s=X.rpNewState();X.rpApplyWorld();const s=X.rp.s;
   s.party=setup.party.map(([n,c,l])=>X.rpMember(n,c,l));s.bag={potion:3,ether:1,feather:1};
   X.rpBattle(setup.keys,setup.opt);let steps=0;while(X.rp.bt&&!X.rp.bt.over&&steps<20000){X.rpBattleStep(1/30);steps++}
-  const b=X.rp.bt;return JSON.stringify({over:b.over,round:b.round,units:b.units.map(u=>[u.name,u.x,u.y,Math.round(u.hp),u.side]),gold:s.gold,party:s.party.map(m=>[m.lvl,m.xp,m.hp,m.mp]),inv:s.inv,msg:b.msg})})}
+  const b=X.rp.bt;return JSON.stringify({over:b.over,round:b.round,units:b.units.map(u=>[u.name,u.x,u.y,Math.round(u.hp),u.side]),gold:s.gold,party:s.party.map(m=>[m.lvl,m.xp,m.hp,m.mp]),inv:setup.opt.boss?null:s.inv,msg:setup.opt.boss?b.msg.replace(/ Found: [^!]*!/,""):b.msg})})}  // Gorb and Vexx left the story, so their drops are no longer compared
 const CASES=[
   {party:[['Pip','warrior',2]],keys:['scout','slinger'],opt:{zone:','}},
   {party:[['Pip','ranger',4],['Bork','warrior',4]],keys:['apprentice','bruiser','frostbandit'],opt:{zone:';'}},

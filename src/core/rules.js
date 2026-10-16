@@ -9,6 +9,7 @@
    Effects ("now", "then", or a choice's "do"): an object, applied in this order
      set:{flag:v}  add:{flag:n}  gold:n  bag:{ether:2}  item:'cap_cone'  mat:{spore:-3}  xp:n
      join:{name,cls,min,slot}  heal:true  save:true  open:'shop'|'smith'  fight:[keys,opt]  toast:'text'
+   A line can be {who,text} to have someone else say it (Pip thinking aloud).
    Text: "{kills}" fills in a quest flag, "{up}" becomes " · level up!" when the effects levelled someone up. */
 import {rpSave} from './save.js';
 import {rp} from './state.js';
@@ -54,7 +55,7 @@ function talk(rules,who){
   const r=rules.find(r=>test(r.if));if(!r)return false;
   const ctx=run(r.now);
   if(!r.say){run(r.then,ctx);return true}
-  const lines=r.say.map(t=>({who:r.who||who,text:fill(t,ctx)}));
+  const lines=r.say.map(t=>typeof t==='string'?{who:r.who||who,text:fill(t,ctx)}:{who:t.who,text:fill(t.text,ctx)});
   const choices=r.ask&&r.ask.map(c=>({t:c.t,ok:c.if?()=>test(c.if):null,fn:c.do?()=>run(c.do):null}));
   rpSay(lines,choices||null,r.then?()=>run(r.then,ctx):null);
   return true}

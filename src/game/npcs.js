@@ -5,8 +5,9 @@ import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {QUEST_LINE,QUEST_LOG,TALK} from '../data/dialogue.js';
 import {RP_IT,RP_ITEMS,RP_SHOP2} from '../data/items.js';
-import {regionSign} from '../data/overworld.js';
+import {overworldArea,regionSign} from '../data/overworld.js';
 import {RP_BOUNTY} from '../data/quests.js';
+import {VALLEY_SIGNS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
 import {rpCanEquip,rpGive,rpItemDesc} from './items.js';
@@ -47,6 +48,10 @@ feature({id:'shop',
 
 feature({id:'town-spots',tiles:{S:{use:()=>rpShrine()},N:{use:()=>rpBoard()},A:{use:()=>rpTalk('clink')},
   /* signs on roads and in towns, and the healing fountain in every town square */
-  i:{use:(x,y)=>rpSay([{who:'Sign',text:regionSign(x,y)||'The words have worn away.'}])},
-  O:{use:()=>{rpHealAll();rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'}]);if(!rp.headless)sfx('pop')}}}});
+  i:{use:(x,y)=>rpSay([{who:'Sign',text:VALLEY_SIGNS[x+','+y]||regionSign(x,y)||'The words have worn away.'}])},
+  U:{use:()=>rpTalk('urn')},
+  O:{use:(x,y)=>{const q=rp.s.q;
+    /* Grubb has padlocked Pebblebrook's fountain until someone deals with him */
+    if(overworldArea(x,y)==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "5 GOLD A SIP. By order of Warden Snatchclaw. Pay Grubb."'}]);return}
+    rpHealAll();rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'}]);if(!rp.headless)sfx('pop')}}}});
 export {rpBoard,rpBuyGear,rpBuyItem,rpHealAll,rpOpenShop,rpOpenSmith,rpQuestLine,rpQuestList,rpShrine,rpTalk};

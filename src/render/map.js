@@ -1,6 +1,7 @@
 import {RPH,RPW,RT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {test} from '../core/rules.js';
 import {rp,rpPlace} from '../core/state.js';
+import {MARKERS} from '../data/dialogue.js';
 import {RP_CHESTS,RP_SPOTS} from '../data/world.js';
 import {OL,WEAPONS,ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {R,clamp,rr,seeded} from '../engine/util.js';
@@ -60,6 +61,15 @@ function rpTile(g,c,x,y,X,Y){
     case 'O':under();g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+21,15,9,0,0,7);g.fill();g.fillStyle='#a9a3bd';g.beginPath();g.ellipse(X+16,Y+20,13,7.5,0,0,7);g.fill();
       g.fillStyle='#4fb3ff';g.beginPath();g.ellipse(X+16,Y+20,10,5,0,0,7);g.fill();g.fillStyle=OL;g.fillRect(X+13,Y+5,6,15);g.fillStyle='#a9a3bd';g.fillRect(X+14,Y+6,4,13);
       g.fillStyle='#bfe6ff';g.beginPath();g.arc(X+16,Y+5,3.5,0,7);g.fill();g.fillStyle='rgba(255,255,255,.8)';g.fillRect(X+9,Y+18,4,2);g.fillRect(X+20,Y+21,3,2);break;
+    /* the Moot urn, and the barriers the story lays across routes */
+    case 'U':under();g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+19,11,12,0,0,7);g.fill();g.fillRect(X+9,Y+4,14,6);g.fillStyle='#c97a4a';g.beginPath();g.ellipse(X+16,Y+19,9,10,0,0,7);g.fill();
+      g.fillStyle='#a8592f';g.fillRect(X+11,Y+5,10,5);g.fillStyle='#e8a070';g.fillRect(X+10,Y+17,12,3);g.fillStyle=OL;g.fillRect(X+13,Y+6,6,2);break;
+    case 'Y':under();g.fillStyle=OL;g.fillRect(X,Y+9,RT+1,16);g.fillRect(X+3,Y+4,5,26);g.fillRect(X+24,Y+4,5,26);
+      for(let i=0;i<4;i++){g.fillStyle=i%2?'#f4efe6':'#d8433a';g.fillRect(X+i*8,Y+11,8,5);g.fillStyle=i%2?'#d8433a':'#f4efe6';g.fillRect(X+i*8,Y+18,8,5)}
+      g.fillStyle='#a8743f';g.fillRect(X+4,Y+5,3,24);g.fillRect(X+25,Y+5,3,24);break;
+    case 'R':{under();const rk=(cx,cy,rx,ry)=>{g.fillStyle=OL;g.beginPath();g.ellipse(X+cx,Y+cy,rx+2,ry+2,0,0,7);g.fill();g.fillStyle='#8c7f73';g.beginPath();g.ellipse(X+cx,Y+cy,rx,ry,0,0,7);g.fill();g.fillStyle='#a89b8e';g.beginPath();g.ellipse(X+cx-2,Y+cy-2,rx*.5,ry*.4,0,0,7);g.fill()};
+      rk(9,22,8,6);rk(23,23,8,6);rk(16,13,9,7);break}
+    case 'Z':g.fillStyle='#07040c';g.fillRect(X,Y,RT+1,RT+1);if(r()<.5){g.fillStyle='rgba(255,226,122,.8)';const ex=X+6+r()*16,ey=Y+8+r()*14;g.fillRect(ex,ey,3,2);g.fillRect(ex+6,ey,3,2)}break;
     default:grass();
   }
 }
@@ -111,8 +121,5 @@ function rpDrawMap(dt){
     const ty0=Math.round(52/(rpS||1));rr(ctx,RPW/2-w/2,ty0,w,28,10);ctx.fillStyle='rgba(20,10,53,.9)';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#ffd54a';ctx.stroke();ctx.fillStyle='#fff';ctx.fillText(rp.toast.t,RPW/2,ty0+19);ctx.globalAlpha=1}
   set_ctx(ctx0);
 }
-function rpMarker(id){const q=rp.s.q;
-  if(id==='elder')return q.q1===0?'!':q.q1===1&&q.kills>=5?'?':'';
-  if(id==='yarrow')return q.q1>=2&&q.q2===0?'!':q.q2===1&&q.glow>=3?'?':'';
-  if(id==='gorb')return q.q2>=1?'!':'';if(id==='vexx')return q.gate?'!':'';if(id==='bork')return'';return''}
+function rpMarker(id){const f=MARKERS[id];return f?f(rp.s.q):''}
 export {CHUNK,CHUNK_KEEP,GROUND,rpChunk,rpDrawChunks,rpDrawMap,rpMapImage,rpMarker,rpNpcK,rpTile};
