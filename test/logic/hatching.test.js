@@ -1,4 +1,4 @@
-/* The Pebble Moot, played headless: every way of voting reaches the petition, the opening and the first two towns play
+/* The Hatching, played headless: every choice at the Great Nest reaches the sparks quest, the opening and the first two towns play
    end to end, the story's barriers cut their routes until cleared, and every villager outdoors can be walked up to. */
 const G=require('../lib/game.js')();let fails=0;const bad=m=>{fails++;console.log('FAIL',m)};
 const q=()=>G.rp.s.q;
@@ -15,13 +15,12 @@ function reach(){const g=G.rp.grid,W=G.WW,H=G.WH,seen=new Uint8Array(W*H),st=[23
 const town=n=>G.sites().find(s=>s.name===n);
 
 // every way of voting reaches the petition, Wizzle joins on the way
-for(const [i,v] of ['gristle','mumble','snatch','blank','skip'].entries()){fresh();
-  talk('elder');if(q().moot!==1)bad(v+': no pebble from the Elder');
-  for(const c of ['gristle','mumbletoes','snatchclaw'])talk(c);
-  talk('urn',i);if(q().vote!==v||q().moot!==2)bad(v+': urn gave vote '+q().vote+' moot '+q().moot);
+for(const [i,v] of ['spiky','sleepy','shiny','skip'].entries()){fresh();
+  talk('elder');if(q().moot!==1)bad(v+': no ember from the Elder');
+  talk('urn',i);if(q().vote!==v||q().moot!==2)bad(v+': the nest gave '+q().vote+' moot '+q().moot);
   talk('yarrow');if(q().moot!==3)bad(v+': Yarrow did not move the story on');
   talk('wizzle');if(!G.rp.s.party.some(m=>m.name==='Wizzle'))bad(v+': Wizzle did not join');
-  talk('elder');if(q().moot!==5)bad(v+': the count did not start the petition (moot '+q().moot+')')}
+  talk('elder');if(q().moot!==5)bad(v+': the hatching did not start the sparks quest (moot '+q().moot+')')}
 
 // barriers: all shut at the start, each one cuts something, and the lantern opens the way to Thistledown
 fresh();const shut=reach();
@@ -37,21 +36,21 @@ fresh();Object.assign(q(),allOpen,{moot:5});G.rpApplyWorld();const all=reach();
 for(const n of G.RP_NPC.filter(n=>!n.place)){const c=G.rp.grid[n.y][n.x];if(G.RP_SOLID.has(c))bad(n.id+' stands in '+c+' at '+n.x+','+n.y);if(!all.near(n.x,n.y))bad(n.id+' cannot be reached at '+n.x+','+n.y)}
 
 // the opening and the first two towns, end to end
-fresh();talk('elder');talk('urn',4);talk('yarrow');talk('wizzle');talk('elder');
+fresh();talk('elder');talk('urn',3);talk('yarrow');talk('wizzle');talk('elder');
 G.rp.s.party.forEach(m=>m.hp=1);const pf=town('Pebblebrook');G.tiles.O.use(pf.x,pf.y-1);if(G.rp.s.party[0].hp!==1)bad('Pebblebrook fountain heals before Grubb is gone');
 talk('turnip');if(q().pb!==1)bad('Turnip gave no quest');
 win('grubb','tollboss');if(q().pb!==2)bad('beating Grubb did not count');
 G.tiles.O.use(pf.x,pf.y-1);if(G.rp.s.party[0].hp<=1)bad('Pebblebrook fountain still locked after Grubb');
-talk('turnip');if(q().pb!==3||q().seals!==1)bad('no Pebblebrook seal');
+talk('turnip');if(q().pb!==3||q().seals!==1)bad('no Pebblebrook spark');
 talk('bork');if(!G.rp.s.party.some(m=>m.name==='Bork'))bad('Bork did not join');
 talk('ruddle');if(q().ch!==1)bad('Ruddle gave no quest');
 talk('ruddle');if(q().ch!==1)bad('Ruddle started the meeting with no miners');
 for(const m of ['pickett','nugget','dusty','shale'])talk(m);if(q().miners!==4)bad('miners coming: '+q().miners);
 talk('pickett');if(q().miners!==4)bad('a miner counted twice');
 win('ruddle','collector');if(q().ch!==2)bad('beating Snipe did not count');
-talk('ruddle');if(q().ch!==3||q().seals!==2||!q().lantern)bad('no Copperhollow seal or lantern');
+talk('ruddle');if(q().ch!==3||q().seals!==2||!q().lantern)bad('no Copperhollow spark or lantern');
 G.rpApplyWorld();const lit=reach();const td=town('Thistledown');if(!lit.at(td.x,td.y))bad('the lantern did not open the way to Thistledown');
-if(G.rpQuestLine()!=='Seals 2/8 · tunnel to Thistledown')bad('top bar says '+G.rpQuestLine());
+if(G.rpQuestLine()!=='Sparks 2/8 · tunnel to Thistledown')bad('top bar says '+G.rpQuestLine());
 
-console.log((fails?'FAIL':'ok')+' moot: 5 ways to vote, '+G.BARRIERS.length+' barriers, '+G.RP_NPC.filter(n=>!n.place).length+' villagers outdoors, 2 towns played through');
+console.log((fails?'FAIL':'ok')+' hatching: 4 choices at the nest, '+G.BARRIERS.length+' barriers, '+G.RP_NPC.filter(n=>!n.place).length+' villagers outdoors, 2 towns played through');
 process.exitCode=fails?1:0;

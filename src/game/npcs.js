@@ -52,6 +52,6 @@ feature({id:'town-spots',tiles:{S:{use:()=>rpShrine()},N:{use:()=>rpBoard()},A:{
   U:{use:()=>rpTalk('urn')},
   O:{use:(x,y)=>{const q=rp.s.q;
     /* Grubb has padlocked Pebblebrook's fountain until someone deals with him */
-    if(overworldArea(x,y)==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "5 GOLD A SIP. By order of Warden Snatchclaw. Pay Grubb."'}]);return}
+    if(overworldArea(x,y)==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak\'s hoard. Pay Grubb."'}]);return}
     rpHealAll();rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'}]);if(!rp.headless)sfx('pop')}}}});
 export {rpBoard,rpBuyGear,rpBuyItem,rpHealAll,rpOpenShop,rpOpenSmith,rpQuestLine,rpQuestList,rpShrine,rpTalk};

@@ -1,7 +1,7 @@
 /* The world: towns joined by routes like a handheld adventure's region. The old valley is untouched, every town, route
    and door can be walked to from Burrowhome, every route has a sign at each end, and it is quick to build. */
 const G=require('../lib/game.js')();let fails=0;const bad=m=>{fails++;console.log('FAIL',m)};
-G.rp.s=G.rpNewState();Object.assign(G.rp.s.q,{bc:1,fw:3,lantern:1});/* the story's barriers open (moot.test.js checks them) */const t0=Date.now();G.rpApplyWorld();const ms=Date.now()-t0;const g=G.rp.grid;
+G.rp.s=G.rpNewState();Object.assign(G.rp.s.q,{bc:1,fw:3,lantern:1});/* the story's barriers open (hatching.test.js checks them) */const t0=Date.now();G.rpApplyWorld();const ms=Date.now()-t0;const g=G.rp.grid;
 if(g.length!==G.WH||g[0].length!==G.WW)bad('world is '+g[0].length+'×'+g.length);
 const old=G.rpBuildWorld();G.rpWorldExtras(old);
 for(let y=0;y<G.OLD_H;y++)for(let x=0;x<G.OLD_W;x++)if(g[y][x]!==old[y][x])bad('old valley changed at '+x+','+y);

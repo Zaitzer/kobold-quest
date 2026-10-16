@@ -203,7 +203,7 @@ const COTTAGES=[
 const LODGE=['wwwwwwwwwwwww','whfffsssfffow','wfffkkkkkfffw','wffffffffffow','wltlffffltlfw','wffffffffffyw','wffrrrrrrrffw','wffffffffffyw','wwwwwwewwwwww'];
 
 /* Barriers laid across a route until the story clears them (game/world.js lays them; `until` is a rule condition).
-   Each rect cuts its route from wall to wall; test/logic/moot.test.js checks that. */
+   Each rect cuts its route from wall to wall; test/logic/hatching.test.js checks that. */
 const BARRIERS=[
   {id:'toll4',tile:'Y',x0:110,x1:119,y0:55,y1:55,until:{bc:1},route:'Route 4'},
   {id:'toll6',tile:'Y',x0:55,x1:55,y0:130,y1:139,until:{bc:1},route:'Route 6'},

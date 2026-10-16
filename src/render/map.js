@@ -62,8 +62,12 @@ function rpTile(g,c,x,y,X,Y){
       g.fillStyle='#4fb3ff';g.beginPath();g.ellipse(X+16,Y+20,10,5,0,0,7);g.fill();g.fillStyle=OL;g.fillRect(X+13,Y+5,6,15);g.fillStyle='#a9a3bd';g.fillRect(X+14,Y+6,4,13);
       g.fillStyle='#bfe6ff';g.beginPath();g.arc(X+16,Y+5,3.5,0,7);g.fill();g.fillStyle='rgba(255,255,255,.8)';g.fillRect(X+9,Y+18,4,2);g.fillRect(X+20,Y+21,3,2);break;
     /* the Moot urn, and the barriers the story lays across routes */
-    case 'U':under();g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+19,11,12,0,0,7);g.fill();g.fillRect(X+9,Y+4,14,6);g.fillStyle='#c97a4a';g.beginPath();g.ellipse(X+16,Y+19,9,10,0,0,7);g.fill();
-      g.fillStyle='#a8592f';g.fillRect(X+11,Y+5,10,5);g.fillStyle='#e8a070';g.fillRect(X+10,Y+17,12,3);g.fillStyle=OL;g.fillRect(X+13,Y+6,6,2);break;
+    case 'U':{under();/* the Great Nest: straw ring with three eggs (spiky, sleepy, shiny) until the hatching */
+      g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+22,15,8,0,0,7);g.fill();g.fillStyle='#c9a053';g.beginPath();g.ellipse(X+16,Y+22,13,6.5,0,0,7);g.fill();
+      g.strokeStyle='#8a6a2a';g.lineWidth=1.2;for(let i=0;i<6;i++){g.beginPath();g.moveTo(X+5+i*4,Y+19);g.lineTo(X+8+i*4,Y+25);g.stroke()}
+      if((rp.s.q.moot||0)<3){const egg=(cx,col,dot)=>{g.fillStyle=OL;g.beginPath();g.ellipse(X+cx,Y+16,5.5,7.5,0,0,7);g.fill();g.fillStyle=col;g.beginPath();g.ellipse(X+cx,Y+16,4,6,0,0,7);g.fill();g.fillStyle=dot;g.fillRect(X+cx-1,Y+12,2,2);g.fillRect(X+cx+1,Y+17,2,2)};
+        egg(8,'#7fb069','#3e6b2e');egg(16,'#b9b2d6','#7d74a8');egg(24,'#ffe27a','#fff')}
+      else{g.fillStyle='#f4efe6';g.fillRect(X+8,Y+17,5,4);g.fillRect(X+19,Y+18,6,3)}break}
     case 'Y':under();g.fillStyle=OL;g.fillRect(X,Y+9,RT+1,16);g.fillRect(X+3,Y+4,5,26);g.fillRect(X+24,Y+4,5,26);
       for(let i=0;i<4;i++){g.fillStyle=i%2?'#f4efe6':'#d8433a';g.fillRect(X+i*8,Y+11,8,5);g.fillStyle=i%2?'#d8433a':'#f4efe6';g.fillRect(X+i*8,Y+18,8,5)}
       g.fillStyle='#a8743f';g.fillRect(X+4,Y+5,3,24);g.fillRect(X+25,Y+5,3,24);break;

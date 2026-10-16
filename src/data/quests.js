@@ -13,17 +13,13 @@ const RP_NPC=[
   {id:'quill',name:'Quill the scribe',place:'inn',x:10,y:3,team:2,w:'healwand',hat:'wizard',face:-1},
   {id:'tikka',name:'Tikka',place:'inn',x:2,y:5,team:2,w:'squirt',hat:'flower',face:1},
   {id:'nettle',name:'Granny Nettle',place:'elder',x:6,y:2,team:0,w:'spoon',hat:'flower',face:-1,size:.9},
-  /* the three candidates on the green */
-  {id:'gristle',name:'Gristle',x:15,y:24,team:1,w:'club',hat:'bucket',face:1,size:1.1},
-  {id:'mumbletoes',name:'Mumbletoes',x:17,y:24,team:0,w:'spoon',hat:'flower',face:1,size:.95},
-  {id:'snatchclaw',name:'Snatchclaw',x:19,y:24,team:2,w:'sword',hat:'crown',face:-1,show:s=>(s.q.moot||0)<3},
   /* Pebblebrook */
   {id:'turnip',name:'Farmer Turnip',...atA(-3,2),team:0,w:'stick',hat:'leaf',face:1},
   {id:'grubb',name:'Grubb the toll boss',...atA(1,-1),team:2,w:'club',hat:'pot',face:-1,size:1.2,show:s=>(s.q.moot||0)>=5&&(s.q.pb||0)<2},
   {id:'bork',name:'Bork',...atA(3,2),team:0,w:'bone',hat:'bucket',face:-1,show:s=>!s.q.bork},
   /* Copperhollow */
   {id:'ruddle',name:'Foreman Ruddle',...atE(-3,2),team:1,w:'pan',hat:'bucket',face:1},
-  {id:'snipe',name:'Snipe the tax collector',...atE(-2,-2),team:2,w:'blunder',hat:'bucket',face:1,show:s=>(s.q.moot||0)>=5&&(s.q.ch||0)<2},
+  {id:'snipe',name:'Snipe the copper snatcher',...atE(-2,-2),team:2,w:'blunder',hat:'bucket',face:1,show:s=>(s.q.moot||0)>=5&&(s.q.ch||0)<2},
   {id:'pickett',name:'Pickett',...atE(3,2),team:1,w:'stick',hat:'pot',face:-1},
   {id:'nugget',name:'Nugget',...atE(4,-2),team:1,w:'pan',hat:'none',face:-1,size:.85},
   {id:'dusty',name:'Dusty',place:'hE0',x:4,y:5,team:1,w:'club',hat:'pot',face:1},
@@ -34,7 +30,7 @@ const RP_NPC=[
 /* bosses: what beating them does (rules), what they drop, and what is said when the battle closes */
 const RP_BOSSES={
   tollboss:{win:{set:{pb:2}},drops:['sh_spike'],after:[{who:'Grubb',text:'Ow! My belly! Fine, FINE, drink all you want!'},{who:'',text:'Grubb waddles off towards Thistledown. Farmer Turnip will want to hear about this.'}]},
-  collector:{win:{set:{ch:2}},drops:['rg_might'],after:[{who:'Snipe',text:'You can\'t tax a kobold who is running away! Ha! ...Wait, that\'s me.'},{who:'',text:'Snipe flees down the mountain. The meeting can finally start. Foreman Ruddle looks very nervous and very happy.'}]}};
+  collector:{win:{set:{ch:2}},drops:['rg_might'],after:[{who:'Snipe',text:'You can\'t rob a kobold who is running away! Ha! ...Wait, that\'s me.'},{who:'',text:'Snipe flees down the mountain. The shift circle can finally sit down. Foreman Ruddle looks very nervous and very happy.'}]}};
 /* kill tallies: winning a fight in `zone` while `if` holds adds the number of foes to quest flag `flag` */
 const RP_TALLIES=[];
 /* bounties on the board by the inn, one after another */

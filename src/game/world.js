@@ -11,7 +11,7 @@ import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay} from './dialogue.js';
 import {rpGive,rpItemDesc} from './items.js';
-function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Moot Meadow'}
+function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Hatching Green'}
 function rpNpcs(){const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
 function rpNpcAt(x,y){return rpNpcs().find(n=>n.x===x&&n.y===y)}
 function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
@@ -51,7 +51,7 @@ function rpBarriers(){barrierSig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'
     for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++){const base=B[y][x];if(SOLID_HERE.has(base))continue;const want=shut?b.tile:base;if(rp.grid[y][x]!==want){rp.grid[y][x]=want;changed=true}}}
   if(changed)rp.mapImg=null}
 const BARRIER_SAY={
-  Y:'A toll gate of planks and rope. "999 GOLD A KOBOLD, by order of Warden Snatchclaw." Nobody has 999 gold. That is the point.',
+  Y:'A toll gate of planks and rope. "ONE SHINY THING PER KOBOLD, for Glitterbeak\'s hoard." The bandits behind it want your shiniest things, and there are a lot of them.',
   R:'A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.',
   Z:'The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern.'};
 feature({id:'barriers',on:{'world:apply':rpBarriers},frame(){if(!rp.s)return;const sig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'+(rp.s.place||'');if(sig!==barrierSig)rpBarriers()},
