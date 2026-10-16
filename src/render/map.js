@@ -8,6 +8,7 @@ import {rpHat} from '../game/stats.js';
 import {rpChestKey,rpNpcs} from '../game/world.js';
 import {netDrawTags,netPartnerK} from '../net/draw.js';
 import {rpDrawSpot,rpTileRoom} from './rooms.js';
+const GROUND=new Set(['.',',','F',';','z','u','v','=','C']);
 function rpTile(g,c,x,y,X,Y){
   if(rpTileRoom(g,c,x,y,X,Y))return;
   const r=seeded(x*131+y*977);
@@ -16,12 +17,15 @@ function rpTile(g,c,x,y,X,Y){
   const cave=()=>{g.fillStyle='#3d3247';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(255,230,255,.07)';for(let i=0;i<3;i++){g.beginPath();g.arc(X+r()*30,Y+r()*30,1.5,0,7);g.fill()}};
   const castle=()=>{g.fillStyle=(x+y)%2?'#5d4f72':'#665880';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(255,215,90,.12)';g.fillRect(X+2,Y+2,RT-4,2)};
   const up=rp.grid[y-1]&&rp.grid[y-1][x];
+  /* what a lone tree, sign or fence stands on: the ground of a neighbour */
+  const nbGround=()=>{for(const [dx,dy] of [[0,1],[-1,0],[1,0],[0,-1]]){const c2=rp.grid[y+dy]&&rp.grid[y+dy][x+dx];if(GROUND.has(c2))return c2}return null};
+  const under=()=>{const c2=nbGround();if(!c2||c2==='.'||c2==='F'||c2===',')grass();else rpTile(g,c2,x,y,X,Y)};
   switch(c){
     case '.':grass();break;
     case 'F':grass();['#ff8fb1','#ffe27a','#fff'].forEach((col,i)=>{g.fillStyle=col;g.beginPath();g.arc(X+6+r()*20,Y+6+r()*20,2.6,0,7);g.fill()});break;
     case ',':grass();g.strokeStyle='#3e8a2c';g.lineWidth=2;for(let i=0;i<6;i++){const a=X+3+r()*26,b2=Y+8+r()*22;g.beginPath();g.moveTo(a,b2);g.lineTo(a-2,b2-8);g.moveTo(a,b2);g.lineTo(a+3,b2-7);g.stroke()}break;
     case ';':forest();break;
-    case 'T':forest();g.fillStyle='#6b4423';g.fillRect(X+13,Y+18,6,12);g.fillStyle=OL;g.beginPath();g.arc(X+16,Y+13,13,0,7);g.fill();g.fillStyle='#2f8a3a';g.beginPath();g.arc(X+16,Y+13,11,0,7);g.fill();g.fillStyle='#4fb04e';g.beginPath();g.arc(X+12,Y+9,5,0,7);g.fill();break;
+    case 'T':if(nbGround())under();else forest();g.fillStyle='#6b4423';g.fillRect(X+13,Y+18,6,12);g.fillStyle=OL;g.beginPath();g.arc(X+16,Y+13,13,0,7);g.fill();g.fillStyle='#2f8a3a';g.beginPath();g.arc(X+16,Y+13,11,0,7);g.fill();g.fillStyle='#4fb04e';g.beginPath();g.arc(X+12,Y+9,5,0,7);g.fill();break;
     case '~':g.fillStyle='#3a8fd9';g.fillRect(X,Y,RT+1,RT+1);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=2;g.beginPath();g.moveTo(X+4,Y+10+(x%2)*8);g.quadraticCurveTo(X+10,Y+6+(x%2)*8,X+16,Y+10+(x%2)*8);g.stroke();break;
     case 'b':g.fillStyle='#3a8fd9';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='#a0703c';g.fillRect(X+3,Y,RT-6,RT);g.strokeStyle='#6b4423';g.lineWidth=1.5;for(let i=4;i<RT;i+=7){g.beginPath();g.moveTo(X+3,Y+i);g.lineTo(X+RT-3,Y+i);g.stroke()}break;
     case '=':g.fillStyle='#d8b98a';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(120,80,40,.18)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,3,3);break;
@@ -45,6 +49,17 @@ function rpTile(g,c,x,y,X,Y){
     case 'v':{g.fillStyle=(x+y)%2?'#eef4fb':'#e4edf7';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(120,150,190,.25)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,4,2);break}
     case 'P':{g.fillStyle='#eef4fb';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='#5a3a22';g.fillRect(X+14,Y+22,5,8);g.fillStyle=OL;g.beginPath();g.moveTo(X+16,Y+1);g.lineTo(X+29,Y+24);g.lineTo(X+3,Y+24);g.closePath();g.fill();
       g.fillStyle='#2f6b4a';g.beginPath();g.moveTo(X+16,Y+4);g.lineTo(X+26,Y+22);g.lineTo(X+6,Y+22);g.closePath();g.fill();g.fillStyle='#fff';g.beginPath();g.moveTo(X+16,Y+4);g.lineTo(X+20,Y+11);g.lineTo(X+12,Y+11);g.closePath();g.fill();break}
+    case 'u':{g.fillStyle=(x+y)%2?'#b3a48f':'#ab9c87';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(70,55,40,.3)';for(let i=0;i<4;i++)g.fillRect(X+r()*28,Y+r()*28,3,2);break}
+    case 'j':{const t=up==='j'?0:3,b=rp.grid[y+1]&&rp.grid[y+1][x]==='j'?RT+1:RT-3;g.fillStyle='#3a8fd9';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='#a0703c';g.fillRect(X,Y+t,RT+1,b-t);g.strokeStyle='#6b4423';g.lineWidth=1.5;for(let i=4;i<RT;i+=7){g.beginPath();g.moveTo(X+i,Y+t);g.lineTo(X+i,Y+b);g.stroke()}break}
+    case 'n':{under();const L=rp.grid[y][x-1]==='n',Rr=rp.grid[y][x+1]==='n',U=up==='n',D=rp.grid[y+1]&&rp.grid[y+1][x]==='n';g.fillStyle=OL;
+      if(L||Rr){g.fillRect(L?X:X+12,Y+11,(L?16:4)+(Rr?16:0),5);g.fillRect(L?X:X+12,Y+20,(L?16:4)+(Rr?16:0),5)}if(U||D)g.fillRect(X+13,U?Y:Y+12,6,(U?12:0)+(D?20:8));
+      g.fillStyle='#c99a5e';if(L||Rr){g.fillRect(L?X:X+13,Y+12,(L?16:3)+(Rr?16:0),3);g.fillRect(L?X:X+13,Y+21,(L?16:3)+(Rr?16:0),3)}if(U||D)g.fillRect(X+14,U?Y:Y+13,4,(U?13:0)+(D?19:6));
+      g.fillStyle=OL;g.fillRect(X+11,Y+7,10,22);g.fillStyle='#a8743f';g.fillRect(X+13,Y+9,6,18);break}
+    case 'i':under();g.fillStyle=OL;g.fillRect(X+14,Y+16,5,14);g.fillRect(X+3,Y+4,26,15);g.fillStyle='#6b4423';g.fillRect(X+15,Y+17,3,12);g.fillStyle='#d9a866';g.fillRect(X+5,Y+6,22,11);
+      g.fillStyle='#7a4f27';g.fillRect(X+8,Y+9,16,2);g.fillRect(X+8,Y+13,11,2);break;
+    case 'O':under();g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+21,15,9,0,0,7);g.fill();g.fillStyle='#a9a3bd';g.beginPath();g.ellipse(X+16,Y+20,13,7.5,0,0,7);g.fill();
+      g.fillStyle='#4fb3ff';g.beginPath();g.ellipse(X+16,Y+20,10,5,0,0,7);g.fill();g.fillStyle=OL;g.fillRect(X+13,Y+5,6,15);g.fillStyle='#a9a3bd';g.fillRect(X+14,Y+6,4,13);
+      g.fillStyle='#bfe6ff';g.beginPath();g.arc(X+16,Y+5,3.5,0,7);g.fill();g.fillStyle='rgba(255,255,255,.8)';g.fillRect(X+9,Y+18,4,2);g.fillRect(X+20,Y+21,3,2);break;
     default:grass();
   }
 }
@@ -100,4 +115,4 @@ function rpMarker(id){const q=rp.s.q;
   if(id==='elder')return q.q1===0?'!':q.q1===1&&q.kills>=5?'?':'';
   if(id==='yarrow')return q.q1>=2&&q.q2===0?'!':q.q2===1&&q.glow>=3?'?':'';
   if(id==='gorb')return q.q2>=1?'!':'';if(id==='vexx')return q.gate?'!':'';if(id==='bork')return'';return''}
-export {CHUNK,CHUNK_KEEP,rpChunk,rpDrawChunks,rpDrawMap,rpMapImage,rpMarker,rpNpcK,rpTile};
+export {CHUNK,CHUNK_KEEP,GROUND,rpChunk,rpDrawChunks,rpDrawMap,rpMapImage,rpMarker,rpNpcK,rpTile};

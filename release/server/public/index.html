@@ -400,131 +400,6 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   };
 
-  // src/data/overworld.js
-  function hash2(x, y, s) {
-    let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041) | 0;
-    return h = Math.imul(h ^ h >>> 13, 1274126177), ((h ^ h >>> 16) >>> 0) / 4294967296;
-  }
-  function vnoise(x, y, scale, s) {
-    let X = x / scale, Y = y / scale, x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy), a = hash2(x0, y0, s), b = hash2(x0 + 1, y0, s), c = hash2(x0, y0 + 1, s), d = hash2(x0 + 1, y0 + 1, s);
-    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
-  }
-  function height(x, y) {
-    let e = vnoise(x, y, 170, 4207) * 0.55 + vnoise(x, y, 64, 4208) * 0.3 + vnoise(x, y, 20, 4209) * 0.15, edge = Math.min(1279 - x, 959 - y) / 110;
-    e = e * 0.82 + 0.2 * Math.min(1, edge) - (edge < 1 ? (1 - edge) * 0.32 : 0);
-    let home = Math.hypot(x - 20, y - 15);
-    return home < 120 && (e = Math.max(e, 0.46 + 0.04 * (1 - home / 120))), e;
-  }
-  function wetness(x, y) {
-    return vnoise(x, y, 140, 4214) * 0.7 + vnoise(x, y, 36, 4215) * 0.3;
-  }
-  var SEA = 0.385, SHORE = 0.405, PEAK = 0.665, SNOW = 0.735, DRY = 0.335, WET = 0.6;
-  function baseTile(x, y) {
-    if (x < 5 || y < 5) return hash2(x, y, 4230) < 0.7 ? "#" : "T";
-    let e = height(x, y);
-    if (e < SEA) return "~";
-    if (e < SHORE) return "z";
-    let r = hash2(x, y, 4227);
-    if (e > SNOW) return r < 0.14 ? "P" : "v";
-    if (e > PEAK) return r < 0.25 || vnoise(x, y, 9, 4228) > 0.55 ? "#" : ",";
-    let m = wetness(x, y);
-    return m < DRY ? r < 0.025 ? "q" : "z" : m > WET ? r < 0.48 ? "T" : ";" : vnoise(x, y, 14, 4229) > 0.63 ? "," : r < 0.012 ? "F" : ".";
-  }
-  function biomeName(x, y) {
-    let e = height(x, y), m = wetness(x, y);
-    return e < SEA ? "Open Sea" : e < SHORE ? "Sandy Shore" : e > SNOW ? "Frostpeak" : e > PEAK ? "Craggy Highlands" : x < 5 || y < 5 ? "Rim Mountains" : m < DRY ? "Sunscorch Desert" : m > WET ? "Wildwood" : "Rolling Hills";
-  }
-  var TOWN_NAMES = ["Ashvale", "Pebblebrook", "Mossmere", "Saltspray", "Emberreach", "Thistledown", "Glimmerfen", "Copperhollow", "Brindlecove", "Frostwick", "Duskmoor", "Sunhaven", "Wyrmrest", "Briarwatch", "Larkspur", "Gloomhollow"], SITES = null, OVERLAY = null;
-  function sites() {
-    if (SITES) return SITES;
-    let out = [{ name: "Burrowhome", x: 20, y: 22, home: !0 }], tries = 0, i = 0;
-    for (; out.length < TOWN_NAMES.length + 1 && tries < 2e4; ) {
-      tries++;
-      let x = 30 + Math.floor(hash2(tries, 1, 4237) * 1220), y = 30 + Math.floor(hash2(tries, 2, 4237) * 900), e = height(x, y);
-      e < SHORE + 0.03 || e > PEAK - 0.03 || x < 60 && y < 50 || out.some((s) => Math.hypot(s.x - x, s.y - y) < 150) || out.push({ name: TOWN_NAMES[i++], x, y });
-    }
-    return SITES = out;
-  }
-  function overlay() {
-    if (OVERLAY) return OVERLAY;
-    let O = /* @__PURE__ */ new Map(), put = (x, y, c) => {
-      x < 0 || y < 0 || x >= 1280 || y >= 960 || x < 40 && y < 30 || O.set(y * 1280 + x, c);
-    }, S = sites(), road = (x0, y0, x1, y1, salt) => {
-      let x = x0, y = y0, n = 0;
-      for (; (x !== x1 || y !== y1) && n++ < 6e3; ) {
-        let dx = Math.sign(x1 - x), dy = Math.sign(y1 - y), wig = hash2(x, y, salt) < 0.25;
-        dx && (!dy || Math.abs(x1 - x) > Math.abs(y1 - y) !== wig) ? x += dx : y += dy;
-        for (let [ox, oy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-          let b = baseTile(x + ox, y + oy);
-          put(x + ox, y + oy, b === "~" ? "b" : "=");
-        }
-      }
-    }, joined = [S[0]], rest = S.slice(1), edges = [];
-    for (; rest.length; ) {
-      let best = null;
-      for (let a of joined) for (let b of rest) {
-        let d = Math.hypot(a.x - b.x, a.y - b.y);
-        (!best || d < best.d) && (best = { a, b, d });
-      }
-      edges.push(best), joined.push(best.b), rest.splice(rest.indexOf(best.b), 1);
-    }
-    for (let i = 1; i < S.length; i += 4) {
-      let a = S[i], best = null;
-      for (let b of S) {
-        if (b === a || edges.some((e) => e.a === a && e.b === b || e.a === b && e.b === a)) continue;
-        let d = Math.hypot(a.x - b.x, a.y - b.y);
-        (!best || d < best.d) && (best = { a, b, d });
-      }
-      best && best.d < 320 && edges.push(best);
-    }
-    for (let e of edges)
-      e.a.home ? road(40, 22, e.b.x, e.b.y, 4247) : road(e.a.x, e.a.y, e.b.x, e.b.y, 4248 + edges.indexOf(e));
-    {
-      let best = null;
-      for (let b of S.slice(1)) {
-        let d = Math.hypot(b.x - 4, b.y - 30);
-        (!best || d < best.d) && (best = { b, d });
-      }
-      road(4, 30, best.b.x, best.b.y, 4267);
-    }
-    for (let s of S)
-      if (!s.home)
-        for (let y = s.y - 8; y <= s.y + 8; y++) for (let x = s.x - 12; x <= s.x + 12; x++) {
-          let r = Math.hypot((x - s.x) / 12, (y - s.y) / 8);
-          r <= 0.86 ? put(x, y, O.get(y * 1280 + x) === "=" ? "=" : ".") : r <= 1 && hash2(x, y, 4257) < 0.45 ? put(x, y, "F") : r <= 1 && put(x, y, ".");
-        }
-    return OVERLAY = O;
-  }
-  function overworldArea(x, y) {
-    let best = null;
-    for (let s of sites()) {
-      let d = Math.hypot(s.x - x, s.y - y);
-      (!best || d < best.d) && (best = { s, d });
-    }
-    return best && !best.s.home && best.d < 16 ? best.s.name : biomeName(x, y);
-  }
-  function makeWorldGrid(oldRows) {
-    let O = overlay(), rows = new Array(960), row = (y) => {
-      let r = new Array(1280);
-      for (let x = 0; x < 1280; x++) {
-        if (y < 30 && x < 40) {
-          r[x] = oldRows[y][x];
-          continue;
-        }
-        let o = O.get(y * 1280 + x);
-        r[x] = o || baseTile(x, y);
-      }
-      return r;
-    };
-    return new Proxy(rows, { get(t, p) {
-      if (typeof p == "string" && p.charCodeAt(0) >= 48 && p.charCodeAt(0) <= 57) {
-        let y = +p;
-        return y >= 960 || y < 0 || !Number.isInteger(y) ? void 0 : t[y] || (t[y] = row(y));
-      }
-      return p === "length" ? 960 : t[p];
-    } });
-  }
-
   // src/data/places.js
   var RP_PLACES = {
     inn: { name: "The Snoring Snail", rows: [
@@ -570,6 +445,354 @@ button,.rpb,.pill{touch-action:manipulation}
     ] }
   }, RP_DOORS = { "3,20": "inn", "11,20": "shop", "4,26": "elder", "8,4": "hut" }, RP_ROOM_SOLID = ["w", "t", "k", "s", "o", "p", "h", "x", "y"];
 
+  // src/data/overworld.js
+  var CELL = 10, SEED = 4207, OLD_W = 40, OLD_H = 30, REGION = [
+    "oooo.........^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^************",
+    "oooo..ggg.AAA^^gggg^^^^^^^^^^^^^^^^^^^^^^^^^^^^^************",
+    "ooooggggggAAAggggggggmm^^^^^^^^^^^^^^^mmm^^^^^^^sss*HHH*****",
+    "ff...ggg..AAA^^^^^^^^mm^^^^^^^^^^^mmmmmmmmmmGGGsssssHHH*****",
+    "ff.........g.^^^^^^^^mmmmmEEE^^^^^mm^^^^^^^^GGG^*ss*HHH*****",
+    "ffff.......g.^^^^^^^^mmmmmEEEmmmmmmm^^^^^^^^GGG^*ss*********",
+    "ffff......ggg^^^^^^^^^^^^^EEE^^^^^^^^^^^mmmmm^^^************",
+    "ffff......ggg^^^^^^^^^^^^^^c^^^^^^^^^^^dd^dd^^^^************",
+    "ffff......ggg^^^^^^^^^^^^^^c^^^^^^^^^^^dd^dd^^^^************",
+    "ff.........ggggggg^^^^^^^^^c^^^^^^^^^^^dd^^^^^^^.......~~~~~",
+    "ff.........ggggggg.........c.^^^^^^^^^FFF^^............~~~~~",
+    ".BBB.............g.........c.^^^^^^^^^FFF^^............~~~~~",
+    ".BBB.............g.........c.^^^^^ddddFFF^^............~~~~~",
+    ".BBBggggggggkk...g.ggg.....c.^^^dddddd^^^^^............~~~~~",
+    "..ff...gggg.kk...ggggggg...c.^ddddd^^^^^^^^............~~~~~",
+    "..ff...gggg.kk....ggggggDDDDDdddddd^^^^^^^^............~~~~~",
+    "..ff........kk..........DDDDD^^^^^^^^^^^^^^............~~~~~",
+    "..ff........kk.kkkk.....DDDDD^^^^^^^^^^^^^^............~~~~~",
+    "..ff........kk.kkkk.....DDDDDgggggggggggg..............~~~~~",
+    "..ff........kkkkkkkkkkkkDDDDDgggggggggggggggg..........~~~~~",
+    "..ff......................g..............ggggbbb~~~~~~~~~~~~",
+    "..ff......................g..................bbb~~~~~~~~~~~~",
+    "..fggg....................g..................bbb~~~~~~~~~~~~",
+    "...ggg....................g....~~~~~~~~~~~~~~bbb~~~~~~~~~~~~",
+    "...ggg...................kkk...~~~~~~~~~~~~~~bbb~~~~~~~~~~~~",
+    "...ggg...................kkk...~~~~~~~~~~~~~~bbb~~~~~~~~~~~~",
+    "...gggggg................kkk...~~~~~~~~~~~~~~bbb~~~~~~~~~~~~",
+    ".....gggg..............kkk.....~~~~~~~~~~~~~~bbb~~~~~~~~~~~~",
+    ".....gggg..............kkk.....~~~~~~~~~~~~~~bbbbbb~~~~~~~~~",
+    "........gg............kk.......~~~~~~~~~~~~~~~~~bbb~~~~~~~~~",
+    "........CCCC........III........~~~~~~~~~~~~~~~~~~~JJJJ~~~~~~",
+    "........CCCCbbbbbbbbIIIbbbbbbbb~~~~~~~~~~bb~~~~~~~JJJJ~~~~~~",
+    "........CCCCbbbbbbbbIIIbbbbbbbb==========bb=======JJJJ~~~~~~",
+    "~~~~~~~~CCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bb~~~~~~~JJJJ~~~~~~",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  ], WW = REGION[0].length * CELL, WH = REGION.length * CELL, TOWNS = {
+    A: { name: "Pebblebrook", ground: ".", wall: "T", deco: "T", houses: 4, gardens: 2 },
+    B: { name: "Mossmere", ground: ".", wall: "T", deco: "T", houses: 4, decoRate: 0.07 },
+    C: { name: "Saltspray", ground: ".", wall: "T", deco: "T", houses: 5, coast: !0 },
+    D: { name: "Thistledown", ground: ".", wall: "T", deco: "T", houses: 9, market: !0, gardens: 1 },
+    E: { name: "Copperhollow", ground: "u", wall: "#", deco: "#", houses: 4 },
+    F: { name: "Sunhaven", ground: "z", wall: "#", deco: "q", houses: 4, pond: !0 },
+    G: { name: "Emberreach", ground: "u", wall: "#", deco: "#", houses: 4 },
+    H: { name: "Frostwick", ground: "v", wall: "P", deco: "P", houses: 4 },
+    I: { name: "Glimmerfen", ground: ".", wall: "T", deco: "~", houses: 4, pond: !0 },
+    J: { name: "Brindlecove", ground: "z", wall: "~", deco: "T", houses: 5 }
+  }, ROUTES = {
+    g: { name: "", floor: ".", wall: "T" },
+    f: { name: "woods", floor: ";", wall: "T" },
+    d: { name: "desert", floor: "z", wall: "#" },
+    m: { name: "pass", floor: "u", wall: "#" },
+    s: { name: "snowfield", floor: "v", wall: "P" },
+    k: { name: "marsh", floor: ".", wall: "T" },
+    b: { name: "shore", floor: "z", wall: "#" },
+    c: { name: "tunnel", floor: "C", wall: "#" },
+    "=": { name: "bridge", floor: "~", wall: "~" }
+  }, SOLID_HERE = /* @__PURE__ */ new Set(["T", "#", "~", "P", "q", "H", "d", "i", "n", "O", "M", "W", "X", "S", "N", "A"]);
+  function hash2(x, y, s) {
+    let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041) | 0;
+    return h = Math.imul(h ^ h >>> 13, 1274126177), ((h ^ h >>> 16) >>> 0) / 4294967296;
+  }
+  function vnoise(x, y, scale, s) {
+    let X = x / scale, Y = y / scale, x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy), a = hash2(x0, y0, s), b = hash2(x0 + 1, y0, s), c = hash2(x0, y0 + 1, s), d = hash2(x0 + 1, y0 + 1, s);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  }
+  var cellAt = (c, r) => REGION[r] && REGION[r][c] || ".", isTown = (ch) => ch >= "A" && ch <= "J", isRoute = (ch) => !!ROUTES[ch], isOpen = (ch) => isTown(ch) || isRoute(ch) || ch === "o";
+  function voidTile(ch, x, y) {
+    return ch === "^" ? "#" : ch === "~" ? "~" : ch === "*" ? hash2(x, y, SEED + 3) < 0.55 ? "P" : "#" : "T";
+  }
+  function routeTile(k, x, y) {
+    let r = hash2(x, y, SEED + 20), n = (sc, s) => vnoise(x, y, sc, SEED + s);
+    switch (k) {
+      case "g":
+        return n(7, 3) > 0.8 ? "~" : n(4, 2) > 0.74 ? "T" : n(5, 1) > 0.56 ? "," : r < 0.03 ? "F" : ".";
+      case "f":
+        return n(3, 4) > 0.56 ? "T" : r < 0.015 ? "F" : ";";
+      case "d":
+        return n(4, 5) > 0.76 ? "#" : r < 0.03 ? "q" : "z";
+      case "m":
+        return n(3, 6) > 0.66 ? "#" : n(6, 7) > 0.66 ? "," : "u";
+      case "s":
+        return n(3, 8) > 0.62 ? "P" : "v";
+      case "b":
+        return r < 0.02 ? "#" : r < 0.035 ? "T" : "z";
+      case "k":
+        return n(4, 9) > 0.62 ? "~" : n(5, 10) > 0.5 ? "," : r < 0.04 ? "T" : ".";
+      case "c":
+        return n(3, 11) > 0.6 ? "#" : "C";
+      default:
+        return "~";
+    }
+  }
+  var VALLEY_EXITS = [{ x: 40, y: 22 }, { x: 4, y: 30 }], BUILT = null;
+  function build() {
+    if (BUILT) return BUILT;
+    let G = [];
+    for (let y = 0; y < WH; y++) G.push(new Array(WW));
+    let signs = {}, towns = [], houses = [], C = REGION[0].length, Rn = REGION.length;
+    for (let r = 0; r < Rn; r++) for (let c = 0; c < C; c++) {
+      let ch = cellAt(c, r);
+      for (let y = r * CELL; y < r * CELL + CELL; y++) for (let x = c * CELL; x < c * CELL + CELL; x++)
+        G[y][x] = ch === "o" ? "o" : isRoute(ch) ? routeTile(ch, x, y) : isTown(ch) ? TOWNS[ch].ground : voidTile(ch, x, y);
+    }
+    for (let r = 0; r < Rn; r++) for (let c = 0; c < C; c++) {
+      let ch = cellAt(c, r);
+      if (!(!isRoute(ch) || ch === "="))
+        for (let ly = 0; ly < CELL; ly++) for (let lx = 0; lx < CELL; lx++) {
+          let x = c * CELL + lx, y = r * CELL + ly, depth = 1 + Math.floor(vnoise(x, y, 3, SEED + 12) * 2.6);
+          for (let [dc, dr] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+            let nb = cellAt(c + dc, r + dr);
+            if (isOpen(nb)) continue;
+            let dx = dc < 0 ? lx : dc > 0 ? CELL - 1 - lx : 0, dy = dr < 0 ? ly : dr > 0 ? CELL - 1 - ly : 0;
+            if ((dc && dr ? Math.max(dx, dy) : dc ? dx : dy) < depth) {
+              G[y][x] = nb === "~" && ch !== "c" ? "~" : ROUTES[ch].wall;
+              break;
+            }
+          }
+        }
+    }
+    let carve = (x, y, k, horiz) => {
+      x < 0 || y < 0 || x >= WW || y >= WH || G[y][x] === "o" || (k === "=" ? G[y][x] = horiz ? "j" : "b" : SOLID_HERE.has(G[y][x]) && (G[y][x] = ROUTES[k].floor));
+    }, line = (x0, y0, x1, y1, k) => {
+      let sx = Math.sign(x1 - x0), sy = Math.sign(y1 - y0), x = x0, y = y0;
+      for (; x !== x1; )
+        carve(x, y, k, !0), carve(x, y + 1, k, !0), x += sx;
+      for (; y !== y1; )
+        carve(x, y, k, !1), carve(x + 1, y, k, !1), y += sy;
+      carve(x, y, k, !sy), carve(x + 1, y, k, !sy), carve(x, y + 1, k, !sy), carve(x + 1, y + 1, k, !sy);
+    };
+    for (let r = 0; r < Rn; r++) for (let c = 0; c < C; c++) {
+      let ch = cellAt(c, r);
+      if (!isRoute(ch)) continue;
+      let cx = c * CELL + 4, cy = r * CELL + 4;
+      for (let [dc, dr] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        let nb = cellAt(c + dc, r + dr);
+        if (isOpen(nb)) {
+          if (nb === "o") {
+            let e = VALLEY_EXITS.find((e2) => Math.floor(e2.x / CELL) === c && Math.floor(e2.y / CELL) === r);
+            e && (dc ? (line(e.x, e.y, cx, e.y, ch), line(cx, e.y, cx, cy, ch)) : (line(e.x, e.y, e.x, cy, ch), line(e.x, cy, cx, cy, ch)));
+            continue;
+          }
+          line(cx, cy, dc < 0 ? c * CELL : dc > 0 ? c * CELL + CELL - 1 : cx, dr < 0 ? r * CELL : dr > 0 ? r * CELL + CELL - 1 : cy, ch);
+        }
+      }
+    }
+    let blocks = {};
+    for (let r = 0; r < Rn; r++) for (let c = 0; c < C; c++) {
+      let ch = cellAt(c, r);
+      if (!isTown(ch)) continue;
+      let b = blocks[ch] || (blocks[ch] = { c0: c, r0: r, c1: c, r1: r });
+      b.c0 = Math.min(b.c0, c), b.r0 = Math.min(b.r0, r), b.c1 = Math.max(b.c1, c), b.r1 = Math.max(b.r1, r);
+    }
+    for (let L of Object.keys(TOWNS)) {
+      let b = blocks[L];
+      b && towns.push(makeTown(G, L, b, signs, houses));
+    }
+    for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) (x === 0 || y === 0 || x === WW - 1 || y === WH - 1) && G[y][x] !== "o" && !SOLID_HERE.has(G[y][x]) && (G[y][x] = wallOf(x, y));
+    let routes2 = nameRoutes();
+    VALLEY_EXITS.forEach((e, i) => {
+      let sx = i ? e.x + 2 : e.x + 1, sy = i ? e.y + 1 : e.y - 1;
+      G[sy][sx] !== "o" && (G[sy][sx] = "i", signs[sx + "," + sy] = signText(routes2.of(Math.floor(e.x / CELL), Math.floor(e.y / CELL)), "Burrowhome"));
+    });
+    for (let t of towns) for (let o of t.openings) {
+      let rt = routes2.of(o.nc, o.nr);
+      G[o.sy] && G[o.sy][o.sx] === "i" && (signs[o.sx + "," + o.sy] = signText(rt, t.name));
+    }
+    let seen = new Uint8Array(WW * WH), q = [], walk = (x, y) => x >= 0 && y >= 0 && x < WW && y < WH && G[y][x] !== "o" && !SOLID_HERE.has(G[y][x]);
+    for (let e of VALLEY_EXITS) {
+      let x = e.x, y = e.y;
+      walk(x, y) && (seen[y * WW + x] = 1, q.push(y * WW + x));
+    }
+    for (let h = 0; h < q.length; h++) {
+      let i = q[h], x = i % WW, y = i / WW | 0;
+      for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        let nx = x + dx, ny = y + dy;
+        !walk(nx, ny) || seen[ny * WW + nx] || (seen[ny * WW + nx] = 1, q.push(ny * WW + nx));
+      }
+    }
+    for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) !seen[y * WW + x] && walk(x, y) && (G[y][x] = wallOf(x, y));
+    return BUILT = { G, signs, towns, houses, routes: routes2 };
+  }
+  function wallOf(x, y) {
+    let ch = cellAt(Math.floor(x / CELL), Math.floor(y / CELL));
+    return isTown(ch) ? TOWNS[ch].wall === "~" ? "T" : TOWNS[ch].wall : isRoute(ch) ? ch === "=" ? "~" : ROUTES[ch].wall : voidTile(ch, x, y);
+  }
+  function signText(rt, from) {
+    if (!rt) return "The wilds.";
+    let to = rt.ends.filter((n) => n !== from);
+    return rt.name + (to.length ? " · to " + to.join(" and ") : "");
+  }
+  function nameRoutes() {
+    let C = REGION[0].length, Rn = REGION.length, id = /* @__PURE__ */ new Map(), list = [], key = (c, r) => c + "," + r, nameOf = (ch) => isTown(ch) ? TOWNS[ch].name : "Burrowhome", seen = /* @__PURE__ */ new Set(["3,2", "0,2"]), q = [[3, 2], [0, 2]];
+    for (let h = 0; h < q.length; h++) {
+      let [c, r] = q[h];
+      for (let [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
+        let nc = c + dc, nr = r + dr, ch = cellAt(nc, nr);
+        if (!(!isOpen(ch) || seen.has(key(nc, nr)))) {
+          if (isRoute(ch) && !id.has(key(nc, nr))) {
+            let rt = { name: "Route " + (list.length + 1), ends: [], cells: [], kinds: {} };
+            list.push(rt);
+            let st = [[nc, nr]];
+            for (id.set(key(nc, nr), rt); st.length; ) {
+              let [a, b] = st.pop();
+              rt.cells.push([a, b]), rt.kinds[cellAt(a, b)] = (rt.kinds[cellAt(a, b)] || 0) + 1;
+              for (let [ec, er] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
+                let xc = a + ec, xr = b + er, c2 = cellAt(xc, xr);
+                isRoute(c2) && !id.has(key(xc, xr)) ? (id.set(key(xc, xr), rt), st.push([xc, xr])) : (isTown(c2) || c2 === "o") && !rt.ends.includes(nameOf(c2)) && rt.ends.push(nameOf(c2));
+              }
+            }
+          }
+          seen.add(key(nc, nr)), q.push([nc, nr]);
+        }
+      }
+    }
+    return { list, of: (c, r) => id.get(key(c, r)) || null };
+  }
+  function makeTown(G, L, b, signs, houses) {
+    let T = TOWNS[L], x0 = b.c0 * CELL, y0 = b.r0 * CELL, x1 = b.c1 * CELL + CELL - 1, y1 = b.r1 * CELL + CELL - 1, cx = x0 + x1 >> 1, cy = y0 + y1 >> 1, s = SEED + L.charCodeAt(0) * 31, set = (x, y, c) => {
+      G[y][x] = c;
+    }, get = (x, y) => G[y][x], ground = T.ground, openings = [], side = (nc, nr, horizEdge, ex, ey) => {
+      if (!isRoute(cellAt(nc, nr))) return;
+      let o = { nc, nr };
+      horizEdge ? (o.a = nc * CELL + 2, o.b = nc * CELL + 7, o.edge = ey, o.vert = !0) : (o.a = nr * CELL + 2, o.b = nr * CELL + 7, o.edge = ex, o.vert = !1), openings.push(o);
+    };
+    for (let c = b.c0; c <= b.c1; c++)
+      side(c, b.r0 - 1, !0, 0, y0), side(c, b.r1 + 1, !0, 0, y1);
+    for (let r = b.r0; r <= b.r1; r++)
+      side(b.c0 - 1, r, !1, x0, 0), side(b.c1 + 1, r, !1, x1, 0);
+    let inGap = (x, y) => openings.some((o) => o.vert ? x >= o.a && x <= o.b && Math.abs(y - o.edge) <= 2 : y >= o.a && y <= o.b && Math.abs(x - o.edge) <= 2);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      let d = Math.min(x - x0, x1 - x, y - y0, y1 - y);
+      set(x, y, d < 2 && !inGap(x, y) ? T.wall : ground);
+    }
+    if (T.coast) {
+      for (let y = y1 - 4; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, "~");
+      for (let y = y1 - 5; y <= y1 - 1; y++)
+        set(cx - 1, y, "b"), set(cx, y, "b");
+    }
+    let road = (x, y) => {
+      (get(x, y) === ground || get(x, y) === T.wall) && set(x, y, "=");
+    };
+    for (let o of openings) {
+      let m = o.a + o.b >> 1;
+      if (o.vert) {
+        let from = o.edge, dir = from < cy ? 1 : -1;
+        for (let y = from; y !== cy + dir; y += dir)
+          road(m, y), road(m + 1, y);
+        for (let x = Math.min(m, cx); x <= Math.max(m, cx) + 1; x++)
+          road(x, cy), road(x, cy + 1);
+      } else {
+        let from = o.edge, dir = from < cx ? 1 : -1;
+        for (let x = from; x !== cx + dir; x += dir)
+          road(x, m), road(x, m + 1);
+        for (let y = Math.min(m, cy); y <= Math.max(m, cy) + 1; y++)
+          road(cx, y), road(cx + 1, y);
+      }
+    }
+    let pw = T.market ? 6 : 4;
+    for (let y = cy - 3; y <= cy + 3; y++) for (let x = cx - pw; x <= cx + pw + 1; x++) get(x, y) === ground && set(x, y, "=");
+    if (T.pond) for (let y = cy - 3; y <= cy - 2; y++) for (let x = cx - 1; x <= cx + 2; x++) set(x, y, "~");
+    set(cx, cy - 1, "O"), set(cx - pw, cy - 3, "i"), signs[cx - pw + "," + (cy - 3)] = "Welcome to " + T.name + "!", T.market && set(cx + pw + 1, cy - 3, "M");
+    for (let o of openings) {
+      let sx, sy;
+      o.vert ? (sx = o.a, sy = o.edge < cy ? y0 + 2 : y1 - 2) : (sy = o.a, sx = o.edge < cx ? x0 + 2 : x1 - 2), get(sx, sy) === ground && (set(sx, sy, "i"), o.sx = sx, o.sy = sy);
+    }
+    let free = (ax, ay, w, h) => {
+      for (let y = ay - 1; y <= ay + h + 1; y++) for (let x = ax - 1; x <= ax + w; x++)
+        if (x < x0 + 2 || y < y0 + 2 || x > x1 - 2 || y > y1 - 2 || get(x, y) !== ground) return !1;
+      return !0;
+    }, spots = [];
+    for (let y = y0 + 3; y <= y1 - 6; y++) for (let x = x0 + 3; x <= x1 - 7; x++) spots.push([x, y, hash2(x, y, s)]);
+    spots.sort((a, b2) => a[2] - b2[2]);
+    let n = 0, gardens = 0, want = T.houses + (T.gardens || 0);
+    for (let [x, y] of spots) {
+      if (n + gardens >= want) break;
+      let garden = gardens < (T.gardens || 0) && n >= 2, lodge = n === 0 && !garden, w = garden || lodge ? 6 : 4 + (hash2(x, y, s + 1) < 0.4 ? 1 : 0), h = garden || lodge ? 4 : 3;
+      if (!free(x, y, w, h)) continue;
+      if (garden) {
+        for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) {
+          let edge = yy === y || yy === y + h - 1 || xx === x || xx === x + w - 1;
+          set(xx, yy, edge ? "n" : "F");
+        }
+        set(x + (w >> 1), y + h - 1, "F"), gardens++;
+        continue;
+      }
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) set(xx, yy, "H");
+      let dx = x + (w >> 1) - (lodge ? 1 : 0), dy = y + h - 1;
+      set(dx, dy, "d");
+      let id = "h" + L + n;
+      RP_PLACES[id] = { name: lodge ? T.name + " lodge" : "A house in " + T.name, rows: lodge ? LODGE : COTTAGES[n % COTTAGES.length] }, RP_DOORS[dx + "," + dy] = id, houses.push({ id, x: dx, y: dy, town: T.name });
+      {
+        let yy = dy + 1, ok = !1;
+        for (; yy <= dy + 8; yy++) {
+          let t = get(dx, yy);
+          if (t === "=") {
+            ok = !0;
+            break;
+          }
+          if (t !== ground) break;
+        }
+        if (ok) for (let k = dy + 1; k < yy; k++) set(dx, k, "=");
+      }
+      n++;
+    }
+    for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) {
+      if (get(x, y) !== ground) continue;
+      let r = hash2(x, y, s + 5);
+      if (r < (T.decoRate || 0.025)) {
+        let ok = !0;
+        for (let dy = -1; dy <= 1 && ok; dy++) for (let dx = -1; dx <= 1; dx++) {
+          let t = get(x + dx, y + dy);
+          if ((dx || dy) && SOLID_HERE.has(t)) {
+            ok = !1;
+            break;
+          }
+        }
+        ok && set(x, y, T.deco);
+      } else r < (T.decoRate || 0.025) + 0.035 && ground === "." && set(x, y, "F");
+    }
+    return { L, name: T.name, x: cx, y: cy, openings };
+  }
+  var COTTAGES = [
+    ["wwwwwwwww", "whffsffpw", "wffffffpw", "wfftlfffw", "wyffrrffw", "wffffffow", "wwwwewwww"],
+    ["wwwwwwwwwww", "wpfsssffhfw", "wpfffffffyw", "wfffftffffw", "wffflflfffw", "wofrrrrrfow", "wwwwwewwwww"],
+    ["wwwwwwwwww", "wssffffxfw", "wffffffffw", "wfltlffoow", "wffffffffw", "wyfrrrrffw", "wwwwewwwww"]
+  ], LODGE = ["wwwwwwwwwwwww", "whfffsssfffow", "wfffkkkkkfffw", "wffffffffffow", "wltlffffltlfw", "wffffffffffyw", "wffrrrrrrrffw", "wffffffffffyw", "wwwwwwewwwwww"];
+  function overworldArea(x, y) {
+    let B = build(), c = Math.floor(x / CELL), r = Math.floor(y / CELL), ch = cellAt(c, r);
+    if (isTown(ch)) return TOWNS[ch].name;
+    let rt = B.routes.of(c, r);
+    return rt ? rt.name : "The wilds";
+  }
+  function regionSign(x, y) {
+    return build().signs[x + "," + y] || null;
+  }
+  function makeWorldGrid(oldRows) {
+    let B = build(), rows = new Array(WH);
+    for (let y = 0; y < WH; y++) {
+      let r = B.G[y].slice();
+      if (y < OLD_H) for (let x = 0; x < OLD_W; x++) r[x] = oldRows[y][x];
+      rows[y] = r;
+    }
+    return rows;
+  }
+  build();
+
   // src/data/world.js
   var RW = 40, RH = 30;
   function rpBuildWorld() {
@@ -611,7 +834,7 @@ button,.rpb,.pill{touch-action:manipulation}
     for (let x = 21; x < RW; x++) set(x, 22, "=");
     return set(RW - 1, 23, "="), set(4, 28, "="), set(4, RH - 1, "="), [[27, 3], [36, 5], [29, 9]].forEach(([x, y]) => set(x, y, "g")), g;
   }
-  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", ...RP_ROOM_SOLID]), RP_CHESTS = [
+  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", "P", "q", "n", "i", "O", ...RP_ROOM_SOLID]), RP_CHESTS = [
     { x: 13, y: 28, it: "sh_lid", gold: 10 },
     { x: 37, y: 27, it: "bt_frog", gold: 20 },
     { x: 2, y: 12, it: "cl_moss", gold: 25 },
@@ -1369,7 +1592,7 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/game/world.js
   function rpArea(x, y) {
     if (rp.s.place && RP_PLACES[rp.s.place]) return RP_PLACES[rp.s.place].name;
-    if (x >= 40 || y >= 30) return overworldArea(x, y);
+    if (x >= OLD_W || y >= OLD_H) return overworldArea(x, y);
     let c = rp.grid[y][x];
     return c === "K" || c === "X" ? "Dragon's Hoard" : c === "C" || c === "g" || c === "c" ? "Mushroom Cave" : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "North Road" : x < 14 && y > 16 ? "Burrowhome" : "Bandit Meadow";
   }
@@ -1444,6 +1667,10 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s;
     s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("win");
   }
+  feature({ id: "world-fit", on: { "game:start"() {
+    let s = rp.s;
+    s.place && !RP_PLACES[s.place] && (delete s.place, rpApplyWorld()), !s.place && (s.y >= WH || s.x >= WW || rpSolid(s.x, s.y)) && (s.x = 7, s.y = 23, s.face = "down", rp.pos = null, rpSave());
+  } } });
   feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) }, X: { use: () => rpGate() } } });
   feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
     if (c === "e" && rp.s.place) {
@@ -2488,7 +2715,16 @@ button,.rpb,.pill{touch-action:manipulation}
       rp.mode = "map", rpSave();
     } }
   });
-  feature({ id: "town-spots", tiles: { S: { use: () => rpShrine() }, N: { use: () => rpBoard() }, A: { use: () => rpTalk("clink") } } });
+  feature({ id: "town-spots", tiles: {
+    S: { use: () => rpShrine() },
+    N: { use: () => rpBoard() },
+    A: { use: () => rpTalk("clink") },
+    /* signs on roads and in towns, and the healing fountain in every town square */
+    i: { use: (x, y) => rpSay([{ who: "Sign", text: regionSign(x, y) || "The words have worn away." }]) },
+    O: { use: () => {
+      rpHealAll(), rpSay([{ who: "", text: "The fountain water is cold and sweet. Everyone feels fresh again." }]), rp.headless || sfx("pop");
+    } }
+  } });
 
   // src/adapters/online.js
   var TOKEN_KEY = "kq-token";
@@ -2552,7 +2788,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T11:38:46Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T12:08:33Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -3027,6 +3263,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/render/map.js
+  var GROUND = /* @__PURE__ */ new Set([".", ",", "F", ";", "z", "u", "v", "=", "C"]);
   function rpTile(g, c, x, y, X, Y) {
     if (rpTileRoom(g, c, x, y, X, Y)) return;
     let r = seeded(x * 131 + y * 977), grass = () => {
@@ -3041,7 +3278,16 @@ button,.rpb,.pill{touch-action:manipulation}
         g.beginPath(), g.arc(X + r() * 30, Y + r() * 30, 1.5, 0, 7), g.fill();
     }, castle = () => {
       g.fillStyle = (x + y) % 2 ? "#5d4f72" : "#665880", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "rgba(255,215,90,.12)", g.fillRect(X + 2, Y + 2, RT - 4, 2);
-    }, up = rp.grid[y - 1] && rp.grid[y - 1][x];
+    }, up = rp.grid[y - 1] && rp.grid[y - 1][x], nbGround = () => {
+      for (let [dx, dy] of [[0, 1], [-1, 0], [1, 0], [0, -1]]) {
+        let c2 = rp.grid[y + dy] && rp.grid[y + dy][x + dx];
+        if (GROUND.has(c2)) return c2;
+      }
+      return null;
+    }, under = () => {
+      let c2 = nbGround();
+      !c2 || c2 === "." || c2 === "F" || c2 === "," ? grass() : rpTile(g, c2, x, y, X, Y);
+    };
     switch (c) {
       case ".":
         grass();
@@ -3062,7 +3308,7 @@ button,.rpb,.pill{touch-action:manipulation}
         forest();
         break;
       case "T":
-        forest(), g.fillStyle = "#6b4423", g.fillRect(X + 13, Y + 18, 6, 12), g.fillStyle = OL, g.beginPath(), g.arc(X + 16, Y + 13, 13, 0, 7), g.fill(), g.fillStyle = "#2f8a3a", g.beginPath(), g.arc(X + 16, Y + 13, 11, 0, 7), g.fill(), g.fillStyle = "#4fb04e", g.beginPath(), g.arc(X + 12, Y + 9, 5, 0, 7), g.fill();
+        nbGround() ? under() : forest(), g.fillStyle = "#6b4423", g.fillRect(X + 13, Y + 18, 6, 12), g.fillStyle = OL, g.beginPath(), g.arc(X + 16, Y + 13, 13, 0, 7), g.fill(), g.fillStyle = "#2f8a3a", g.beginPath(), g.arc(X + 16, Y + 13, 11, 0, 7), g.fill(), g.fillStyle = "#4fb04e", g.beginPath(), g.arc(X + 12, Y + 9, 5, 0, 7), g.fill();
         break;
       case "~":
         g.fillStyle = "#3a8fd9", g.fillRect(X, Y, RT + 1, RT + 1), g.strokeStyle = "rgba(255,255,255,.35)", g.lineWidth = 2, g.beginPath(), g.moveTo(X + 4, Y + 10 + x % 2 * 8), g.quadraticCurveTo(X + 10, Y + 6 + x % 2 * 8, X + 16, Y + 10 + x % 2 * 8), g.stroke();
@@ -3142,6 +3388,30 @@ button,.rpb,.pill{touch-action:manipulation}
         g.fillStyle = "#eef4fb", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#5a3a22", g.fillRect(X + 14, Y + 22, 5, 8), g.fillStyle = OL, g.beginPath(), g.moveTo(X + 16, Y + 1), g.lineTo(X + 29, Y + 24), g.lineTo(X + 3, Y + 24), g.closePath(), g.fill(), g.fillStyle = "#2f6b4a", g.beginPath(), g.moveTo(X + 16, Y + 4), g.lineTo(X + 26, Y + 22), g.lineTo(X + 6, Y + 22), g.closePath(), g.fill(), g.fillStyle = "#fff", g.beginPath(), g.moveTo(X + 16, Y + 4), g.lineTo(X + 20, Y + 11), g.lineTo(X + 12, Y + 11), g.closePath(), g.fill();
         break;
       }
+      case "u": {
+        g.fillStyle = (x + y) % 2 ? "#b3a48f" : "#ab9c87", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "rgba(70,55,40,.3)";
+        for (let i = 0; i < 4; i++) g.fillRect(X + r() * 28, Y + r() * 28, 3, 2);
+        break;
+      }
+      case "j": {
+        let t = up === "j" ? 0 : 3, b = rp.grid[y + 1] && rp.grid[y + 1][x] === "j" ? RT + 1 : RT - 3;
+        g.fillStyle = "#3a8fd9", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#a0703c", g.fillRect(X, Y + t, RT + 1, b - t), g.strokeStyle = "#6b4423", g.lineWidth = 1.5;
+        for (let i = 4; i < RT; i += 7)
+          g.beginPath(), g.moveTo(X + i, Y + t), g.lineTo(X + i, Y + b), g.stroke();
+        break;
+      }
+      case "n": {
+        under();
+        let L = rp.grid[y][x - 1] === "n", Rr = rp.grid[y][x + 1] === "n", U = up === "n", D = rp.grid[y + 1] && rp.grid[y + 1][x] === "n";
+        g.fillStyle = OL, (L || Rr) && (g.fillRect(L ? X : X + 12, Y + 11, (L ? 16 : 4) + (Rr ? 16 : 0), 5), g.fillRect(L ? X : X + 12, Y + 20, (L ? 16 : 4) + (Rr ? 16 : 0), 5)), (U || D) && g.fillRect(X + 13, U ? Y : Y + 12, 6, (U ? 12 : 0) + (D ? 20 : 8)), g.fillStyle = "#c99a5e", (L || Rr) && (g.fillRect(L ? X : X + 13, Y + 12, (L ? 16 : 3) + (Rr ? 16 : 0), 3), g.fillRect(L ? X : X + 13, Y + 21, (L ? 16 : 3) + (Rr ? 16 : 0), 3)), (U || D) && g.fillRect(X + 14, U ? Y : Y + 13, 4, (U ? 13 : 0) + (D ? 19 : 6)), g.fillStyle = OL, g.fillRect(X + 11, Y + 7, 10, 22), g.fillStyle = "#a8743f", g.fillRect(X + 13, Y + 9, 6, 18);
+        break;
+      }
+      case "i":
+        under(), g.fillStyle = OL, g.fillRect(X + 14, Y + 16, 5, 14), g.fillRect(X + 3, Y + 4, 26, 15), g.fillStyle = "#6b4423", g.fillRect(X + 15, Y + 17, 3, 12), g.fillStyle = "#d9a866", g.fillRect(X + 5, Y + 6, 22, 11), g.fillStyle = "#7a4f27", g.fillRect(X + 8, Y + 9, 16, 2), g.fillRect(X + 8, Y + 13, 11, 2);
+        break;
+      case "O":
+        under(), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 21, 15, 9, 0, 0, 7), g.fill(), g.fillStyle = "#a9a3bd", g.beginPath(), g.ellipse(X + 16, Y + 20, 13, 7.5, 0, 0, 7), g.fill(), g.fillStyle = "#4fb3ff", g.beginPath(), g.ellipse(X + 16, Y + 20, 10, 5, 0, 0, 7), g.fill(), g.fillStyle = OL, g.fillRect(X + 13, Y + 5, 6, 15), g.fillStyle = "#a9a3bd", g.fillRect(X + 14, Y + 6, 4, 13), g.fillStyle = "#bfe6ff", g.beginPath(), g.arc(X + 16, Y + 5, 3.5, 0, 7), g.fill(), g.fillStyle = "rgba(255,255,255,.8)", g.fillRect(X + 9, Y + 18, 4, 2), g.fillRect(X + 20, Y + 21, 3, 2);
+        break;
       default:
         grass();
     }

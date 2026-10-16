@@ -57,10 +57,12 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
   rules; the first whose `if` holds speaks. Effects (`set`, `add`, `gold`, `xp`, `item`, `join`, `fight`, `toast`…)
   run `now`, `then`, or on a choice. The quest log and the top-bar quest line are rule lists too.
 * **Bosses** (what beating them does and drops), **kill tallies** and **bounties** are in `data/quests.js`.
-* **The world** (`data/overworld.js`) is 1280 × 960 tiles, grown from a seed: terrain from noise, 16 empty town sites joined by
-  roads, and the hand-made Burrowhome valley in the north-west corner. Rows are worked out when first looked at and the map is
-  drawn in 16 × 16 chunks, so size costs little. Towns are clearings waiting for content; `test/logic/overworld.test.js` checks
-  every town can be walked to.
+* **The world** (`data/overworld.js`) is a region of 600 × 350 tiles laid out like a handheld adventure: 10 towns joined by
+  15 numbered routes (grassy, woods, desert, mountain pass, snow, marsh, shore, a cave tunnel and sea bridges), walled in by
+  forest, cliffs and sea. `REGION` is the plan, one letter per 10 × 10 block; edit it to add or move routes and towns. Routes
+  are grown from the plan with noise but always get a path through; towns get a ring wall, roads, a healing fountain (`O`),
+  signs (`i`) and houses whose doors open into rooms made on the spot. The Burrowhome valley sits unchanged in the
+  north-west corner. `test/logic/overworld.test.js` checks every town, route, door and sign.
 * **Rooms** are drawn as rows of letters in `data/places.js`; `RP_DOORS` says which world door leads where. NPCs, chests and
   quest spots take `place:'inn'` to live inside. `test/logic/places.test.js` checks every room is closed in and reachable.
 * **Pickups and quest spots** on the map are in `data/world.js` (`RP_PICKUPS`, `RP_SPOTS`).

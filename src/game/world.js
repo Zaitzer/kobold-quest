@@ -4,7 +4,7 @@ import {run,test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
 import {rp,rpApplyWorld,rpPlace} from '../core/state.js';
 import {RP_IT} from '../data/items.js';
-import {OLD_H,OLD_W,overworldArea} from '../data/overworld.js';
+import {OLD_H,OLD_W,WH,WW,overworldArea} from '../data/overworld.js';
 import {RP_DOORS,RP_PLACES} from '../data/places.js';
 import {RP_NPC} from '../data/quests.js';
 import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
@@ -43,6 +43,9 @@ function rpChestAt(x,y){const pl=rpPlace();return RP_CHESTS.find(c=>(c.place||'w
 function rpOpenChest(c){const s=rp.s;s.chests.push(rpChestKey(c));s.gold+=c.gold;rpGive(c.it);rp.mapImg=null;
   rpSay([{who:'',text:'A treasure chest! Inside: '+RP_IT[c.it].n+' and '+c.gold+' gold. ('+rpItemDesc(c.it)+')'},{who:'',text:'Open ☰ Heroes & gear to put it on.'}]);if(!rp.headless)sfx('win')}
 
+/* a save from a bigger or older world can stand somewhere that is now a wall or off the map: go home */
+feature({id:'world-fit',on:{'game:start'(){const s=rp.s;if(s.place&&!RP_PLACES[s.place]){delete s.place;rpApplyWorld()}
+  if(!s.place&&(s.y>=WH||s.x>=WW||rpSolid(s.x,s.y))){s.x=7;s.y=23;s.face='down';rp.pos=null;rpSave()}}}});
 feature({id:'doors',tiles:{d:{use:(x,y)=>rpDoor(x,y)},X:{use:()=>rpGate()}}});
 
 /* pickups and quest spots: when Pip steps on a tile (see RP_PICKUPS and RP_SPOTS) */

@@ -5,6 +5,7 @@ import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {QUEST_LINE,QUEST_LOG,TALK} from '../data/dialogue.js';
 import {RP_IT,RP_ITEMS,RP_SHOP2} from '../data/items.js';
+import {regionSign} from '../data/overworld.js';
 import {RP_BOUNTY} from '../data/quests.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
@@ -44,5 +45,8 @@ feature({id:'shop',
       RP_SHOP2.map(k=>{const it=RP_IT[k],who=s.party.filter(m=>rpCanEquip(m,k)).map(m=>m.name);return '<button class="rpb '+(it.w?'sk':'go')+'" type="button" data-rp="buyg" data-k="'+k+'"'+(s.gold<it.price?' disabled':'')+'>'+it.n+' · '+it.price+'g<small>'+rpItemDesc(k)+(who.length?'':' · nobody in your party can use it')+'</small></button>'}).join('')+'<button class="rpb x" type="button" data-rp="leave">Leave shop</button></div>'}}},
   actions:{buyitem:d=>rpBuyItem(d.k),buyg:d=>rpBuyGear(d.k),leave:()=>{rp.mode='map';rpSave()}}});
 
-feature({id:'town-spots',tiles:{S:{use:()=>rpShrine()},N:{use:()=>rpBoard()},A:{use:()=>rpTalk('clink')}}});
+feature({id:'town-spots',tiles:{S:{use:()=>rpShrine()},N:{use:()=>rpBoard()},A:{use:()=>rpTalk('clink')},
+  /* signs on roads and in towns, and the healing fountain in every town square */
+  i:{use:(x,y)=>rpSay([{who:'Sign',text:regionSign(x,y)||'The words have worn away.'}])},
+  O:{use:()=>{rpHealAll();rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'}]);if(!rp.headless)sfx('pop')}}}});
 export {rpBoard,rpBuyGear,rpBuyItem,rpHealAll,rpOpenShop,rpOpenSmith,rpQuestLine,rpQuestList,rpShrine,rpTalk};

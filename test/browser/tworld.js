@@ -1,4 +1,4 @@
-/* The big world in the real page: walk out of the valley, look at a few places far away, keep the frame rate up. */
+/* The region in the real page: walk out of the valley, look at a few places far away, keep the frame rate up. */
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs');
 const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html'),OUT=path.join(__dirname,'../out');
 const SAVE=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/save_v2.json'),'utf8'));
@@ -14,7 +14,7 @@ const SAVE=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/save_v2.j
  if(out[0]<41){fails++;console.log('FAIL could not walk out of the valley, at',out)}else console.log('walked out to',out.join(' · '));
  await p.screenshot({path:OUT+'/world_exit.png'});
  // drop in on far places and measure frames
- for(const [x,y,n] of [[640,480,'middle'],[1006,595,'ashvale'],[300,600,'snow'],[1250,900,'coast']]){
+ for(const [x,y,n] of [[264,174,'thistledown'],[534,34,'frostwick'],[350,324,'bridge'],[5,60,'woods']]){
    await p.evaluate(([x,y])=>{const r=__rp;r.s.x=x;r.s.y=y;r.pos=null},[x,y]);await p.waitForTimeout(400);
    const fps=await p.evaluate(()=>new Promise(ok=>{let n=0;const t0=performance.now();const f=()=>{n++;if(performance.now()-t0<1500)requestAnimationFrame(f);else ok(Math.round(n/1.5))};requestAnimationFrame(f)}));
    const area=await p.evaluate(()=>document.getElementById('rp-topt').textContent);

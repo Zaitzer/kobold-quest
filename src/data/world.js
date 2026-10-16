@@ -50,7 +50,7 @@ function rpBuildWorld(){
   [[27,3],[36,5],[29,9]].forEach(([x,y])=>set(x,y,'g'));
   return g;
 }
-const RP_SOLID=new Set(['T','~','#','H','W','X','S','N','A','M',...RP_ROOM_SOLID]);
+const RP_SOLID=new Set(['T','~','#','H','W','X','S','N','A','M','P','q','n','i','O',...RP_ROOM_SOLID]);
 const RP_CHESTS=[{x:13,y:28,it:'sh_lid',gold:10},{x:37,y:27,it:'bt_frog',gold:20},{x:2,y:12,it:'cl_moss',gold:25},{x:37,y:2,it:'am_glow',gold:40},{x:18,y:1,it:'rg_haste',gold:80},
   {place:'elder',x:9,y:5,it:'rg_life',gold:15},{place:'hut',x:9,y:6,it:'am_shell',gold:25}];
 /* movement */
