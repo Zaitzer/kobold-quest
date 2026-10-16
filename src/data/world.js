@@ -44,6 +44,8 @@ function rpBuildWorld(){
   // borders
   for(let x=0;x<RW;x++){set(x,0,x>=17&&x<=23?'W':'#');set(x,RH-1,'#')}
   for(let y=0;y<RH;y++){set(0,y,'#');set(RW-1,y,'#')}
+  // ways out to the big world: the village road runs on east, and a track leads south past the elder's house
+  for(let x=21;x<RW;x++)set(x,22,'=');set(RW-1,23,'=');set(4,28,'=');set(4,RH-1,'=');
   // glowcaps
   [[27,3],[36,5],[29,9]].forEach(([x,y])=>set(x,y,'g'));
   return g;

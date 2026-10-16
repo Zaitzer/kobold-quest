@@ -4,13 +4,14 @@ import {run,test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
 import {rp,rpApplyWorld,rpPlace} from '../core/state.js';
 import {RP_IT} from '../data/items.js';
+import {OLD_H,OLD_W,overworldArea} from '../data/overworld.js';
 import {RP_DOORS,RP_PLACES} from '../data/places.js';
 import {RP_NPC} from '../data/quests.js';
 import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay} from './dialogue.js';
 import {rpGive,rpItemDesc} from './items.js';
-function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;const c=rp.grid[y][x];if(c==='K'||c==='X')return"Dragon's Hoard";if(c==='C'||c==='g'||c==='c')return'Mushroom Cave';if(x<17&&y<15)return'Whisper Woods';if(y<15)return'North Road';if(x<14&&y>16)return'Burrowhome';return'Bandit Meadow'}
+function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);const c=rp.grid[y][x];if(c==='K'||c==='X')return"Dragon's Hoard";if(c==='C'||c==='g'||c==='c')return'Mushroom Cave';if(x<17&&y<15)return'Whisper Woods';if(y<15)return'North Road';if(x<14&&y>16)return'Burrowhome';return'Bandit Meadow'}
 function rpNpcs(){const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
 function rpNpcAt(x,y){return rpNpcs().find(n=>n.x===x&&n.y===y)}
 function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
@@ -27,10 +28,12 @@ function rpGate(){const q=rp.s.q;if(q.gate)return;
   if(q.key){q.gate=1;rp.grid[7][20]='K';rp.mapImg=null;rpSay([{who:'',text:'Gorb\'s key turns with a groan. The gate of the Dragon\'s Hoard swings open.'}]);sfx('win')}
   else rpSay([{who:'',text:'A huge iron gate. It has a keyhole the size of a fist.'}])}
 function rpBfs(tx,ty,toNeighbor){
-  const s=rp.s,key=(x,y)=>x+','+y,prev={},q=[[s.x,s.y]];prev[key(s.x,s.y)]=null;
+  const s=rp.s,key=(x,y)=>x+','+y,prev={},q=[[s.x,s.y]];let seen=0;prev[key(s.x,s.y)]=null;
   while(q.length){const [x,y]=q.shift();
     if(toNeighbor?Math.abs(x-tx)+Math.abs(y-ty)===1:x===tx&&y===ty){const out=[];let k=key(x,y);while(prev[k]!==null){const [px,py]=prev[k];out.unshift([+k.split(',')[0],+k.split(',')[1]]);k=key(px,py)}return out}
-    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=key(nx,ny);if(k in prev||rpSolid(nx,ny))continue;prev[k]=[x,y];q.push([nx,ny])}}
+    /* the world is huge: only search near Pip (taps are always on screen) */
+    if(++seen>6000)return null;
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=key(nx,ny);if(k in prev||rpSolid(nx,ny)||Math.abs(nx-s.x)+Math.abs(ny-s.y)>40)continue;prev[k]=[x,y];q.push([nx,ny])}}
   return null;
 }
 /* chests */

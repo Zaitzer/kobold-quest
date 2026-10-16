@@ -46,7 +46,7 @@ const RP_DRUMS={/* 16 steps per bar: k kick, s snare, h hat, d drip */
 function rpMusicWant(){
   if(!soundOn||rp.headless||rpOpt.music===false||view!=='rpg'||!rp.s)return null;
   if(rp.mode==='battle'&&rp.bt)return rp.bt.boss?'boss':'battle';
-  const a=rpArea(rp.s.x,rp.s.y);return a==='Burrowhome'?'village':a==='Whisper Woods'?'woods':a==='Mushroom Cave'?'cave':a==="Dragon's Hoard"?'hoard':'meadow'}
+  const a=rpArea(rp.s.x,rp.s.y);return a==='Burrowhome'?'village':a==='Whisper Woods'||a==='Wildwood'?'woods':a==='Mushroom Cave'?'cave':a==="Dragon's Hoard"?'hoard':'meadow'}
 function rpMusicTick(){
   const want=rpMusicWant(),a=ac;
   if(!want){if(rpMus.g&&a){rpMus.g.gain.setTargetAtTime(0,a.currentTime,.15);rpMus.g=null;rpMus.key=null}return}

@@ -397,6 +397,131 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   };
 
+  // src/data/overworld.js
+  function hash2(x, y, s) {
+    let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041) | 0;
+    return h = Math.imul(h ^ h >>> 13, 1274126177), ((h ^ h >>> 16) >>> 0) / 4294967296;
+  }
+  function vnoise(x, y, scale, s) {
+    let X = x / scale, Y = y / scale, x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy), a = hash2(x0, y0, s), b = hash2(x0 + 1, y0, s), c = hash2(x0, y0 + 1, s), d = hash2(x0 + 1, y0 + 1, s);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  }
+  function height(x, y) {
+    let e = vnoise(x, y, 170, 4207) * 0.55 + vnoise(x, y, 64, 4208) * 0.3 + vnoise(x, y, 20, 4209) * 0.15, edge = Math.min(1279 - x, 959 - y) / 110;
+    e = e * 0.82 + 0.2 * Math.min(1, edge) - (edge < 1 ? (1 - edge) * 0.32 : 0);
+    let home = Math.hypot(x - 20, y - 15);
+    return home < 120 && (e = Math.max(e, 0.46 + 0.04 * (1 - home / 120))), e;
+  }
+  function wetness(x, y) {
+    return vnoise(x, y, 140, 4214) * 0.7 + vnoise(x, y, 36, 4215) * 0.3;
+  }
+  var SEA = 0.385, SHORE = 0.405, PEAK = 0.665, SNOW = 0.735, DRY = 0.335, WET = 0.6;
+  function baseTile(x, y) {
+    if (x < 5 || y < 5) return hash2(x, y, 4230) < 0.7 ? "#" : "T";
+    let e = height(x, y);
+    if (e < SEA) return "~";
+    if (e < SHORE) return "z";
+    let r = hash2(x, y, 4227);
+    if (e > SNOW) return r < 0.14 ? "P" : "v";
+    if (e > PEAK) return r < 0.25 || vnoise(x, y, 9, 4228) > 0.55 ? "#" : ",";
+    let m = wetness(x, y);
+    return m < DRY ? r < 0.025 ? "q" : "z" : m > WET ? r < 0.48 ? "T" : ";" : vnoise(x, y, 14, 4229) > 0.63 ? "," : r < 0.012 ? "F" : ".";
+  }
+  function biomeName(x, y) {
+    let e = height(x, y), m = wetness(x, y);
+    return e < SEA ? "Open Sea" : e < SHORE ? "Sandy Shore" : e > SNOW ? "Frostpeak" : e > PEAK ? "Craggy Highlands" : x < 5 || y < 5 ? "Rim Mountains" : m < DRY ? "Sunscorch Desert" : m > WET ? "Wildwood" : "Rolling Hills";
+  }
+  var TOWN_NAMES = ["Ashvale", "Pebblebrook", "Mossmere", "Saltspray", "Emberreach", "Thistledown", "Glimmerfen", "Copperhollow", "Brindlecove", "Frostwick", "Duskmoor", "Sunhaven", "Wyrmrest", "Briarwatch", "Larkspur", "Gloomhollow"], SITES = null, OVERLAY = null;
+  function sites() {
+    if (SITES) return SITES;
+    let out = [{ name: "Burrowhome", x: 20, y: 22, home: !0 }], tries = 0, i = 0;
+    for (; out.length < TOWN_NAMES.length + 1 && tries < 2e4; ) {
+      tries++;
+      let x = 30 + Math.floor(hash2(tries, 1, 4237) * 1220), y = 30 + Math.floor(hash2(tries, 2, 4237) * 900), e = height(x, y);
+      e < SHORE + 0.03 || e > PEAK - 0.03 || x < 60 && y < 50 || out.some((s) => Math.hypot(s.x - x, s.y - y) < 150) || out.push({ name: TOWN_NAMES[i++], x, y });
+    }
+    return SITES = out;
+  }
+  function overlay() {
+    if (OVERLAY) return OVERLAY;
+    let O = /* @__PURE__ */ new Map(), put = (x, y, c) => {
+      x < 0 || y < 0 || x >= 1280 || y >= 960 || x < 40 && y < 30 || O.set(y * 1280 + x, c);
+    }, S = sites(), road = (x0, y0, x1, y1, salt) => {
+      let x = x0, y = y0, n = 0;
+      for (; (x !== x1 || y !== y1) && n++ < 6e3; ) {
+        let dx = Math.sign(x1 - x), dy = Math.sign(y1 - y), wig = hash2(x, y, salt) < 0.25;
+        dx && (!dy || Math.abs(x1 - x) > Math.abs(y1 - y) !== wig) ? x += dx : y += dy;
+        for (let [ox, oy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+          let b = baseTile(x + ox, y + oy);
+          put(x + ox, y + oy, b === "~" ? "b" : "=");
+        }
+      }
+    }, joined = [S[0]], rest = S.slice(1), edges = [];
+    for (; rest.length; ) {
+      let best = null;
+      for (let a of joined) for (let b of rest) {
+        let d = Math.hypot(a.x - b.x, a.y - b.y);
+        (!best || d < best.d) && (best = { a, b, d });
+      }
+      edges.push(best), joined.push(best.b), rest.splice(rest.indexOf(best.b), 1);
+    }
+    for (let i = 1; i < S.length; i += 4) {
+      let a = S[i], best = null;
+      for (let b of S) {
+        if (b === a || edges.some((e) => e.a === a && e.b === b || e.a === b && e.b === a)) continue;
+        let d = Math.hypot(a.x - b.x, a.y - b.y);
+        (!best || d < best.d) && (best = { a, b, d });
+      }
+      best && best.d < 320 && edges.push(best);
+    }
+    for (let e of edges)
+      e.a.home ? road(40, 22, e.b.x, e.b.y, 4247) : road(e.a.x, e.a.y, e.b.x, e.b.y, 4248 + edges.indexOf(e));
+    {
+      let best = null;
+      for (let b of S.slice(1)) {
+        let d = Math.hypot(b.x - 4, b.y - 30);
+        (!best || d < best.d) && (best = { b, d });
+      }
+      road(4, 30, best.b.x, best.b.y, 4267);
+    }
+    for (let s of S)
+      if (!s.home)
+        for (let y = s.y - 8; y <= s.y + 8; y++) for (let x = s.x - 12; x <= s.x + 12; x++) {
+          let r = Math.hypot((x - s.x) / 12, (y - s.y) / 8);
+          r <= 0.86 ? put(x, y, O.get(y * 1280 + x) === "=" ? "=" : ".") : r <= 1 && hash2(x, y, 4257) < 0.45 ? put(x, y, "F") : r <= 1 && put(x, y, ".");
+        }
+    return OVERLAY = O;
+  }
+  function overworldArea(x, y) {
+    let best = null;
+    for (let s of sites()) {
+      let d = Math.hypot(s.x - x, s.y - y);
+      (!best || d < best.d) && (best = { s, d });
+    }
+    return best && !best.s.home && best.d < 16 ? best.s.name : biomeName(x, y);
+  }
+  function makeWorldGrid(oldRows) {
+    let O = overlay(), rows = new Array(960), row = (y) => {
+      let r = new Array(1280);
+      for (let x = 0; x < 1280; x++) {
+        if (y < 30 && x < 40) {
+          r[x] = oldRows[y][x];
+          continue;
+        }
+        let o = O.get(y * 1280 + x);
+        r[x] = o || baseTile(x, y);
+      }
+      return r;
+    };
+    return new Proxy(rows, { get(t, p) {
+      if (typeof p == "string" && p.charCodeAt(0) >= 48 && p.charCodeAt(0) <= 57) {
+        let y = +p;
+        return y >= 960 || y < 0 || !Number.isInteger(y) ? void 0 : t[y] || (t[y] = row(y));
+      }
+      return p === "length" ? 960 : t[p];
+    } });
+  }
+
   // src/data/places.js
   var RP_PLACES = {
     inn: { name: "The Snoring Snail", rows: [
@@ -480,7 +605,8 @@ button,.rpb,.pill{touch-action:manipulation}
       set(x, 0, x >= 17 && x <= 23 ? "W" : "#"), set(x, RH - 1, "#");
     for (let y = 0; y < RH; y++)
       set(0, y, "#"), set(RW - 1, y, "#");
-    return [[27, 3], [36, 5], [29, 9]].forEach(([x, y]) => set(x, y, "g")), g;
+    for (let x = 21; x < RW; x++) set(x, 22, "=");
+    return set(RW - 1, 23, "="), set(4, 28, "="), set(4, RH - 1, "="), [[27, 3], [36, 5], [29, 9]].forEach(([x, y]) => set(x, y, "g")), g;
   }
   var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", ...RP_ROOM_SOLID]), RP_CHESTS = [
     { x: 13, y: 28, it: "sh_lid", gold: 10 },
@@ -1238,6 +1364,7 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/game/world.js
   function rpArea(x, y) {
     if (rp.s.place && RP_PLACES[rp.s.place]) return RP_PLACES[rp.s.place].name;
+    if (x >= 40 || y >= 30) return overworldArea(x, y);
     let c = rp.grid[y][x];
     return c === "K" || c === "X" ? "Dragon's Hoard" : c === "C" || c === "g" || c === "c" ? "Mushroom Cave" : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "North Road" : x < 14 && y > 16 ? "Burrowhome" : "Bandit Meadow";
   }
@@ -1282,7 +1409,7 @@ button,.rpb,.pill{touch-action:manipulation}
     q.gate || (q.key ? (q.gate = 1, rp.grid[7][20] = "K", rp.mapImg = null, rpSay([{ who: "", text: "Gorb's key turns with a groan. The gate of the Dragon's Hoard swings open." }]), sfx("win")) : rpSay([{ who: "", text: "A huge iron gate. It has a keyhole the size of a fist." }]));
   }
   function rpBfs(tx, ty, toNeighbor) {
-    let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]];
+    let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen = 0;
     for (prev[key(s.x, s.y)] = null; q.length; ) {
       let [x, y] = q.shift();
       if (toNeighbor ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty) {
@@ -1293,9 +1420,10 @@ button,.rpb,.pill{touch-action:manipulation}
         }
         return out;
       }
+      if (++seen > 6e3) return null;
       for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         let nx = x + dx, ny = y + dy, k = key(nx, ny);
-        k in prev || rpSolid(nx, ny) || (prev[k] = [x, y], q.push([nx, ny]));
+        k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40 || (prev[k] = [x, y], q.push([nx, ny]));
       }
     }
     return null;
@@ -2649,21 +2777,56 @@ button,.rpb,.pill{touch-action:manipulation}
       case "c":
         g.fillStyle = "#4d3f57", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#0c0614", g.beginPath(), g.ellipse(X + 16, Y + 22, 12, 14, 0, Math.PI, 0), g.fill(), g.fillRect(X + 4, Y + 22, 24, 10);
         break;
+      case "z": {
+        g.fillStyle = (x + y) % 3 ? "#e9d18b" : "#e3c97f", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "rgba(160,120,60,.25)";
+        for (let i = 0; i < 4; i++) g.fillRect(X + r() * 28, Y + r() * 28, 2, 2);
+        break;
+      }
+      case "q": {
+        g.fillStyle = "#e9d18b", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = OL, g.fillRect(X + 12, Y + 4, 9, 26), g.fillRect(X + 5, Y + 11, 7, 4), g.fillRect(X + 5, Y + 8, 4, 8), g.fillRect(X + 21, Y + 14, 7, 4), g.fillRect(X + 24, Y + 9, 4, 9), g.fillStyle = "#4f9a3f", g.fillRect(X + 14, Y + 6, 5, 23), g.fillRect(X + 7, Y + 12, 6, 2), g.fillRect(X + 7, Y + 10, 2, 5), g.fillRect(X + 20, Y + 15, 6, 2), g.fillRect(X + 25, Y + 11, 2, 6);
+        break;
+      }
+      case "v": {
+        g.fillStyle = (x + y) % 2 ? "#eef4fb" : "#e4edf7", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "rgba(120,150,190,.25)";
+        for (let i = 0; i < 3; i++) g.fillRect(X + r() * 28, Y + r() * 28, 4, 2);
+        break;
+      }
+      case "P": {
+        g.fillStyle = "#eef4fb", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#5a3a22", g.fillRect(X + 14, Y + 22, 5, 8), g.fillStyle = OL, g.beginPath(), g.moveTo(X + 16, Y + 1), g.lineTo(X + 29, Y + 24), g.lineTo(X + 3, Y + 24), g.closePath(), g.fill(), g.fillStyle = "#2f6b4a", g.beginPath(), g.moveTo(X + 16, Y + 4), g.lineTo(X + 26, Y + 22), g.lineTo(X + 6, Y + 22), g.closePath(), g.fill(), g.fillStyle = "#fff", g.beginPath(), g.moveTo(X + 16, Y + 4), g.lineTo(X + 20, Y + 11), g.lineTo(X + 12, Y + 11), g.closePath(), g.fill();
+        break;
+      }
       default:
         grass();
     }
   }
+  var CHUNK = 16, CHUNK_KEEP = 48;
   function rpMapImage() {
-    let W = rp.grid[0].length, H = rp.grid.length, c = document.createElement("canvas");
-    c.width = Math.round(W * RT * rpS * rpDpr), c.height = Math.round(H * RT * rpS * rpDpr);
+    rp.mapImg = { chunks: /* @__PURE__ */ new Map(), k: Math.min(2.5, rpS * rpDpr) };
+  }
+  function rpChunk(cx, cy) {
+    let M = rp.mapImg, key = cx + "," + cy, c = M.chunks.get(key);
+    if (c)
+      return M.chunks.delete(key), M.chunks.set(key, c), c;
+    let W = rp.grid[0].length, H = rp.grid.length, k = M.k, x0 = cx * CHUNK, y0 = cy * CHUNK, x1 = Math.min(W, x0 + CHUNK), y1 = Math.min(H, y0 + CHUNK);
+    c = document.createElement("canvas"), c.width = Math.ceil((x1 - x0) * RT * k), c.height = Math.ceil((y1 - y0) * RT * k);
     let g = c.getContext("2d");
-    g.setTransform(rpS * rpDpr, 0, 0, rpS * rpDpr, 0, 0);
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) rpTile(g, rp.grid[y][x], x, y, x * RT, y * RT);
-    RP_CHESTS.forEach((ch) => {
-      if ((ch.place || "world") !== rpPlace() || rp.s.chests.includes(rpChestKey(ch))) return;
+    g.setTransform(k, 0, 0, k, -x0 * RT * k, -y0 * RT * k);
+    for (let y = y0; y < y1; y++) {
+      let row = rp.grid[y];
+      for (let x = x0; x < x1; x++) rpTile(g, row[x], x, y, x * RT, y * RT);
+    }
+    return RP_CHESTS.forEach((ch) => {
+      if ((ch.place || "world") !== rpPlace() || rp.s.chests.includes(rpChestKey(ch)) || ch.x < x0 || ch.x >= x1 || ch.y < y0 || ch.y >= y1) return;
       let X = ch.x * RT, Y = ch.y * RT;
       g.fillStyle = OL, g.fillRect(X + 5, Y + 10, 22, 17), g.fillStyle = "#a0612a", g.fillRect(X + 7, Y + 12, 18, 13), g.fillStyle = "#c07a3a", g.fillRect(X + 7, Y + 12, 18, 5), g.fillStyle = "#ffd54a", g.fillRect(X + 7, Y + 16, 18, 2), g.fillRect(X + 14, Y + 15, 4, 5);
-    }), rp.mapImg = c;
+    }), M.chunks.set(key, c), M.chunks.size > CHUNK_KEEP && M.chunks.delete(M.chunks.keys().next().value), c;
+  }
+  function rpDrawChunks(cx, cy) {
+    let k = rpS * rpDpr, size = CHUNK * RT, W = rp.grid[0].length, H = rp.grid.length, a = Math.max(0, Math.floor(cx / size)), b = Math.min(Math.ceil(W / CHUNK) - 1, Math.floor((cx + RPW) / size)), c = Math.max(0, Math.floor(cy / size)), d = Math.min(Math.ceil(H / CHUNK) - 1, Math.floor((cy + RPH) / size));
+    for (let j = c; j <= d; j++) for (let i = a; i <= b; i++) {
+      let im = rpChunk(i, j);
+      ctx.drawImage(im, Math.round((i * size - cx) * k), Math.round((j * size - cy) * k), Math.round(im.width / rp.mapImg.k * k), Math.round(im.height / rp.mapImg.k * k));
+    }
   }
   function rpNpcK(n) {
     let k = rp.npcK[n.id];
@@ -2677,7 +2840,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let mw = rp.grid[0].length * RT, mh = rp.grid.length * RT, cx = mw <= RPW ? (mw - RPW) / 2 : clamp(px * RT + RT / 2 - RPW / 2 + o.x * RPW, 0, mw - RPW), cy = mh <= RPH ? (mh - RPH) / 2 : clamp(py * RT + RT / 2 - RPH / 2 + o.y * RPH, 0, mh - RPH);
     rp.cam = { x: cx, y: cy }, ctx.setTransform(1, 0, 0, 1, 0, 0), ctx.clearRect(0, 0, rpcv.width, rpcv.height);
     let k = rpS * rpDpr;
-    rp.s.place && (ctx.fillStyle = "#1a0f24", ctx.fillRect(0, 0, rpcv.width, rpcv.height)), ctx.drawImage(rp.mapImg, -cx * k, -cy * k), ctx.setTransform(k, 0, 0, k, -cx * k, -cy * k), rp.path && rp.path.length && (ctx.fillStyle = "rgba(255,226,122,.55)", rp.path.forEach(([x, y]) => {
+    ctx.fillStyle = rp.s.place ? "#1a0f24" : "#2a64a8", ctx.fillRect(0, 0, rpcv.width, rpcv.height), rpDrawChunks(cx, cy), ctx.setTransform(k, 0, 0, k, -cx * k, -cy * k), rp.path && rp.path.length && (ctx.fillStyle = "rgba(255,226,122,.55)", rp.path.forEach(([x, y]) => {
       ctx.beginPath(), ctx.arc(x * RT + 16, y * RT + 16, 3, 0, 7), ctx.fill();
     }));
     for (let sp of RP_SPOTS) if ((sp.place || "world") === rpPlace() && test(sp.if) && !rpDrawSpot(sp) && sp.draw === "hat") {
@@ -3962,9 +4125,14 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpApplyWorld() {
     let P = rp.s.place && RP_PLACES[rp.s.place];
-    rp.s.place && !P && delete rp.s.place, P ? rp.grid = P.rows.map((r) => r.split("")) : (rp.grid = rpBuildWorld(), rpWorldExtras(rp.grid), rp.s.taken.forEach(([x, y]) => {
-      rp.grid[y][x] = "C";
-    }), rp.s.q.gate && (rp.grid[7][20] = "K")), rp.mapImg = null;
+    if (rp.s.place && !P && delete rp.s.place, P) rp.grid = P.rows.map((r) => r.split(""));
+    else {
+      let old = rpBuildWorld();
+      rpWorldExtras(old), rp.s.taken.forEach(([x, y]) => {
+        old[y] && (old[y][x] = "C");
+      }), rp.s.q.gate && (old[7][20] = "K"), rp.grid = makeWorldGrid(old);
+    }
+    rp.mapImg = null;
   }
 
   // src/core/options.js
@@ -5193,7 +5361,7 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!soundOn || rp.headless || rpOpt.music === !1 || view !== "rpg" || !rp.s) return null;
     if (rp.mode === "battle" && rp.bt) return rp.bt.boss ? "boss" : "battle";
     let a = rpArea(rp.s.x, rp.s.y);
-    return a === "Burrowhome" ? "village" : a === "Whisper Woods" ? "woods" : a === "Mushroom Cave" ? "cave" : a === "Dragon's Hoard" ? "hoard" : "meadow";
+    return a === "Burrowhome" ? "village" : a === "Whisper Woods" || a === "Wildwood" ? "woods" : a === "Mushroom Cave" ? "cave" : a === "Dragon's Hoard" ? "hoard" : "meadow";
   }
   function rpMusicTick() {
     let want = rpMusicWant(), a = ac;
@@ -5414,7 +5582,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T09:55:45Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T11:20:10Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":

@@ -39,16 +39,30 @@ function rpTile(g,c,x,y,X,Y){
     case 'C':cave();break;
     case 'g':cave();g.fillStyle='rgba(140,255,200,.25)';g.beginPath();g.arc(X+16,Y+18,12,0,7);g.fill();g.fillStyle='#e8fff4';g.fillRect(X+14,Y+18,4,8);g.fillStyle='#7dffc4';g.beginPath();g.ellipse(X+16,Y+17,8,5,0,Math.PI,0);g.fill();break;
     case 'c':g.fillStyle='#4d3f57';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='#0c0614';g.beginPath();g.ellipse(X+16,Y+22,12,14,0,Math.PI,0);g.fill();g.fillRect(X+4,Y+22,24,10);break;
+    case 'z':{g.fillStyle=(x+y)%3?'#e9d18b':'#e3c97f';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(160,120,60,.25)';for(let i=0;i<4;i++)g.fillRect(X+r()*28,Y+r()*28,2,2);break}
+    case 'q':{g.fillStyle='#e9d18b';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle=OL;g.fillRect(X+12,Y+4,9,26);g.fillRect(X+5,Y+11,7,4);g.fillRect(X+5,Y+8,4,8);g.fillRect(X+21,Y+14,7,4);g.fillRect(X+24,Y+9,4,9);
+      g.fillStyle='#4f9a3f';g.fillRect(X+14,Y+6,5,23);g.fillRect(X+7,Y+12,6,2);g.fillRect(X+7,Y+10,2,5);g.fillRect(X+20,Y+15,6,2);g.fillRect(X+25,Y+11,2,6);break}
+    case 'v':{g.fillStyle=(x+y)%2?'#eef4fb':'#e4edf7';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(120,150,190,.25)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,4,2);break}
+    case 'P':{g.fillStyle='#eef4fb';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='#5a3a22';g.fillRect(X+14,Y+22,5,8);g.fillStyle=OL;g.beginPath();g.moveTo(X+16,Y+1);g.lineTo(X+29,Y+24);g.lineTo(X+3,Y+24);g.closePath();g.fill();
+      g.fillStyle='#2f6b4a';g.beginPath();g.moveTo(X+16,Y+4);g.lineTo(X+26,Y+22);g.lineTo(X+6,Y+22);g.closePath();g.fill();g.fillStyle='#fff';g.beginPath();g.moveTo(X+16,Y+4);g.lineTo(X+20,Y+11);g.lineTo(X+12,Y+11);g.closePath();g.fill();break}
     default:grass();
   }
 }
-function rpMapImage(){
-  const W=rp.grid[0].length,H=rp.grid.length,c=document.createElement('canvas');c.width=Math.round(W*RT*rpS*rpDpr);c.height=Math.round(H*RT*rpS*rpDpr);
-  const g=c.getContext('2d');g.setTransform(rpS*rpDpr,0,0,rpS*rpDpr,0,0);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++)rpTile(g,rp.grid[y][x],x,y,x*RT,y*RT);
-  RP_CHESTS.forEach(ch=>{if((ch.place||'world')!==rpPlace()||rp.s.chests.includes(rpChestKey(ch)))return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
-  rp.mapImg=c;
-}
+/* the map is drawn in chunks of 16 × 16 tiles, made the first time they come on screen and kept for a while
+   (the world is far too big for one picture). rp.mapImg is the chunk store; setting it to null redraws everything. */
+const CHUNK=16,CHUNK_KEEP=48;
+function rpMapImage(){rp.mapImg={chunks:new Map(),k:Math.min(2.5,rpS*rpDpr)}}
+function rpChunk(cx,cy){const M=rp.mapImg,key=cx+','+cy;let c=M.chunks.get(key);if(c){M.chunks.delete(key);M.chunks.set(key,c);return c}
+  const W=rp.grid[0].length,H=rp.grid.length,k=M.k,x0=cx*CHUNK,y0=cy*CHUNK,x1=Math.min(W,x0+CHUNK),y1=Math.min(H,y0+CHUNK);
+  c=document.createElement('canvas');c.width=Math.ceil((x1-x0)*RT*k);c.height=Math.ceil((y1-y0)*RT*k);
+  const g=c.getContext('2d');g.setTransform(k,0,0,k,-x0*RT*k,-y0*RT*k);
+  for(let y=y0;y<y1;y++){const row=rp.grid[y];for(let x=x0;x<x1;x++)rpTile(g,row[x],x,y,x*RT,y*RT)}
+  RP_CHESTS.forEach(ch=>{if((ch.place||'world')!==rpPlace()||rp.s.chests.includes(rpChestKey(ch))||ch.x<x0||ch.x>=x1||ch.y<y0||ch.y>=y1)return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
+  M.chunks.set(key,c);if(M.chunks.size>CHUNK_KEEP)M.chunks.delete(M.chunks.keys().next().value);return c}
+/* draw the chunks the camera sees */
+function rpDrawChunks(cx,cy){const k=rpS*rpDpr,size=CHUNK*RT,W=rp.grid[0].length,H=rp.grid.length;
+  const a=Math.max(0,Math.floor(cx/size)),b=Math.min(Math.ceil(W/CHUNK)-1,Math.floor((cx+RPW)/size)),c=Math.max(0,Math.floor(cy/size)),d=Math.min(Math.ceil(H/CHUNK)-1,Math.floor((cy+RPH)/size));
+  for(let j=c;j<=d;j++)for(let i=a;i<=b;i++){const im=rpChunk(i,j);ctx.drawImage(im,Math.round((i*size-cx)*k),Math.round((j*size-cy)*k),Math.round(im.width/rp.mapImg.k*k),Math.round(im.height/rp.mapImg.k*k))}}
 function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,weapon:n.w,hat:n.hat,pers:'brave',speed:1,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face;rp.npcK[n.id]=k}return k}
 function rpDrawMap(dt){
   const s=rp.s,ctx0=ctx;set_ctx(rpctx);
@@ -60,7 +74,7 @@ function rpDrawMap(dt){
   const mw=rp.grid[0].length*RT,mh=rp.grid.length*RT;
   const cx=mw<=RPW?(mw-RPW)/2:clamp(px*RT+RT/2-RPW/2+o.x*RPW,0,mw-RPW),cy=mh<=RPH?(mh-RPH)/2:clamp(py*RT+RT/2-RPH/2+o.y*RPH,0,mh-RPH);rp.cam={x:cx,y:cy};
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,rpcv.width,rpcv.height);
-  const k=rpS*rpDpr;if(rp.s.place){ctx.fillStyle='#1a0f24';ctx.fillRect(0,0,rpcv.width,rpcv.height)}ctx.drawImage(rp.mapImg,-cx*k,-cy*k);
+  const k=rpS*rpDpr;ctx.fillStyle=rp.s.place?'#1a0f24':'#2a64a8';ctx.fillRect(0,0,rpcv.width,rpcv.height);rpDrawChunks(cx,cy);
   ctx.setTransform(k,0,0,k,-cx*k,-cy*k);
   if(rp.path&&rp.path.length){ctx.fillStyle='rgba(255,226,122,.55)';rp.path.forEach(([x,y])=>{ctx.beginPath();ctx.arc(x*RT+16,y*RT+16,3,0,7);ctx.fill()})}
   for(const sp of RP_SPOTS)if((sp.place||'world')===rpPlace()&&test(sp.if)&&!rpDrawSpot(sp)&&sp.draw==='hat'){const X=sp.x*RT+16,Y=sp.y*RT+22+Math.sin(rp.t*3)*1.5;ctx.fillStyle=OL;ctx.beginPath();ctx.moveTo(X,Y-15);ctx.lineTo(X+9,Y+3);ctx.lineTo(X-9,Y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#ff8a2b';ctx.beginPath();ctx.moveTo(X,Y-12);ctx.lineTo(X+6.5,Y+1.5);ctx.lineTo(X-6.5,Y+1.5);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(X-4,Y-4,8,2.2)}
@@ -86,4 +100,4 @@ function rpMarker(id){const q=rp.s.q;
   if(id==='elder')return q.q1===0?'!':q.q1===1&&q.kills>=5?'?':'';
   if(id==='yarrow')return q.q1>=2&&q.q2===0?'!':q.q2===1&&q.glow>=3?'?':'';
   if(id==='gorb')return q.q2>=1?'!':'';if(id==='vexx')return q.gate?'!':'';if(id==='bork')return'';return''}
-export {rpDrawMap,rpMapImage,rpMarker,rpNpcK,rpTile};
+export {CHUNK,CHUNK_KEEP,rpChunk,rpDrawChunks,rpDrawMap,rpMapImage,rpMarker,rpNpcK,rpTile};

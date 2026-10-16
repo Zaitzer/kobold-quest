@@ -1,3 +1,4 @@
+import {makeWorldGrid} from '../data/overworld.js';
 import {RP_PLACES} from '../data/places.js';
 import {rpBuildWorld,rpWorldExtras} from '../data/world.js';
 import {rpMember} from '../game/stats.js';
@@ -9,6 +10,6 @@ const rp={grid:null,s:null,mode:'map',dlg:null,bt:null,move:null,path:null,held:
 function rpPlace(){return rp.s&&rp.s.place||'world'}
 function rpApplyWorld(){const P=rp.s.place&&RP_PLACES[rp.s.place];if(rp.s.place&&!P)delete rp.s.place;
   if(P)rp.grid=P.rows.map(r=>r.split(''));
-  else{rp.grid=rpBuildWorld();rpWorldExtras(rp.grid);rp.s.taken.forEach(([x,y])=>{rp.grid[y][x]='C'});if(rp.s.q.gate)rp.grid[7][20]='K'}
+  else{const old=rpBuildWorld();rpWorldExtras(old);rp.s.taken.forEach(([x,y])=>{if(old[y])old[y][x]='C'});if(rp.s.q.gate)old[7][20]='K';rp.grid=makeWorldGrid(old)}
   rp.mapImg=null}
 export {rp,rpApplyWorld,rpNewState,rpPlace};
