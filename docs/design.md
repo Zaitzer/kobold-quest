@@ -50,10 +50,20 @@
 
 ## 7. Playing together
 
-- One shared world: you see everyone online, chat, yip.
-- **Co-op:** a friend can join your fight; enemies scale to the group.
-- **Duels** for fun, **gifts** of items, the **market**.
-- The story is single-player progress; playing together never blocks it. Shared story moments: see 10.2.
+**Model: a shared world with personal stories** (a cozy MMO-lite, like Monster Hunter or Guild Wars), with a touch of
+async co-op. *Decided.*
+
+- **One shared world:** everyone online walks the same map at the same time; you see each other, chat and yip.
+- **Personal stories:** each player has their own save and story progress. The world shows *your* progress: your
+  tunnel can still be dark while a friend's is lit (barriers already work this way).
+- **Group fights count for everyone who is ready:** a boss beaten together counts for each player who has reached that
+  step of their own story (done the talking before it). Everyone else gets the normal rewards.
+- **Level sync:** when you help a lower-level friend, your party is brought down to their level for that fight (stats
+  worked out as if you were that level; gear and talents still work, scaled down). You still earn XP and loot suited to
+  your real level, plus **helper's spark dust** (for cosmetics), so helping is fun rather than a favour.
+- **Duels** for fun, **gifts** of items, the **market** for trading.
+- **Async touches** for when nobody else is on: notes left on signs for friends, small gifts left at fountains.
+- Playing together never blocks anyone's story, and nobody has to play with others.
 
 ## 8. Story and tone
 
@@ -68,13 +78,13 @@
 ## 10. Decisions
 
 1. **Losing a fight:** back to the last fountain, lose half your gold. *Decided.*
-2. **Shared story moments:** *needs deep consideration*, see below.
+2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready, with level sync for helpers (section 7). *Decided.*
 3. **Party:** recruit more kobolds into a roster, take three along. *Decided.*
 4. **Length:** long, 15+ hours. *Decided.* That means each town needs more than one step, every route needs something
    off the path, there are optional areas and a post-game. The 8 sparks stay the spine; the length comes from
    depth, not padding.
 
-### 10.2 Shared story moments: the options
+### 10.2 Shared story moments: the options that were weighed (B was chosen)
 
 Friends play at different times and get to different points, so whatever we pick must work when they are out of step.
 
