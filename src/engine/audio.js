@@ -29,5 +29,8 @@ function yip(vol,pan,pitch){if(!soundOn||quiet||!(vol>.01))return;const a=audio(
   const chirp=(f1,f2,d,type,v,dl)=>{const o=a.createOscillator(),g=a.createGain(),t=t0+dl;o.type=type;o.frequency.setValueAtTime(f1*p,t);o.frequency.exponentialRampToValueAtTime(f2*p,t+d);
     g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(g);g.connect(out);o.start(t);o.stop(t+d+.03)};
   chirp(620,1450,.075,'square',.09,0);chirp(900,1900,.06,'triangle',.08,.085);chirp(1000,1500,.05,'sine',.05,.085)}
+/* phones start audio suspended until a tap: resume it and play one silent sample inside the tap */
+function unlockAudio(){const a=audio();if(!a)return;try{if(a.state==='suspended')a.resume();const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}}
+function audioReady(){return !!ac&&ac.state==='running'}
 function set_soundOn(v){return soundOn=v}
-export {ac,audio,lastSfx,quiet,set_soundOn,sfx,soundOn,tone,yip};
+export {ac,audio,audioReady,lastSfx,quiet,set_soundOn,sfx,soundOn,tone,unlockAudio,yip};

@@ -12,7 +12,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
 (async()=>{await start();const br=await chromium.launch();
  const page=async(vp,label)=>{const ctx=await br.newContext({viewport:vp,hasTouch:true,isMobile:true});const p=await ctx.newPage();
    p.on('pageerror',e=>errs.push(label+': '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/ERR_TUNNEL|Failed to load|fonts/.test(m.text()))errs.push(label+': '+m.text())});
-   await p.addInitScript(()=>{try{sessionStorage.setItem('kobold-pit-booted','1')}catch(e){}});await p.goto(URL);await p.waitForTimeout(300);return p};
+   await p.addInitScript(()=>{try{sessionStorage.setItem('kobold-pit-booted','1')}catch(e){}window.__osc=0;const C=window.AudioContext;if(C){const o=C.prototype.createOscillator;C.prototype.createOscillator=function(){window.__osc++;window.__acState=this.state;return o.call(this)}}});await p.goto(URL);await p.waitForTimeout(300);return p};
  const loginAs=async(p,name,pass,kind)=>{await p.fill('#login-name',name);await p.fill('#login-pass',pass);await p.click(kind==='new'?'#login-new':'#login-go');
    await wait(p,()=>!document.getElementById('go-rpg').hidden||/[A-Za-z]/.test(document.getElementById('login-msg').textContent)&&!/…/.test(document.getElementById('login-msg').textContent));
    return p.evaluate(()=>({play:!document.getElementById('go-rpg').hidden,msg:document.getElementById('login-msg').textContent,me:window.__net&&__net.me}))};
@@ -37,8 +37,10 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  await B.evaluate(()=>{__netBtn({net:'say',v:'Hi!'})});
  check(await wait(A,()=>__net.chatLog.some(c=>/Hi!/.test(c.txt||c.t||JSON.stringify(c)))),'chat reaches Alice');
  // yip: Bob hears Alice (shown as a bubble over her)
+ const osc0=await B.evaluate(()=>window.__osc);
  await A.evaluate(()=>__netBtn({net:'yip'}));
- check(await wait(B,()=>Object.values(__net.bubbles).some(b=>b&&b.txt==='Yip!')),'Bob sees and hears Alice yip');
+ check(await wait(B,()=>Object.values(__net.bubbles).some(b=>b&&b.txt==='Yip!')),'Bob sees Alice yip');
+ check(await wait(B,n=>window.__osc>n,osc0),'Bob hears it: the yip sound plays on his side (audio '+await B.evaluate(()=>window.__acState)+')');
  // co-op battle through the lobby
  await A.evaluate(()=>__rpF(['scout','slinger'],{zone:','}));
  check(await wait(B,()=>__net.others[0]&&__net.others[0].presence.op),'Bob sees Alice\'s fight open');

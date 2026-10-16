@@ -1,9 +1,10 @@
 /* Boot: loading screen, the title screen, the sound toggle and the one frame loop. */
 import {view} from './app.js';
+import {rpOpt,rpOptSave} from './options.js';
 import {inits} from './registry.js';
 import {installHooks} from '../dev/hooks.js';
 import {ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
-import {audio,set_soundOn,sfx,soundOn} from '../engine/audio.js';
+import {audio,audioReady,set_soundOn,sfx,soundOn,unlockAudio} from '../engine/audio.js';
 import {$,RM} from '../engine/util.js';
 import {rpFrame} from '../game/play.js';
 
@@ -20,9 +21,13 @@ function drawTitle(dt){
   for(const k of titleKs){k.t+=dt;k.blink-=dt;if(k.blink<-.12)k.blink=1+Math.random()*4;drawKobold(k)}
   set_ctx(main);
 }
-function soundButton(){const b=$('sound');if(!b)return;
-  const sync=()=>{b.setAttribute('aria-pressed',soundOn?'true':'false');b.textContent=soundOn?'Sound on':'Sound off'};sync();
-  b.addEventListener('click',()=>{set_soundOn(!soundOn);sync();if(soundOn){audio();sfx('drop')}})}
+/* sound is on unless the player turned it off (remembered); phones only allow sound after the first tap,
+   so the first tap anywhere wakes the audio up, and later sounds (a friend's yip) can play by themselves */
+function soundButton(){set_soundOn(rpOpt.sound!==false);const b=$('sound');
+  const sync=()=>{if(!b)return;b.setAttribute('aria-pressed',soundOn?'true':'false');b.textContent=soundOn?'Sound on':'Sound off'};sync();
+  if(b)b.addEventListener('click',()=>{set_soundOn(!soundOn);rpOpt.sound=soundOn;rpOptSave();sync();if(soundOn){audio();sfx('drop')}});
+  const wake=()=>{unlockAudio();if(audioReady()){['pointerdown','keydown','touchend'].forEach(t=>document.removeEventListener(t,wake,true))}};
+  ['pointerdown','keydown','touchend'].forEach(t=>document.addEventListener(t,wake,true))}
 function bootScreen(){
   const bt=$('boot'),bb=$('boot-bar'),tx=$('boot-t');
   const done=()=>{bt.hidden=true;try{sessionStorage.setItem('kobold-pit-booted','1')}catch(e){}};

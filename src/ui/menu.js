@@ -46,7 +46,7 @@ feature({id:'menu',
   options:[
     {id:'hand',order:10,label:()=>'Joystick on the '+(rpOpt.hand==='left'?'left':'right'),hint:'Tap to swap sides',toggle(){rpOpt.hand=rpOpt.hand==='left'?'right':'left';rpOptSave()}},
     {id:'buzz',order:20,label:()=>'Vibration '+(rpOpt.buzz?'on':'off'),hint:'Shakes on fights and level-ups',toggle(){rpOpt.buzz=!rpOpt.buzz;rpOptSave();if(rpOpt.buzz)rpBuzz(30)}},
-    {id:'snd',order:30,label:()=>'Sound '+(soundOn?'on':'off'),hint:'Sound effects and music',toggle(){set_soundOn(!soundOn);soundLabel();if(soundOn){audio();sfx('drop')}}},
+    {id:'snd',order:30,label:()=>'Sound '+(soundOn?'on':'off'),hint:'Sound effects and music',toggle(){set_soundOn(!soundOn);rpOpt.sound=soundOn;rpOptSave();soundLabel();if(soundOn){audio();sfx('drop')}}},
     {id:'music',order:40,label:()=>'Music '+(rpOpt.music===false?'off':'on'),hint:'A tune for every area',toggle(){rpOpt.music=rpOpt.music===false;rpOptSave()}},
     {id:'full',order:60,label:()=>'Fullscreen',hint:'Hide the browser bars',toggle(){if(document.fullscreenElement)rpExitFull();else rpGoFull(true)}},
     {id:'bspd',order:70,label:()=>'Enemy turns '+(rpOpt.bspd||1)+'×',hint:'How fast enemies move in battle',toggle(){rpOpt.bspd=(rpOpt.bspd||1)>=4?1:(rpOpt.bspd||1)*2;rpOptSave()}}]});
