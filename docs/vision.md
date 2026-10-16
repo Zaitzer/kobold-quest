@@ -37,3 +37,4 @@ and help a village that didn't bother to choose.
   may be traded away for another; every town should touch at least three of them.
 - **Art:** Joakim draws it. The game's look comes from his drawings; the code's job is to bring them in cleanly
   (see the style guide, step 1.5, and the tech plan, step 1.7: an art pipeline from his drawings to the game).
+  He draws in **Paint.NET with a pen on a touch screen**: PNG with transparency, layers in .pdn files.
