@@ -21,35 +21,47 @@ night with a sack of embers, and out comes **Glitterbeak**: small, greedy, loves
 and put toll gates on the roads ("one shiny thing per kobold"). An old rhyme says that a guardian who hatches wrong can be
 hatched again, if a **spark from every town's hearth** lights the Great Nest.
 
+## Four threads (borrowed from Pokémon Ruby/Emerald)
+
+1. **The spine: 8 sparks**, one per town, like the gym badges. Each town has its own trouble, and fixing it earns the spark.
+2. **The villain thread: Snatchclaw's bandits.** They start as a joke (Grubb's padlock), grow into thieves, then wake
+   something they can't control. Snatchclaw shows himself halfway, escapes, and is fought for real at the end.
+3. **The rival: Tikka**, the girl at the inn who said "they're all just eggs" and kept her ember. She sets off to
+   gather sparks on her own, to prove she can fix things faster without anyone's help. She turns up every few towns for
+   a battle and grows stronger each time. In the end she is the last stay-home kobold who brings her ember.
+4. **Key items open the map**, like Surf and the other field moves: the lantern (dark tunnel), the water flask (desert
+   heat), warm boots (the frozen peak), and the toll gates fall with Snatchclaw.
+
 ## The journey (hero's journey → places)
 
-| # | step | where | what happens | gate / item |
-|---|---|---|---|---|
-| 1 | Ordinary world | Burrowhome | Hatching day; a sign on the green | |
-| 2 | Call | Burrowhome | Elder Mumble gives Pip an ember | ember |
-| 3 | Refusal | the Great Nest | The player chooses: warm the **spiky**, **sleepy** or **shiny** egg, or **keep the ember**. Every path works | |
-| 4 | Mentor | Witch Yarrow's hut | "An ember isn't a promise to love the egg forever. It's a nudge." Wizzle joins | |
-| 5 | Threshold | Burrowhome | Glitterbeak hatches; toll gates go up; the rhyme about sparks | toll gates on Routes 4, 5, 6, 12 |
-| 6a | Tests | **Pebblebrook** (Route 1) | The dam was decided by one stone; Turnip's family of five stayed home. Grubb padlocks the fountain. *One stone matters* | spark 1, Bork joins |
-| 6b | | **Copperhollow** (Route 3) | Nobody comes to the shift circle, so the foreman decides everything and Snipe takes half the copper. Bring 4 miners | spark 2, **lantern** |
-| 6c | | **Thistledown** (Route 8 cave, dark without the lantern) | Two quarrelling guilds can only mend the bridge together. *Nobody's perfect, so you pick allies* | spark 3 |
-| 6d | | **Sunhaven** (Route 9 desert) | *"I don't know enough to choose."* An oasis scribe teaches reading two trail signs side by side | spark 4, **water flask** |
-| 6e | | **Emberreach** (Route 14, too hot without the flask) | A hothead wants to smash the town forge because it's imperfect. See where that leads | spark 5 |
-| 6f | | **Frostwick** (Route 13 snowfield) | Everyone decides the snow fort together: slow but fair | spark 6, the rockslide on Route 7 is cleared |
-| 6g | | **Glimmerfen** (Route 10 marsh) | Fog kobolds believe every rumour. *Check before you choose* | spark 7 |
-| 7 | Approach | **Saltspray** (Route 11 shore) | Smugglers' talk: Snatchclaw's hideout is on Brindlecove | |
-| 8 | Ordeal | **Brindlecove** (Route 15 bridges) | Boss fight: Snatchclaw at the hideout, Glitterbeak's hoard | spark 8 |
-| 9 | Reward | Brindlecove | The toll gates come down | |
-| 10 | Road back | **Mossmere** → Burrowhome (Routes 5, 2) | Convince 5 stay-home kobolds to bring their embers, each with an excuse (see below) | |
-| 11 | Resurrection | Burrowhome | The Great Nest is relit. This time the whole village comes; Glitterbeak hatches again into a real guardian | |
-| 12 | Return | Burrowhome | Mumbletoes the egg-keeper asks Pip to help pick next time's eggs: *if every choice is ugly, help make a better one* | reward + title |
+| # | step | where | spine | villain thread | rival | opens |
+|---|---|---|---|---|---|---|
+| 1 | Ordinary world | Burrowhome | Hatching day | Snatchclaw's "friends" loiter by the nest | Tikka: "they're all just eggs" | |
+| 2 | Call | Burrowhome | Elder Mumble's ember | | | |
+| 3 | Refusal | the Great Nest | warm the **spiky**, **sleepy** or **shiny** egg, or **keep the ember** | someone giggles behind the nest | | |
+| 4 | Mentor | Yarrow's hut | "An ember is a nudge, not a promise." Wizzle joins | | | |
+| 5 | Threshold | Burrowhome | the rhyme about sparks | **Glitterbeak hatches**; toll gates go up | Tikka leaves to do it "her way" | |
+| 6a | Tests | **Pebblebrook** (Route 1) | the dam lost by one stone. *One stone matters* | Grubb padlocks the fountain (comic) | | spark 1, Bork joins |
+| 6b | | **Copperhollow** (Route 3) | nobody comes to the shift circle | Snipe takes half the copper for the hoard | | spark 2, **lantern** |
+| 6c | | **Thistledown** (Route 8, dark tunnel) | two quarrelling guilds mend the bridge together. *Pick allies* | bandits raid the town hall and steal the hearth jar | **rival battle 1** at the tunnel mouth | spark 3 |
+| 6d | | **Sunhaven** (Route 9 desert) | *"I don't know enough to choose"*: read two trail signs side by side | bandits drain the oasis to polish the hoard | | spark 4, **water flask** |
+| 6e | | **Emberreach** (Route 14, hot) | a hothead wants to smash the forge because it's imperfect | **Snatchclaw in person** feeds Glitterbeak volcano fire. He grows huge and flies off. Snatchclaw escapes | | spark 5 |
+| 6f | | **Frostwick** (Route 13 snowfield) | the snow fort: everyone decides together, slow but fair | Glitterbeak's shadow passes over the town | **rival battle 2** | spark 6, **warm boots**, Route 7 rockslide cleared |
+| 6g | | **Glimmerfen** (Route 10 marsh) | fog kobolds believe every rumour. *Check before you choose* | **the crisis:** Glitterbeak's rampage starts; every shiny thing in the land is vanishing | | spark 7 |
+| 6h | | **Frostpeak** (back up past Frostwick, boots needed) | the climb to the **Old Guardian**, last generation's dragon, asleep on the peak | wake her; she grounds Glitterbeak | | |
+| 7 | Approach | **Saltspray** (Route 11 shore) | the harbour | smugglers say the hideout is on Brindlecove | | |
+| 8 | Ordeal | **Brindlecove** (Route 15 bridges) | | **boss: Snatchclaw** and the hoard | | spark 8; the toll gates fall |
+| 9 | Reward | Brindlecove | the hoard goes back to every town | | | |
+| 10 | Road back | **Mossmere** → Burrowhome (Routes 5, 2) | convince the stay-home kobolds (below) | | **rival battle 3**: Tikka at Mossmere, at her strongest. Afterwards she brings her ember | |
+| 11 | Resurrection | Burrowhome | the Great Nest is relit; this time the whole village comes, and Glitterbeak hatches again into a real guardian | | | |
+| 12 | Return | Burrowhome | the Old Guardian asks Pip to help choose next time's eggs: *if every choice is ugly, help make a better one* | | | reward + title |
 
 ### The five excuses (step 10)
 
 - **"They're all the same."** → Pebblebrook: one stone decided the dam.
 - **"My one ember doesn't matter."** → the bandits only needed one sack.
 - **"I don't know enough."** → Sunhaven: compare two signs side by side, that's enough.
-- **"Not picking is my way of saying no."** → nobody heard it; the bandits picked anyway.
+- **"Not picking is my way of saying no."** → nobody heard it; the bandits picked anyway. (Tikka's excuse; she is the last to be convinced.)
 - **"Smash it all."** → Emberreach.
 
 Nobody can lose the story.
@@ -61,13 +73,14 @@ Nobody can lose the story.
 - **Barriers** (`BARRIERS` in `data/overworld.js`): toll gates `Y` (until `bc`), the Route 7 rockslide `R` (until `fw:3`),
   the dark tunnel `Z` on Route 8 (until `lantern`).
 - **Town villagers** stand at spots from each town's square (`townSpot`) or inside its houses.
-- **Fights:** Grubb (`tollboss`), Snipe (`collector`); later Snatchclaw as the final boss.
+- **Fights:** Grubb (`tollboss`), Snipe (`collector`); later three Tikka rival fights (a party that levels with the story), Snatchclaw at Emberreach (he flees) and Brindlecove (final boss).
+- **Frostpeak:** a small new area above Route 13, reached with the warm boots.
 - **Tests:** `test/logic/hatching.test.js` plays it through and checks every barrier and villager.
 
 ## Delivery
 
 1. **Opening + Pebblebrook + Copperhollow.** *Built.*
-2. **Thistledown + Sunhaven + Emberreach.**
-3. **Frostwick + Glimmerfen.**
+2. **Thistledown + Sunhaven + Emberreach:** rival battle 1, the first Snatchclaw encounter.
+3. **Frostwick + Glimmerfen + Frostpeak:** rival battle 2, the crisis, the Old Guardian.
 4. **Saltspray + Brindlecove**, the boss and the last spark.
-5. **The road back, the second hatching, the ending.**
+5. **The road back:** rival battle 3, the second hatching, the ending.
