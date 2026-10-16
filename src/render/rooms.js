@@ -29,6 +29,10 @@ const ROOM={
     g.fillStyle='#1b0f12';g.fillRect(X+5,Y+12,22,18);g.fillStyle='#ff8a2b';g.beginPath();g.moveTo(X+8,Y+30);g.quadraticCurveTo(X+16,Y+10,X+24,Y+30);g.fill();g.fillStyle='#ffe27a';g.beginPath();g.moveTo(X+12,Y+30);g.quadraticCurveTo(X+16,Y+18,X+20,Y+30);g.fill()},
   x:(g,X,Y,x,y)=>{plank(g,X,Y,x,y);g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+20,13,10,0,0,7);g.fill();g.fillStyle='#2d2d3a';g.beginPath();g.ellipse(X+16,Y+20,11,8,0,0,7);g.fill();
     g.fillStyle='#7dff6e';g.beginPath();g.ellipse(X+16,Y+15,10,4,0,0,7);g.fill();g.fillStyle='#c6ffb0';g.beginPath();g.arc(X+12,Y+9,3,0,7);g.arc(X+20,Y+6,2,0,7);g.fill()},
+  /* the world map on its stand: parchment with land, sea and a red mark */
+  m:(g,X,Y,x,y)=>{plank(g,X,Y,x,y);g.fillStyle=OL;g.fillRect(X+6,Y+22,3,10);g.fillRect(X+23,Y+22,3,10);g.fillRect(X+1,Y+1,30,24);g.fillStyle='#f1dfb0';g.fillRect(X+3,Y+3,26,20);
+    g.fillStyle='#7bb6e6';g.fillRect(X+3,Y+15,26,8);g.fillRect(X+21,Y+3,8,12);g.fillStyle='#79c35a';g.fillRect(X+5,Y+5,14,9);g.fillRect(X+9,Y+14,9,4);g.fillStyle='#6a5a73';g.fillRect(X+12,Y+5,6,3);
+    g.strokeStyle='#d33';g.lineWidth=2;g.beginPath();g.moveTo(X+7,Y+8);g.lineTo(X+11,Y+12);g.moveTo(X+11,Y+8);g.lineTo(X+7,Y+12);g.stroke()},
   y:(g,X,Y,x,y)=>{plank(g,X,Y,x,y);box(g,X,Y,14,10,'#b8603a',9,19);g.fillStyle='#3f9a3a';g.beginPath();g.arc(X+16,Y+12,9,0,7);g.fill();g.fillStyle='#6cbf4c';g.beginPath();g.arc(X+13,Y+10,5,0,7);g.arc(X+20,Y+13,4,0,7);g.fill()}
 };
 /* draw a room tile; false when the letter is not a room letter (outdoor tiles are drawn by rpTile) */

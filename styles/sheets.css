@@ -23,3 +23,15 @@
 .mats{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .mat{font-size:11px;font-weight:800;padding:1px 7px;border-radius:9px;background:rgba(20,10,53,.55);border:1.5px solid var(--mc);color:var(--mc)}
 button,.rpb,.pill{touch-action:manipulation}
+
+/* the world map (inn wall) fills the screen below the top bar */
+#v-rpg[data-mode="worldmap"] #rp-panel.rppanel{left:8px;width:auto}
+.wmap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;container-type:size}
+.wmapbox{position:relative;width:min(100cqw,171.4cqh);aspect-ratio:600/350;border:3px solid var(--line);border-radius:10px;background:#3a8fd9;box-shadow:0 2px 0 var(--line)}
+.wmapbox img{display:block;width:100%;height:100%;border-radius:7px;image-rendering:pixelated}
+.wmapbox i{position:absolute;transform:translate(-50%,-50%);font-style:normal;pointer-events:none;white-space:nowrap}
+.wmt{font:700 10.5px/1 var(--font-body,system-ui);color:#fff;-webkit-text-stroke:2.5px var(--line);paint-order:stroke fill;display:flex;flex-direction:column;align-items:center;gap:1px}
+.wmt b{width:7px;height:7px;border-radius:2px;background:#ffd54a;border:1.5px solid var(--line)}
+.wmr{min-width:15px;height:15px;padding:0 2px;border-radius:8px;background:rgba(20,10,53,.75);color:#ffe27a;font:800 9.5px/15px system-ui,sans-serif;text-align:center}
+.wmyou{width:12px;height:12px;border-radius:50%;background:#ff3b5c;border:2px solid #fff;box-shadow:0 0 0 2px var(--line);animation:wmpulse 1s ease-in-out infinite alternate}
+@keyframes wmpulse{to{transform:translate(-50%,-50%) scale(1.35)}}
