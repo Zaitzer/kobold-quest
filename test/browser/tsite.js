@@ -5,7 +5,7 @@ const R=path.join(__dirname,'../..');const PORT=18000+Math.floor(Math.random()*1
 const DATA=fs.mkdtempSync(path.join(os.tmpdir(),'kq-data-')),PUB=fs.mkdtempSync(path.join(os.tmpdir(),'kq-pub-'));
 fs.copyFileSync(R+'/dist/kq_site_test.html',PUB+'/index.html');
 const SAVE=JSON.parse(fs.readFileSync(R+'/test/fixtures/save_v2.json','utf8'));
-let srv;const start=()=>new Promise(ok=>{srv=spawn('node',[R+'/server/main.js'],{env:Object.assign({},process.env,{PORT,DATA,PUBLIC:PUB}),stdio:['ignore','pipe','inherit']});srv.stdout.on('data',d=>{if(/server on/.test(d))ok()})});
+let srv;const start=(extra)=>new Promise(ok=>{srv=spawn('node',[R+'/server/main.js'],{env:Object.assign({},process.env,{PORT,DATA,PUBLIC:PUB},extra||{}),stdio:['ignore','pipe','inherit']});srv.stdout.on('data',d=>{if(/server on/.test(d))ok()})});
 const stopSrv=()=>new Promise(ok=>{srv.on('exit',ok);srv.kill('SIGTERM')});
 const wait=async(p,fn,arg,ms=8000)=>{const t=Date.now();while(Date.now()-t<ms){if(await p.evaluate(fn,arg).catch(()=>false))return true;await p.waitForTimeout(100)}return false};
 const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+' '+msg);if(!ok)fails++};
@@ -73,7 +73,12 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  await stopSrv();await A.waitForTimeout(500);await start();
  check(await wait(A,()=>__net.room.connected()&&__net.others.length>=2,null,15000),'after a server restart Alice is back online and sees the others');
  check(await wait(B,()=>__net.room.connected()&&__net.others.length>=2,null,15000),'Bob too');
- // log out
- await B.click('#rp-panel [data-rp="menu"]').catch(()=>{});await B.evaluate(()=>{__rp.mode='map'});
+ // a new version goes live: open pages reload themselves (not during a fight) and come back logged in
+ await A.evaluate(()=>{window.__oldPage=1});await B.evaluate(()=>{window.__oldPage=1;__rp.mode='battle'});
+ await stopSrv();await start({KQ_BUILD:'2099-01-01T00:00:00Z'});
+ check(await wait(A,()=>!window.__oldPage,null,15000),'Alice\'s page reloads to the new version');
+ await B.waitForTimeout(2500);check(await B.evaluate(()=>window.__oldPage===1),'Bob is in a fight, so his page waits');
+ await B.evaluate(()=>{__rp.mode='map'});check(await wait(B,()=>!window.__oldPage,null,15000),'after the fight Bob\'s page reloads too');
+ check(await wait(A,()=>!document.getElementById('go-rpg').hidden,null,15000),'Alice is still logged in after the reload');
  console.log(errs.length?'errors '+JSON.stringify(errs):'errors []');
  await br.close();await stopSrv();console.log(fails?'FAIL '+fails+' checks failed':'all website checks passed');process.exitCode=fails||errs.length?1:0})().catch(async e=>{console.error(e);try{await stopSrv()}catch(_){}process.exit(1)});

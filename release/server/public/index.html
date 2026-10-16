@@ -5414,7 +5414,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T09:55:45Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5457,6 +5457,8 @@ button,.rpb,.pill{touch-action:manipulation}
       });
     }
     let account = {
+      onNewVersion: null,
+      /* set by the page: called when the server runs a newer build than this page */
       get loggedIn() {
         return S.authed;
       },
@@ -5552,6 +5554,17 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/ui/login.js
   var online = null;
+  function updateWhenSafe() {
+    if (rp.s && (rp.mode === "battle" || rp.mode === "lobby")) {
+      setTimeout(updateWhenSafe, 3e3);
+      return;
+    }
+    try {
+      rp.s && view === "rpg" && rpSave();
+    } catch {
+    }
+    rp.s && view === "rpg" && rpToast("Updating to the newest version…"), setTimeout(() => location.reload(), view === "rpg" ? 900 : 100);
+  }
   function wsUrl() {
     return (location.protocol === "https:" ? "wss:" : "ws:") + "//" + location.host + "/ws";
   }
@@ -5585,7 +5598,7 @@ button,.rpb,.pill{touch-action:manipulation}
     $("login-go").disabled = $("login-new").disabled = !1;
   }
   feature({ id: "site-login", init() {
-    online = createOnline(wsUrl()), $("login").addEventListener("submit", (e) => {
+    online = createOnline(wsUrl()), online.account.onNewVersion = updateWhenSafe, $("login").addEventListener("submit", (e) => {
       e.preventDefault(), attempt("login");
     }), $("login-new").addEventListener("click", () => attempt("register")), $("logout").addEventListener("click", () => {
       online.account.logout(), location.reload();

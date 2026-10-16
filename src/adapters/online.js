@@ -24,6 +24,7 @@ function createOnline(url){
     case 'authok':{S.authed=true;S.me={id:m.id,name:m.name};S.peer=m.peer;if(m.token){S.token=m.token;store.set(TOKEN_KEY,m.token)}
       S.others.clear();(m.peers||[]).forEach(p=>S.others.set(p.peer,mk(p)));
       if(Object.keys(S.mine).length)send({k:'pres',presence:S.mine});
+      if(m.build&&m.build!=='dev'&&typeof BUILD_ID!=='undefined'&&m.build!==BUILD_ID&&account.onNewVersion)account.onNewVersion(m.build);
       if(S.authWait){S.authWait.ok(S.me);S.authWait=null}
       S.connH.forEach(h=>h(true));firePeers();refetch(()=>true);break}
     case 'autherr':if(m.stale){S.token=null;store.set(TOKEN_KEY,null)}if(S.authWait){S.authWait.no(m.why);S.authWait=null}break;
@@ -40,6 +41,7 @@ function createOnline(url){
   /* ---------- accounts ---------- */
   function auth(m){return new Promise((ok,no)=>{if(S.authWait)S.authWait.no('cancelled');S.authWait={ok,no};send(m)})}
   const account={
+    onNewVersion:null,/* set by the page: called when the server runs a newer build than this page */
     get loggedIn(){return S.authed},get me(){return S.me},hasToken:()=>!!S.token,
     resume:()=>S.token?auth({k:'resume',token:S.token}):Promise.reject('Not logged in.'),
     login:(name,pass)=>auth({k:'login',name,pass}),register:(name,pass)=>auth({k:'register',name,pass}),
