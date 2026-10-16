@@ -22,5 +22,12 @@ function sfx(k){
   else if(k==='pop')tone(R(380,520),150,.09,'square',.04);
   else if(k==='win'){[523,659,784,1047].forEach((f,i)=>tone(f,f*1.01,.16,'triangle',.06,i*.11))}
 }
+/* a kobold yip: two quick rising chirps. vol 0..1, pan -1 (left) .. 1 (right), pitch around 1 (each player has their own) */
+function yip(vol,pan,pitch){if(!soundOn||quiet||!(vol>.01))return;const a=audio();if(!a)return;if(a.state==='suspended')a.resume();
+  const t0=a.currentTime,p=pitch||1,out=a.createGain();out.gain.value=Math.min(1,vol);
+  if(a.createStereoPanner){const sp=a.createStereoPanner();sp.pan.value=Math.max(-1,Math.min(1,pan||0));out.connect(sp);sp.connect(a.destination)}else out.connect(a.destination);
+  const chirp=(f1,f2,d,type,v,dl)=>{const o=a.createOscillator(),g=a.createGain(),t=t0+dl;o.type=type;o.frequency.setValueAtTime(f1*p,t);o.frequency.exponentialRampToValueAtTime(f2*p,t+d);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(g);g.connect(out);o.start(t);o.stop(t+d+.03)};
+  chirp(620,1450,.075,'square',.09,0);chirp(900,1900,.06,'triangle',.08,.085);chirp(1000,1500,.05,'sine',.05,.085)}
 function set_soundOn(v){return soundOn=v}
-export {ac,audio,lastSfx,quiet,set_soundOn,sfx,soundOn,tone};
+export {ac,audio,lastSfx,quiet,set_soundOn,sfx,soundOn,tone,yip};

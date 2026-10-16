@@ -36,6 +36,9 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  // chat
  await B.evaluate(()=>{__netBtn({net:'say',v:'Hi!'})});
  check(await wait(A,()=>__net.chatLog.some(c=>/Hi!/.test(c.txt||c.t||JSON.stringify(c)))),'chat reaches Alice');
+ // yip: Bob hears Alice (shown as a bubble over her)
+ await A.evaluate(()=>__netBtn({net:'yip'}));
+ check(await wait(B,()=>Object.values(__net.bubbles).some(b=>b&&b.txt==='Yip!')),'Bob sees and hears Alice yip');
  // co-op battle through the lobby
  await A.evaluate(()=>__rpF(['scout','slinger'],{zone:','}));
  check(await wait(B,()=>__net.others[0]&&__net.others[0].presence.op),'Bob sees Alice\'s fight open');

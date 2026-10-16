@@ -930,6 +930,22 @@ button,.rpb,.pill{touch-action:manipulation}
     let n = performance.now();
     lastSfx[k] && n - lastSfx[k] < 60 || (lastSfx[k] = n, k === "hit" ? tone(R(230, 320), 110, 0.12, "square", 0.04) : k === "crit" ? (tone(540, 150, 0.2, "sawtooth", 0.05), tone(300, 90, 0.16, "square", 0.04, 0.03)) : k === "miss" ? tone(760, 520, 0.09, "sine", 0.03) : k === "ko" ? tone(420, 55, 0.45, "triangle", 0.08) : k === "nom" ? (tone(600, 900, 0.07, "sine", 0.05), tone(700, 1100, 0.08, "sine", 0.05, 0.09)) : k === "drop" ? tone(300, 720, 0.13, "sine", 0.06) : k === "pet" ? tone(880, 1320, 0.1, "sine", 0.04) : k === "pop" ? tone(R(380, 520), 150, 0.09, "square", 0.04) : k === "win" && [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, "triangle", 0.06, i * 0.11)));
   }
+  function yip(vol, pan, pitch) {
+    if (!soundOn || quiet || !(vol > 0.01)) return;
+    let a = audio();
+    if (!a) return;
+    a.state === "suspended" && a.resume();
+    let t0 = a.currentTime, p = pitch || 1, out = a.createGain();
+    if (out.gain.value = Math.min(1, vol), a.createStereoPanner) {
+      let sp = a.createStereoPanner();
+      sp.pan.value = Math.max(-1, Math.min(1, pan || 0)), out.connect(sp), sp.connect(a.destination);
+    } else out.connect(a.destination);
+    let chirp = (f1, f2, d, type, v, dl) => {
+      let o = a.createOscillator(), g = a.createGain(), t = t0 + dl;
+      o.type = type, o.frequency.setValueAtTime(f1 * p, t), o.frequency.exponentialRampToValueAtTime(f2 * p, t + d), g.gain.setValueAtTime(1e-4, t), g.gain.exponentialRampToValueAtTime(v, t + 0.012), g.gain.exponentialRampToValueAtTime(8e-4, t + d), o.connect(g), g.connect(out), o.start(t), o.stop(t + d + 0.03);
+    };
+    chirp(620, 1450, 0.075, "square", 0.09, 0), chirp(900, 1900, 0.06, "triangle", 0.08, 0.085), chirp(1e3, 1500, 0.05, "sine", 0.05, 0.085);
+  }
   function set_soundOn(v) {
     return soundOn = v;
   }
@@ -3274,9 +3290,30 @@ button,.rpb,.pill{touch-action:manipulation}
     let who = netNameOf(msg.peer);
     net.chatLog.push({ who, txt }), net.chatLog.length > 30 && net.chatLog.shift(), rp.mode !== "chat" && view === "rpg" && rpToast(who + ": " + (txt.length > 40 ? txt.slice(0, 39) + "…" : txt)), rp.sig = "";
   }
+  var YIP_RANGE = 14;
+  function netYipPitch(id) {
+    let h = 2166136261;
+    for (let c of String(id || "")) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+    return 0.85 + h % 1e3 / 1e3 * 0.4;
+  }
+  function netYipLevel(me, them) {
+    if ((them.pl || "world") !== (rp.s.place || "world")) return null;
+    let dx = them.x - me.x, dy = them.y - me.y, d = Math.hypot(dx, dy);
+    return { vol: Math.pow(Math.max(0, 1 - d / YIP_RANGE), 1.5), pan: Math.max(-1, Math.min(1, dx / 8)) };
+  }
+  function netYip() {
+    let now = performance.now();
+    now - (net.lastYip || 0) < 450 || (net.lastYip = now, netEmit({ t: "yip" }), net.bubbles.me = { txt: "Yip!", t: now }, yip(0.9, 0, netYipPitch(net.me)));
+  }
+  function netGotYip(d, msg) {
+    let P = (net.others || []).find((p) => p.peer === msg.peer);
+    if (!P || !rp.s) return;
+    let me = rp.pos || { x: rp.s.x + 0.5, y: rp.s.y + 0.5 }, L = netYipLevel(me, P.presence);
+    L && (net.bubbles[msg.peer] = { txt: "Yip!", t: performance.now() }, yip(L.vol, L.pan, netYipPitch(P.by)));
+  }
   function netChatHtml() {
     let h = '<div class="rpdlg"><div class="who">Chat' + (netOnline() ? " · " + net.others.length + " online" : " · nobody else is here right now") + '</div><div class="chatlog">' + (net.chatLog.length ? net.chatLog.slice(-8).map((l) => "<p><b>" + esc2(l.who) + ":</b> " + esc2(l.txt) + "</p>").join("") : '<p class="rptip">Say hi! Messages pop up over your kobold.</p>') + "</div></div>";
-    return h += '<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send"><button class="rpb go" type="button" data-net="chatsend">Send</button></div>', h += '<div class="says">' + NET_SAYS.map((t) => '<button class="pill" type="button" data-net="say" data-v="' + esc2(t) + '">' + esc2(t) + "</button>").join("") + '</div><div class="tbar"><button class="rpb x" type="button" data-net="chatclose">Done</button></div>', h;
+    return h += '<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send"><button class="rpb go" type="button" data-net="chatsend">Send</button></div>', h += '<div class="says"><button class="pill go" type="button" data-net="yip">🐾 Yip!</button>' + NET_SAYS.map((t) => '<button class="pill" type="button" data-net="say" data-v="' + esc2(t) + '">' + esc2(t) + "</button>").join("") + '</div><div class="tbar"><button class="rpb x" type="button" data-net="chatclose">Done</button></div>', h;
   }
   feature({ id: "chat", panels: { chat: { sig: () => net.chatLog.length + "|" + (net.others || []).length, html: () => netChatHtml() } } });
   feature({
@@ -3285,6 +3322,9 @@ button,.rpb,.pill{touch-action:manipulation}
       chat(d, msg) {
         let b = rp.bt, L = net.lob;
         netGotChat(d, msg);
+      },
+      yip(d, msg) {
+        netGotYip(d, msg);
       }
     },
     actions: {
@@ -3296,6 +3336,9 @@ button,.rpb,.pill{touch-action:manipulation}
       },
       "net:say"(d) {
         netSay(d.v);
+      },
+      "net:yip"(d) {
+        netYip();
       },
       "net:chatsend"(d) {
         {
