@@ -9,7 +9,7 @@ function setup(X,st){const real=Math.random;let r=11;Math.random=()=>{r=(r*48271
   Object.assign(s.q,st.q);s.gold=st.gold;s.bag=Object.assign({},s.bag,st.bag);
   s.party=st.party.map(([n,c,l])=>X.rpMember(n,c,l));if(!s.mats)s.mats={};Object.assign(X.rpMats(),st.mats);
   X.rp.mode='map';X.rp.dlg=null;X.rp.toast=null;X.rp.bt=null;X.rp.lastFight=null;Math.random=real}
-function snap(X){const s=JSON.parse(JSON.stringify(X.rp.s));delete s.savedAt;
+function snap(X){const s=JSON.parse(JSON.stringify(X.rp.s));delete s.savedAt;delete s.place;
   return JSON.stringify({s,mode:X.rp.mode,toast:X.rp.toast&&X.rp.toast.t,fight:X.rp.lastFight||null})}
 function play(X,id,choice){
   const real=Math.random;let r=7;Math.random=()=>{r=(r*48271)%2147483647;return r/2147483647};

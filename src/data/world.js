@@ -1,3 +1,4 @@
+import {RP_ROOM_SOLID} from './places.js';
 const RW=40,RH=30;
 function rpBuildWorld(){
   const g=[];for(let y=0;y<RH;y++){g.push([]);for(let x=0;x<RW;x++)g[y].push('.')}
@@ -47,15 +48,17 @@ function rpBuildWorld(){
   [[27,3],[36,5],[29,9]].forEach(([x,y])=>set(x,y,'g'));
   return g;
 }
-const RP_SOLID=new Set(['T','~','#','H','W','X','S','N','A','M']);
-const RP_CHESTS=[{x:13,y:28,it:'sh_lid',gold:10},{x:37,y:27,it:'bt_frog',gold:20},{x:2,y:12,it:'cl_moss',gold:25},{x:37,y:2,it:'am_glow',gold:40},{x:18,y:1,it:'rg_haste',gold:80}];
+const RP_SOLID=new Set(['T','~','#','H','W','X','S','N','A','M',...RP_ROOM_SOLID]);
+const RP_CHESTS=[{x:13,y:28,it:'sh_lid',gold:10},{x:37,y:27,it:'bt_frog',gold:20},{x:2,y:12,it:'cl_moss',gold:25},{x:37,y:2,it:'am_glow',gold:40},{x:18,y:1,it:'rg_haste',gold:80},
+  {place:'elder',x:9,y:5,it:'rg_life',gold:15},{place:'hut',x:9,y:6,it:'am_shell',gold:25}];
 /* movement */
 const RP_DIR={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 /* things lying on the map (rules from core/rules.js).
    Pickups: step on a tile with that letter to take it; the tile turns into `becomes` for good.
    Spots: one quest thing at one place, there while `if` holds; `draw` names how the map shows it. */
 const RP_PICKUPS={g:{becomes:'C',do:{add:{glow:1},toast:'Found a glowcap! ({glow} found)',save:true}}};
-const RP_SPOTS=[{id:'hat',x:30,y:20,if:{hat:1},do:{set:{hat:2},toast:'Found Pebble\'s hat!',save:true},sfx:'win',draw:'hat'}];
+const RP_SPOTS=[{id:'hat',x:30,y:20,if:{hat:1},do:{set:{hat:2},toast:'Found Pebble\'s hat!',save:true},sfx:'win',draw:'hat'},
+  {id:'needles',place:'hut',x:2,y:6,if:{needles:1},do:{set:{needles:2},toast:'Found Granny Nettle\'s knitting needles!',save:true},sfx:'win',draw:'needles'}];
 /* map extras: shrine, bounty board, anvil */
 function rpWorldExtras(g){g[27][12]='S';g[19][7]='N';g[25][11]='A';g[21][8]='M'}
 export {RH,RP_CHESTS,RP_DIR,RP_PICKUPS,RP_SOLID,RP_SPOTS,RW,rpBuildWorld,rpWorldExtras};

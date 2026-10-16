@@ -42,7 +42,17 @@ const TALK={
     {if:{hat:0},say:['Waaah! The wind took my lucky hat into the meadow! It\'s somewhere in the tall grass, east of the bridge road.'],ask:[{t:'I\'ll find it',do:{set:{hat:1},toast:'New quest: find Pebble\'s hat'}},{t:'Sorry, busy'}]},
     {if:{hat:1},say:['Did you find it? It\'s orange and pointy!']},
     {if:{hat:2},now:{set:{hat:3},item:'cap_cone',xp:40},say:['MY HAT! Thank you thank you! Here, take my spare lucky cone. Grandpa says it brings crits.'],then:{toast:'Quest done! +40 XP, Lucky cone{up}'}},
-    {say:['I\'m going to be an adventurer just like you!']}]}
+    {say:['I\'m going to be an adventurer just like you!']}]},
+  tikka:{who:'Tikka',rules:[
+    {if:{vexx:1},say:['A toast! To the kobold who sent King Vexx running! ...Not you, Toast. Sit down.']},
+    {if:{gorb:1},say:['You beat Chief Gorb? I heard he cried. Toast says the next round is on the house!','Toast did not say that.']},
+    {say:['Psst. The board outside pays good gold for knocking out monsters.','And don\'t tell Biscuit I said so, but his potions taste like pond.']}]},
+  nettle:{who:'Granny Nettle',rules:[
+    {if:{needles:0},say:['Oh! A visitor. Mumble is out pestering people about bandits again.','Dearie, could you help an old kobold? I lent my knitting needles to Witch Yarrow, and she never gives anything back.','Her hut is up the forest path, north-west of the bridge.'],
+      ask:[{t:'I\'ll fetch them',do:{set:{needles:1},toast:'New quest: Granny Nettle\'s knitting needles'}},{t:'Maybe later'}]},
+    {if:{needles:1},say:['They\'ll be somewhere in Yarrow\'s hut, dear. Probably under a pile of toad bits.']},
+    {if:{needles:2},now:{set:{needles:3},item:'cl_scarf',xp:60},say:['My needles! And not a single toad bit on them.','Here, I knitted this while I waited. Well, I knitted it with my claws. It\'s a bit lumpy.'],then:{toast:'Quest done! +60 XP, Cozy scarf{up}'}},
+    {say:['Stay warm out there, and wear the scarf!']}]}
 };
 /* The quest log (☰ menu) and the line in the top bar. `show` decides if a line is listed, `done` ticks it. */
 const QUEST_LOG=[
@@ -55,7 +65,10 @@ const QUEST_LOG=[
   {show:{hat:2},text:'Bring the hat back to Pebble'},
   {show:{hat:3},done:{hat:3},text:'Found Pebble\'s hat'},
   {show:{smith:1},text:()=>'Bring Clink 3 glow spores ('+Math.min(3,value('mat.spore'))+'/3)'},
-  {show:{smith:2},done:{smith:2},text:'Lit Clink\'s big forge'}
+  {show:{smith:2},done:{smith:2},text:'Lit Clink\'s big forge'},
+  {show:{needles:1},text:'Find Granny Nettle\'s needles in Witch Yarrow\'s hut'},
+  {show:{needles:2},text:'Bring the needles back to Granny Nettle'},
+  {show:{needles:3},done:{needles:3},text:'Found Granny Nettle\'s needles'}
 ];
 const QUEST_LINE=[
   {if:{vexx:1},text:'The hoard is yours!'},

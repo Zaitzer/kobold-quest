@@ -57,6 +57,8 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
   rules; the first whose `if` holds speaks. Effects (`set`, `add`, `gold`, `xp`, `item`, `join`, `fight`, `toast`…)
   run `now`, `then`, or on a choice. The quest log and the top-bar quest line are rule lists too.
 * **Bosses** (what beating them does and drops), **kill tallies** and **bounties** are in `data/quests.js`.
+* **Rooms** are drawn as rows of letters in `data/places.js`; `RP_DOORS` says which world door leads where. NPCs, chests and
+  quest spots take `place:'inn'` to live inside. `test/logic/places.test.js` checks every room is closed in and reachable.
 * **Pickups and quest spots** on the map are in `data/world.js` (`RP_PICKUPS`, `RP_SPOTS`).
 * Balance knobs are `BAL` in `data/battle.js`; `test/sim/battle.js` and `test/sim/quest.js` measure them.
 

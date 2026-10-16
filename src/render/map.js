@@ -1,13 +1,15 @@
 import {RPH,RPW,RT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {test} from '../core/rules.js';
-import {rp} from '../core/state.js';
-import {RH,RP_CHESTS,RP_SPOTS,RW} from '../data/world.js';
+import {rp,rpPlace} from '../core/state.js';
+import {RP_CHESTS,RP_SPOTS} from '../data/world.js';
 import {OL,WEAPONS,ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {R,clamp,rr,seeded} from '../engine/util.js';
 import {rpHat} from '../game/stats.js';
-import {rpNpcs} from '../game/world.js';
+import {rpChestKey,rpNpcs} from '../game/world.js';
 import {netDrawTags,netPartnerK} from '../net/draw.js';
+import {rpDrawSpot,rpTileRoom} from './rooms.js';
 function rpTile(g,c,x,y,X,Y){
+  if(rpTileRoom(g,c,x,y,X,Y))return;
   const r=seeded(x*131+y*977);
   const grass=()=>{g.fillStyle='#6cbf4c';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(30,80,20,.25)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,3,2)};
   const forest=()=>{g.fillStyle='#3f7f3a';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(10,40,10,.3)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,3,3)};
@@ -41,10 +43,10 @@ function rpTile(g,c,x,y,X,Y){
   }
 }
 function rpMapImage(){
-  const c=document.createElement('canvas');c.width=Math.round(RW*RT*rpS*rpDpr);c.height=Math.round(RH*RT*rpS*rpDpr);
+  const W=rp.grid[0].length,H=rp.grid.length,c=document.createElement('canvas');c.width=Math.round(W*RT*rpS*rpDpr);c.height=Math.round(H*RT*rpS*rpDpr);
   const g=c.getContext('2d');g.setTransform(rpS*rpDpr,0,0,rpS*rpDpr,0,0);
-  for(let y=0;y<RH;y++)for(let x=0;x<RW;x++)rpTile(g,rp.grid[y][x],x,y,x*RT,y*RT);
-  RP_CHESTS.forEach(ch=>{if(rp.s.chests.includes(ch.x+','+ch.y))return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)rpTile(g,rp.grid[y][x],x,y,x*RT,y*RT);
+  RP_CHESTS.forEach(ch=>{if((ch.place||'world')!==rpPlace()||rp.s.chests.includes(rpChestKey(ch)))return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
   rp.mapImg=c;
 }
 function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,weapon:n.w,hat:n.hat,pers:'brave',speed:1,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face;rp.npcK[n.id]=k}return k}
@@ -54,12 +56,14 @@ function rpDrawMap(dt){
   let px=rp.pos?rp.pos.x-.5:s.x,py=rp.pos?rp.pos.y-.5:s.y;
   /* keep Pip in the open part of the screen when a sheet (dialogue, shop, menu) covers one side */
   const sheet=rp.mode!=='map'&&rp.mode!=='battle',land=RPW>RPH,o=rp.camOff||(rp.camOff={x:0,y:0}),tx=sheet&&land?.23:0,ty=sheet&&!land?.23:0;o.x+=(tx-o.x)*Math.min(1,dt*8);o.y+=(ty-o.y)*Math.min(1,dt*8);
-  const cx=clamp(px*RT+RT/2-RPW/2+o.x*RPW,0,Math.max(0,RW*RT-RPW)),cy=clamp(py*RT+RT/2-RPH/2+o.y*RPH,0,Math.max(0,RH*RT-RPH));rp.cam={x:cx,y:cy};
+  /* follow Pip; a room smaller than the screen sits in the middle of it */
+  const mw=rp.grid[0].length*RT,mh=rp.grid.length*RT;
+  const cx=mw<=RPW?(mw-RPW)/2:clamp(px*RT+RT/2-RPW/2+o.x*RPW,0,mw-RPW),cy=mh<=RPH?(mh-RPH)/2:clamp(py*RT+RT/2-RPH/2+o.y*RPH,0,mh-RPH);rp.cam={x:cx,y:cy};
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,rpcv.width,rpcv.height);
-  const k=rpS*rpDpr;ctx.drawImage(rp.mapImg,cx*k,cy*k,RPW*k,RPH*k,0,0,rpcv.width,rpcv.height);
+  const k=rpS*rpDpr;if(rp.s.place){ctx.fillStyle='#1a0f24';ctx.fillRect(0,0,rpcv.width,rpcv.height)}ctx.drawImage(rp.mapImg,-cx*k,-cy*k);
   ctx.setTransform(k,0,0,k,-cx*k,-cy*k);
   if(rp.path&&rp.path.length){ctx.fillStyle='rgba(255,226,122,.55)';rp.path.forEach(([x,y])=>{ctx.beginPath();ctx.arc(x*RT+16,y*RT+16,3,0,7);ctx.fill()})}
-  for(const sp of RP_SPOTS)if(sp.draw==='hat'&&test(sp.if)){const X=sp.x*RT+16,Y=sp.y*RT+22+Math.sin(rp.t*3)*1.5;ctx.fillStyle=OL;ctx.beginPath();ctx.moveTo(X,Y-15);ctx.lineTo(X+9,Y+3);ctx.lineTo(X-9,Y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#ff8a2b';ctx.beginPath();ctx.moveTo(X,Y-12);ctx.lineTo(X+6.5,Y+1.5);ctx.lineTo(X-6.5,Y+1.5);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(X-4,Y-4,8,2.2)}
+  for(const sp of RP_SPOTS)if((sp.place||'world')===rpPlace()&&test(sp.if)&&!rpDrawSpot(sp)&&sp.draw==='hat'){const X=sp.x*RT+16,Y=sp.y*RT+22+Math.sin(rp.t*3)*1.5;ctx.fillStyle=OL;ctx.beginPath();ctx.moveTo(X,Y-15);ctx.lineTo(X+9,Y+3);ctx.lineTo(X-9,Y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#ff8a2b';ctx.beginPath();ctx.moveTo(X,Y-12);ctx.lineTo(X+6.5,Y+1.5);ctx.lineTo(X-6.5,Y+1.5);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(X-4,Y-4,8,2.2)}
   const ents=rpNpcs().map(n=>{const kk=rpNpcK(n);kk.x=n.x*RT+16;kk.y=n.y*RT+26;kk.t+=dt;kk.blink-=dt;if(kk.blink<-.12)kk.blink=R(2,5);kk.moving=false;kk.wa=.35+Math.sin(kk.t*2+kk.phase)*.4;
     if(Math.abs(s.x-n.x)+Math.abs(s.y-n.y)<=2){kk.face=s.x>n.x?1:s.x<n.x?-1:kk.face}return kk});
   const pk=rp.pk||(rp.pk=makeK({team:0,name:'Pip',weapon:s.party[0].w,hat:s.party[0].hat,pers:'brave',speed:1,hp:30,size:.72},0,0,false));

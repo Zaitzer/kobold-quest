@@ -397,15 +397,61 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   };
 
+  // src/data/places.js
+  var RP_PLACES = {
+    inn: { name: "The Snoring Snail", rows: [
+      "wwwwwwwwwwwww",
+      "whfffsssfffow",
+      "wfffkkkkkfffw",
+      "wffffffffffow",
+      "wltlffffltlfw",
+      "wffffffffffyw",
+      "wffrrrrrrrffw",
+      "wffffffffffyw",
+      "wwwwwwewwwwww"
+    ] },
+    shop: { name: "Biscuit's Goods", rows: [
+      "wwwwwwwwwww",
+      "wsssssssssw",
+      "wffffffffow",
+      "wfkkkkkfffw",
+      "wffffffffow",
+      "wofffffffyw",
+      "wfffrrrfffw",
+      "wwwwwewwwww"
+    ] },
+    elder: { name: "Elder Mumble's house", rows: [
+      "wwwwwwwwwww",
+      "wpfsssffpfw",
+      "wpffffffpfw",
+      "wffftffffhw",
+      "wfffflffffw",
+      "wfrrrrrrffw",
+      "wyfffffffyw",
+      "wwwwwewwwww"
+    ] },
+    hut: { name: "Witch Yarrow's hut", rows: [
+      "wwwwwwwwwww",
+      "wssfffffssw",
+      "wfffxffffyw",
+      "wfffffffffw",
+      "wyffrrrfffw",
+      "wsffrrrffow",
+      "wfffffffffw",
+      "wwwwwewwwww"
+    ] }
+  }, RP_DOORS = { "3,20": "inn", "11,20": "shop", "4,26": "elder", "8,4": "hut" }, RP_ROOM_SOLID = ["w", "t", "k", "s", "o", "p", "h", "x", "y"];
+
   // src/data/world.js
+  var RW = 40, RH = 30;
   function rpBuildWorld() {
     let g = [];
-    for (let y = 0; y < 30; y++) {
+    for (let y = 0; y < RH; y++) {
       g.push([]);
-      for (let x = 0; x < 40; x++) g[y].push(".");
+      for (let x = 0; x < RW; x++) g[y].push(".");
     }
     let set = (x, y, c) => {
-      x >= 0 && y >= 0 && x < 40 && y < 30 && (g[y][x] = c);
+      x >= 0 && y >= 0 && x < RW && y < RH && (g[y][x] = c);
     }, rect = (x0, y0, x1, y1, c) => {
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, c);
     }, hash = (x, y) => (x * 73856093 ^ y * 19349663) >>> 0;
@@ -430,13 +476,24 @@ button,.rpb,.pill{touch-action:manipulation}
       set(3, y, "="), set(11, y, "=");
     set(4, 27, "="), house(6, 2, 4, 3, 2), rect(5, 5, 11, 6, ";");
     for (let y = 5; y <= 12; y++) set(8, y, "=");
-    for (let x = 0; x < 40; x++)
-      set(x, 0, x >= 17 && x <= 23 ? "W" : "#"), set(x, 29, "#");
-    for (let y = 0; y < 30; y++)
-      set(0, y, "#"), set(39, y, "#");
+    for (let x = 0; x < RW; x++)
+      set(x, 0, x >= 17 && x <= 23 ? "W" : "#"), set(x, RH - 1, "#");
+    for (let y = 0; y < RH; y++)
+      set(0, y, "#"), set(RW - 1, y, "#");
     return [[27, 3], [36, 5], [29, 9]].forEach(([x, y]) => set(x, y, "g")), g;
   }
-  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M"]), RP_CHESTS = [{ x: 13, y: 28, it: "sh_lid", gold: 10 }, { x: 37, y: 27, it: "bt_frog", gold: 20 }, { x: 2, y: 12, it: "cl_moss", gold: 25 }, { x: 37, y: 2, it: "am_glow", gold: 40 }, { x: 18, y: 1, it: "rg_haste", gold: 80 }], RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, RP_PICKUPS = { g: { becomes: "C", do: { add: { glow: 1 }, toast: "Found a glowcap! ({glow} found)", save: !0 } } }, RP_SPOTS = [{ id: "hat", x: 30, y: 20, if: { hat: 1 }, do: { set: { hat: 2 }, toast: "Found Pebble's hat!", save: !0 }, sfx: "win", draw: "hat" }];
+  var RP_SOLID = /* @__PURE__ */ new Set(["T", "~", "#", "H", "W", "X", "S", "N", "A", "M", ...RP_ROOM_SOLID]), RP_CHESTS = [
+    { x: 13, y: 28, it: "sh_lid", gold: 10 },
+    { x: 37, y: 27, it: "bt_frog", gold: 20 },
+    { x: 2, y: 12, it: "cl_moss", gold: 25 },
+    { x: 37, y: 2, it: "am_glow", gold: 40 },
+    { x: 18, y: 1, it: "rg_haste", gold: 80 },
+    { place: "elder", x: 9, y: 5, it: "rg_life", gold: 15 },
+    { place: "hut", x: 9, y: 6, it: "am_shell", gold: 25 }
+  ], RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, RP_PICKUPS = { g: { becomes: "C", do: { add: { glow: 1 }, toast: "Found a glowcap! ({glow} found)", save: !0 } } }, RP_SPOTS = [
+    { id: "hat", x: 30, y: 20, if: { hat: 1 }, do: { set: { hat: 2 }, toast: "Found Pebble's hat!", save: !0 }, sfx: "win", draw: "hat" },
+    { id: "needles", place: "hut", x: 2, y: 6, if: { needles: 1 }, do: { set: { needles: 2 }, toast: "Found Granny Nettle's knitting needles!", save: !0 }, sfx: "win", draw: "needles" }
+  ];
   function rpWorldExtras(g) {
     g[27][12] = "S", g[19][7] = "N", g[25][11] = "A", g[21][8] = "M";
   }
@@ -1069,6 +1126,21 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { hat: 1 }, say: ["Did you find it? It's orange and pointy!"] },
       { if: { hat: 2 }, now: { set: { hat: 3 }, item: "cap_cone", xp: 40 }, say: ["MY HAT! Thank you thank you! Here, take my spare lucky cone. Grandpa says it brings crits."], then: { toast: "Quest done! +40 XP, Lucky cone{up}" } },
       { say: ["I'm going to be an adventurer just like you!"] }
+    ] },
+    tikka: { who: "Tikka", rules: [
+      { if: { vexx: 1 }, say: ["A toast! To the kobold who sent King Vexx running! ...Not you, Toast. Sit down."] },
+      { if: { gorb: 1 }, say: ["You beat Chief Gorb? I heard he cried. Toast says the next round is on the house!", "Toast did not say that."] },
+      { say: ["Psst. The board outside pays good gold for knocking out monsters.", "And don't tell Biscuit I said so, but his potions taste like pond."] }
+    ] },
+    nettle: { who: "Granny Nettle", rules: [
+      {
+        if: { needles: 0 },
+        say: ["Oh! A visitor. Mumble is out pestering people about bandits again.", "Dearie, could you help an old kobold? I lent my knitting needles to Witch Yarrow, and she never gives anything back.", "Her hut is up the forest path, north-west of the bridge."],
+        ask: [{ t: "I'll fetch them", do: { set: { needles: 1 }, toast: "New quest: Granny Nettle's knitting needles" } }, { t: "Maybe later" }]
+      },
+      { if: { needles: 1 }, say: ["They'll be somewhere in Yarrow's hut, dear. Probably under a pile of toad bits."] },
+      { if: { needles: 2 }, now: { set: { needles: 3 }, item: "cl_scarf", xp: 60 }, say: ["My needles! And not a single toad bit on them.", "Here, I knitted this while I waited. Well, I knitted it with my claws. It's a bit lumpy."], then: { toast: "Quest done! +60 XP, Cozy scarf{up}" } },
+      { say: ["Stay warm out there, and wear the scarf!"] }
     ] }
   }, QUEST_LOG = [
     { done: { q1: { gte: 2 } }, text: (q) => "Clear the meadow bandits (" + Math.min(q.kills, 5) + "/5)" },
@@ -1080,7 +1152,10 @@ button,.rpb,.pill{touch-action:manipulation}
     { show: { hat: 2 }, text: "Bring the hat back to Pebble" },
     { show: { hat: 3 }, done: { hat: 3 }, text: "Found Pebble's hat" },
     { show: { smith: 1 }, text: () => "Bring Clink 3 glow spores (" + Math.min(3, value("mat.spore")) + "/3)" },
-    { show: { smith: 2 }, done: { smith: 2 }, text: "Lit Clink's big forge" }
+    { show: { smith: 2 }, done: { smith: 2 }, text: "Lit Clink's big forge" },
+    { show: { needles: 1 }, text: "Find Granny Nettle's needles in Witch Yarrow's hut" },
+    { show: { needles: 2 }, text: "Bring the needles back to Granny Nettle" },
+    { show: { needles: 3 }, done: { needles: 3 }, text: "Found Granny Nettle's needles" }
   ], QUEST_LINE = [
     { if: { vexx: 1 }, text: "The hoard is yours!" },
     { if: { gate: 1 }, text: "Defeat King Vexx in the hoard" },
@@ -1095,9 +1170,9 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/data/quests.js
   var RP_NPC = [
-    { id: "elder", name: "Elder Mumble", x: 4, y: 27, team: 0, w: "healwand", hat: "flower", face: 1 },
-    { id: "toast", name: "Toast the innkeeper", x: 5, y: 21, team: 0, w: "spoon", hat: "pot", face: -1 },
-    { id: "biscuit", name: "Biscuit the trader", x: 12, y: 21, team: 0, w: "pan", hat: "cone", face: -1 },
+    { id: "elder", name: "Elder Mumble", x: 5, y: 27, team: 0, w: "healwand", hat: "flower", face: 1 },
+    { id: "toast", name: "Toast the innkeeper", place: "inn", x: 6, y: 3, team: 0, w: "spoon", hat: "pot", face: -1 },
+    { id: "biscuit", name: "Biscuit the trader", place: "shop", x: 4, y: 4, team: 0, w: "pan", hat: "cone", face: -1 },
     { id: "bork", name: "Bork", x: 10, y: 26, team: 0, w: "bone", hat: "bucket", face: 1, show: (s) => !s.q.bork },
     { id: "flint", name: "Guard Flint", x: 20, y: 17, team: 0, w: "sword", hat: "pot", face: 1, pos: (s) => s.q.q1 >= 2 ? { x: 21, y: 17 } : null },
     { id: "yarrow", name: "Witch Yarrow", x: 9, y: 5, team: 3, w: "frostrod", hat: "wizard", face: -1 },
@@ -1106,7 +1181,9 @@ button,.rpb,.pill{touch-action:manipulation}
     { id: "gorb", name: "Chief Gorb", x: 35, y: 3, team: 1, w: "club", hat: "pot", face: -1, size: 1.3, show: (s) => !s.q.gorb },
     { id: "clink", name: "Clink the smith", x: 12, y: 25, team: 0, w: "club", hat: "bucket", face: -1 },
     { id: "pebble", name: "Pebble", x: 7, y: 27, team: 0, w: "spoon", hat: "none", face: 1, size: 0.8 },
-    { id: "vexx", name: "King Vexx", x: 20, y: 2, team: 3, w: "sword", hat: "crown", face: 1, size: 1.4, show: (s) => !s.q.vexx }
+    { id: "vexx", name: "King Vexx", x: 20, y: 2, team: 3, w: "sword", hat: "crown", face: 1, size: 1.4, show: (s) => !s.q.vexx },
+    { id: "tikka", name: "Tikka", place: "inn", x: 2, y: 5, team: 2, w: "squirt", hat: "flower", face: 1 },
+    { id: "nettle", name: "Granny Nettle", place: "elder", x: 6, y: 2, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 }
   ], RP_BOSSES = {
     gorb: { win: { set: { gorb: 1, key: 1 } }, drops: ["ar_gorb"], after: [{ who: "", text: "Chief Gorb drops a heavy iron key: the key to the Dragon's Hoard! The gate is north of the bridge." }] },
     vexx: { win: { set: { vexx: 1 } }, drops: ["cap_crown"], after: [{ who: "King Vexx", text: "Ugh... my beautiful hoard..." }, { who: "", text: "King Vexx scurries off into the dark. The stolen gold of Burrowhome is yours to bring home!" }, { who: "", text: "THE END. Thanks for playing Kobold Quest! You can keep exploring, and the Elder has something to say." }] }
@@ -1144,11 +1221,13 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/game/world.js
   function rpArea(x, y) {
+    if (rp.s.place && RP_PLACES[rp.s.place]) return RP_PLACES[rp.s.place].name;
     let c = rp.grid[y][x];
     return c === "K" || c === "X" ? "Dragon's Hoard" : c === "C" || c === "g" || c === "c" ? "Mushroom Cave" : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "North Road" : x < 14 && y > 16 ? "Burrowhome" : "Bandit Meadow";
   }
   function rpNpcs() {
-    return RP_NPC.filter((n) => !n.show || n.show(rp.s)).map((n) => {
+    let pl = rpPlace();
+    return RP_NPC.filter((n) => (n.place || "world") === pl && (!n.show || n.show(rp.s))).map((n) => {
       let p = n.pos && n.pos(rp.s);
       return p ? Object.assign({}, n, p) : n;
     });
@@ -1157,12 +1236,30 @@ button,.rpb,.pill{touch-action:manipulation}
     return rpNpcs().find((n) => n.x === x && n.y === y);
   }
   function rpSolid(x, y) {
-    if (x < 0 || y < 0 || x >= 40 || y >= 30) return !0;
+    if (x < 0 || y < 0 || !rp.grid[y] || x >= rp.grid[y].length) return !0;
     let c = rp.grid[y][x];
     return RP_SOLID.has(c) || c === "d" || !!rpNpcAt(x, y) || !!(rp.s && rp.s.chests && rpChestAt(x, y));
   }
   function rpDoor(x, y) {
-    x === 3 && y === 20 ? rpTalk("toast") : x === 11 && y === 20 ? rpTalk("biscuit") : x === 4 && y === 26 ? rpTalk("elder") : x === 8 && y === 4 && rpSay([{ who: "", text: "Bottles bubble behind the door of the witch's hut. Yarrow is outside." }]);
+    let id = RP_DOORS[x + "," + y];
+    id && rpEnterPlace(id);
+  }
+  function rpEnterPlace(id) {
+    let P = RP_PLACES[id], s = rp.s;
+    if (!P) return;
+    let ex = 1, ey = 1;
+    P.rows.forEach((r, y) => {
+      let i = r.indexOf("e");
+      i >= 0 && (ex = i, ey = y);
+    }), s.place = id, s.x = ex, s.y = ey - 1, s.face = "up", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("drop"), emit("place:enter", id), rpSave();
+  }
+  function rpLeavePlace() {
+    let s = rp.s, id = s.place, door = Object.keys(RP_DOORS).find((k) => RP_DOORS[k] === id);
+    if (delete s.place, s.face = "down", rpApplyWorld(), door) {
+      let [x, y] = door.split(",").map(Number), spot = [[0, 1], [-1, 1], [1, 1], [0, 2], [-1, 2], [1, 2]].find(([dx, dy]) => !rpSolid(x + dx, y + dy)) || [0, 1];
+      s.x = x + spot[0], s.y = y + spot[1];
+    }
+    rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, emit("place:leave", id), rpSave();
   }
   function rpGate() {
     let q = rp.s.q;
@@ -1187,18 +1284,26 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     return null;
   }
+  function rpChestKey(c) {
+    return (c.place ? c.place + ":" : "") + c.x + "," + c.y;
+  }
   function rpChestAt(x, y) {
-    return RP_CHESTS.find((c) => c.x === x && c.y === y && !rp.s.chests.includes(x + "," + y));
+    let pl = rpPlace();
+    return RP_CHESTS.find((c) => (c.place || "world") === pl && c.x === x && c.y === y && !rp.s.chests.includes(rpChestKey(c)));
   }
   function rpOpenChest(c) {
     let s = rp.s;
-    s.chests.push(c.x + "," + c.y), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("win");
+    s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("win");
   }
   feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) }, X: { use: () => rpGate() } } });
   feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
+    if (c === "e" && rp.s.place) {
+      rpLeavePlace();
+      return;
+    }
     let P = RP_PICKUPS[c];
     P && (rp.grid[y][x] = P.becomes, rp.s.taken.push([x, y]), rp.mapImg = null, run(P.do));
-    for (let sp of RP_SPOTS) sp.x === x && sp.y === y && test(sp.if) && (sp.sfx && !rp.headless && sfx(sp.sfx), run(sp.do));
+    for (let sp of RP_SPOTS) (sp.place || "world") === rpPlace() && sp.x === x && sp.y === y && test(sp.if) && (sp.sfx && !rp.headless && sfx(sp.sfx), run(sp.do));
   } } });
 
   // src/game/move.js
@@ -1207,7 +1312,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s;
     if (rpSolid(s.x, s.y)) {
       let best = null, bd = 1e9;
-      for (let y = Math.max(1, s.y - 4); y <= Math.min(28, s.y + 4); y++) for (let x = Math.max(1, s.x - 4); x <= Math.min(38, s.x + 4); x++) {
+      for (let y = Math.max(1, s.y - 4); y <= Math.min(rp.grid.length - 2, s.y + 4); y++) for (let x = Math.max(1, s.x - 4); x <= Math.min(rp.grid[0].length - 2, s.x + 4); x++) {
         if (rpSolid(x, y)) continue;
         let d = Math.abs(x - s.x) + Math.abs(y - s.y);
         d < bd && (bd = d, best = [x, y]);
@@ -2022,6 +2127,7 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!force && now - net.lastPres < 120) return;
     let s = rp.s, m = s.party[0], p = rp.pos || { x: s.x + 0.5, y: s.y + 0.5 }, pr = {
       kq: 1,
+      pl: rpPlace(),
       x: Math.round(p.x * 100) / 100,
       y: Math.round(p.y * 100) / 100,
       f: s.face,
@@ -2309,12 +2415,15 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/net/draw.js
+  function netHere(P) {
+    return (P.presence.pl || "world") === rpPlace();
+  }
   function netPartnerK(dt) {
     if (!rp.s || view !== "rpg") return [];
     let out = [];
     return (net.others || []).forEach((P) => {
       let pr = P.presence;
-      if (pr.m === "battle") return;
+      if (pr.m === "battle" || !netHere(P)) return;
       let E = net.pks[P.peer];
       (!E || E.k.weapon !== pr.w) && (E = net.pks[P.peer] = { k: makeK({ team: 0, name: netName(P), weapon: WEAPONS[pr.w] ? pr.w : "stick", hat: pr.h || "none", pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1), pos: null });
       let k = E.k;
@@ -2335,7 +2444,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let now = performance.now();
     (net.others || []).forEach((P) => {
       let E = net.pks[P.peer];
-      if (!E || P.presence.m === "battle") return;
+      if (!E || P.presence.m === "battle" || !netHere(P)) return;
       let k = E.k, nm = netName(P) + (P.presence.lv ? " · " + P.presence.lv : "");
       ctx.font = '800 11px "Fredoka",system-ui,sans-serif', ctx.textAlign = "center";
       let w = ctx.measureText(nm).width + 12;
@@ -2350,8 +2459,85 @@ button,.rpb,.pill{touch-action:manipulation}
     mine && now - mine.t < 5e3 && rp.pk && netBubble(rp.pk.x, rp.pk.y - 50, mine.txt);
   }
 
+  // src/render/rooms.js
+  var WOOD = "#a8743f", WOOD_D = "#7a4f27", WOOD_L = "#c48d52";
+  function plank(g, X, Y, x, y) {
+    g.fillStyle = (x + y) % 2 ? WOOD : "#b07a44", g.fillRect(X, Y, RT + 1, RT + 1), g.strokeStyle = "rgba(70,35,10,.35)", g.lineWidth = 1.5;
+    for (let i = 8; i < RT; i += 8)
+      g.beginPath(), g.moveTo(X, Y + i), g.lineTo(X + RT, Y + i), g.stroke();
+    g.beginPath(), g.moveTo(X + (x * 7 + y * 3) % 4 * 8, Y), g.lineTo(X + (x * 7 + y * 3) % 4 * 8, Y + 8), g.stroke();
+  }
+  function box(g, X, Y, w, h, fill2, dx, dy) {
+    g.fillStyle = OL, g.fillRect(X + dx - 2, Y + dy - 2, w + 4, h + 4), g.fillStyle = fill2, g.fillRect(X + dx, Y + dy, w, h);
+  }
+  var ROOM = {
+    f: (g, X, Y, x, y) => plank(g, X, Y, x, y),
+    e: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), box(g, X, Y, 24, 12, "#d9b45a", 4, 10), g.fillStyle = "#b8902f";
+      for (let i = 0; i < 5; i++) g.fillRect(X + 6 + i * 4, Y + 12, 2, 8);
+      g.fillStyle = "rgba(255,240,180,.9)", g.beginPath(), g.moveTo(X + 16, Y + 31), g.lineTo(X + 11, Y + 25), g.lineTo(X + 21, Y + 25), g.closePath(), g.fill();
+    },
+    r: (g, X, Y, x, y, up, dn, lf, rt) => {
+      plank(g, X, Y, x, y), g.fillStyle = "#b8384a", g.fillRect(X + (lf ? 0 : 3), Y + (up ? 0 : 3), RT - (lf ? 0 : 3) - (rt ? 0 : 3), RT - (up ? 0 : 3) - (dn ? 0 : 3)), g.fillStyle = "#e0b04a", up || g.fillRect(X, Y + 5, RT, 2), dn || g.fillRect(X, Y + RT - 7, RT, 2), lf || g.fillRect(X + 5, Y, 2, RT), rt || g.fillRect(X + RT - 7, Y, 2, RT);
+    },
+    w: (g, X, Y, x, y, up, dn) => {
+      g.fillStyle = "#4a2f45", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#5e3c57";
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) g.fillRect(X + (r % 2 ? 8 : 0) + c * 16 + 1, Y + r * 8 + 1, 14, 6);
+      dn && !dn.wall && (g.fillStyle = "#2a1a2a", g.fillRect(X, Y + RT - 4, RT + 1, 4));
+    },
+    l: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 18, 9, 7, 0, 0, 7), g.fill(), g.fillStyle = WOOD_L, g.beginPath(), g.ellipse(X + 16, Y + 17, 7, 5, 0, 0, 7), g.fill();
+    },
+    t: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), box(g, X, Y, 26, 18, WOOD_D, 3, 6), g.fillStyle = WOOD_L, g.fillRect(X + 3, Y + 6, 26, 5), g.fillStyle = "#fff3d6", g.fillRect(X + 9, Y + 12, 6, 5), g.fillStyle = "#ffcf5a", g.fillRect(X + 19, Y + 11, 4, 7);
+    },
+    k: (g, X, Y, x, y, up, dn, lf, rt) => {
+      plank(g, X, Y, x, y), g.fillStyle = OL, g.fillRect(X + (lf && lf.c === "k" ? 0 : 2), Y + 6, RT - (lf && lf.c === "k" ? 0 : 2) - (rt && rt.c === "k" ? 0 : 2), 24), g.fillStyle = WOOD_D, g.fillRect(X + (lf && lf.c === "k" ? 0 : 4), Y + 8, RT - (lf && lf.c === "k" ? 0 : 4) - (rt && rt.c === "k" ? 0 : 4), 20), g.fillStyle = WOOD_L, g.fillRect(X + (lf && lf.c === "k" ? 0 : 4), Y + 8, RT - (lf && lf.c === "k" ? 0 : 4) - (rt && rt.c === "k" ? 0 : 4), 5);
+    },
+    s: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), box(g, X, Y, 28, 26, WOOD_D, 2, 2), g.fillStyle = WOOD_L, g.fillRect(X + 2, Y + 13, 28, 3);
+      let cols = ["#7fd0ff", "#ff8a8a", "#9dff6e", "#ffd54a", "#c9a0ff"];
+      for (let i = 0; i < 4; i++)
+        g.fillStyle = cols[(x * 3 + y + i) % 5], g.fillRect(X + 4 + i * 7, Y + 5 + i % 2, 4, 7), g.fillRect(X + 5 + i * 6, Y + 18, 4, 6);
+    },
+    o: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 17, 11, 13, 0, 0, 7), g.fill(), g.fillStyle = "#9a6532", g.beginPath(), g.ellipse(X + 16, Y + 17, 9, 11, 0, 0, 7), g.fill(), g.fillStyle = "#5b5b6e", g.fillRect(X + 7, Y + 10, 18, 2), g.fillRect(X + 7, Y + 22, 18, 2);
+    },
+    p: (g, X, Y, x, y, up) => {
+      plank(g, X, Y, x, y);
+      let top = !(up && up.c === "p");
+      box(g, X, Y, 26, top ? 28 : 30, "#6a8fd8", 3, top ? 2 : 0), top ? (g.fillStyle = "#fff", g.fillRect(X + 6, Y + 5, 20, 8)) : (g.fillStyle = "#5577c0", g.fillRect(X + 3, Y + 20, 26, 6));
+    },
+    h: (g, X, Y, x, y) => {
+      g.fillStyle = "#6d6177", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "#4e4458", g.fillRect(X + 2, Y + 2, 13, 8), g.fillRect(X + 17, Y + 2, 13, 8), g.fillStyle = "#1b0f12", g.fillRect(X + 5, Y + 12, 22, 18), g.fillStyle = "#ff8a2b", g.beginPath(), g.moveTo(X + 8, Y + 30), g.quadraticCurveTo(X + 16, Y + 10, X + 24, Y + 30), g.fill(), g.fillStyle = "#ffe27a", g.beginPath(), g.moveTo(X + 12, Y + 30), g.quadraticCurveTo(X + 16, Y + 18, X + 20, Y + 30), g.fill();
+    },
+    x: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), g.fillStyle = OL, g.beginPath(), g.ellipse(X + 16, Y + 20, 13, 10, 0, 0, 7), g.fill(), g.fillStyle = "#2d2d3a", g.beginPath(), g.ellipse(X + 16, Y + 20, 11, 8, 0, 0, 7), g.fill(), g.fillStyle = "#7dff6e", g.beginPath(), g.ellipse(X + 16, Y + 15, 10, 4, 0, 0, 7), g.fill(), g.fillStyle = "#c6ffb0", g.beginPath(), g.arc(X + 12, Y + 9, 3, 0, 7), g.arc(X + 20, Y + 6, 2, 0, 7), g.fill();
+    },
+    y: (g, X, Y, x, y) => {
+      plank(g, X, Y, x, y), box(g, X, Y, 14, 10, "#b8603a", 9, 19), g.fillStyle = "#3f9a3a", g.beginPath(), g.arc(X + 16, Y + 12, 9, 0, 7), g.fill(), g.fillStyle = "#6cbf4c", g.beginPath(), g.arc(X + 13, Y + 10, 5, 0, 7), g.arc(X + 20, Y + 13, 4, 0, 7), g.fill();
+    }
+  };
+  function rpTileRoom(g, c, x, y, X, Y) {
+    let f = ROOM[c];
+    if (!f || !rp.s || !rp.s.place) return !1;
+    let at = (dx, dy) => {
+      let r = rp.grid[y + dy], cc = r && r[x + dx];
+      return cc ? { c: cc, wall: cc === "w" } : null;
+    }, same = (dx, dy) => {
+      let a = at(dx, dy);
+      return a && a.c === c ? a : null;
+    };
+    return f(g, X, Y, x, y, c === "r" ? same(0, -1) : at(0, -1), c === "r" ? same(0, 1) : at(0, 1), c === "r" ? same(-1, 0) : at(-1, 0), c === "r" ? same(1, 0) : at(1, 0)), !0;
+  }
+  function rpDrawSpot(sp) {
+    let X = sp.x * RT + 16, Y = sp.y * RT + 22 + Math.sin(rp.t * 3) * 1.5;
+    return sp.draw === "needles" ? (ctx.lineCap = "round", ctx.strokeStyle = OL, ctx.lineWidth = 5, ctx.beginPath(), ctx.moveTo(X - 9, Y + 2), ctx.lineTo(X + 7, Y - 12), ctx.moveTo(X - 5, Y + 4), ctx.lineTo(X + 11, Y - 8), ctx.stroke(), ctx.strokeStyle = "#d8d8e8", ctx.lineWidth = 2.5, ctx.stroke(), ctx.fillStyle = OL, ctx.beginPath(), ctx.arc(X + 2, Y - 1, 7, 0, 7), ctx.fill(), ctx.fillStyle = "#ff7aa8", ctx.beginPath(), ctx.arc(X + 2, Y - 1, 5.5, 0, 7), ctx.fill(), ctx.strokeStyle = "#ffd0e0", ctx.lineWidth = 1, ctx.beginPath(), ctx.arc(X + 2, Y - 1, 3, 0, 4), ctx.stroke(), !0) : !1;
+  }
+
   // src/render/map.js
   function rpTile(g, c, x, y, X, Y) {
+    if (rpTileRoom(g, c, x, y, X, Y)) return;
     let r = seeded(x * 131 + y * 977), grass = () => {
       g.fillStyle = "#6cbf4c", g.fillRect(X, Y, RT + 1, RT + 1), g.fillStyle = "rgba(30,80,20,.25)";
       for (let i = 0; i < 3; i++) g.fillRect(X + r() * 28, Y + r() * 28, 3, 2);
@@ -2452,13 +2638,13 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
   function rpMapImage() {
-    let c = document.createElement("canvas");
-    c.width = Math.round(40 * RT * rpS * rpDpr), c.height = Math.round(30 * RT * rpS * rpDpr);
+    let W = rp.grid[0].length, H = rp.grid.length, c = document.createElement("canvas");
+    c.width = Math.round(W * RT * rpS * rpDpr), c.height = Math.round(H * RT * rpS * rpDpr);
     let g = c.getContext("2d");
     g.setTransform(rpS * rpDpr, 0, 0, rpS * rpDpr, 0, 0);
-    for (let y = 0; y < 30; y++) for (let x = 0; x < 40; x++) rpTile(g, rp.grid[y][x], x, y, x * RT, y * RT);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) rpTile(g, rp.grid[y][x], x, y, x * RT, y * RT);
     RP_CHESTS.forEach((ch) => {
-      if (rp.s.chests.includes(ch.x + "," + ch.y)) return;
+      if ((ch.place || "world") !== rpPlace() || rp.s.chests.includes(rpChestKey(ch))) return;
       let X = ch.x * RT, Y = ch.y * RT;
       g.fillStyle = OL, g.fillRect(X + 5, Y + 10, 22, 17), g.fillStyle = "#a0612a", g.fillRect(X + 7, Y + 12, 18, 13), g.fillStyle = "#c07a3a", g.fillRect(X + 7, Y + 12, 18, 5), g.fillStyle = "#ffd54a", g.fillRect(X + 7, Y + 16, 18, 2), g.fillRect(X + 14, Y + 15, 4, 5);
     }), rp.mapImg = c;
@@ -2472,13 +2658,13 @@ button,.rpb,.pill{touch-action:manipulation}
     set_ctx(rpctx), rp.mapImg || rpMapImage();
     let px = rp.pos ? rp.pos.x - 0.5 : s.x, py = rp.pos ? rp.pos.y - 0.5 : s.y, sheet = rp.mode !== "map" && rp.mode !== "battle", land = RPW > RPH, o = rp.camOff || (rp.camOff = { x: 0, y: 0 }), tx = sheet && land ? 0.23 : 0, ty = sheet && !land ? 0.23 : 0;
     o.x += (tx - o.x) * Math.min(1, dt * 8), o.y += (ty - o.y) * Math.min(1, dt * 8);
-    let cx = clamp(px * RT + RT / 2 - RPW / 2 + o.x * RPW, 0, Math.max(0, 40 * RT - RPW)), cy = clamp(py * RT + RT / 2 - RPH / 2 + o.y * RPH, 0, Math.max(0, 30 * RT - RPH));
+    let mw = rp.grid[0].length * RT, mh = rp.grid.length * RT, cx = mw <= RPW ? (mw - RPW) / 2 : clamp(px * RT + RT / 2 - RPW / 2 + o.x * RPW, 0, mw - RPW), cy = mh <= RPH ? (mh - RPH) / 2 : clamp(py * RT + RT / 2 - RPH / 2 + o.y * RPH, 0, mh - RPH);
     rp.cam = { x: cx, y: cy }, ctx.setTransform(1, 0, 0, 1, 0, 0), ctx.clearRect(0, 0, rpcv.width, rpcv.height);
     let k = rpS * rpDpr;
-    ctx.drawImage(rp.mapImg, cx * k, cy * k, RPW * k, RPH * k, 0, 0, rpcv.width, rpcv.height), ctx.setTransform(k, 0, 0, k, -cx * k, -cy * k), rp.path && rp.path.length && (ctx.fillStyle = "rgba(255,226,122,.55)", rp.path.forEach(([x, y]) => {
+    rp.s.place && (ctx.fillStyle = "#1a0f24", ctx.fillRect(0, 0, rpcv.width, rpcv.height)), ctx.drawImage(rp.mapImg, -cx * k, -cy * k), ctx.setTransform(k, 0, 0, k, -cx * k, -cy * k), rp.path && rp.path.length && (ctx.fillStyle = "rgba(255,226,122,.55)", rp.path.forEach(([x, y]) => {
       ctx.beginPath(), ctx.arc(x * RT + 16, y * RT + 16, 3, 0, 7), ctx.fill();
     }));
-    for (let sp of RP_SPOTS) if (sp.draw === "hat" && test(sp.if)) {
+    for (let sp of RP_SPOTS) if ((sp.place || "world") === rpPlace() && test(sp.if) && !rpDrawSpot(sp) && sp.draw === "hat") {
       let X = sp.x * RT + 16, Y = sp.y * RT + 22 + Math.sin(rp.t * 3) * 1.5;
       ctx.fillStyle = OL, ctx.beginPath(), ctx.moveTo(X, Y - 15), ctx.lineTo(X + 9, Y + 3), ctx.lineTo(X - 9, Y + 3), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#ff8a2b", ctx.beginPath(), ctx.moveTo(X, Y - 12), ctx.lineTo(X + 6.5, Y + 1.5), ctx.lineTo(X - 6.5, Y + 1.5), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#fff", ctx.fillRect(X - 4, Y - 4, 8, 2.2);
     }
@@ -3603,6 +3789,7 @@ button,.rpb,.pill{touch-action:manipulation}
     am_tooth: { n: "Dragon tooth", slot: "neck", st: { atk: 4 }, price: 120 },
     cl_moss: { n: "Moss cape", slot: "cloak", st: { hp: 12 }, price: 50 },
     cl_shadow: { n: "Shadow cloak", slot: "cloak", st: { spd: 1.5 }, pas: { dodge: 0.08, stealth: 1 }, price: 110 },
+    cl_scarf: { n: "Cozy scarf", slot: "cloak", st: { hp: 12, def: 1 }, price: 70 },
     cl_ember: { n: "Ember mantle", slot: "cloak", st: { atk: 2, mp: 4 }, price: 120 },
     ar_vest: { n: "Leather vest", slot: "armor", st: { def: 2 }, price: 40 },
     ar_robe: { n: "Apprentice robe", slot: "armor", st: { mp: 8, def: 1 }, price: 60 },
@@ -3727,10 +3914,14 @@ button,.rpb,.pill{touch-action:manipulation}
     };
   }
   var rp = { grid: null, s: null, mode: "map", dlg: null, bt: null, move: null, path: null, held: null, grace: 4, cam: { x: 0, y: 0 }, mapImg: null, npcK: {}, pk: null, t: 0, headless: !1, sig: "" };
+  function rpPlace() {
+    return rp.s && rp.s.place || "world";
+  }
   function rpApplyWorld() {
-    rp.grid = rpBuildWorld(), rpWorldExtras(rp.grid), rp.s.taken.forEach(([x, y]) => {
+    let P = rp.s.place && RP_PLACES[rp.s.place];
+    rp.s.place && !P && delete rp.s.place, P ? rp.grid = P.rows.map((r) => r.split("")) : (rp.grid = rpBuildWorld(), rpWorldExtras(rp.grid), rp.s.taken.forEach(([x, y]) => {
       rp.grid[y][x] = "C";
-    }), rp.s.q.gate && (rp.grid[7][20] = "K"), rp.mapImg = null;
+    }), rp.s.q.gate && (rp.grid[7][20] = "K")), rp.mapImg = null;
   }
 
   // src/core/options.js
@@ -3759,13 +3950,13 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var rpcv = document.getElementById("rpcv"), rpctx = rpcv.getContext("2d"), rpS = 1, rpDpr = 1;
   function rpResize() {
-    let pe = rpcv.parentElement, box = { width: pe.clientWidth, height: pe.clientHeight };
-    if (!box.width || !box.height) return;
+    let pe = rpcv.parentElement, box2 = { width: pe.clientWidth, height: pe.clientHeight };
+    if (!box2.width || !box2.height) return;
     if (!(rp.mode === "battle" && rp.bt)) {
-      let k = RP_TILES * RT / Math.min(box.width, box.height);
-      RPW = Math.round(box.width * k), RPH = Math.round(box.height * k);
+      let k = RP_TILES * RT / Math.min(box2.width, box2.height);
+      RPW = Math.round(box2.width * k), RPH = Math.round(box2.height * k);
     }
-    let VW = rpViewW(), VH = rpViewH(), sc = Math.min(box.width / VW, box.height / VH), w = Math.floor(VW * sc), h = Math.floor(VH * sc);
+    let VW = rpViewW(), VH = rpViewH(), sc = Math.min(box2.width / VW, box2.height / VH), w = Math.floor(VW * sc), h = Math.floor(VH * sc);
     rpcv.style.width = w + "px", rpcv.style.height = h + "px", rpDpr = Math.min(2, window.devicePixelRatio || 1);
     let cw = Math.round(w * rpDpr), ch = Math.round(h * rpDpr);
     (rpcv.width !== cw || rpcv.height !== ch) && (rpcv.width = cw, rpcv.height = ch), rpS = w / VW, rp.mapImg = null, rp.bt && (rp.bt.img = null);

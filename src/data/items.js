@@ -24,6 +24,7 @@ const RP_IT_BASE={
   am_tooth:{n:'Dragon tooth',slot:'neck',st:{atk:4},price:120},
   cl_moss:{n:'Moss cape',slot:'cloak',st:{hp:12},price:50},
   cl_shadow:{n:'Shadow cloak',slot:'cloak',st:{spd:1.5},pas:{dodge:.08,stealth:1},price:110},
+  cl_scarf:{n:'Cozy scarf',slot:'cloak',st:{hp:12,def:1},price:70},
   cl_ember:{n:'Ember mantle',slot:'cloak',st:{atk:2,mp:4},price:120},
   ar_vest:{n:'Leather vest',slot:'armor',st:{def:2},price:40},
   ar_robe:{n:'Apprentice robe',slot:'armor',st:{mp:8,def:1},price:60},

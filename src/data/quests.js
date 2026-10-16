@@ -1,8 +1,8 @@
 /* NPCs */
 const RP_NPC=[
-  {id:'elder',name:'Elder Mumble',x:4,y:27,team:0,w:'healwand',hat:'flower',face:1},
-  {id:'toast',name:'Toast the innkeeper',x:5,y:21,team:0,w:'spoon',hat:'pot',face:-1},
-  {id:'biscuit',name:'Biscuit the trader',x:12,y:21,team:0,w:'pan',hat:'cone',face:-1},
+  {id:'elder',name:'Elder Mumble',x:5,y:27,team:0,w:'healwand',hat:'flower',face:1},
+  {id:'toast',name:'Toast the innkeeper',place:'inn',x:6,y:3,team:0,w:'spoon',hat:'pot',face:-1},
+  {id:'biscuit',name:'Biscuit the trader',place:'shop',x:4,y:4,team:0,w:'pan',hat:'cone',face:-1},
   {id:'bork',name:'Bork',x:10,y:26,team:0,w:'bone',hat:'bucket',face:1,show:s=>!s.q.bork},
   {id:'flint',name:'Guard Flint',x:20,y:17,team:0,w:'sword',hat:'pot',face:1,pos:s=>s.q.q1>=2?{x:21,y:17}:null},
   {id:'yarrow',name:'Witch Yarrow',x:9,y:5,team:3,w:'frostrod',hat:'wizard',face:-1},
@@ -11,7 +11,9 @@ const RP_NPC=[
   {id:'gorb',name:'Chief Gorb',x:35,y:3,team:1,w:'club',hat:'pot',face:-1,size:1.3,show:s=>!s.q.gorb},
   {id:'clink',name:'Clink the smith',x:12,y:25,team:0,w:'club',hat:'bucket',face:-1},
   {id:'pebble',name:'Pebble',x:7,y:27,team:0,w:'spoon',hat:'none',face:1,size:.8},
-  {id:'vexx',name:'King Vexx',x:20,y:2,team:3,w:'sword',hat:'crown',face:1,size:1.4,show:s=>!s.q.vexx}
+  {id:'vexx',name:'King Vexx',x:20,y:2,team:3,w:'sword',hat:'crown',face:1,size:1.4,show:s=>!s.q.vexx},
+  {id:'tikka',name:'Tikka',place:'inn',x:2,y:5,team:2,w:'squirt',hat:'flower',face:1},
+  {id:'nettle',name:'Granny Nettle',place:'elder',x:6,y:2,team:0,w:'spoon',hat:'flower',face:-1,size:.9}
 ];
 /* bosses: what beating them does (rules), what they drop, and what is said when the battle closes */
 const RP_BOSSES={

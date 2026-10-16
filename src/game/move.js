@@ -7,7 +7,7 @@ import {feature,tiles} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {RP_ZONE} from '../data/monsters.js';
-import {RH,RP_DIR,RW} from '../data/world.js';
+import {RP_DIR} from '../data/world.js';
 import {clamp} from '../engine/util.js';
 import {rpTalk} from './npcs.js';
 import {rpBfs,rpChestAt,rpNpcAt,rpOpenChest,rpSolid} from './world.js';
@@ -15,7 +15,7 @@ import {rpBfs,rpChestAt,rpNpcAt,rpOpenChest,rpSolid} from './world.js';
 const RP_SPEED=4.6,RP_R=.28;
 function rpSyncPos(){const s=rp.s;
   /* never start inside something solid (a new building, a stall): step to the nearest free tile */
-  if(rpSolid(s.x,s.y)){let best=null,bd=1e9;for(let y=Math.max(1,s.y-4);y<=Math.min(RH-2,s.y+4);y++)for(let x=Math.max(1,s.x-4);x<=Math.min(RW-2,s.x+4);x++){if(rpSolid(x,y))continue;const d=Math.abs(x-s.x)+Math.abs(y-s.y);if(d<bd){bd=d;best=[x,y]}}if(best){s.x=best[0];s.y=best[1]}}
+  if(rpSolid(s.x,s.y)){let best=null,bd=1e9;for(let y=Math.max(1,s.y-4);y<=Math.min(rp.grid.length-2,s.y+4);y++)for(let x=Math.max(1,s.x-4);x<=Math.min(rp.grid[0].length-2,s.x+4);x++){if(rpSolid(x,y))continue;const d=Math.abs(x-s.x)+Math.abs(y-s.y);if(d<bd){bd=d;best=[x,y]}}if(best){s.x=best[0];s.y=best[1]}}
   rp.pos={x:s.x+.5,y:s.y+.5};rp.pt=[s.x,s.y]}
 /* is the point inside something you can't walk through */
 function rpBlockedAt(x,y){
