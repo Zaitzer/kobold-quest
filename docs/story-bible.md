@@ -16,7 +16,7 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 
 ## 2. The world
 
-- **The land** has no name yet. **Decide** (see 7).
+- **The land** is called **Kobaldia**.
 - Kobolds live in ten towns joined by fifteen routes. Each town has a **hearth**, a fire that has burned since the town
   was founded; a spark from it carries the town's say.
 - Once a lifetime Burrowhome hatches a **guardian** dragon from one of three eggs in the **Great Nest**. The guardian
@@ -103,7 +103,7 @@ harder bounties.
 
 ## 7. Decisions
 
-1. **The land's name:** open.
+1. **The land's name:** Kobaldia. *Decided.*
 2. **Pip** has short lines of his own (a personality), like "They're all ugly. Why bother?" *Decided.*
 3. **Glitterbeak** gets a second chance: he hatches again in the relit nest and becomes a good guardian. *Decided.*
 4. **Tikka** joins as a **ranger**. *Decided.*
