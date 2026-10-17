@@ -12,7 +12,7 @@ ends at its **gate**: Joakim (creative director / producer) says it's good enoug
 | 1.2 | Game designer | **Design document**: core loop, session length, progression, battles, party, economy, multiplayer's role (`docs/design.md`) | done |
 | 1.3 | Narrative writer | **Story bible**: the Hatching, characters, tone rules (`docs/story-bible.md`, plot in `docs/story-hatching.md`) | done |
 | 1.4 | Level designer | **World plan**: what each town and route is for, level ranges, where the key items go (`docs/world-plan.md`) | draft |
-| 1.5 | Art director (Joakim draws) | **Style guide**: palette, shapes, outline, how kobolds/monsters/tiles look, sizes to draw at | |
+| 1.5 | Art director (Joakim draws) | **Style guide**: palette, shapes, outline, how kobolds/monsters/tiles look, sizes to draw at (`docs/style-guide.md`, templates in `art/templates/`) | set up; drawings later |
 | 1.6 | Sound designer | **Audio plan**: music per area, sound list | |
 | 1.7 | Technical lead | **Tech plan**: what the code must handle (save format, performance on phones, content pipeline, **art pipeline for Joakim's drawings**) | |
 | 1.8 | Producer | **Scope and milestones**: what's in v1.0, what waits | |
