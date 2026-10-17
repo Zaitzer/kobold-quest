@@ -13,9 +13,9 @@ ends at its **gate**: Joakim (creative director / producer) says it's good enoug
 | 1.3 | Narrative writer | **Story bible**: the Hatching, characters, tone rules (`docs/story-bible.md`, plot in `docs/story-hatching.md`) | done |
 | 1.4 | Level designer | **World plan**: what each town and route is for, level ranges, where the key items go (`docs/world-plan.md`) | draft |
 | 1.5 | Art director (Joakim draws) | **Style guide**: palette, shapes, outline, how kobolds/monsters/tiles look, sizes to draw at (`docs/style-guide.md`, templates in `art/templates/`) | set up; drawings later |
-| 1.6 | Sound designer | **Audio plan**: music per area, sound list | |
-| 1.7 | Technical lead | **Tech plan**: what the code must handle (save format, performance on phones, content pipeline, **art pipeline for Joakim's drawings**) | art pipeline built (see `docs/style-guide.md`) |
-| 1.8 | Producer | **Scope and milestones**: what's in v1.0, what waits | |
+| 1.6 | Sound designer | **Audio plan**: music per area, sound list (`docs/audio-plan.md`) | draft, 1 decision |
+| 1.7 | Technical lead | **Tech plan**: what the code must handle (save format, performance on phones, content pipeline, **art pipeline for Joakim's drawings**) (`docs/tech-plan.md`) | draft; art pipeline built |
+| 1.8 | Producer | **Scope and milestones**: what's in v1.0, what waits (`docs/scope.md`) | draft |
 
 **Gate 1:** the vision and the design document are agreed.
 
