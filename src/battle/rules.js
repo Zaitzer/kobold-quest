@@ -1,12 +1,13 @@
 import {TT} from './view.js';
 import {RP_ST,RP_TT,RP_TW,TC_DIR8} from '../data/battle.js';
+import {RP_ZONE} from '../data/monsters.js';
 import {WEAPONS} from '../engine/art.js';
 import {clamp,seeded} from '../engine/util.js';
 import {rpStats} from '../game/stats.js';
 const rpTW=w=>RP_TW[w]||{r:1};
 const tcT=c=>RP_TT[c]||{};
 /* ---------- board generation ---------- */
-function tcTheme(zone,boss){if(boss==='vexx'||zone==='K')return'castle';if(boss==='gorb'||zone==='C'||zone==='g')return'cave';if(zone===';')return'woods';return'meadow'}
+function tcTheme(zone,boss){if(RP_ZONE[zone]&&RP_ZONE[zone].th)return RP_ZONE[zone].th;if(boss==='vexx'||zone==='K')return'castle';if(boss==='gorb'||zone==='C'||zone==='g')return'cave';if(zone===';')return'woods';return'meadow'}
 function tcBase(th){return th==='cave'?'C':th==='castle'?'K':th==='woods'?';':'.'}
 function tcGen(th,W,H,boss,seed){
   const r=seeded(seed),base=tcBase(th),g=[];

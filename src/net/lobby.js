@@ -67,7 +67,7 @@ function netStart(){
   net.lob=null;
   if(L.duel){if(!theirs.length)return rpToast('Waiting for '+netName()+'.');rpBattle([],{duel:true,members:mine,foes:theirs,net:L.g.peer,nid:L.id,gParty:L.g.party})}
   else{let keys=L.keys;const o=L.opt||{};
-    if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,o.zone===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
+    if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,(Z.base||o.zone)===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
     rpBattle(keys,Object.assign({},o,{members:mine.concat(theirs),net:theirs.length?L.g.peer:null,nid:L.id,gParty:L.g?L.g.party:[]}))}
   if(rp.bt&&rp.bt.net)netSendStart(rp.bt);
   netPresence(true);

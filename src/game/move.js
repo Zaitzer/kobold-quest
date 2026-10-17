@@ -7,6 +7,7 @@ import {feature,tiles} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {RP_ZONE} from '../data/monsters.js';
+import {regionZone} from '../data/overworld.js';
 import {RP_DIR} from '../data/world.js';
 import {clamp} from '../engine/util.js';
 import {rpTalk} from './npcs.js';
@@ -36,7 +37,7 @@ function rpEnterTile(tx,ty){
   const c=rp.grid[ty][tx];
   emit('tile:enter',tx,ty,c);
   if(rp.grace>0)rp.grace--;
-  else{const Z=RP_ZONE[c];if(Z&&Math.random()<(rp.encRate||.06)){rp.path=null;rp.held=null;rpEncounter(c);return}}
+  else{const z=rp.s.place?c:regionZone(tx,ty,c),Z=RP_ZONE[z];if(Z&&Math.random()<(rp.encRate||.06)){rp.path=null;rp.held=null;rpEncounter(z);return}}
   if(s.steps%10===0)rpSave();
 }
 /* the direction Pip wants to go this frame (length 0..1) */

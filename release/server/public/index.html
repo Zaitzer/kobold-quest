@@ -791,7 +791,12 @@ button,.rpb,.pill{touch-action:manipulation}
     { id: "toll12", tile: "Y", x0: 305, x1: 305, y0: 180, y1: 199, until: { bc: 1 }, route: "Route 12" },
     { id: "slide7", tile: "R", x0: 315, x1: 315, y0: 50, y1: 59, until: { fw: 3 }, route: "Route 7" },
     { id: "dark8", tile: "Z", x0: 270, x1: 279, y0: 85, y1: 85, until: { lantern: 1 }, route: "Route 8" }
-  ];
+  ], ROUTE_ZONES = { "Route 1": { ",": "r1" }, "Route 2": { ";": "r2" }, "Route 3": { ",": { g: "r3", m: "r3m" } } };
+  function regionZone(x, y, c) {
+    if (x < OLD_W && y < OLD_H) return c;
+    let cc = Math.floor(x / CELL), rr2 = Math.floor(y / CELL), rt = build().routes.of(cc, rr2), z = rt && ROUTE_ZONES[rt.name] && ROUTE_ZONES[rt.name][c];
+    return z ? typeof z == "string" ? z : z[cellAt(cc, rr2)] || c : c;
+  }
   function townSpot(L, dx, dy) {
     let t = build().towns.find((t2) => t2.L === L);
     return { x: t.x + dx, y: t.y + dy };
@@ -880,7 +885,7 @@ button,.rpb,.pill{touch-action:manipulation}
     "21,14": "North: Pebble Hills. West: Whisper Woods and Witch Yarrow's hut."
   };
   function rpWorldExtras(g) {
-    g[27][12] = "S", g[19][7] = "N", g[25][11] = "A", g[21][8] = "M", g[26][17] = "U";
+    g[27][12] = "S", g[19][7] = "N", g[25][11] = "A", g[21][8] = "M", g[26][17] = "U", g[24][10] = "O";
     for (let k in VALLEY_SIGNS) {
       let [x, y] = k.split(",").map(Number);
       g[y][x] = "i";
@@ -1348,6 +1353,42 @@ button,.rpb,.pill{touch-action:manipulation}
     { it: "am_tooth", m: { scrap: 3, fang: 1 }, g: 100 }
   ], RP_REFORGE_G = 30;
 
+  // src/data/monsters.js
+  var RP_E = {
+    scout: { n: "Mossback scout", w: "stick", team: 1, hp: 25, atk: 8, def: 1, spd: 4, xp: 6, gold: 4, sight: 1 },
+    slinger: { n: "Mossback slinger", w: "popgun", team: 1, hp: 21, atk: 9, def: 0, spd: 5, xp: 7, gold: 4 },
+    thief: { n: "Fish thief", w: "fish", team: 2, hp: 17, atk: 7, def: 0, spd: 8, xp: 5, gold: 6 },
+    apprentice: { n: "Grape apprentice", w: "firewand", team: 3, hp: 39, atk: 11, def: 2, spd: 5, xp: 15, gold: 8, all: 0.3 },
+    bruiser: { n: "Grape bruiser", w: "bone", team: 3, hp: 57, atk: 13, def: 4, spd: 4, xp: 16, gold: 8 },
+    frostbandit: { n: "Frost bandit", w: "frostrod", team: 2, hp: 44, atk: 11, def: 3, spd: 6, xp: 15, gold: 8, slow: 0.3 },
+    sentry: { n: "Spore sentry", w: "pan", team: 1, hp: 76, atk: 16, def: 8, spd: 4, xp: 26, gold: 11, stun: 0.2 },
+    gunner: { n: "Cave gunner", w: "blunder", team: 1, hp: 60, atk: 15, def: 4, spd: 6, xp: 26, gold: 13, all: 0.35 },
+    shaman: { n: "Fungus shaman", w: "healwand", team: 1, hp: 53, atk: 10, def: 4, spd: 7, xp: 24, gold: 10, healer: 1 },
+    guard: { n: "Royal guard", w: "sword", team: 3, hp: 110, atk: 24, def: 11, spd: 7, xp: 48, gold: 21 },
+    wizard: { n: "Court wizard", w: "archstaff", team: 3, hp: 87, atk: 21, def: 6, spd: 8, xp: 48, gold: 21, all: 0.4 },
+    cannoneer: { n: "Hoard cannoneer", w: "cannon", team: 3, hp: 99, atk: 31, def: 8, spd: 3, xp: 48, gold: 24 },
+    gorb: { n: "Chief Gorb", w: "club", team: 1, hp: 540, atk: 27, def: 8, spd: 5, xp: 140, gold: 84, size: 1.5, boss: 1, smash: 3, hat: "pot" },
+    vexx: { n: "King Vexx", w: "sword", team: 3, hp: 1450, atk: 47, def: 12, spd: 8, xp: 0, gold: 350, size: 1.8, boss: 1, smash: 3, hat: "crown" },
+    lancer: { n: "Hoard lancer", w: "spear", team: 3, hp: 95, atk: 22, def: 9, spd: 6, xp: 46, gold: 20 },
+    /* the routes of the first stretch (Kobaldia) */
+    beetle: { n: "Shell beetle", w: "pan", team: 1, hp: 30, atk: 7, def: 3, spd: 3, xp: 7, gold: 3, hat: "pot" },
+    owl: { n: "Hoot owl", w: "popgun", team: 3, hp: 34, atk: 10, def: 1, spd: 7, xp: 14, gold: 6, hat: "leaf" },
+    rockgoat: { n: "Rock goat", w: "club", team: 1, hp: 70, atk: 16, def: 5, spd: 5, xp: 21, gold: 7, hat: "bucket" },
+    /* the story: the Hatching */
+    tollboss: { n: "Grubb the toll boss", art: "grubb", w: "club", team: 2, hp: 300, atk: 16, def: 3, spd: 4, xp: 70, gold: 40, size: 1.3, boss: 1, hat: "pot" },
+    collector: { n: "Snipe the copper snatcher", art: "snipe", w: "blunder", team: 2, hp: 520, atk: 22, def: 5, spd: 6, xp: 130, gold: 60, size: 1.2, boss: 1, hat: "bucket", all: 0.3 }
+  }, RP_ZONE = {
+    ",": { n: "Bandit Meadow", t: { scout: 3, slinger: 3, thief: 2 }, max: 2 },
+    ";": { n: "Whisper Woods", t: { apprentice: 2, bruiser: 2, frostbandit: 2, scout: 1 }, max: 3 },
+    C: { n: "Mushroom Cave", t: { sentry: 2, gunner: 2, shaman: 1 }, max: 3 },
+    g: { n: "Mushroom Cave", t: { sentry: 2, gunner: 2, shaman: 1 }, max: 3 },
+    K: { n: "Dragon's Hoard", t: { guard: 2, wizard: 2, cannoneer: 1, lancer: 2 }, max: 2 },
+    r1: { n: "Route 1", t: { scout: 3, slinger: 2, beetle: 3 }, max: 2, cap: 3, base: ",", th: "meadow", mat: "moss", loot: "," },
+    r2: { n: "Route 2", t: { owl: 3, apprentice: 2, bruiser: 1, scout: 1 }, max: 3, base: ";", th: "woods", mat: "shard", loot: ";" },
+    r3: { n: "Route 3", t: { scout: 2, slinger: 2, beetle: 2, bruiser: 1 }, max: 3, base: ",", th: "meadow", mat: "moss", loot: "," },
+    r3m: { n: "Route 3 pass", t: { rockgoat: 3, bruiser: 2, slinger: 1 }, max: 3, base: ",", th: "meadow", mat: "scrap", loot: ";" }
+  };
+
   // src/engine/audio.js
   var soundOn = !1, quiet = !1, ac = null, lastSfx = {};
   function audio() {
@@ -1737,34 +1778,6 @@ button,.rpb,.pill{touch-action:manipulation}
     { z: "C", n: 10, xp: 180, g: 40, if: { lantern: 1 }, zn: "the old tunnel" }
   ];
 
-  // src/data/monsters.js
-  var RP_E = {
-    scout: { n: "Mossback scout", w: "stick", team: 1, hp: 25, atk: 8, def: 1, spd: 4, xp: 6, gold: 4, sight: 1 },
-    slinger: { n: "Mossback slinger", w: "popgun", team: 1, hp: 21, atk: 9, def: 0, spd: 5, xp: 7, gold: 4 },
-    thief: { n: "Fish thief", w: "fish", team: 2, hp: 17, atk: 7, def: 0, spd: 8, xp: 5, gold: 6 },
-    apprentice: { n: "Grape apprentice", w: "firewand", team: 3, hp: 39, atk: 11, def: 2, spd: 5, xp: 15, gold: 8, all: 0.3 },
-    bruiser: { n: "Grape bruiser", w: "bone", team: 3, hp: 57, atk: 13, def: 4, spd: 4, xp: 16, gold: 8 },
-    frostbandit: { n: "Frost bandit", w: "frostrod", team: 2, hp: 44, atk: 11, def: 3, spd: 6, xp: 15, gold: 8, slow: 0.3 },
-    sentry: { n: "Spore sentry", w: "pan", team: 1, hp: 76, atk: 16, def: 8, spd: 4, xp: 26, gold: 11, stun: 0.2 },
-    gunner: { n: "Cave gunner", w: "blunder", team: 1, hp: 60, atk: 15, def: 4, spd: 6, xp: 26, gold: 13, all: 0.35 },
-    shaman: { n: "Fungus shaman", w: "healwand", team: 1, hp: 53, atk: 10, def: 4, spd: 7, xp: 24, gold: 10, healer: 1 },
-    guard: { n: "Royal guard", w: "sword", team: 3, hp: 110, atk: 24, def: 11, spd: 7, xp: 48, gold: 21 },
-    wizard: { n: "Court wizard", w: "archstaff", team: 3, hp: 87, atk: 21, def: 6, spd: 8, xp: 48, gold: 21, all: 0.4 },
-    cannoneer: { n: "Hoard cannoneer", w: "cannon", team: 3, hp: 99, atk: 31, def: 8, spd: 3, xp: 48, gold: 24 },
-    gorb: { n: "Chief Gorb", w: "club", team: 1, hp: 540, atk: 27, def: 8, spd: 5, xp: 140, gold: 84, size: 1.5, boss: 1, smash: 3, hat: "pot" },
-    vexx: { n: "King Vexx", w: "sword", team: 3, hp: 1450, atk: 47, def: 12, spd: 8, xp: 0, gold: 350, size: 1.8, boss: 1, smash: 3, hat: "crown" },
-    lancer: { n: "Hoard lancer", w: "spear", team: 3, hp: 95, atk: 22, def: 9, spd: 6, xp: 46, gold: 20 },
-    /* the story: the Hatching */
-    tollboss: { n: "Grubb the toll boss", art: "grubb", w: "club", team: 2, hp: 170, atk: 12, def: 3, spd: 4, xp: 70, gold: 40, size: 1.3, boss: 1, hat: "pot" },
-    collector: { n: "Snipe the copper snatcher", art: "snipe", w: "blunder", team: 2, hp: 300, atk: 17, def: 5, spd: 6, xp: 130, gold: 60, size: 1.2, boss: 1, hat: "bucket", all: 0.3 }
-  }, RP_ZONE = {
-    ",": { n: "Bandit Meadow", t: { scout: 3, slinger: 3, thief: 2 }, max: 2 },
-    ";": { n: "Whisper Woods", t: { apprentice: 2, bruiser: 2, frostbandit: 2, scout: 1 }, max: 3 },
-    C: { n: "Mushroom Cave", t: { sentry: 2, gunner: 2, shaman: 1 }, max: 3 },
-    g: { n: "Mushroom Cave", t: { sentry: 2, gunner: 2, shaman: 1 }, max: 3 },
-    K: { n: "Dragon's Hoard", t: { guard: 2, wizard: 2, cannoneer: 1, lancer: 2 }, max: 2 }
-  };
-
   // src/game/world.js
   function rpArea(x, y) {
     return rp.s.place && RP_PLACES[rp.s.place] ? RP_PLACES[rp.s.place].name : x >= OLD_W || y >= OLD_H ? overworldArea(x, y) : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "Pebble Hills" : x < 14 && y > 16 ? "Burrowhome" : "Hatching Green";
@@ -1922,9 +1935,12 @@ button,.rpb,.pill{touch-action:manipulation}
     s.x = tx, s.y = ty, rp.pt = [tx, ty], s.steps++;
     let c = rp.grid[ty][tx];
     if (emit("tile:enter", tx, ty, c), rp.grace > 0) rp.grace--;
-    else if (RP_ZONE[c] && Math.random() < (rp.encRate || 0.06)) {
-      rp.path = null, rp.held = null, rpEncounter(c);
-      return;
+    else {
+      let z = rp.s.place ? c : regionZone(tx, ty, c);
+      if (RP_ZONE[z] && Math.random() < (rp.encRate || 0.06)) {
+        rp.path = null, rp.held = null, rpEncounter(z);
+        return;
+      }
     }
     s.steps % 10 === 0 && rpSave();
   }
@@ -2318,7 +2334,7 @@ button,.rpb,.pill{touch-action:manipulation}
     } else {
       let keys = L.keys, o = L.opt || {};
       if (!o.boss && theirs.length) {
-        let Z = RP_ZONE[o.zone], lvl = s.party[0].lvl, n = clamp(mine.length + theirs.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0), 1, o.zone === "," ? 3 : 5);
+        let Z = RP_ZONE[o.zone], lvl = s.party[0].lvl, n = clamp(mine.length + theirs.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0), 1, (Z.base || o.zone) === "," ? 3 : 5);
         keys = [];
         for (let i = 0; i < n; i++) keys.push(wpick(Z.t));
       }
@@ -2920,15 +2936,35 @@ button,.rpb,.pill{touch-action:manipulation}
     /* signs on roads and in towns, and the healing fountain in every town square */
     i: { use: (x, y) => rpSay([{ who: "Sign", text: VALLEY_SIGNS[x + "," + y] || regionSign(x, y) || "The words have worn away." }]) },
     U: { use: () => rpTalk("urn") },
-    O: { use: (x, y) => {
-      let q = rp.s.q;
-      if (overworldArea(x, y) === "Pebblebrook" && (q.moot || 0) >= 5 && (q.pb || 0) < 2) {
-        rpSay([{ who: "", text: `A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak's hoard. Pay Grubb."` }]);
-        return;
-      }
-      rpHealAll(), rpSay([{ who: "", text: "The fountain water is cold and sweet. Everyone feels fresh again." }]), rp.headless || sfx("pop");
-    } }
+    O: { use: (x, y) => rpFountain(x, y) }
   } });
+  var HOME_FOUNTAIN = { name: "Burrowhome", x: 10, y: 25 };
+  function rpFountainAt(x, y) {
+    if (x < OLD_W && y < OLD_H) return HOME_FOUNTAIN;
+    let t = sites().find((t2) => !t2.home && t2.x === x && t2.y - 1 === y);
+    return t ? { name: t.name, x: t.x, y: t.y } : null;
+  }
+  function rpFountainDests(here) {
+    let s = rp.s, names = s.fountains || [];
+    return [HOME_FOUNTAIN].concat(sites().filter((t) => !t.home && names.includes(t.name)).map((t) => ({ name: t.name, x: t.x, y: t.y }))).filter((d) => !here || d.name !== here.name);
+  }
+  function rpTravel(d) {
+    let s = rp.s;
+    s.x = d.x, s.y = d.y, s.face = "down", rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("drop"), rpToast("Whoosh! The water carries you to " + d.name + "."), rpSave();
+  }
+  function rpFountain(x, y) {
+    let s = rp.s, q = s.q, here = rpFountainAt(x, y);
+    if (here && here.name === "Pebblebrook" && (q.moot || 0) >= 5 && (q.pb || 0) < 2) {
+      rpSay([{ who: "", text: `A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak's hoard. Pay Grubb."` }]);
+      return;
+    }
+    rpHealAll(), rp.headless || sfx("pop"), here && (s.fountain = here, s.fountains = s.fountains || [], here !== HOME_FOUNTAIN && !s.fountains.includes(here.name) && s.fountains.push(here.name));
+    let dests = (q.seals || 0) >= 2 ? rpFountainDests(here) : [];
+    rpSay(
+      [{ who: "", text: "The fountain water is cold and sweet. Everyone feels fresh again." + (dests.length ? " The water ripples. It could carry you to another fountain." : "") }],
+      dests.length ? dests.map((d) => ({ t: "Travel to " + d.name, fn: () => rpTravel(d) })).concat([{ t: "Stay here" }]) : null
+    ), rpSave();
+  }
 
   // src/adapters/online.js
   var TOKEN_KEY = "kq-token";
@@ -2992,7 +3028,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T07:41:11Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T08:50:46Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -4808,11 +4844,11 @@ button,.rpb,.pill{touch-action:manipulation}
   function rpBattleSpoils(b) {
     let s = rp.s, M = rpMats(), got = {};
     s.q.kz || (s.q.kz = {});
-    let z = b.zone === "g" ? "C" : b.zone;
+    let z = b.zone === "g" ? "C" : b.zone, Z = RP_ZONE[b.zone] || {}, base = Z.base && Z.base !== z ? Z.base : null;
     return b.units.forEach((u) => {
       if (u.side !== 1) return;
-      z && (s.q.kz[z] = (s.q.kz[z] || 0) + 1);
-      let mk = u.E.boss ? "fang" : RP_ZONEMAT[b.zone];
+      z && (s.q.kz[z] = (s.q.kz[z] || 0) + 1), base && (s.q.kz[base] = (s.q.kz[base] || 0) + 1);
+      let mk = u.E.boss ? "fang" : Z.mat || RP_ZONEMAT[b.zone];
       if (!mk) return;
       let n = u.E.boss ? 2 : Math.random() < 0.45 ? 1 : 0;
       n && (M[mk] += n, got[mk] = (got[mk] || 0) + n);
@@ -5099,7 +5135,7 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/battle/rules.js
   var rpTW = (w) => RP_TW[w] || { r: 1 }, tcT = (c) => RP_TT[c] || {};
   function tcTheme(zone, boss) {
-    return boss === "vexx" || zone === "K" ? "castle" : boss === "gorb" || zone === "C" || zone === "g" ? "cave" : zone === ";" ? "woods" : "meadow";
+    return RP_ZONE[zone] && RP_ZONE[zone].th ? RP_ZONE[zone].th : boss === "vexx" || zone === "K" ? "castle" : boss === "gorb" || zone === "C" || zone === "g" ? "cave" : zone === ";" ? "woods" : "meadow";
   }
   function tcBase(th) {
     return th === "cave" ? "C" : th === "castle" ? "K" : th === "woods" ? ";" : ".";
@@ -5552,7 +5588,7 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/battle/flow.js
   function rpEncounter(c) {
     let Z = RP_ZONE[c], lvl = rp.s.party[0].lvl, n = rp.s.party.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0);
-    n = clamp(n, 1, c === "," ? 3 : 4);
+    n = clamp(n, 1, Z.cap || (c === "," ? 3 : 4));
     let ks = [];
     for (let i = 0; i < n; i++) ks.push(wpick(Z.t));
     rpFight(ks, { zone: c });
@@ -6094,7 +6130,7 @@ button,.rpb,.pill{touch-action:manipulation}
     if (B)
       run(B.win), b.drops.push(...B.drops);
     else {
-      let z = b.zone === "g" ? "C" : b.zone, it = rpLootRoll(z, 0.3);
+      let z = b.zone === "g" ? "C" : RP_ZONE[b.zone] && RP_ZONE[b.zone].loot || b.zone, it = rpLootRoll(z, 0.3);
       it && b.drops.push(it);
     }
     let sp = rpBattleSpoils(b);
@@ -6108,9 +6144,17 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpEndBattle() {
     let b = rp.bt, s = rp.s;
-    b && ((b.over === "lost" || b.over === "duelwin" || b.over === "duellose") && (b.over = b.over === "lost" ? "run" : "duel"), rp.bt = null, rp.mode = "map", rp.grace = 8, parts.length = 0, texts.length = 0, s.party.forEach((m) => {
-      m.hp <= 0 && b.over !== "lose" && (m.hp = 1);
-    }), b.over === "duel" ? rpToast("Duel over.") : b.over === "lose" ? (s.gold = Math.floor(s.gold / 2), s.x = 5, s.y = 22, s.face = "down", rpHealAll(), rpSay([{ who: "Toast", text: "You were carried back to the inn by a passing goat. You lost half your gold, but everyone is patched up." }])) : b.over === "run" ? rpToast("You got away!") : b.over === "win" && b.boss && RP_BOSSES[b.boss] && RP_BOSSES[b.boss].after && rpSay(RP_BOSSES[b.boss].after), emit("battle:end", b), rpSave(), rpUI(!0), requestAnimationFrame(rpResize));
+    if (b) {
+      if ((b.over === "lost" || b.over === "duelwin" || b.over === "duellose") && (b.over = b.over === "lost" ? "run" : "duel"), rp.bt = null, rp.mode = "map", rp.grace = 8, parts.length = 0, texts.length = 0, s.party.forEach((m) => {
+        m.hp <= 0 && b.over !== "lose" && (m.hp = 1);
+      }), b.over === "duel") rpToast("Duel over.");
+      else if (b.over === "lose") {
+        s.gold = Math.floor(s.gold / 2);
+        let f = s.fountain || { name: "Burrowhome", x: 10, y: 25 };
+        s.place && (delete s.place, rpApplyWorld()), s.x = f.x, s.y = f.y, s.face = "down", rp.pos = null, rpHealAll(), rpSay([{ who: "", text: "A passing goat carried your party back to the fountain in " + f.name + ". You lost half your gold, but everyone is patched up." }]);
+      } else b.over === "run" ? rpToast("You got away!") : b.over === "win" && b.boss && RP_BOSSES[b.boss] && RP_BOSSES[b.boss].after && rpSay(RP_BOSSES[b.boss].after);
+      emit("battle:end", b), rpSave(), rpUI(!0), requestAnimationFrame(rpResize);
+    }
   }
 
   // src/core/boot.js

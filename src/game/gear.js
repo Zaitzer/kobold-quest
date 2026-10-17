@@ -2,6 +2,7 @@ import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {RP_AFFIX,RP_MATS,RP_PRE,RP_RECIPES,RP_REFORGE_G,RP_SETS,RP_SUF,RP_ZONEMAT} from '../data/gear.js';
 import {RP_IT,RP_IT_BASE} from '../data/items.js';
+import {RP_ZONE} from '../data/monsters.js';
 import {sfx} from '../engine/audio.js';
 import {esc2,pick} from '../engine/util.js';
 import {rpToast} from './dialogue.js';
@@ -35,8 +36,9 @@ function rpBattleSpoils(b){
   const s=rp.s,M=rpMats(),got={};
   if(!s.q.kz)s.q.kz={};
   const z=b.zone==='g'?'C':b.zone;
-  b.units.forEach(u=>{if(u.side!==1)return;if(z)s.q.kz[z]=(s.q.kz[z]||0)+1;
-    const mk=u.E.boss?'fang':RP_ZONEMAT[b.zone];if(!mk)return;const n=u.E.boss?2:Math.random()<.45?1:0;if(n){M[mk]+=n;got[mk]=(got[mk]||0)+n}});
+  const Z=RP_ZONE[b.zone]||{},base=Z.base&&Z.base!==z?Z.base:null;
+  b.units.forEach(u=>{if(u.side!==1)return;if(z)s.q.kz[z]=(s.q.kz[z]||0)+1;if(base)s.q.kz[base]=(s.q.kz[base]||0)+1;
+    const mk=u.E.boss?'fang':Z.mat||RP_ZONEMAT[b.zone];if(!mk)return;const n=u.E.boss?2:Math.random()<.45?1:0;if(n){M[mk]+=n;got[mk]=(got[mk]||0)+n}});
   if(b.boss==='gorb'){M.spore+=2;got.spore=(got.spore||0)+2}
   if(b.boss==='vexx'){M.scrap+=4;got.scrap=(got.scrap||0)+4}
   b.drops=b.drops.map(rpRollAffix);

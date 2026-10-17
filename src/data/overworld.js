@@ -211,6 +211,10 @@ const BARRIERS=[
   {id:'toll12',tile:'Y',x0:305,x1:305,y0:180,y1:199,until:{bc:1},route:'Route 12'},
   {id:'slide7',tile:'R',x0:315,x1:315,y0:50,y1:59,until:{fw:3},route:'Route 7'},
   {id:'dark8',tile:'Z',x0:270,x1:279,y0:85,y1:85,until:{lantern:1},route:'Route 8'}];
+/* which monsters live where on the routes built so far (zones in data/monsters.js); other routes still use the tile's own zone */
+const ROUTE_ZONES={'Route 1':{',':'r1'},'Route 2':{';':'r2'},'Route 3':{',':{g:'r3',m:'r3m'}}};
+function regionZone(x,y,c){if(x<OLD_W&&y<OLD_H)return c;const cc=Math.floor(x/CELL),rr=Math.floor(y/CELL),rt=build().routes.of(cc,rr);
+  const z=rt&&ROUTE_ZONES[rt.name]&&ROUTE_ZONES[rt.name][c];if(!z)return c;return typeof z==='string'?z:(z[cellAt(cc,rr)]||c)}
 /* a spot near a town's square (dx, dy from the middle of the square), for villagers */
 function townSpot(L,dx,dy){const t=build().towns.find(t=>t.L===L);return{x:t.x+dx,y:t.y+dy}}
 /* the name for the top bar */
@@ -224,4 +228,4 @@ function makeWorldGrid(oldRows){const B=build(),rows=new Array(WH);
   for(let y=0;y<WH;y++){const r=B.G[y].slice();if(y<OLD_H)for(let x=0;x<OLD_W;x++)r[x]=oldRows[y][x];rows[y]=r}
   return rows}
 build();
-export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,overworldArea,regionSign,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};
+export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,overworldArea,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};

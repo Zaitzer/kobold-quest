@@ -5,7 +5,7 @@ import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {QUEST_LINE,QUEST_LOG,TALK} from '../data/dialogue.js';
 import {RP_IT,RP_ITEMS,RP_SHOP2} from '../data/items.js';
-import {overworldArea,regionSign} from '../data/overworld.js';
+import {OLD_H,OLD_W,regionSign,sites} from '../data/overworld.js';
 import {RP_BOUNTY} from '../data/quests.js';
 import {VALLEY_SIGNS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
@@ -50,8 +50,20 @@ feature({id:'town-spots',tiles:{S:{use:()=>rpShrine()},N:{use:()=>rpBoard()},A:{
   /* signs on roads and in towns, and the healing fountain in every town square */
   i:{use:(x,y)=>rpSay([{who:'Sign',text:VALLEY_SIGNS[x+','+y]||regionSign(x,y)||'The words have worn away.'}])},
   U:{use:()=>rpTalk('urn')},
-  O:{use:(x,y)=>{const q=rp.s.q;
-    /* Grubb has padlocked Pebblebrook's fountain until someone deals with him */
-    if(overworldArea(x,y)==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak\'s hoard. Pay Grubb."'}]);return}
-    rpHealAll();rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'}]);if(!rp.headless)sfx('pop')}}}});
-export {rpBoard,rpBuyGear,rpBuyItem,rpHealAll,rpOpenShop,rpOpenSmith,rpQuestLine,rpQuestList,rpShrine,rpTalk};
+  O:{use:(x,y)=>rpFountain(x,y)}}});
+/* fountains heal, remember themselves as the place to wake up after losing a fight, and (after the second spark)
+   carry you to any other fountain you have drunk from */
+const HOME_FOUNTAIN={name:'Burrowhome',x:10,y:25};
+function rpFountainAt(x,y){if(x<OLD_W&&y<OLD_H)return HOME_FOUNTAIN;const t=sites().find(t=>!t.home&&t.x===x&&t.y-1===y);return t?{name:t.name,x:t.x,y:t.y}:null}
+function rpFountainDests(here){const s=rp.s,names=s.fountains||[];
+  return[HOME_FOUNTAIN].concat(sites().filter(t=>!t.home&&names.includes(t.name)).map(t=>({name:t.name,x:t.x,y:t.y}))).filter(d=>!here||d.name!==here.name)}
+function rpTravel(d){const s=rp.s;s.x=d.x;s.y=d.y;s.face='down';rp.pos=null;rp.path=null;rp.held=null;rp.grace=4;if(!rp.headless)sfx('drop');rpToast('Whoosh! The water carries you to '+d.name+'.');rpSave()}
+function rpFountain(x,y){const s=rp.s,q=s.q,here=rpFountainAt(x,y);
+  /* Grubb has padlocked Pebblebrook's fountain until someone deals with him */
+  if(here&&here.name==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak\'s hoard. Pay Grubb."'}]);return}
+  rpHealAll();if(!rp.headless)sfx('pop');
+  if(here){s.fountain=here;s.fountains=s.fountains||[];if(here!==HOME_FOUNTAIN&&!s.fountains.includes(here.name))s.fountains.push(here.name)}
+  const dests=(q.seals||0)>=2?rpFountainDests(here):[];
+  rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'+(dests.length?' The water ripples. It could carry you to another fountain.':'')}],
+    dests.length?dests.map(d=>({t:'Travel to '+d.name,fn:()=>rpTravel(d)})).concat([{t:'Stay here'}]):null);rpSave()}
+export {HOME_FOUNTAIN,rpBoard,rpBuyGear,rpBuyItem,rpFountain,rpFountainAt,rpFountainDests,rpHealAll,rpOpenShop,rpOpenSmith,rpQuestLine,rpQuestList,rpShrine,rpTalk,rpTravel};

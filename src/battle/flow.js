@@ -8,7 +8,7 @@ import {rpResize} from '../core/layout.js';
 import {rpBuzz,rpOpt} from '../core/options.js';
 import {run,test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
-import {rp} from '../core/state.js';
+import {rp,rpApplyWorld} from '../core/state.js';
 import {BAL,RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
 import {RP_IT,RP_ITEMS} from '../data/items.js';
@@ -30,7 +30,7 @@ import {rpFight} from '../net/lobby.js';
 import {rpUI} from '../ui/hud.js';
 function rpEncounter(c){
   const Z=RP_ZONE[c],lvl=rp.s.party[0].lvl,ps=rp.s.party.length;
-  let n=ps+(lvl>=2?1:0)-(Math.random()<.4?1:0);n=clamp(n,1,c===','?3:4);
+  let n=ps+(lvl>=2?1:0)-(Math.random()<.4?1:0);n=clamp(n,1,Z.cap||(c===','?3:4));
   const ks=[];for(let i=0;i<n;i++)ks.push(wpick(Z.t));
   rpFight(ks,{zone:c});
 }
@@ -282,7 +282,7 @@ function rpRewards(b){
   b.drops=[];
   const B=b.boss&&RP_BOSSES[b.boss];
   if(B){run(B.win);b.drops.push(...B.drops)}
-  else{const z=b.zone==='g'?'C':b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
+  else{const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
   const sp=rpBattleSpoils(b);b.drops.forEach(rpGive);
   b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'');
   b.units.forEach(u=>{u.buff={atk:0,def:0};u.guard=0;u.watch=0;b.vis.fill(2)});
@@ -296,7 +296,8 @@ function rpEndBattle(){
   rp.bt=null;rp.mode='map';rp.grace=8;parts.length=0;texts.length=0;
   s.party.forEach(m=>{if(m.hp<=0&&b.over!=='lose')m.hp=1});
   if(b.over==='duel')rpToast('Duel over.');
-  else if(b.over==='lose'){s.gold=Math.floor(s.gold/2);s.x=5;s.y=22;s.face='down';rpHealAll();rpSay([{who:'Toast',text:'You were carried back to the inn by a passing goat. You lost half your gold, but everyone is patched up.'}])}
+  else if(b.over==='lose'){s.gold=Math.floor(s.gold/2);const f=s.fountain||{name:'Burrowhome',x:10,y:25};if(s.place){delete s.place;rpApplyWorld()}
+    s.x=f.x;s.y=f.y;s.face='down';rp.pos=null;rpHealAll();rpSay([{who:'',text:'A passing goat carried your party back to the fountain in '+f.name+'. You lost half your gold, but everyone is patched up.'}])}
   else if(b.over==='run')rpToast('You got away!');
   else if(b.over==='win'&&b.boss&&RP_BOSSES[b.boss]&&RP_BOSSES[b.boss].after)rpSay(RP_BOSSES[b.boss].after);
   emit('battle:end',b);
