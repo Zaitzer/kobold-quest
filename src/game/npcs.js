@@ -62,7 +62,7 @@ function rpTravel(d){const s=rp.s;s.x=d.x;s.y=d.y;s.face='down';rp.pos=null;rp.p
 function rpFountain(x,y){const s=rp.s,q=s.q,here=rpFountainAt(x,y);
   /* Grubb has padlocked Pebblebrook's fountain until someone deals with him */
   if(here&&here.name==='Pebblebrook'&&(q.moot||0)>=5&&(q.pb||0)<2){rpSay([{who:'',text:'A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak\'s hoard. Pay Grubb."'}]);return}
-  rpHealAll();if(!rp.headless)sfx('pop');
+  rpHealAll();if(!rp.headless)sfx('fountain');
   if(here){s.fountain=here;s.fountains=s.fountains||[];if(here!==HOME_FOUNTAIN&&!s.fountains.includes(here.name))s.fountains.push(here.name)}
   const dests=(q.seals||0)>=2?rpFountainDests(here):[];
   rpSay([{who:'',text:'The fountain water is cold and sweet. Everyone feels fresh again.'+(dests.length?' The water ripples. It could carry you to another fountain.':'')}],

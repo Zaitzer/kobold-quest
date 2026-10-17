@@ -4,6 +4,8 @@ import {rpTacBtn,rpTacTap} from '../battle/input.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {registry} from './registry_view.js';
+import {set_soundOn,sfx} from '../engine/audio.js';
+import {rpMus} from '../engine/music.js';
 import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
 import {rpTalk} from '../game/npcs.js';
@@ -18,4 +20,5 @@ export function installHooks(){
   window.__rpB={battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
   window.__net=net;window.__rpF=(k,o)=>rpFight(k,o);window.__netBtn=d=>{netBtn(d);rpUI(true)};window.__rpS=()=>rpSave();
   window.__kq={talk:rpTalk,say:rpSay,hero:rpHeroOpen,enter:rpEnterPlace,registry,sprite};
+  window.__kqA={on:()=>set_soundOn(true),sfx,music:()=>({key:rpMus.key,lvl:rpMus.lvl,outdoor:rpMus.outdoor})};
 }

@@ -3,6 +3,7 @@ import {rpOpt} from '../core/options.js';
 import {actions,feature,panels,routes} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {RP_CLS} from '../data/classes.js';
+import {sfx} from '../engine/audio.js';
 import {$,clamp,esc2} from '../engine/util.js';
 import {rpActFacing,rpTry} from '../game/move.js';
 import {rpQuestLine} from '../game/npcs.js';
@@ -31,6 +32,7 @@ function rpMenuClick(e){
   const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
   /* buttons are routed by their data attribute: data-tac, data-net, data-g... go to that feature's handler,
      data-rp="x" goes to the action registered as x. An action returning false redraws by itself. */
+  if(!rp.headless&&d.rp!=='next')sfx('tap');
   for(const k in routes)if(d[k]!=null){routes[k](d,b);rpUI(true);return}
   const a=actions[d.rp];if(a&&a(d,b)===false)return;
   rpUI(true);

@@ -21,15 +21,15 @@ Rules:
 | track | where | mood | built from |
 |---|---|---|---|
 | Burrowhome | home valley | warm, bouncy | exists (village) |
-| Town | every town (each town shifts key and tempo) | calm, friendly | new, from the village track |
+| Town | every town (each town shifts key and tempo) | calm, friendly | done: each town its own key, tempo and land flavour |
 | Grass route | grassy routes | light, adventurous | exists (meadow) |
 | Woods | forest routes, Whisper Woods | soft, curious | exists |
 | Cave | the tunnel, caves | slow, drippy | exists |
-| Desert | Sunhaven routes | hot, swaying | new |
-| Mountain pass | passes, Emberreach | stomping, steady | new |
-| Snow | Frostwick, the snowfield, Frostpeak | twinkly, slow | new |
-| Marsh | Glimmerfen | foggy, odd | new |
-| Shore | Saltspray, Brindlecove, the bridges | breezy | new |
+| Desert | Sunhaven routes | hot, swaying | done |
+| Mountain pass | passes, Emberreach | stomping, steady | done |
+| Snow | Frostwick, the snowfield, Frostpeak | twinkly, slow | done |
+| Marsh | Glimmerfen | foggy, odd | done |
+| Shore | Saltspray, Brindlecove, the bridges | breezy | done |
 | Battle | normal fights | quick | exists |
 | Boss | bosses | heavy | exists |
 | Rival | Tikka's battles | cheeky, fast | new |
@@ -47,15 +47,17 @@ Short jingles: spark gained, level up, recruit joins, key item, battle won, batt
 | hit, crit, miss, knock-out | battles | exists |
 | nom, pet, pop, drop, win | eating, petting, small events, items, victory | exists |
 | yip | the yip button | exists (pitched per player) |
-| talk blip | each dialogue line | new |
-| door | in and out of houses | new |
-| chest | opening a chest | new |
-| fountain | drinking, healing | new (uses pop now) |
-| bump | walking into a barrier or wall | new |
-| spark | gaining a spark | new jingle |
-| level up | | new jingle |
+| talk blip | each dialogue line | done (each speaker their own pitch) |
+| door | in and out of houses | done |
+| chest | opening a chest | done |
+| fountain | drinking, healing | done |
+| bump | walking into a barrier | done |
+| spark | gaining a spark | done |
+| level up | | done (also recruit, key item, battle lost) |
 | egg crack, dragon roar | the hatchings, Glitterbeak | new |
-| menu tap | buttons | new, very soft |
+| menu tap | buttons | done |
+
+Music dips indoors, more while someone talks, and nearly vanishes under a jingle (done).
 
 ## Decision
 

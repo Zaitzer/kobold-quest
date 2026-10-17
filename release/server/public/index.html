@@ -836,6 +836,12 @@ button,.rpb,.pill{touch-action:manipulation}
     let rt = B.routes.of(c, r);
     return rt ? rt.name : "The wilds";
   }
+  var ROUTE_TRACK = { g: "meadow", f: "woods", d: "desert", m: "pass", s: "snow", k: "marsh", b: "shore", c: "cave", "=": "shore" };
+  function regionMusic(x, y) {
+    if (x < OLD_W && y < OLD_H) return null;
+    let ch = cellAt(Math.floor(x / CELL), Math.floor(y / CELL));
+    return isTown(ch) ? "town:" + ch : ROUTE_TRACK[ch] || "meadow";
+  }
   function sites() {
     return [{ name: "Burrowhome", x: 7, y: 23, home: !0 }].concat(build().towns.map((t) => ({ name: t.name, x: t.x, y: t.y })));
   }
@@ -1424,7 +1430,7 @@ button,.rpb,.pill{touch-action:manipulation}
   };
 
   // src/engine/audio.js
-  var soundOn = !1, quiet = !1, ac = null, lastSfx = {};
+  var soundOn = !1, quiet = !1, ac = null, duckT = 0, lastSfx = {};
   function audio() {
     if (!ac)
       try {
@@ -1440,10 +1446,48 @@ button,.rpb,.pill{touch-action:manipulation}
     let t0 = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
     o.type = type, o.frequency.setValueAtTime(f1, t0), o.frequency.exponentialRampToValueAtTime(Math.max(30, f2), t0 + dur), g.gain.setValueAtTime(vol, t0), g.gain.exponentialRampToValueAtTime(1e-3, t0 + dur), o.connect(g), g.connect(a.destination), o.start(t0), o.stop(t0 + dur + 0.03);
   }
-  function sfx(k) {
+  function jingle(notes, beat, type, vol) {
+    let a = audio();
+    if (!a) return;
+    let t = 0;
+    for (let [f, l] of notes)
+      f && tone(f, f * 1.003, l * beat * 1.1, type, vol, t), t += l * beat;
+    duckT = a.currentTime + t + 0.3;
+  }
+  var JINGLES = {
+    spark: [[523, 1], [659, 1], [784, 1], [1047, 2], [988, 1], [1047, 1], [1319, 4]],
+    level: [[392, 1], [523, 1], [659, 1], [784, 3]],
+    recruit: [[659, 1], [784, 1], [659, 1], [988, 3]],
+    item: [[784, 1], [988, 1], [1175, 3]],
+    lose: [[392, 2], [370, 2], [349, 2], [262, 6]]
+  };
+  function sfx(k, p) {
     if (!soundOn || quiet) return;
     let n = performance.now();
-    lastSfx[k] && n - lastSfx[k] < 60 || (lastSfx[k] = n, k === "hit" ? tone(R(230, 320), 110, 0.12, "square", 0.04) : k === "crit" ? (tone(540, 150, 0.2, "sawtooth", 0.05), tone(300, 90, 0.16, "square", 0.04, 0.03)) : k === "miss" ? tone(760, 520, 0.09, "sine", 0.03) : k === "ko" ? tone(420, 55, 0.45, "triangle", 0.08) : k === "nom" ? (tone(600, 900, 0.07, "sine", 0.05), tone(700, 1100, 0.08, "sine", 0.05, 0.09)) : k === "drop" ? tone(300, 720, 0.13, "sine", 0.06) : k === "pet" ? tone(880, 1320, 0.1, "sine", 0.04) : k === "pop" ? tone(R(380, 520), 150, 0.09, "square", 0.04) : k === "win" && [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, "triangle", 0.06, i * 0.11)));
+    if (!(lastSfx[k] && n - lastSfx[k] < 60))
+      if (lastSfx[k] = n, k === "hit") tone(R(230, 320), 110, 0.12, "square", 0.04);
+      else if (k === "crit")
+        tone(540, 150, 0.2, "sawtooth", 0.05), tone(300, 90, 0.16, "square", 0.04, 0.03);
+      else if (k === "miss") tone(760, 520, 0.09, "sine", 0.03);
+      else if (k === "ko") tone(420, 55, 0.45, "triangle", 0.08);
+      else if (k === "nom")
+        tone(600, 900, 0.07, "sine", 0.05), tone(700, 1100, 0.08, "sine", 0.05, 0.09);
+      else if (k === "drop") tone(300, 720, 0.13, "sine", 0.06);
+      else if (k === "pet") tone(880, 1320, 0.1, "sine", 0.04);
+      else if (k === "pop") tone(R(380, 520), 150, 0.09, "square", 0.04);
+      else if (k === "blip") tone(520 * (p || 1), 500 * (p || 1), 0.035, "square", 0.018);
+      else if (k === "tap") tone(1250, 1150, 0.025, "sine", 0.018);
+      else if (k === "bump") tone(120, 70, 0.09, "square", 0.045);
+      else if (k === "door")
+        tone(190, 95, 0.08, "triangle", 0.07), tone(150, 70, 0.1, "triangle", 0.06, 0.08);
+      else if (k === "chest")
+        tone(180, 260, 0.14, "square", 0.025), [784, 988, 1175, 1568].forEach((f, i) => tone(f, f, 0.12, "sine", 0.05, 0.14 + i * 0.06));
+      else if (k === "fountain")
+        for (let i = 0; i < 5; i++) {
+          let f = R(500, 900);
+          tone(f, f * 1.8, 0.08, "sine", 0.04, i * 0.07);
+        }
+      else JINGLES[k] ? jingle(JINGLES[k], k === "lose" ? 0.13 : 0.09, k === "lose" ? "triangle" : "square", k === "lose" ? 0.06 : 0.045) : k === "win" && [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, "triangle", 0.06, i * 0.11));
   }
   function yip(vol, pan, pitch) {
     if (!soundOn || quiet || !(vol > 0.01)) return;
@@ -1891,7 +1935,7 @@ button,.rpb,.pill{touch-action:manipulation}
     P.rows.forEach((r, y) => {
       let i = r.indexOf("e");
       i >= 0 && (ex = i, ey = y);
-    }), s.place = id, s.x = ex, s.y = ey - 1, s.face = "up", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("drop"), emit("place:enter", id), rpSave();
+    }), s.place = id, s.x = ex, s.y = ey - 1, s.face = "up", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:enter", id), rpSave();
   }
   function rpLeavePlace() {
     let s = rp.s, id = s.place, door = Object.keys(RP_DOORS).find((k) => RP_DOORS[k] === id);
@@ -1899,7 +1943,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let [x, y] = door.split(",").map(Number), spot = [[0, 1], [-1, 1], [1, 1], [0, 2], [-1, 2], [1, 2]].find(([dx, dy]) => !rpSolid(x + dx, y + dy)) || [0, 1];
       s.x = x + spot[0], s.y = y + spot[1];
     }
-    rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, emit("place:leave", id), rpSave();
+    rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:leave", id), rpSave();
   }
   function rpBfs(tx, ty, toNeighbor) {
     let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen = 0;
@@ -1930,7 +1974,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpOpenChest(c) {
     let s = rp.s;
-    s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("win");
+    s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("chest");
   }
   feature({ id: "world-fit", on: { "game:start"() {
     let s = rp.s;
@@ -1957,6 +2001,9 @@ button,.rpb,.pill{touch-action:manipulation}
     R: "A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.",
     Z: "The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern."
   };
+  function barrierSay(t) {
+    rp.headless || sfx("bump"), rpSay([{ who: "", text: BARRIER_SAY[t] }]);
+  }
   feature({
     id: "barriers",
     on: { "world:apply": rpBarriers },
@@ -1964,7 +2011,7 @@ button,.rpb,.pill{touch-action:manipulation}
       if (!rp.s) return;
       BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || "") !== barrierSig && rpBarriers();
     },
-    tiles: { Y: { use: () => rpSay([{ who: "", text: BARRIER_SAY.Y }]) }, R: { use: () => rpSay([{ who: "", text: BARRIER_SAY.R }]) }, Z: { use: () => rpSay([{ who: "", text: BARRIER_SAY.Z }]) } }
+    tiles: { Y: { use: () => barrierSay("Y") }, R: { use: () => barrierSay("R") }, Z: { use: () => barrierSay("Z") } }
   });
   feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
     if (c === "e" && rp.s.place) {
@@ -2913,6 +2960,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let b = e.target.closest && e.target.closest("button");
     if (!b || b.disabled) return;
     let d = b.dataset;
+    !rp.headless && d.rp !== "next" && sfx("tap");
     for (let k in routes) if (d[k] != null) {
       routes[k](d, b), rpUI(!0);
       return;
@@ -3046,7 +3094,7 @@ button,.rpb,.pill{touch-action:manipulation}
       rpSay([{ who: "", text: `A big padlock on the fountain. A sign: "ONE SHINY THING A SIP. For Glitterbeak's hoard. Pay Grubb."` }]);
       return;
     }
-    rpHealAll(), rp.headless || sfx("pop"), here && (s.fountain = here, s.fountains = s.fountains || [], here !== HOME_FOUNTAIN && !s.fountains.includes(here.name) && s.fountains.push(here.name));
+    rpHealAll(), rp.headless || sfx("fountain"), here && (s.fountain = here, s.fountains = s.fountains || [], here !== HOME_FOUNTAIN && !s.fountains.includes(here.name) && s.fountains.push(here.name));
     let dests = (q.seals || 0) >= 2 ? rpFountainDests(here) : [];
     rpSay(
       [{ who: "", text: "The fountain water is cold and sweet. Everyone feels fresh again." + (dests.length ? " The water ripples. It could carry you to another fountain." : "") }],
@@ -3116,7 +3164,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T13:39:56Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T14:05:28Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -4875,13 +4923,13 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/game/dialogue.js
   function rpSay(lines, choices, after) {
-    typeof rpInputReset == "function" && rpInputReset(), rp.dlg = { lines: lines.map((l) => typeof l == "string" ? { who: "", text: l } : l), i: 0, choices: choices || null, after: after || null }, rp.mode = "dialog", rpUI(!0);
+    typeof rpInputReset == "function" && rpInputReset(), rp.dlg = { lines: lines.map((l) => typeof l == "string" ? { who: "", text: l } : l), i: 0, choices: choices || null, after: after || null }, rp.mode = "dialog", rpBlip(), rpUI(!0);
   }
   function rpDlgNext() {
     let d = rp.dlg;
     if (d) {
       if (d.i < d.lines.length - 1) {
-        d.i++, rpUI(!0);
+        d.i++, rpBlip(), rpUI(!0);
         return;
       }
       d.choices || (rp.dlg = null, rp.mode = "map", rpSave(), d.after && d.after(), rpUI(!0));
@@ -4892,6 +4940,15 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!d || !d.choices) return;
     let c = d.choices[i];
     !c || c.ok && !c.ok() || (rp.dlg = null, rp.mode = "map", c.fn && c.fn(), rpSave(), rpUI(!0));
+  }
+  function blipPitch(who) {
+    let h = 0;
+    for (let c of who || "") h = h * 31 + c.charCodeAt(0) | 0;
+    return who ? 0.8 + (h >>> 0) % 9 * 0.07 : 1;
+  }
+  function rpBlip() {
+    let d = rp.dlg;
+    !rp.headless && d && sfx("blip", blipPitch(d.lines[d.i].who));
   }
   function rpToast(t) {
     rp.toast = { t, life: 2.6 }, rp.headless || sfx("drop");
@@ -6270,7 +6327,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpLose() {
     let b = rp.bt;
-    b.over = "lose", b.phase = "end", b.cur = null, b.msg = "Your party fell...", emit("battle:lost", b), rpUI(!0);
+    b.over = "lose", b.phase = "end", b.cur = null, b.msg = "Your party fell...", rp.headless || sfx("lose"), emit("battle:lost", b), rpUI(!0);
   }
   function rpEndBattle() {
     let b = rp.bt, s = rp.s;
@@ -6286,6 +6343,125 @@ button,.rpb,.pill{touch-action:manipulation}
       emit("battle:end", b), rpSave(), rpUI(!0), requestAnimationFrame(rpResize);
     }
   }
+
+  // src/engine/music.js
+  var RP_SCALES = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], penta: [0, 2, 4, 7, 9], mpenta: [0, 3, 5, 7, 10], harm: [0, 2, 3, 5, 7, 8, 11], phryg: [0, 1, 3, 5, 7, 8, 10] }, RP_TRACKS = {
+    village: { bpm: 100, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "square", vol: 0.5, dr: "light" },
+    meadow: { bpm: 124, root: 64, sc: "penta", prog: [0, 4, 5, 3], seed: 7, lead: "square", vol: 0.55, dr: "bounce" },
+    woods: { bpm: 90, root: 57, sc: "dorian", prog: [0, 6, 3, 4], seed: 11, lead: "triangle", vol: 0.6, dr: "soft" },
+    cave: { bpm: 72, root: 52, sc: "mpenta", prog: [0, 0, 5, 4], seed: 5, lead: "triangle", vol: 0.6, dr: "drip" },
+    hoard: { bpm: 110, root: 55, sc: "harm", prog: [0, 5, 3, 4], seed: 9, lead: "square", vol: 0.5, dr: "march" },
+    battle: { bpm: 146, root: 57, sc: "minor", prog: [0, 5, 6, 4], seed: 13, lead: "square", vol: 0.5, dr: "drive" },
+    town: { bpm: 92, root: 60, sc: "major", prog: [0, 5, 3, 4], seed: 21, lead: "triangle", vol: 0.5, dr: "soft" },
+    pass: { bpm: 104, root: 50, sc: "dorian", prog: [0, 6, 0, 4], seed: 23, lead: "square", vol: 0.5, dr: "march" },
+    desert: { bpm: 96, root: 57, sc: "harm", prog: [0, 3, 4, 0], seed: 27, lead: "square", vol: 0.5, dr: "bounce" },
+    snow: { bpm: 80, root: 69, sc: "penta", prog: [0, 3, 5, 4], seed: 29, lead: "sine", vol: 0.6, dr: "soft" },
+    marsh: { bpm: 84, root: 55, sc: "harm", prog: [0, 1, 5, 4], seed: 31, lead: "triangle", vol: 0.6, dr: "drip" },
+    shore: { bpm: 112, root: 65, sc: "major", prog: [0, 4, 5, 3], seed: 37, lead: "triangle", vol: 0.55, dr: "light" },
+    boss: { bpm: 158, root: 52, sc: "phryg", prog: [0, 1, 0, 6], seed: 17, lead: "sawtooth", vol: 0.42, dr: "drive" }
+  }, TOWN_TUNES = {
+    A: { root: 62 },
+    B: { root: 60, bpm: 86, sc: "penta" },
+    C: { root: 65, bpm: 100, dr: "light" },
+    D: { root: 64, bpm: 98, dr: "light" },
+    E: { root: 57, sc: "dorian", dr: "march", lead: "square" },
+    F: { root: 58, sc: "harm", dr: "bounce" },
+    G: { root: 55, sc: "dorian", dr: "march", lead: "square" },
+    H: { root: 67, lead: "sine", bpm: 78 },
+    I: { root: 59, sc: "dorian", dr: "drip" },
+    J: { root: 63, bpm: 104, dr: "light" }
+  };
+  function rpTrack(key) {
+    if (RP_TRACKS[key]) return RP_TRACKS[key];
+    let m = /^town:([A-J])$/.exec(key || "");
+    return m ? Object.assign({}, RP_TRACKS.town, TOWN_TUNES[m[1]], { seed: 40 + m[1].charCodeAt(0) }) : RP_TRACKS.meadow;
+  }
+  var rpMus = { on: !1, key: null, g: null, next: 0, step: 0, song: null, noise: null, outdoor: null, lvl: 0 }, mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  function rpSong(T) {
+    let r = seeded(T.seed * 7919), S = RP_SCALES[T.sc], n = S.length, deg = (d, oct) => T.root + S[(d % n + n) % n] + 12 * (Math.floor(d / n) + (oct || 0)), phrase = () => {
+      let out = [], d = 2 + (r() * 3 | 0);
+      for (let bar = 0; bar < 4; bar++) {
+        let ch = T.prog[bar];
+        for (let i = 0; i < 8; i++) {
+          if (r() < (T.dr === "drip" ? 0.45 : 0.22) && i % 2 === 1) {
+            out.push(null);
+            continue;
+          }
+          i === 0 ? d = ch + [0, 2, 4][r() * 3 | 0] : d += [-2, -1, -1, 1, 1, 2, 0][r() * 7 | 0], d = clamp(d, ch - 3, ch + 9), out.push({ d, len: r() < 0.25 && i < 7 ? 2 : 1 });
+        }
+      }
+      return out;
+    }, A = phrase(), B = phrase();
+    for (let i = 24; i < 32; i++) B[i] = A[i];
+    return { T, deg, mel: A.concat(B) };
+  }
+  function rpVoice(a, dest, f, t, dur, type, vol) {
+    let o = a.createOscillator(), g = a.createGain();
+    o.type = type, o.frequency.setValueAtTime(f, t), g.gain.setValueAtTime(0, t), g.gain.linearRampToValueAtTime(vol, t + 8e-3), g.gain.setValueAtTime(vol, t + dur * 0.7), g.gain.linearRampToValueAtTime(0, t + dur), o.connect(g), g.connect(dest), o.start(t), o.stop(t + dur + 0.02);
+  }
+  function rpDrum(a, dest, kind, t) {
+    if (!rpMus.noise) {
+      let b = a.createBuffer(1, a.sampleRate * 0.3, a.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      rpMus.noise = b;
+    }
+    if (kind === "k") {
+      let o = a.createOscillator(), g2 = a.createGain();
+      o.frequency.setValueAtTime(140, t), o.frequency.exponentialRampToValueAtTime(40, t + 0.12), g2.gain.setValueAtTime(0.9, t), g2.gain.exponentialRampToValueAtTime(1e-3, t + 0.14), o.connect(g2), g2.connect(dest), o.start(t), o.stop(t + 0.16);
+      return;
+    }
+    let s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = rpMus.noise, f.type = kind === "h" ? "highpass" : "bandpass", f.frequency.value = kind === "h" ? 7e3 : kind === "d" ? 2200 : 1800;
+    let len = kind === "h" ? 0.04 : kind === "d" ? 0.09 : 0.12;
+    g.gain.setValueAtTime(kind === "h" ? 0.25 : kind === "d" ? 0.18 : 0.5, t), g.gain.exponentialRampToValueAtTime(1e-3, t + len), s.connect(f), f.connect(g), g.connect(dest), s.start(t), s.stop(t + len + 0.02);
+  }
+  var RP_DRUMS = {
+    /* 16 steps per bar: k kick, s snare, h hat, d drip */
+    light: ["k", "", "h", "", "s", "", "h", "", "k", "", "h", "k", "s", "", "h", ""],
+    bounce: ["k", "", "h", "k", "s", "", "h", "", "k", "k", "h", "", "s", "", "h", "h"],
+    soft: ["k", "", "", "", "h", "", "", "", "s", "", "", "", "h", "", "", ""],
+    drip: ["", "", "", "", "d", "", "", "", "", "", "d", "", "", "", "", ""],
+    march: ["k", "", "s", "", "k", "", "s", "s", "k", "", "s", "", "k", "s", "s", "s"],
+    drive: ["k", "h", "s", "h", "k", "k", "s", "h", "k", "h", "s", "h", "k", "k", "s", "s"]
+  };
+  function rpMusicWant() {
+    if (!soundOn || rp.headless || rpOpt.music === !1 || view !== "rpg" || !rp.s) return null;
+    if (rp.mode === "battle" && rp.bt) return rp.bt.boss ? "boss" : "battle";
+    if (rp.s.place) return rpMus.outdoor || "village";
+    let r = regionMusic(rp.s.x, rp.s.y), a = r || rpArea(rp.s.x, rp.s.y);
+    return rpMus.outdoor = r || (a === "Burrowhome" ? "village" : a === "Whisper Woods" ? "woods" : "meadow");
+  }
+  function rpMusicLevel(now) {
+    return 0.09 * (rp.s && rp.s.place ? 0.7 : 1) * (rp.dlg ? 0.45 : 1) * (now < duckT ? 0.2 : 1);
+  }
+  function rpMusicTick() {
+    let want = rpMusicWant(), a = ac;
+    if (!want) {
+      rpMus.g && a && (rpMus.g.gain.setTargetAtTime(0, a.currentTime, 0.15), rpMus.g = null, rpMus.key = null);
+      return;
+    }
+    let A = audio();
+    if (!A) return;
+    if (A.state === "suspended" && A.resume(), want !== rpMus.key) {
+      rpMus.g && rpMus.g.gain.setTargetAtTime(0, A.currentTime, 0.2);
+      let g = A.createGain();
+      g.gain.setValueAtTime(0, A.currentTime), g.gain.linearRampToValueAtTime(0.09, A.currentTime + 0.6), g.connect(A.destination), rpMus.g = g, rpMus.key = want, rpMus.lvl = 0.09, rpMus.song = rpSong(rpTrack(want)), rpMus.step = 0, rpMus.next = A.currentTime + 0.08;
+    }
+    let lv = rpMusicLevel(A.currentTime);
+    Math.abs(lv - rpMus.lvl) > 1e-3 && (rpMus.g.gain.setTargetAtTime(lv, A.currentTime, 0.12), rpMus.lvl = lv);
+    let S = rpMus.song, T = S.T, st = 60 / T.bpm / 4, dest = rpMus.g;
+    for (; rpMus.next < A.currentTime + 0.18; ) {
+      let i = rpMus.step, t = rpMus.next, bar = (i >> 4) % 8, s16 = i % 16, ch = T.prog[bar % 4];
+      if (s16 % 2 === 0) {
+        let m = S.mel[bar * 8 + (s16 >> 1)];
+        m && rpVoice(A, dest, mtof(S.deg(m.d, 1)), t, st * 2 * m.len * 0.92, T.lead, 0.16 * T.vol);
+      }
+      s16 % 4 === 0 && rpVoice(A, dest, mtof(S.deg(ch, -1)), t, st * (T.dr === "drip" ? 7 : 3.6), "triangle", 0.42 * T.vol), T.dr === "drive" && s16 % 4 === 2 && rpVoice(A, dest, mtof(S.deg(ch, -1) + 12), t, st * 1.6, "triangle", 0.3 * T.vol), s16 === 0 && bar % 2 === 0 && [0, 2, 4].forEach((o) => rpVoice(A, dest, mtof(S.deg(ch + o, 0)), t, st * 15, "sine", 0.05 * T.vol));
+      let dk = RP_DRUMS[T.dr][s16];
+      dk && rpDrum(A, dest, dk, t), rpMus.step++, rpMus.next += st;
+    }
+  }
+  feature({ id: "music", frame: () => rpMusicTick() });
 
   // src/core/boot.js
   var TITLE_KS = [
@@ -6358,96 +6534,6 @@ button,.rpb,.pill{touch-action:manipulation}
     for (let fn of inits) fn();
     soundButton(), bootScreen(), requestAnimationFrame(frame);
   }
-
-  // src/engine/music.js
-  var RP_SCALES = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], penta: [0, 2, 4, 7, 9], mpenta: [0, 3, 5, 7, 10], harm: [0, 2, 3, 5, 7, 8, 11], phryg: [0, 1, 3, 5, 7, 8, 10] }, RP_TRACKS = {
-    village: { bpm: 100, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "square", vol: 0.5, dr: "light" },
-    meadow: { bpm: 124, root: 64, sc: "penta", prog: [0, 4, 5, 3], seed: 7, lead: "square", vol: 0.55, dr: "bounce" },
-    woods: { bpm: 90, root: 57, sc: "dorian", prog: [0, 6, 3, 4], seed: 11, lead: "triangle", vol: 0.6, dr: "soft" },
-    cave: { bpm: 72, root: 52, sc: "mpenta", prog: [0, 0, 5, 4], seed: 5, lead: "triangle", vol: 0.6, dr: "drip" },
-    hoard: { bpm: 110, root: 55, sc: "harm", prog: [0, 5, 3, 4], seed: 9, lead: "square", vol: 0.5, dr: "march" },
-    battle: { bpm: 146, root: 57, sc: "minor", prog: [0, 5, 6, 4], seed: 13, lead: "square", vol: 0.5, dr: "drive" },
-    boss: { bpm: 158, root: 52, sc: "phryg", prog: [0, 1, 0, 6], seed: 17, lead: "sawtooth", vol: 0.42, dr: "drive" }
-  }, rpMus = { on: !1, key: null, g: null, next: 0, step: 0, song: null, noise: null }, mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
-  function rpSong(T) {
-    let r = seeded(T.seed * 7919), S = RP_SCALES[T.sc], n = S.length, deg = (d, oct) => T.root + S[(d % n + n) % n] + 12 * (Math.floor(d / n) + (oct || 0)), phrase = () => {
-      let out = [], d = 2 + (r() * 3 | 0);
-      for (let bar = 0; bar < 4; bar++) {
-        let ch = T.prog[bar];
-        for (let i = 0; i < 8; i++) {
-          if (r() < (T.dr === "drip" ? 0.45 : 0.22) && i % 2 === 1) {
-            out.push(null);
-            continue;
-          }
-          i === 0 ? d = ch + [0, 2, 4][r() * 3 | 0] : d += [-2, -1, -1, 1, 1, 2, 0][r() * 7 | 0], d = clamp(d, ch - 3, ch + 9), out.push({ d, len: r() < 0.25 && i < 7 ? 2 : 1 });
-        }
-      }
-      return out;
-    }, A = phrase(), B = phrase();
-    for (let i = 24; i < 32; i++) B[i] = A[i];
-    return { T, deg, mel: A.concat(B) };
-  }
-  function rpVoice(a, dest, f, t, dur, type, vol) {
-    let o = a.createOscillator(), g = a.createGain();
-    o.type = type, o.frequency.setValueAtTime(f, t), g.gain.setValueAtTime(0, t), g.gain.linearRampToValueAtTime(vol, t + 8e-3), g.gain.setValueAtTime(vol, t + dur * 0.7), g.gain.linearRampToValueAtTime(0, t + dur), o.connect(g), g.connect(dest), o.start(t), o.stop(t + dur + 0.02);
-  }
-  function rpDrum(a, dest, kind, t) {
-    if (!rpMus.noise) {
-      let b = a.createBuffer(1, a.sampleRate * 0.3, a.sampleRate), d = b.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      rpMus.noise = b;
-    }
-    if (kind === "k") {
-      let o = a.createOscillator(), g2 = a.createGain();
-      o.frequency.setValueAtTime(140, t), o.frequency.exponentialRampToValueAtTime(40, t + 0.12), g2.gain.setValueAtTime(0.9, t), g2.gain.exponentialRampToValueAtTime(1e-3, t + 0.14), o.connect(g2), g2.connect(dest), o.start(t), o.stop(t + 0.16);
-      return;
-    }
-    let s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
-    s.buffer = rpMus.noise, f.type = kind === "h" ? "highpass" : "bandpass", f.frequency.value = kind === "h" ? 7e3 : kind === "d" ? 2200 : 1800;
-    let len = kind === "h" ? 0.04 : kind === "d" ? 0.09 : 0.12;
-    g.gain.setValueAtTime(kind === "h" ? 0.25 : kind === "d" ? 0.18 : 0.5, t), g.gain.exponentialRampToValueAtTime(1e-3, t + len), s.connect(f), f.connect(g), g.connect(dest), s.start(t), s.stop(t + len + 0.02);
-  }
-  var RP_DRUMS = {
-    /* 16 steps per bar: k kick, s snare, h hat, d drip */
-    light: ["k", "", "h", "", "s", "", "h", "", "k", "", "h", "k", "s", "", "h", ""],
-    bounce: ["k", "", "h", "k", "s", "", "h", "", "k", "k", "h", "", "s", "", "h", "h"],
-    soft: ["k", "", "", "", "h", "", "", "", "s", "", "", "", "h", "", "", ""],
-    drip: ["", "", "", "", "d", "", "", "", "", "", "d", "", "", "", "", ""],
-    march: ["k", "", "s", "", "k", "", "s", "s", "k", "", "s", "", "k", "s", "s", "s"],
-    drive: ["k", "h", "s", "h", "k", "k", "s", "h", "k", "h", "s", "h", "k", "k", "s", "s"]
-  };
-  function rpMusicWant() {
-    if (!soundOn || rp.headless || rpOpt.music === !1 || view !== "rpg" || !rp.s) return null;
-    if (rp.mode === "battle" && rp.bt) return rp.bt.boss ? "boss" : "battle";
-    let a = rpArea(rp.s.x, rp.s.y);
-    return a === "Burrowhome" ? "village" : a === "Whisper Woods" || a === "Wildwood" ? "woods" : a === "Mushroom Cave" ? "cave" : a === "Dragon's Hoard" ? "hoard" : "meadow";
-  }
-  function rpMusicTick() {
-    let want = rpMusicWant(), a = ac;
-    if (!want) {
-      rpMus.g && a && (rpMus.g.gain.setTargetAtTime(0, a.currentTime, 0.15), rpMus.g = null, rpMus.key = null);
-      return;
-    }
-    let A = audio();
-    if (!A) return;
-    if (A.state === "suspended" && A.resume(), want !== rpMus.key) {
-      rpMus.g && rpMus.g.gain.setTargetAtTime(0, A.currentTime, 0.2);
-      let g = A.createGain();
-      g.gain.setValueAtTime(0, A.currentTime), g.gain.linearRampToValueAtTime(0.09, A.currentTime + 0.6), g.connect(A.destination), rpMus.g = g, rpMus.key = want, rpMus.song = rpSong(RP_TRACKS[want]), rpMus.step = 0, rpMus.next = A.currentTime + 0.08;
-    }
-    let S = rpMus.song, T = S.T, st = 60 / T.bpm / 4, dest = rpMus.g;
-    for (; rpMus.next < A.currentTime + 0.18; ) {
-      let i = rpMus.step, t = rpMus.next, bar = (i >> 4) % 8, s16 = i % 16, ch = T.prog[bar % 4];
-      if (s16 % 2 === 0) {
-        let m = S.mel[bar * 8 + (s16 >> 1)];
-        m && rpVoice(A, dest, mtof(S.deg(m.d, 1)), t, st * 2 * m.len * 0.92, T.lead, 0.16 * T.vol);
-      }
-      s16 % 4 === 0 && rpVoice(A, dest, mtof(S.deg(ch, -1)), t, st * (T.dr === "drip" ? 7 : 3.6), "triangle", 0.42 * T.vol), T.dr === "drive" && s16 % 4 === 2 && rpVoice(A, dest, mtof(S.deg(ch, -1) + 12), t, st * 1.6, "triangle", 0.3 * T.vol), s16 === 0 && bar % 2 === 0 && [0, 2, 4].forEach((o) => rpVoice(A, dest, mtof(S.deg(ch + o, 0)), t, st * 15, "sine", 0.05 * T.vol));
-      let dk = RP_DRUMS[T.dr][s16];
-      dk && rpDrum(A, dest, dk, t), rpMus.step++, rpMus.next += st;
-    }
-  }
-  feature({ id: "music", frame: () => rpMusicTick() });
 
   // src/ui/sheets.js
   function rpLevelUpHtml() {
@@ -6662,6 +6748,27 @@ button,.rpb,.pill{touch-action:manipulation}
     } },
     tiles: { m: { use: () => rpOpenWorldMap() } }
   });
+
+  // src/game/jingles.js
+  var jLast = { s: null, sig: null };
+  function jingleSig(s) {
+    let all = s.party.concat(s.roster || []);
+    return { sparks: s.q.seals || 0, n: all.length, lv: all.reduce((a, m) => a + m.lvl, 0) };
+  }
+  function jingleFor(o, g) {
+    return g.sparks > o.sparks ? "spark" : g.n > o.n ? "recruit" : g.lv > o.lv ? "level" : null;
+  }
+  feature({ id: "jingles", frame() {
+    let s = rp.s;
+    if (!s || rp.mode === "battle") return;
+    let g = jingleSig(s);
+    if (jLast.s !== s) {
+      jLast = { s, sig: g };
+      return;
+    }
+    let k = jingleFor(jLast.sig, g);
+    jLast.sig = g, k && !rp.headless && sfx(k);
+  } });
 
   // src/game/artload.js
   feature({ id: "art", init() {

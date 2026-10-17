@@ -5,7 +5,8 @@ import {view} from '../core/app.js';
 import {rpOpt} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
-import {ac,audio,soundOn} from './audio.js';
+import {regionMusic} from '../data/overworld.js';
+import {ac,audio,duckT,soundOn} from './audio.js';
 import {clamp,seeded} from './util.js';
 import {rpArea} from '../game/world.js';
 
@@ -17,9 +18,21 @@ const RP_TRACKS={
   cave:{bpm:72,root:52,sc:'mpenta',prog:[0,0,5,4],seed:5,lead:'triangle',vol:.6,dr:'drip'},
   hoard:{bpm:110,root:55,sc:'harm',prog:[0,5,3,4],seed:9,lead:'square',vol:.5,dr:'march'},
   battle:{bpm:146,root:57,sc:'minor',prog:[0,5,6,4],seed:13,lead:'square',vol:.5,dr:'drive'},
+  town:{bpm:92,root:60,sc:'major',prog:[0,5,3,4],seed:21,lead:'triangle',vol:.5,dr:'soft'},
+  pass:{bpm:104,root:50,sc:'dorian',prog:[0,6,0,4],seed:23,lead:'square',vol:.5,dr:'march'},
+  desert:{bpm:96,root:57,sc:'harm',prog:[0,3,4,0],seed:27,lead:'square',vol:.5,dr:'bounce'},
+  snow:{bpm:80,root:69,sc:'penta',prog:[0,3,5,4],seed:29,lead:'sine',vol:.6,dr:'soft'},
+  marsh:{bpm:84,root:55,sc:'harm',prog:[0,1,5,4],seed:31,lead:'triangle',vol:.6,dr:'drip'},
+  shore:{bpm:112,root:65,sc:'major',prog:[0,4,5,3],seed:37,lead:'triangle',vol:.55,dr:'light'},
   boss:{bpm:158,root:52,sc:'phryg',prog:[0,1,0,6],seed:17,lead:'sawtooth',vol:.42,dr:'drive'}
 };
-const rpMus={on:false,key:null,g:null,next:0,step:0,song:null,noise:null};
+/* every town plays the town tune in its own key and tempo, flavoured by its land */
+const TOWN_TUNES={A:{root:62},B:{root:60,bpm:86,sc:'penta'},C:{root:65,bpm:100,dr:'light'},D:{root:64,bpm:98,dr:'light'},
+  E:{root:57,sc:'dorian',dr:'march',lead:'square'},F:{root:58,sc:'harm',dr:'bounce'},G:{root:55,sc:'dorian',dr:'march',lead:'square'},
+  H:{root:67,lead:'sine',bpm:78},I:{root:59,sc:'dorian',dr:'drip'},J:{root:63,bpm:104,dr:'light'}};
+function rpTrack(key){if(RP_TRACKS[key])return RP_TRACKS[key];const m=/^town:([A-J])$/.exec(key||'');
+  return m?Object.assign({},RP_TRACKS.town,TOWN_TUNES[m[1]],{seed:40+m[1].charCodeAt(0)}):RP_TRACKS.meadow}
+const rpMus={on:false,key:null,g:null,next:0,step:0,song:null,noise:null,outdoor:null,lvl:0};
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 function rpSong(T){
   const r=seeded(T.seed*7919),S=RP_SCALES[T.sc],n=S.length;
@@ -46,14 +59,19 @@ const RP_DRUMS={/* 16 steps per bar: k kick, s snare, h hat, d drip */
 function rpMusicWant(){
   if(!soundOn||rp.headless||rpOpt.music===false||view!=='rpg'||!rp.s)return null;
   if(rp.mode==='battle'&&rp.bt)return rp.bt.boss?'boss':'battle';
-  const a=rpArea(rp.s.x,rp.s.y);return a==='Burrowhome'?'village':a==='Whisper Woods'||a==='Wildwood'?'woods':a==='Mushroom Cave'?'cave':a==="Dragon's Hoard"?'hoard':'meadow'}
+  if(rp.s.place)return rpMus.outdoor||'village';/* indoors keeps the tune from outside, quieter */
+  const r=regionMusic(rp.s.x,rp.s.y),a=r||rpArea(rp.s.x,rp.s.y);
+  return rpMus.outdoor=r||(a==='Burrowhome'?'village':a==='Whisper Woods'?'woods':'meadow')}
+/* how loud the music is now: lower indoors, lower still while someone talks, nearly gone under a jingle */
+function rpMusicLevel(now){return .09*(rp.s&&rp.s.place?.7:1)*(rp.dlg?.45:1)*(now<duckT?.2:1)}
 function rpMusicTick(){
   const want=rpMusicWant(),a=ac;
   if(!want){if(rpMus.g&&a){rpMus.g.gain.setTargetAtTime(0,a.currentTime,.15);rpMus.g=null;rpMus.key=null}return}
   const A=audio();if(!A)return;if(A.state==='suspended')A.resume();
   if(want!==rpMus.key){if(rpMus.g)rpMus.g.gain.setTargetAtTime(0,A.currentTime,.2);
     const g=A.createGain();g.gain.setValueAtTime(0,A.currentTime);g.gain.linearRampToValueAtTime(.09,A.currentTime+.6);g.connect(A.destination);
-    rpMus.g=g;rpMus.key=want;rpMus.song=rpSong(RP_TRACKS[want]);rpMus.step=0;rpMus.next=A.currentTime+.08}
+    rpMus.g=g;rpMus.key=want;rpMus.lvl=.09;rpMus.song=rpSong(rpTrack(want));rpMus.step=0;rpMus.next=A.currentTime+.08}
+  const lv=rpMusicLevel(A.currentTime);if(Math.abs(lv-rpMus.lvl)>.001){rpMus.g.gain.setTargetAtTime(lv,A.currentTime,.12);rpMus.lvl=lv}
   const S=rpMus.song,T=S.T,st=60/T.bpm/4,dest=rpMus.g;
   while(rpMus.next<A.currentTime+.18){
     const i=rpMus.step,t=rpMus.next,bar=(i>>4)%8,s16=i%16,ch=T.prog[bar%4];
@@ -67,4 +85,4 @@ function rpMusicTick(){
 }
 
 feature({id:'music',frame:()=>rpMusicTick()});
-export {RP_DRUMS,RP_SCALES,RP_TRACKS,mtof,rpDrum,rpMus,rpMusicTick,rpMusicWant,rpSong,rpVoice};
+export {RP_DRUMS,RP_SCALES,RP_TRACKS,TOWN_TUNES,mtof,rpDrum,rpMus,rpMusicLevel,rpMusicTick,rpMusicWant,rpSong,rpTrack,rpVoice};

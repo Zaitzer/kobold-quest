@@ -295,7 +295,7 @@ function rpRewards(b){
   emit('battle:won',b);
   rpUI(true);
 }
-function rpLose(){const b=rp.bt;b.over='lose';b.phase='end';b.cur=null;b.msg='Your party fell...';emit('battle:lost',b);rpUI(true)}
+function rpLose(){const b=rp.bt;b.over='lose';b.phase='end';b.cur=null;b.msg='Your party fell...';if(!rp.headless)sfx('lose');emit('battle:lost',b);rpUI(true)}
 function rpEndBattle(){
   const b=rp.bt,s=rp.s;if(!b)return;if(b.over==='lost'||b.over==='duelwin'||b.over==='duellose')b.over=b.over==='lost'?'run':'duel';
   rp.bt=null;rp.mode='map';rp.grace=8;parts.length=0;texts.length=0;

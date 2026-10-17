@@ -236,6 +236,10 @@ function townSpot(L,dx,dy){const t=build().towns.find(t=>t.L===L);return{x:t.x+d
 /* the name for the top bar */
 function overworldArea(x,y){const B=build(),c=Math.floor(x/CELL),r=Math.floor(y/CELL),ch=cellAt(c,r);
   if(isTown(ch))return TOWNS[ch].name;const rt=B.routes.of(c,r);return rt?rt.name:'The wilds'}
+/* which tune plays here (tracks in engine/music.js); null in the old valley */
+const ROUTE_TRACK={g:'meadow',f:'woods',d:'desert',m:'pass',s:'snow',k:'marsh',b:'shore',c:'cave','=':'shore'};
+function regionMusic(x,y){if(x<OLD_W&&y<OLD_H)return null;const ch=cellAt(Math.floor(x/CELL),Math.floor(y/CELL));
+  return isTown(ch)?'town:'+ch:ROUTE_TRACK[ch]||'meadow'}
 /* Burrowhome and every town's square, for tests and travel */
 function sites(){return[{name:'Burrowhome',x:7,y:23,home:true}].concat(build().towns.map(t=>({name:t.name,x:t.x,y:t.y})))}
 function regionSign(x,y){return build().signs[x+','+y]||null}
@@ -244,4 +248,4 @@ function makeWorldGrid(oldRows){const B=build(),rows=new Array(WH);
   for(let y=0;y<WH;y++){const r=B.G[y].slice();if(y<OLD_H)for(let x=0;x<OLD_W;x++)r[x]=oldRows[y][x];rows[y]=r}
   return rows}
 build();
-export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_SIGNS,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,openSpot,overworldArea,plainNear,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};
+export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_SIGNS,ROUTE_TRACK,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,openSpot,overworldArea,plainNear,regionMusic,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};

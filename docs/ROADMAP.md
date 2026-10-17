@@ -39,7 +39,7 @@ sound, balance. It proves the whole pipeline and sets the bar for everything els
 2. Roster: more than three kobolds, the inn to swap, Fennel and Nugget as the first recruits — *done*
 3. Level sync and shared boss credit in co-op — *done*
 4. The slice's content: deeper town steps, something off the path on Routes 1–3, signs and jokes — *done*
-5. Music and sounds for the slice (town, mountain pass, jingles, talk blips, door, chest)
+5. Music and sounds for the slice (town, mountain pass, jingles, talk blips, door, chest) — *done*
 6. Balance pass with the simulators; the first ten minutes
 7. Joakim's drawings as they come in
 
