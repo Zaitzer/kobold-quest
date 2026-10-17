@@ -39,7 +39,7 @@ function rpBattle(keys,opt){
   opt=opt||{};const s=rp.s,boss=opt.boss||null,duel=!!opt.duel,theme=duel?'meadow':tcTheme(opt.zone,boss);
   const members=opt.members||s.party.map(m=>({m,ctl:'me',own:'h'})),foes=opt.foes||[];
   const n=duel?3:keys.length,W=boss?12:n<=2?9:n===3?10:11,H=boss?(boss==='vexx'?15:14):n<=2?12:n===3?13:14;
-  const b={W,H,g:tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
+  const b={win:opt.win||null,W,H,g:tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
     seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel};
   if(opt.net)b.net={role:'host',id:opt.nid,peer:opt.net,gParty:opt.gParty||[]};
   rp.bt=b;
@@ -284,6 +284,7 @@ function rpRewards(b){
   /* a boss counts for you only if you have reached that step of your own story (ready); a friend who is past it
      and came to help gets helper's spark dust instead (done) */
   const B=b.boss&&RP_BOSSES[b.boss];let help='';
+  if(b.win)run(b.win);
   if(B&&(!B.ready||test(B.ready))){run(B.win);b.drops.push(...B.drops)}
   else if(B){if(B.done&&test(B.done)){s.dust=(s.dust||0)+3;help=' Helper\'s spark dust +3.'}else help=' (This fight isn\'t part of your story yet.)'}
   else{const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}

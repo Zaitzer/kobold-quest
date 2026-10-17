@@ -55,4 +55,10 @@ console.log((fails?'FAIL':'ok')+' slice: 4 route zones, fountains, travel, losin
  if(ready.pb!==2||!ready.drops)bad('a ready player did not get the boss: '+JSON.stringify(ready));
  if(early.pb!==0||early.drops||!/isn't part of your story/.test(early.msg))bad('a player not at the step got the boss: '+JSON.stringify(early));
  if(helper.pb!==3||helper.dust!==3)bad('a helper past the step got no spark dust: '+JSON.stringify(helper))}
-console.log((fails?'FAIL':'ok')+' slice: roster, recruits, inns, level sync, shared boss credit');process.exitCode=fails?1:0;
+// finds off the path: the route chests stand on open ground you can walk up to
+{fresh();Object.assign(G.rp.s.q,{bc:1,fw:3,lantern:1});G.rpApplyWorld();const g=G.rp.grid,W=G.WW,H=G.WH,seen=new Uint8Array(W*H),st=[23*W+7];seen[23*W+7]=1;
+ while(st.length){const i=st.pop(),x=i%W,y=(i/W)|0;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const j=ny*W+nx;if(seen[j]||G.RP_SOLID.has(g[ny][nx])||g[ny][nx]==='d'||G.rpChestAt(nx,ny))continue;seen[j]=1;st.push(j)}}
+ const out=G.RP_CHESTS.filter(c=>!c.place&&(c.x>=G.OLD_W||c.y>=G.OLD_H));if(out.length<4)bad('expected 4 chests on the routes, got '+out.length);
+ for(const c of out){if(G.RP_SOLID.has(g[c.y][c.x]))bad('chest in something solid at '+c.x+','+c.y);if(![[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>seen[(c.y+dy)*W+c.x+dx]))bad('chest at '+c.x+','+c.y+' ('+G.overworldArea(c.x,c.y)+') cannot be reached')}
+ const areas=out.map(c=>G.overworldArea(c.x,c.y));for(const r of ['Route 1','Route 2','Route 3'])if(!areas.includes(r))bad('no chest on '+r+' ('+areas+')')}
+console.log((fails?'FAIL':'ok')+' slice: roster, recruits, inns, level sync, shared boss credit, route chests');process.exitCode=fails?1:0;

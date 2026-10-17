@@ -625,6 +625,10 @@ button,.rpb,.pill{touch-action:manipulation}
       let rt = routes2.of(o.nc, o.nr);
       G[o.sy] && G[o.sy][o.sx] === "i" && (signs[o.sx + "," + o.sy] = signText(rt, t.name));
     }
+    for (let R2 of ROUTE_SIGNS) {
+      let p = plainNear(G, R2.at[0], R2.at[1]);
+      G[p.y][p.x] = "i", signs[p.x + "," + p.y] = R2.text;
+    }
     let seen = new Uint8Array(WW * WH), q = [], walk = (x, y) => x >= 0 && y >= 0 && x < WW && y < WH && G[y][x] !== "o" && !SOLID_HERE.has(G[y][x]);
     for (let e of VALLEY_EXITS) {
       let x = e.x, y = e.y;
@@ -797,6 +801,22 @@ button,.rpb,.pill{touch-action:manipulation}
     let cc = Math.floor(x / CELL), rr2 = Math.floor(y / CELL), rt = build().routes.of(cc, rr2), z = rt && ROUTE_ZONES[rt.name] && ROUTE_ZONES[rt.name][c];
     return z ? typeof z == "string" ? z : z[cellAt(cc, rr2)] || c : c;
   }
+  var ROUTE_SIGNS = [
+    { at: [62, 27], text: "Route 1. Beware of shell beetles: slow, but very sure of themselves." },
+    { at: [12, 36], text: "Route 2: Whisper Woods road. If a tree whispers to you, do not whisper back. It only encourages them." },
+    { at: [150, 27], text: "Route 3. Pebblebrook behind you, the mountains ahead. Pack snacks." },
+    { at: [212, 28], text: "The pass. Rock goats have right of way. They always have. Nobody has ever asked them." },
+    { at: [165, 13], text: "Lookout point. On a clear day you can see all of Kobaldia. Today you can see a cloud shaped like a sandwich." }
+  ];
+  function plainNear(G, x, y) {
+    let ok = (c) => c === "." || c === "F" || c === "z" || c === "u" || c === "v";
+    for (let r = 0; r < 25; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      let c = G[y + dy] && G[y + dy][x + dx];
+      if (c && ok(c)) return { x: x + dx, y: y + dy };
+    }
+    return { x, y };
+  }
   function openSpot(x, y) {
     let G = build().G, ok = (c) => c === "." || c === "F" || c === "z" || c === "u" || c === "v" || c === "=";
     for (let r = 0; r < 25; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
@@ -884,7 +904,12 @@ button,.rpb,.pill{touch-action:manipulation}
     { x: 37, y: 2, it: "am_glow", gold: 40 },
     { x: 18, y: 1, it: "rg_haste", gold: 80 },
     { place: "elder", x: 9, y: 5, it: "rg_life", gold: 15 },
-    { place: "hut", x: 9, y: 6, it: "am_shell", gold: 25 }
+    { place: "hut", x: 9, y: 6, it: "am_shell", gold: 25 },
+    /* off the path on the first routes (Kobaldia) */
+    { ...openSpot(83, 13), it: "ar_vest", gold: 30 },
+    { ...openSpot(33, 62), it: "bt_quick", gold: 50 },
+    { ...openSpot(172, 12), it: "rg_mana", gold: 60 },
+    { ...openSpot(237, 43), it: "cap_bucket", gold: 40 }
   ], RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, RP_PICKUPS = {}, RP_SPOTS = [
     { id: "hat", x: 30, y: 20, if: { hat: 1 }, do: { set: { hat: 2 }, toast: "Found Pebble's hat!", save: !0 }, sfx: "win", draw: "hat" },
     { id: "needles", place: "hut", x: 2, y: 6, if: { needles: 1 }, do: { set: { needles: 2 }, toast: "Found Granny Nettle's knitting needles!", save: !0 }, sfx: "win", draw: "needles" }
@@ -1671,16 +1696,21 @@ button,.rpb,.pill{touch-action:manipulation}
       {
         if: { pb: 0 },
         say: ["A spark from our hearth? Ha. Let me tell you about stones.", "Last spring the stream split, and we all built a dam with stones to send it east or west. Every kobold brings one stone. East won by ONE stone.", "My fields are west. My family is five kobolds. We stayed home, because what difference does one stone make?", "And now a bandit called Grubb has padlocked our fountain. One shiny thing a sip, for Glitterbeak."],
-        ask: [{ t: "I'll deal with Grubb", do: { set: { pb: 1 }, toast: "New quest: get rid of Grubb" } }, { t: "Not yet" }]
+        ask: [{ t: "I'll deal with Grubb", do: { set: { pb: 1 }, toast: "New quest: deal with Grubb's lookouts, then Grubb" } }, { t: "Not yet" }]
       },
-      { if: { pb: 1 }, say: ["Grubb is by the fountain. He's big, but he's mostly belly."] },
+      { if: { pb: 1, lk1: 1, lk2: 1 }, say: ["Both lookouts gone? Then Grubb is all alone by the fountain. He's big, but he's mostly belly."] },
+      { if: { pb: 1 }, say: ["Grubb has two lookouts at the edges of town, one by the north-west fence and one by the south-east corner. They'll warn him if you go straight for the fountain."] },
       { if: { pb: 2 }, now: { set: { pb: 3 }, add: { seals: 1 }, xp: 80, gold: 50 }, say: ["The fountain's free! Grubb ran off holding his belly.", "Here: a spark from Pebblebrook's hearth, in a jar. And Pip? Next time there's a dam, all five of us bring a stone. Six, if the goat counts."], then: { toast: "Spark {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}" } },
       { say: ["Water tastes better when nobody charges for it. Copperhollow is up the mountain road, Route 3, if you're after more sparks."] }
     ] },
     grubb: { who: "Grubb", rules: [
       { if: { pb: 0 }, say: ["One shiny thing a sip! For Glitterbeak's hoard. Don't like it? Shoulda warmed a different egg. HAW HAW."] },
-      { say: ["You again? One shiny thing a sip, or I sit on you."], ask: [{ t: "Fight!", do: { fight: [["tollboss", "scout", "slinger"], { boss: "tollboss" }] } }, { t: "Back off" }] }
+      { if: { lk1: 0 }, say: ["My lookouts saw you coming a mile off. Go away, or I sit on you."] },
+      { if: { lk2: 0 }, say: ["My lookouts saw you coming a mile off. Go away, or I sit on you."] },
+      { say: ["Where are my lookouts? ...Fine. One shiny thing a sip, or I sit on you."], ask: [{ t: "Fight!", do: { fight: [["tollboss", "scout", "slinger"], { boss: "tollboss" }] } }, { t: "Back off" }] }
     ] },
+    lookout1: { who: "Bandit lookout", rules: [{ say: ["Oi! I'm on lookout. I look out. You're out. Get looked at!"], ask: [{ t: "Fight!", do: { fight: [["scout", "slinger"], { zone: "r1", win: { set: { lk1: 1 }, toast: "One lookout down" } }] } }, { t: "Not now" }] }] },
+    lookout2: { who: "Bandit lookout", rules: [{ say: ["Nobody gets past me. Except birds. And that goat. And..."], ask: [{ t: "Fight!", do: { fight: [["scout", "beetle", "slinger"], { zone: "r1", win: { set: { lk2: 1 }, toast: "One lookout down" } }] } }, { t: "Not now" }] }] },
     bork: { who: "Bork", rules: [
       { if: { pb: { lt: 2 } }, say: ["Bork is visiting cousin Turnip. Bork did not warm an egg either. Bork was napping.", "Bork wants to hit the toll man. Bork is waiting for someone else to go first."] },
       { now: { set: { bork: 1 }, join: { name: "Bork", cls: "warrior", min: 2 } }, say: ["You hit the toll man! Bork saw. Bork is coming with you.", "Also, next hatching, Bork will not nap."], then: { toast: "Bork joins the party!" } }
@@ -1694,7 +1724,9 @@ button,.rpb,.pill{touch-action:manipulation}
         ask: [{ t: "I'll bring the miners", do: { set: { ch: 1 }, toast: "New quest: get 4 miners to the shift circle" } }, { t: "Not now" }]
       },
       { if: { ch: 1, miners: { lt: 4 } }, say: ["Miners coming to the circle: {miners} of 4. Two hang about the square, and two are indoors pretending to work."] },
-      { if: { ch: 1 }, say: ["Four miners in the circle! I need to sit down.", "...Oh no. Snipe heard about it, and he brought friends."], ask: [{ t: "Fight!", do: { fight: [["collector", "thief", "gunner"], { boss: "collector", zone: "C" }] } }, { t: "Not yet" }] },
+      { if: { ch: 1, hearth: 0, "mat.scrap": { lt: 3 } }, say: ["Four miners! But look: the hearth is out. Snipe sold our coal, and a circle can't sit round a cold hearth.", "Gold scrap burns hot. The rock goats on the Route 3 pass carry it in their fur. Bring me 3."] },
+      { if: { ch: 1, hearth: 0 }, now: { mat: { scrap: -3 }, set: { hearth: 1 } }, say: ["Gold scrap! Watch this... WHOOMPH. The hearth is lit."], then: { toast: "The Copperhollow hearth is lit" } },
+      { if: { ch: 1 }, say: ["Four miners in the circle, round a warm hearth! I need to sit down.", "...Oh no. Snipe heard about it, and he brought friends."], ask: [{ t: "Fight!", do: { fight: [["collector", "thief", "gunner"], { boss: "collector", zone: "C" }] } }, { t: "Not yet" }] },
       { if: { ch: 2 }, now: { set: { ch: 3, lantern: 1 }, add: { seals: 1 }, xp: 150, gold: 80 }, say: ["The circle agreed, all six of us: a spark from our hearth for the Great Nest. First thing we've agreed on in nine years! It was very loud.", "And take this lantern. The old tunnel south to Thistledown is pitch black, and Thistledown has a hearth too."], then: { toast: "Spark {seals} of 8: Copperhollow! Got a lantern. +150 XP{up}" } },
       { say: ["We're having another circle next week. People are bringing snacks. Plural!"] }
     ] },
@@ -1741,6 +1773,8 @@ button,.rpb,.pill{touch-action:manipulation}
     grubb: (q) => q.pb === 1 ? "!" : "",
     bork: (q) => q.pb >= 2 ? "!" : "",
     ruddle: (q) => q.moot >= 5 && !q.ch ? "!" : q.ch === 1 && q.miners >= 4 || q.ch === 2 ? "?" : "",
+    lookout1: () => "!",
+    lookout2: () => "!",
     pickett: (q) => q.ch === 1 && !q.m_pickett ? "!" : "",
     dusty: (q) => q.ch === 1 && !q.m_dusty ? "!" : "",
     shale: (q) => q.ch === 1 && !q.m_shale ? "!" : "",
@@ -1773,11 +1807,13 @@ button,.rpb,.pill{touch-action:manipulation}
   ], QUEST_LINE = [
     { if: { ch: 3 }, text: "Sparks {seals}/8 · tunnel to Thistledown" },
     { if: { ch: 2 }, text: "Back to Foreman Ruddle" },
+    { if: { ch: 1, miners: { gte: 4 }, hearth: 0 }, text: "Gold scrap for the hearth {mat.scrap}/3 · Route 3 pass" },
     { if: { ch: 1, miners: { gte: 4 } }, text: "Back to Foreman Ruddle" },
     { if: { ch: 1 }, text: "Miners for the circle {miners}/4" },
     { if: { pb: 3 }, text: "Sparks {seals}/8 · Route 3 to Copperhollow" },
     { if: { pb: 2 }, text: "Back to Farmer Turnip" },
-    { if: { pb: 1 }, text: "Deal with Grubb at the fountain" },
+    { if: { pb: 1, lk1: 1, lk2: 1 }, text: "Deal with Grubb at the fountain" },
+    { if: { pb: 1 }, text: "Grubb's lookouts: north-west and south-east" },
     { if: { moot: 5 }, text: "Sparks {seals}/8 · Route 1 to Pebblebrook" },
     { if: { moot: 3 }, text: "Back to Elder Mumble" },
     { if: { moot: 2 }, text: "Visit Witch Yarrow in the woods" },
@@ -1800,6 +1836,8 @@ button,.rpb,.pill{touch-action:manipulation}
     /* Pebblebrook */
     { id: "turnip", name: "Farmer Turnip", ...atA(-3, 2), team: 0, w: "stick", hat: "leaf", face: 1 },
     { id: "grubb", name: "Grubb the toll boss", ...atA(1, -1), team: 2, w: "club", hat: "pot", face: -1, size: 1.2, show: (s) => (s.q.moot || 0) >= 5 && (s.q.pb || 0) < 2 },
+    { id: "lookout1", name: "Bandit lookout", ...openSpot(104, 14), team: 2, w: "popgun", hat: "leaf", face: 1, show: (s) => s.q.pb === 1 && !s.q.lk1 },
+    { id: "lookout2", name: "Bandit lookout", ...openSpot(125, 34), team: 2, w: "stick", hat: "pot", face: -1, show: (s) => s.q.pb === 1 && !s.q.lk2 },
     { id: "bork", name: "Bork", ...atA(3, 2), team: 0, w: "bone", hat: "bucket", face: -1, show: (s) => !s.q.bork },
     /* Copperhollow */
     { id: "ruddle", name: "Foreman Ruddle", ...atE(-3, 2), team: 1, w: "pan", hat: "bucket", face: 1 },
@@ -3078,7 +3116,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T11:52:17Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T13:39:56Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5685,6 +5723,7 @@ button,.rpb,.pill{touch-action:manipulation}
   function rpBattle(keys, opt) {
     opt = opt || {};
     let s = rp.s, boss = opt.boss || null, duel = !!opt.duel, theme = duel ? "meadow" : tcTheme(opt.zone, boss), members = opt.members || s.party.map((m) => ({ m, ctl: "me", own: "h" })), foes = opt.foes || [], n = duel ? 3 : keys.length, W = boss ? 12 : n <= 2 ? 9 : n === 3 ? 10 : 11, H = boss ? boss === "vexx" ? 15 : 14 : n <= 2 ? 12 : n === 3 ? 13 : 14, b = {
+      win: opt.win || null,
       W,
       H,
       g: tcGen(theme, W, H, boss, Math.random() * 1e9 | 0),
@@ -6216,7 +6255,7 @@ button,.rpb,.pill{touch-action:manipulation}
       }
     }), rpBenchXp(xp, rpXpNeed), b.drops = [];
     let B = b.boss && RP_BOSSES[b.boss], help = "";
-    if (B && (!B.ready || test(B.ready)))
+    if (b.win && run(b.win), B && (!B.ready || test(B.ready)))
       run(B.win), b.drops.push(...B.drops);
     else if (B)
       B.done && test(B.done) ? (s.dust = (s.dust || 0) + 3, help = " Helper's spark dust +3.") : help = " (This fight isn't part of your story yet.)";

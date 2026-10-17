@@ -2,7 +2,7 @@
 
 Save each one as `art/sprites/<file name>.png`, starting from the template in `art/templates/`. This list is made by the build, so it always matches the game. ✅ = in the game, ⬜ = still drawn in code.
 
-Done: **0 of 62**
+Done: **0 of 65**
 
 ## Heroes
 
@@ -46,6 +46,8 @@ Done: **0 of 62**
 |---|---|---|---|
 | ⬜ | `turnip.png` | Farmer Turnip | character-128.png |
 | ⬜ | `grubb.png` | Grubb the toll boss | character-128.png |
+| ⬜ | `lookout1.png` | Bandit lookout | character-128.png |
+| ⬜ | `lookout2.png` | Bandit lookout | character-128.png |
 | ⬜ | `bork.png` | Bork | character-128.png |
 | ⬜ | `ruddle.png` | Foreman Ruddle | character-128.png |
 | ⬜ | `snipe.png` | Snipe the copper snatcher | character-128.png |
@@ -92,6 +94,7 @@ Done: **0 of 62**
 | ⬜ | `sentry.png` | Spore sentry | character-128.png |
 | ⬜ | `gunner.png` | Cave gunner | character-128.png |
 | ⬜ | `shaman.png` | Fungus shaman | character-128.png |
+| ⬜ | `beetle.png` | Shell beetle | character-128.png |
 
 ## Coming later (story)
 

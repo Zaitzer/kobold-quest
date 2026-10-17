@@ -1,3 +1,4 @@
+import {openSpot} from './overworld.js';
 import {RP_ROOM_SOLID} from './places.js';
 const RW=40,RH=30;
 function rpBuildWorld(){
@@ -45,7 +46,9 @@ function rpBuildWorld(){
 }
 const RP_SOLID=new Set(['T','~','#','H','W','X','S','N','A','M','P','q','n','i','O','U','Y','R','Z',...RP_ROOM_SOLID]);
 const RP_CHESTS=[{x:13,y:28,it:'sh_lid',gold:10},{x:37,y:27,it:'bt_frog',gold:20},{x:2,y:12,it:'cl_moss',gold:25},{x:37,y:2,it:'am_glow',gold:40},{x:18,y:1,it:'rg_haste',gold:80},
-  {place:'elder',x:9,y:5,it:'rg_life',gold:15},{place:'hut',x:9,y:6,it:'am_shell',gold:25}];
+  {place:'elder',x:9,y:5,it:'rg_life',gold:15},{place:'hut',x:9,y:6,it:'am_shell',gold:25},
+  /* off the path on the first routes (Kobaldia) */
+  {...openSpot(83,13),it:'ar_vest',gold:30},{...openSpot(33,62),it:'bt_quick',gold:50},{...openSpot(172,12),it:'rg_mana',gold:60},{...openSpot(237,43),it:'cap_bucket',gold:40}];
 /* movement */
 const RP_DIR={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 /* things lying on the map (rules from core/rules.js).

@@ -7,7 +7,7 @@ function fresh(){G.rp.s=G.rpNewState();Object.assign(G.rp.s.q,{intro:1,cls:1});G
 function talk(id,choice){G.rp.mode='map';G.rpTalk(id);let n=0;
   while(G.rp.mode==='dialog'&&n++<40){const d=G.rp.dlg;if(d.i<d.lines.length-1||!d.choices)G.rpDlgNext();else G.rpChoose(choice||0)}}
 /* a boss fight started by a choice: check it started, then count it as won */
-function win(id,boss){talk(id,0);if(G.rp.mode!=='battle')bad(id+' did not start a fight (mode '+G.rp.mode+')');G.rp.mode='map';G.rp.bt=null;G.run(G.RP_BOSSES[boss].win)}
+function win(id){talk(id,0);if(G.rp.mode!=='battle'||!G.rp.bt){bad(id+' did not start a fight (mode '+G.rp.mode+')');return}G.rpWin();G.rp.mode='map';G.rp.bt=null}
 /* how much of the world can be walked from the start, as it is now */
 function reach(){const g=G.rp.grid,W=G.WW,H=G.WH,seen=new Uint8Array(W*H),st=[23*W+7];seen[23*W+7]=1;
   while(st.length){const i=st.pop(),x=i%W,y=(i/W)|0;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;const j=ny*W+nx;if(seen[j]||G.RP_SOLID.has(g[ny][nx])||g[ny][nx]==='d')continue;seen[j]=1;st.push(j)}}
@@ -39,15 +39,19 @@ for(const n of G.RP_NPC.filter(n=>!n.place)){const c=G.rp.grid[n.y][n.x];if(G.RP
 fresh();talk('elder');talk('urn',3);talk('yarrow');talk('wizzle');talk('elder');
 G.rp.s.party.forEach(m=>m.hp=1);const pf=town('Pebblebrook');G.tiles.O.use(pf.x,pf.y-1);if(G.rp.s.party[0].hp!==1)bad('Pebblebrook fountain heals before Grubb is gone');
 talk('turnip');if(q().pb!==1)bad('Turnip gave no quest');
-win('grubb','tollboss');if(q().pb!==2)bad('beating Grubb did not count');
+talk('grubb');if(G.rp.mode==='battle')bad('Grubb fights before his lookouts are dealt with');
+win('lookout1');win('lookout2');if(!q().lk1||!q().lk2)bad('lookouts did not count');
+win('grubb');if(q().pb!==2)bad('beating Grubb did not count');
 G.tiles.O.use(pf.x,pf.y-1);if(G.rp.s.party[0].hp<=1)bad('Pebblebrook fountain still locked after Grubb');
 talk('turnip');if(q().pb!==3||q().seals!==1)bad('no Pebblebrook spark');
 talk('bork');if(!G.rp.s.party.some(m=>m.name==='Bork'))bad('Bork did not join');
 talk('ruddle');if(q().ch!==1)bad('Ruddle gave no quest');
-talk('ruddle');if(q().ch!==1)bad('Ruddle started the meeting with no miners');
+talk('ruddle');if(q().ch!==1||G.rp.mode==='battle')bad('Ruddle started the meeting with no miners');
 for(const m of ['pickett','nugget','dusty','shale'])talk(m);if(q().miners!==4)bad('miners coming: '+q().miners);
 talk('pickett');if(q().miners!==4)bad('a miner counted twice');
-win('ruddle','collector');if(q().ch!==2)bad('beating Snipe did not count');
+talk('ruddle');if(q().hearth||G.rp.mode==='battle')bad('the circle met at a cold hearth');
+G.rpMats().scrap=3;talk('ruddle');if(!q().hearth||G.rpMats().scrap!==0)bad('gold scrap did not light the hearth');
+win('ruddle');if(q().ch!==2)bad('beating Snipe did not count');
 talk('ruddle');if(q().ch!==3||q().seals!==2||!q().lantern)bad('no Copperhollow spark or lantern');
 G.rpApplyWorld();const lit=reach();const td=town('Thistledown');if(!lit.at(td.x,td.y))bad('the lantern did not open the way to Thistledown');
 if(G.rpQuestLine()!=='Sparks 2/8 · tunnel to Thistledown')bad('top bar says '+G.rpQuestLine());

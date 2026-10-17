@@ -16,6 +16,8 @@ const RP_NPC=[
   /* Pebblebrook */
   {id:'turnip',name:'Farmer Turnip',...atA(-3,2),team:0,w:'stick',hat:'leaf',face:1},
   {id:'grubb',name:'Grubb the toll boss',...atA(1,-1),team:2,w:'club',hat:'pot',face:-1,size:1.2,show:s=>(s.q.moot||0)>=5&&(s.q.pb||0)<2},
+  {id:'lookout1',name:'Bandit lookout',...openSpot(104,14),team:2,w:'popgun',hat:'leaf',face:1,show:s=>s.q.pb===1&&!s.q.lk1},
+  {id:'lookout2',name:'Bandit lookout',...openSpot(125,34),team:2,w:'stick',hat:'pot',face:-1,show:s=>s.q.pb===1&&!s.q.lk2},
   {id:'bork',name:'Bork',...atA(3,2),team:0,w:'bone',hat:'bucket',face:-1,show:s=>!s.q.bork},
   /* Copperhollow */
   {id:'ruddle',name:'Foreman Ruddle',...atE(-3,2),team:1,w:'pan',hat:'bucket',face:1},

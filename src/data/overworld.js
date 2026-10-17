@@ -124,6 +124,8 @@ function build(){if(BUILT)return BUILT;
   const routes=nameRoutes();
   VALLEY_EXITS.forEach((e,i)=>{const sx=i?e.x+2:e.x+1,sy=i?e.y+1:e.y-1;if(G[sy][sx]!=='o'){G[sy][sx]='i';signs[sx+','+sy]=signText(routes.of(Math.floor(e.x/CELL),Math.floor(e.y/CELL)),'Burrowhome')}});
   for(const t of towns)for(const o of t.openings){const rt=routes.of(o.nc,o.nr);if(G[o.sy]&&G[o.sy][o.sx]==='i')signs[o.sx+','+o.sy]=signText(rt,t.name)}
+  /* 6b. signs along the routes, a little off the path */
+  for(const R of ROUTE_SIGNS){const p=plainNear(G,R.at[0],R.at[1]);G[p.y][p.x]='i';signs[p.x+','+p.y]=R.text}
   /* 7. fill in anything you could not walk to */
   const seen=new Uint8Array(WW*WH),q=[];
   const walk=(x,y)=>x>=0&&y>=0&&x<WW&&y<WH&&G[y][x]!=='o'&&!SOLID_HERE.has(G[y][x]);
@@ -215,6 +217,16 @@ const BARRIERS=[
 const ROUTE_ZONES={'Route 1':{',':'r1'},'Route 2':{';':'r2'},'Route 3':{',':{g:'r3',m:'r3m'}}};
 function regionZone(x,y,c){if(x<OLD_W&&y<OLD_H)return c;const cc=Math.floor(x/CELL),rr=Math.floor(y/CELL),rt=build().routes.of(cc,rr);
   const z=rt&&ROUTE_ZONES[rt.name]&&ROUTE_ZONES[rt.name][c];if(!z)return c;return typeof z==='string'?z:(z[cellAt(cc,rr)]||c)}
+/* signs placed on routes (near a point, on the closest plain ground) */
+const ROUTE_SIGNS=[
+  {at:[62,27],text:'Route 1. Beware of shell beetles: slow, but very sure of themselves.'},
+  {at:[12,36],text:'Route 2: Whisper Woods road. If a tree whispers to you, do not whisper back. It only encourages them.'},
+  {at:[150,27],text:'Route 3. Pebblebrook behind you, the mountains ahead. Pack snacks.'},
+  {at:[212,28],text:'The pass. Rock goats have right of way. They always have. Nobody has ever asked them.'},
+  {at:[165,13],text:'Lookout point. On a clear day you can see all of Kobaldia. Today you can see a cloud shaped like a sandwich.'}];
+function plainNear(G,x,y){const ok=c=>c==='.'||c==='F'||c==='z'||c==='u'||c==='v';
+  for(let r=0;r<25;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const c=G[y+dy]&&G[y+dy][x+dx];if(c&&ok(c))return{x:x+dx,y:y+dy}}
+  return{x,y}}
 /* the nearest plain open tile to (x, y) on the region (for villagers and finds placed on routes) */
 function openSpot(x,y){const G=build().G,ok=c=>c==='.'||c==='F'||c==='z'||c==='u'||c==='v'||c==='=';
   for(let r=0;r<25;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const c=G[y+dy]&&G[y+dy][x+dx];if(c&&ok(c))return{x:x+dx,y:y+dy}}
@@ -232,4 +244,4 @@ function makeWorldGrid(oldRows){const B=build(),rows=new Array(WH);
   for(let y=0;y<WH;y++){const r=B.G[y].slice();if(y<OLD_H)for(let x=0;x<OLD_W;x++)r[x]=oldRows[y][x];rows[y]=r}
   return rows}
 build();
-export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,openSpot,overworldArea,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};
+export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_SIGNS,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,openSpot,overworldArea,plainNear,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};
