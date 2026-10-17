@@ -28,7 +28,7 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 ### The heroes
 | who | role | personality | first seen |
 |---|---|---|---|
-| **Pip** | the hero | small, stubborn, big stick, thinks every egg is ugly. **Decide:** silent or talkative (see 7) | Burrowhome |
+| **Pip** | the hero | small, stubborn, big stick, thinks every egg is ugly; short lines of his own | Burrowhome |
 | **Bork** | warrior, joins in Pebblebrook | speaks about himself in the third person; naps a lot; loyal | Pebblebrook |
 | **Wizzle** | mage, joins after Yarrow | Yarrow's over-eager grandson; ate the sandwich | Whisper Woods |
 
@@ -56,7 +56,7 @@ Each has a class, a personality and a small recruitment quest. They wait at any 
 - **Tikka** (Burrowhome inn): quick, proud, a bit bossy. Kept her ember: "they're all just eggs." When Glitterbeak hatches
   she's furious, mostly at herself, and sets off to fix it alone and faster. Battles Pip three times (Thistledown,
   Frostwick, Mossmere). Her excuse is the last one Pip answers; after the third battle she brings her ember, and asks to
-  join the roster (ranger/mage, **Decide**).
+  join the roster as a ranger.
 
 ### The villains
 - **Snatchclaw**: the bandit chief. Charming, a showman, laughs at his own jokes. He wants every shiny thing in the land,
@@ -64,7 +64,7 @@ Each has a class, a personality and a small recruitment quest. They wait at any 
   (escapes) and Brindlecove (final boss).
 - **Glitterbeak**: the guardian who hatched wrong. Small at first, greedy, a magpie-dragon. The bandits feed him; he grows
   huge at Emberreach and goes on a rampage at Glimmerfen. **He is not evil**, just badly raised. At the second hatching
-  he gets a second chance. **Decide** (see 7).
+  he gets a second chance.
 - **The bandit crew:** **Grubb** (toll boss, mostly belly), **Snipe** (copper snatcher, cowardly), plus one new face per
   town (a bandit **quartermaster** in Thistledown, a **drainer** at the oasis, a **stoker** at the volcano).
 
@@ -101,11 +101,10 @@ help make a better one.
 Post-game hooks: the Old Guardian's trials on Frostpeak, a bandit hunt for Snatchclaw's hidden stash, rare recruits,
 harder bounties.
 
-## 7. Decisions for the creative director
+## 7. Decisions
 
-1. **The land's name.**
-2. **Pip: silent or talkative?** Silent like Pokémon heroes (the player fills in Pip's feelings), or with his own short
-   lines like now ("They're all ugly. Why bother?")?
-3. **Glitterbeak at the end:** a second chance (he hatches again, good), or he flies away and a new egg hatches?
-4. **Tikka's class** when she joins: ranger or mage?
-5. **The recruitable kobolds:** happy with the eight above, or do you have kobolds you want to draw?
+1. **The land's name:** open.
+2. **Pip** has short lines of his own (a personality), like "They're all ugly. Why bother?" *Decided.*
+3. **Glitterbeak** gets a second chance: he hatches again in the relit nest and becomes a good guardian. *Decided.*
+4. **Tikka** joins as a **ranger**. *Decided.*
+5. **Recruits:** the eight above. *Decided.*
