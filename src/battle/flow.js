@@ -28,6 +28,7 @@ import {netFx,netGuestFrame,netHostFrame} from '../net/battle.js';
 import {netName} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
 import {rpUI} from '../ui/hud.js';
+import {rpBenchXp} from '../ui/roster.js';
 function rpEncounter(c){
   const Z=RP_ZONE[c],lvl=rp.s.party[0].lvl,ps=rp.s.party.length;
   let n=ps+(lvl>=2?1:0)-(Math.random()<.4?1:0);n=clamp(n,1,Z.cap||(c===','?3:4));
@@ -278,7 +279,7 @@ function rpRewards(b){
   const s=rp.s;s.q.tac=1;
   let xp=0,gold=0;b.units.forEach(f=>{if(f.side===1){xp+=f.E.xp;gold+=f.E.gold}});xp=Math.round(xp*BAL.xp);gold=Math.round(gold*1.15);s.gold+=gold;
   {const n=b.units.filter(f=>f.side===1).length;for(const T of RP_TALLIES)if(T.zone===b.zone&&test(T.if))s.q[T.flag]=(s.q[T.flag]||0)+n}
-  const ups=[];s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});
+  const ups=[];s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});rpBenchXp(xp,rpXpNeed);
   b.drops=[];
   const B=b.boss&&RP_BOSSES[b.boss];
   if(B){run(B.win);b.drops.push(...B.drops)}

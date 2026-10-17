@@ -2,7 +2,7 @@
 
 Save each one as `art/sprites/<file name>.png`, starting from the template in `art/templates/`. This list is made by the build, so it always matches the game. ✅ = in the game, ⬜ = still drawn in code.
 
-Done: **0 of 59**
+Done: **0 of 62**
 
 ## Heroes
 
@@ -63,6 +63,20 @@ Done: **0 of 59**
 
 | | file name | who / what | template |
 |---|---|---|---|
+| ⬜ | `fennel.png` | Fennel | character-128.png |
+| ⬜ | `parsnip.png` | Parsnip the goat | character-128.png |
+
+## Villagers (indoors)
+
+| | file name | who / what | template |
+|---|---|---|---|
+| ⬜ | `keeperA.png` | Lodge keeper Moss | character-128.png |
+| ⬜ | `keeperE.png` | Lodge keeper Flint | character-128.png |
+
+## Villagers
+
+| | file name | who / what | template |
+|---|---|---|---|
 | ⬜ | `herald.png` | Thistledown herald | character-128.png |
 
 ## Monsters
@@ -83,7 +97,6 @@ Done: **0 of 59**
 
 | | file name | who / what | template |
 |---|---|---|---|
-| ⬜ | `fennel.png` | Fennel | character-128.png |
 | ⬜ | `brass.png` | Brass | character-128.png |
 | ⬜ | `saffi.png` | Saffi | character-128.png |
 | ⬜ | `cinder.png` | Cinder | character-128.png |

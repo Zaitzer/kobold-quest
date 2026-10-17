@@ -1,5 +1,5 @@
 /* NPCs. Villagers in the region stand at spots worked out from their town's square (townSpot), or inside a house. */
-import {townSpot} from './overworld.js';
+import {openSpot,townSpot} from './overworld.js';
 
 const atA=(dx,dy)=>townSpot('A',dx,dy),atE=(dx,dy)=>townSpot('E',dx,dy),atD=(dx,dy)=>townSpot('D',dx,dy);
 const RP_NPC=[
@@ -21,9 +21,13 @@ const RP_NPC=[
   {id:'ruddle',name:'Foreman Ruddle',...atE(-3,2),team:1,w:'pan',hat:'bucket',face:1},
   {id:'snipe',name:'Snipe the copper snatcher',...atE(-2,-2),team:2,w:'blunder',hat:'bucket',face:1,show:s=>(s.q.moot||0)>=5&&(s.q.ch||0)<2},
   {id:'pickett',name:'Pickett',...atE(3,2),team:1,w:'stick',hat:'pot',face:-1},
-  {id:'nugget',name:'Nugget',...atE(4,-2),team:1,w:'pan',hat:'none',face:-1,size:.85},
+  {id:'nugget',name:'Nugget',...atE(4,-2),team:1,w:'pan',hat:'none',face:-1,size:.85,show:s=>!s.q.nugget},
   {id:'dusty',name:'Dusty',place:'hE0',x:4,y:5,team:1,w:'club',hat:'pot',face:1},
   {id:'shale',name:'Old Shale',place:'hE1',x:2,y:3,team:1,w:'stick',hat:'none',face:1,size:.9},
+  {id:'fennel',name:'Fennel',...atA(-2,-2),team:0,w:'healwand',hat:'flower',face:1,show:s=>(s.q.fennel||0)<3},
+  {id:'parsnip',name:'Parsnip the goat',...openSpot(66,12),team:3,w:'stick',hat:'none',face:-1,size:.8,show:s=>s.q.fennel===1},
+  {id:'keeperA',name:'Lodge keeper Moss',place:'hA0',x:6,y:3,team:0,w:'spoon',hat:'pot',face:-1},
+  {id:'keeperE',name:'Lodge keeper Flint',place:'hE0',x:6,y:3,team:1,w:'pan',hat:'bucket',face:-1},
   /* Thistledown (the story goes on here next) */
   {id:'herald',name:'Thistledown herald',...atD(-3,2),team:3,w:'healwand',hat:'cone',face:1}
 ];

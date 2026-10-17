@@ -36,7 +36,7 @@ sound, balance. It proves the whole pipeline and sets the bar for everything els
 
 **M1 work list** (built in this order, each part deployed when done):
 1. Encounter tables per route and materials (gold scrap gets its home) · respawn at fountains · fast travel — *done*
-2. Roster: more than three kobolds, the inn to swap, Fennel and Nugget as the first recruits
+2. Roster: more than three kobolds, the inn to swap, Fennel and Nugget as the first recruits — *done*
 3. Level sync and shared boss credit in co-op
 4. The slice's content: deeper town steps, something off the path on Routes 1–3, signs and jokes
 5. Music and sounds for the slice (town, mountain pass, jingles, talk blips, door, chest)

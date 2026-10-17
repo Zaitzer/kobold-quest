@@ -215,6 +215,10 @@ const BARRIERS=[
 const ROUTE_ZONES={'Route 1':{',':'r1'},'Route 2':{';':'r2'},'Route 3':{',':{g:'r3',m:'r3m'}}};
 function regionZone(x,y,c){if(x<OLD_W&&y<OLD_H)return c;const cc=Math.floor(x/CELL),rr=Math.floor(y/CELL),rt=build().routes.of(cc,rr);
   const z=rt&&ROUTE_ZONES[rt.name]&&ROUTE_ZONES[rt.name][c];if(!z)return c;return typeof z==='string'?z:(z[cellAt(cc,rr)]||c)}
+/* the nearest plain open tile to (x, y) on the region (for villagers and finds placed on routes) */
+function openSpot(x,y){const G=build().G,ok=c=>c==='.'||c==='F'||c==='z'||c==='u'||c==='v'||c==='=';
+  for(let r=0;r<25;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const c=G[y+dy]&&G[y+dy][x+dx];if(c&&ok(c))return{x:x+dx,y:y+dy}}
+  return{x,y}}
 /* a spot near a town's square (dx, dy from the middle of the square), for villagers */
 function townSpot(L,dx,dy){const t=build().towns.find(t=>t.L===L);return{x:t.x+dx,y:t.y+dy}}
 /* the name for the top bar */
@@ -228,4 +232,4 @@ function makeWorldGrid(oldRows){const B=build(),rows=new Array(WH);
   for(let y=0;y<WH;y++){const r=B.G[y].slice();if(y<OLD_H)for(let x=0;x<OLD_W;x++)r[x]=oldRows[y][x];rows[y]=r}
   return rows}
 build();
-export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,overworldArea,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};
+export {BARRIERS,BUILT,CELL,COTTAGES,LODGE,OLD_H,OLD_W,REGION,ROUTES,ROUTE_ZONES,SEED,SOLID_HERE,TOWNS,VALLEY_EXITS,WH,WW,build,cellAt,hash2,isOpen,isRoute,isTown,makeTown,makeWorldGrid,nameRoutes,openSpot,overworldArea,regionSign,regionZone,routeTile,signText,sites,townSpot,vnoise,voidTile,wallOf};

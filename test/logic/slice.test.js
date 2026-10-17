@@ -30,3 +30,19 @@ fresh();const s3=G.rp.s;G.rpBattle(['scout'],{zone:','});G.rp.bt.over='lose';G.r
 if(s3.x!==10||s3.y!==25)bad('first loss should wake you at Burrowhome\'s fountain, got '+s3.x+','+s3.y);
 if(G.rpSolid(10,25)||G.rp.grid[24][10]!=='O')bad('Burrowhome fountain missing or blocked');
 console.log((fails?'FAIL':'ok')+' slice: 4 route zones, fountains, travel, losing');process.exitCode=fails?1:0;
+// the roster: recruits beyond three wait at the inn, the innkeeper swaps them, the bench gets half XP
+{fresh();const s=G.rp.s,talk=(id,ch)=>{G.rp.mode='map';G.rpTalk(id);let n=0;while(G.rp.mode==='dialog'&&n++<40){const d=G.rp.dlg;if(d.i<d.lines.length-1||!d.choices)G.rpDlgNext();else G.rpChoose(ch||0)}};
+ Object.assign(s.q,{moot:5,pb:3,ch:3,bork:1,wizzle:1});s.party.push(G.rpMember('Bork','warrior',2),G.rpMember('Wizzle','mage',2));
+ talk('fennel',0);if(s.q.fennel!==1)bad('Fennel gave no quest');
+ const goat=G.RP_NPC.find(n=>n.id==='parsnip');if(G.overworldArea(goat.x,goat.y)!=='Route 1')bad('Parsnip is not on Route 1 but '+G.overworldArea(goat.x,goat.y));
+ if(G.RP_SOLID.has(G.rp.grid[goat.y][goat.x]))bad('Parsnip stands in something solid');
+ talk('parsnip');if(s.q.fennel!==2)bad('finding Parsnip did not count');
+ talk('fennel');if(s.q.fennel!==3||!(s.roster||[]).some(m=>m.name==='Fennel')||s.party.length!==3)bad('Fennel should wait at the inn: party '+s.party.map(m=>m.name)+' inn '+(s.roster||[]).map(m=>m.name));
+ talk('nugget');if(!s.roster.some(m=>m.name==='Nugget'))bad('Nugget did not join the roster');
+ talk('nugget');if(s.roster.filter(m=>m.name==='Nugget').length!==1)bad('Nugget joined twice');
+ talk('toast',1);if(G.rp.mode!=='roster')bad('Toast did not open the roster (mode '+G.rp.mode+')');
+ G.actions.rostout({i:'1'});G.actions.rostin({i:'0'});if(s.party[1].name!=='Wizzle'||s.party[2].name!=='Fennel')bad('swap failed: '+s.party.map(m=>m.name));
+ G.actions.rostout({i:'0'});if(s.party[0].name!=='Pip')bad('Pip can be sent away');
+ const lv=s.roster[0].lvl,xp0=s.roster[0].xp;G.rpBenchXp(40,G.rpXpNeed);if(s.roster[0].xp===xp0&&s.roster[0].lvl===lv)bad('the inn got no XP');
+ for(const id of ['keeperA','keeperE']){const n=G.RP_NPC.find(n=>n.id===id);if(!G.RP_PLACES[n.place])bad(id+' is in a room that does not exist: '+n.place)}}
+console.log((fails?'FAIL':'ok')+' slice: roster, recruits, inns');process.exitCode=fails?1:0;

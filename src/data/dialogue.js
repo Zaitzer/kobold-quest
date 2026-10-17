@@ -36,6 +36,10 @@ const miner=(id,excuse,answer,yes,idle,after)=>({who:null,rules:[
   {if:{ch:{gte:1}},say:[after]},
   {say:[idle]}]});
 
+/* every innkeeper: a bed, and the roster (who travels with Pip, who waits at the inn) */
+const hasBench=s=>(s.roster||[]).length>0||s.party.length>1;
+const inn=hello=>({say:[hello],ask:[{t:'Rest (10 gold)',if:{gold:{gte:10}},do:{gold:-10,heal:true,save:true,toast:'Everyone is rested. Game saved.'}},
+  {t:'Change who comes along',if:hasBench,do:{open:'roster'}},{t:'No thanks'}]});
 const TALK={
   elder:{who:'Elder Mumble',rules:[
     {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
@@ -52,9 +56,9 @@ const TALK={
         {t:'Warm the shiny egg',do:{set:{vote:'shiny',moot:2},toast:'You warmed the shiny egg'}},{t:'Keep the ember. Why bother?',do:{set:{vote:'skip',moot:2},toast:'You kept your ember'}}]},
     {if:{moot:{lt:5}},say:['The eggs are hatching. Shells crack. Somebody is giggling behind the nest.']},
     {say:['An empty nest, full of eggshell. It needs a spark from every town\'s hearth to light it again.']}]},
-  toast:{who:'Toast',rules:[
-    {say:['Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey.'],
-      ask:[{t:'Rest (10 gold)',if:{gold:{gte:10}},do:{gold:-10,heal:true,save:true,toast:'Everyone is rested. Game saved.'}},{t:'No thanks'}]}]},
+  toast:{who:'Toast',rules:[inn('Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey.')]},
+  keeperA:{who:'Lodge keeper Moss',rules:[inn('Welcome to the Pebblebrook lodge! Beds are 10 gold, and the hay is nearly fresh.')]},
+  keeperE:{who:'Lodge keeper Flint',rules:[inn('The Copperhollow lodge. 10 gold a bed. Please knock the rocks out of your boots first.')]},
   biscuit:{who:'Biscuit the trader',rules:[{then:{open:'shop'}}]},
   yarrow:{who:'Witch Yarrow',rules:[
     {if:{moot:{lt:2}},say:['Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did.']},
@@ -118,18 +122,33 @@ const TALK={
   dusty:Object.assign(miner('dusty','I\'m just one miner. One pickaxe never dug a tunnel.','Every tunnel in this mountain was dug one pickaxe at a time.','Hmph. Clever. All right, I\'ll come.','Shh. I\'m on my break. I\'ve been on it since lunch.','One pickaxe at a time. I keep saying that to myself now.'),{who:'Dusty'}),
   shale:Object.assign(miner('shale','Back in my day we went to the circle, and nothing ever changed.','Snipe takes half your copper now. Something changed. Just not the way you wanted.','...Hrrm. I\'ll bring my cane. For shaking at people.','Back in my day, the rocks were harder.','I\'ll be there. Front row. Cane ready.'),{who:'Old Shale'}),
 
+  /* recruits */
+  fennel:{who:'Fennel',rules:[
+    {if:{fennel:0,moot:{lt:5}},say:['Shh! I\'m listening to the carrots. They say it\'s going to rain.']},
+    {if:{fennel:0},say:['Oh, a traveller! Have you seen a goat? Grey, grumpy, eats hats? Her name is Parsnip.','She ran off down Route 1 when Grubb padlocked the fountain. She hates padlocks. And hats.'],
+      ask:[{t:'I\'ll find Parsnip',do:{set:{fennel:1},toast:'New quest: find Fennel\'s goat on Route 1'}},{t:'Not now'}]},
+    {if:{fennel:1},say:['Parsnip is somewhere along Route 1. Look behind the trees; she sulks where nobody looks.']},
+    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
+      then:{toast:'Fennel joins! (If the party is full she waits at the inn.)'}},
+    {say:['The carrots say hello. Well, they say "rain". But warmly.']}]},
+  parsnip:{who:'Parsnip',rules:[{say:['BAAAH.',{who:PIP,text:'You must be Parsnip. Fennel misses you.'},'Parsnip eats a flower, glares at you, and trots off towards Pebblebrook.'],then:{set:{fennel:2},toast:'Parsnip is on her way home. Tell Fennel!'}}]},
+
   /* Thistledown: next part of the story */
   herald:{who:'Thistledown herald',rules:[
     {if:{lantern:1},say:['Hear ye! A spark from the Thistledown hearth? The council is quarrelling about who holds the jar. Come back another day.','(The story continues here in the next update.)']},
     {say:['Hear ye! Welcome to Thistledown, the biggest town in the land. Mind the council; they are quarrelling.']}]}
 };
+/* Nugget joins once the shift circle has met */
+TALK.nugget.rules.unshift({if:{ch:{gte:3},nugget:0},now:{set:{nugget:1},join:{name:'Nugget',cls:'warrior',min:2}},
+  say:['The circle worked! I\'m a circle person now.','Can I come with you? I\'m good at finding things. Mostly nuggets. But other things too, probably.'],then:{toast:'Nugget joins! (If the party is full he waits at the inn.)'}});
 /* the ! and ? over a villager's head */
 const MARKERS={
   elder:q=>!q.moot||q.moot===3?'!':'',
   yarrow:q=>q.moot===2?'!':'',wizzle:q=>q.moot>=3?'!':'',
   turnip:q=>q.moot>=5&&!q.pb?'!':q.pb===2?'?':'',grubb:q=>q.pb===1?'!':'',bork:q=>q.pb>=2?'!':'',
   ruddle:q=>q.moot>=5&&!q.ch?'!':(q.ch===1&&q.miners>=4)||q.ch===2?'?':'',
-  pickett:q=>q.ch===1&&!q.m_pickett?'!':'',nugget:q=>q.ch===1&&!q.m_nugget?'!':'',dusty:q=>q.ch===1&&!q.m_dusty?'!':'',shale:q=>q.ch===1&&!q.m_shale?'!':'',
+  pickett:q=>q.ch===1&&!q.m_pickett?'!':'',dusty:q=>q.ch===1&&!q.m_dusty?'!':'',shale:q=>q.ch===1&&!q.m_shale?'!':'',
+  fennel:q=>q.moot>=5&&!q.fennel?'!':q.fennel===2?'?':'',nugget:q=>(q.ch===1&&!q.m_nugget)||(q.ch>=3&&!q.nugget)?'!':'',
   pebble:q=>q.hat===2?'?':'',nettle:q=>q.needles===2?'?':''};
 /* The quest log (☰ menu) and the line in the top bar. `show` decides if a line is listed, `done` ticks it. */
 const QUEST_LOG=[
@@ -141,6 +160,9 @@ const QUEST_LOG=[
   {show:{moot:{gte:5}},done:{ch:3},text:q=>'Copperhollow (Route 3): the shift circle'+(q.ch===1?' ('+Math.min(4,q.miners||0)+'/4 miners)':'')},
   {show:{ch:3},text:'Thistledown: through the old tunnel (Route 8)'},
   {show:{wizzle:0,moot:{gte:3}},hint:true,text:'Wizzle is waiting outside Yarrow\'s hut'},
+  {show:{fennel:1},text:'Find Fennel\'s goat Parsnip on Route 1'},{show:{fennel:2},text:'Tell Fennel that Parsnip is home'},{show:{fennel:3},done:{fennel:3},text:'Fennel joined'},
+  {show:{ch:{gte:3},nugget:0},hint:true,text:'Nugget in Copperhollow wants to come along'},
+  {show:s=>(s.roster||[]).length>0,hint:true,text:'Innkeepers can change who comes along'},
   {show:{hat:1},text:'Find Pebble\'s lost hat in the meadow grass'},
   {show:{hat:2},text:'Bring the hat back to Pebble'},
   {show:{hat:3},done:{hat:3},text:'Found Pebble\'s hat'},
@@ -164,4 +186,4 @@ const QUEST_LINE=[
   {if:{moot:1},text:'Hatching day · the Great Nest'},
   {text:'Talk to Elder Mumble'}
 ];
-export {HATCHED,MARKERS,PIP,QUEST_LINE,QUEST_LOG,RESULT_TAIL,TALK,YARROW_END,YARROW_NUDGE,YARROW_OPEN,miner,resultRule,yarrowRule};
+export {HATCHED,MARKERS,PIP,QUEST_LINE,QUEST_LOG,RESULT_TAIL,TALK,YARROW_END,YARROW_NUDGE,YARROW_OPEN,hasBench,inn,miner,resultRule,yarrowRule};

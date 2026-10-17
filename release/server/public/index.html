@@ -797,6 +797,15 @@ button,.rpb,.pill{touch-action:manipulation}
     let cc = Math.floor(x / CELL), rr2 = Math.floor(y / CELL), rt = build().routes.of(cc, rr2), z = rt && ROUTE_ZONES[rt.name] && ROUTE_ZONES[rt.name][c];
     return z ? typeof z == "string" ? z : z[cellAt(cc, rr2)] || c : c;
   }
+  function openSpot(x, y) {
+    let G = build().G, ok = (c) => c === "." || c === "F" || c === "z" || c === "u" || c === "v" || c === "=";
+    for (let r = 0; r < 25; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      let c = G[y + dy] && G[y + dy][x + dx];
+      if (c && ok(c)) return { x: x + dx, y: y + dy };
+    }
+    return { x, y };
+  }
   function townSpot(L, dx, dy) {
     let t = build().towns.find((t2) => t2.L === L);
     return { x: t.x + dx, y: t.y + dy };
@@ -1577,6 +1586,10 @@ button,.rpb,.pill{touch-action:manipulation}
     { if: { ch: 1, ["m_" + id]: 0 }, say: [excuse, { who: PIP, text: answer }, yes], then: { set: { ["m_" + id]: 1 }, add: { miners: 1 }, toast: "{miners} of 4 miners will come to the circle" } },
     { if: { ch: { gte: 1 } }, say: [after] },
     { say: [idle] }
+  ] }), hasBench = (s) => (s.roster || []).length > 0 || s.party.length > 1, inn = (hello) => ({ say: [hello], ask: [
+    { t: "Rest (10 gold)", if: { gold: { gte: 10 } }, do: { gold: -10, heal: !0, save: !0, toast: "Everyone is rested. Game saved." } },
+    { t: "Change who comes along", if: hasBench, do: { open: "roster" } },
+    { t: "No thanks" }
   ] }), TALK = {
     elder: { who: "Elder Mumble", rules: [
       { if: { moot: 0 }, say: ["Pip! Big day. It's hatching day: once in a lifetime Burrowhome hatches a new guardian.", "Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.", "Here is your ember. Warm whichever egg you like. Or don't. It's your ember."], then: { set: { moot: 1 }, toast: "Got an ember" } },
@@ -1605,12 +1618,9 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { moot: { lt: 5 } }, say: ["The eggs are hatching. Shells crack. Somebody is giggling behind the nest."] },
       { say: ["An empty nest, full of eggshell. It needs a spark from every town's hearth to light it again."] }
     ] },
-    toast: { who: "Toast", rules: [
-      {
-        say: ["Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey."],
-        ask: [{ t: "Rest (10 gold)", if: { gold: { gte: 10 } }, do: { gold: -10, heal: !0, save: !0, toast: "Everyone is rested. Game saved." } }, { t: "No thanks" }]
-      }
-    ] },
+    toast: { who: "Toast", rules: [inn("Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey.")] },
+    keeperA: { who: "Lodge keeper Moss", rules: [inn("Welcome to the Pebblebrook lodge! Beds are 10 gold, and the hay is nearly fresh.")] },
+    keeperE: { who: "Lodge keeper Flint", rules: [inn("The Copperhollow lodge. 10 gold a bed. Please knock the rocks out of your boots first.")] },
     biscuit: { who: "Biscuit the trader", rules: [{ then: { open: "shop" } }] },
     yarrow: { who: "Witch Yarrow", rules: [
       { if: { moot: { lt: 2 } }, say: ["Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did."] },
@@ -1693,12 +1703,37 @@ button,.rpb,.pill{touch-action:manipulation}
     nugget: Object.assign(miner("nugget", "Sparks, nests, hatchings... I don't understand any of it.", "Your copper got cut in half. You understand that. That's enough to start.", "Oh! Yes. I do understand that. I'm coming.", "I'm Nugget. I find nuggets. It's a family name and a job.", "The circle! I'm going to the circle! What do you wear to a circle?"), { who: "Nugget" }),
     dusty: Object.assign(miner("dusty", "I'm just one miner. One pickaxe never dug a tunnel.", "Every tunnel in this mountain was dug one pickaxe at a time.", "Hmph. Clever. All right, I'll come.", "Shh. I'm on my break. I've been on it since lunch.", "One pickaxe at a time. I keep saying that to myself now."), { who: "Dusty" }),
     shale: Object.assign(miner("shale", "Back in my day we went to the circle, and nothing ever changed.", "Snipe takes half your copper now. Something changed. Just not the way you wanted.", "...Hrrm. I'll bring my cane. For shaking at people.", "Back in my day, the rocks were harder.", "I'll be there. Front row. Cane ready."), { who: "Old Shale" }),
+    /* recruits */
+    fennel: { who: "Fennel", rules: [
+      { if: { fennel: 0, moot: { lt: 5 } }, say: ["Shh! I'm listening to the carrots. They say it's going to rain."] },
+      {
+        if: { fennel: 0 },
+        say: ["Oh, a traveller! Have you seen a goat? Grey, grumpy, eats hats? Her name is Parsnip.", "She ran off down Route 1 when Grubb padlocked the fountain. She hates padlocks. And hats."],
+        ask: [{ t: "I'll find Parsnip", do: { set: { fennel: 1 }, toast: "New quest: find Fennel's goat on Route 1" } }, { t: "Not now" }]
+      },
+      { if: { fennel: 1 }, say: ["Parsnip is somewhere along Route 1. Look behind the trees; she sulks where nobody looks."] },
+      {
+        if: { fennel: 2 },
+        now: { set: { fennel: 3 }, join: { name: "Fennel", cls: "cleric", min: 2 } },
+        say: ["Parsnip! You found her! She ate your hat? She does that.", "Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting."],
+        then: { toast: "Fennel joins! (If the party is full she waits at the inn.)" }
+      },
+      { say: ['The carrots say hello. Well, they say "rain". But warmly.'] }
+    ] },
+    parsnip: { who: "Parsnip", rules: [{ say: ["BAAAH.", { who: PIP, text: "You must be Parsnip. Fennel misses you." }, "Parsnip eats a flower, glares at you, and trots off towards Pebblebrook."], then: { set: { fennel: 2 }, toast: "Parsnip is on her way home. Tell Fennel!" } }] },
     /* Thistledown: next part of the story */
     herald: { who: "Thistledown herald", rules: [
       { if: { lantern: 1 }, say: ["Hear ye! A spark from the Thistledown hearth? The council is quarrelling about who holds the jar. Come back another day.", "(The story continues here in the next update.)"] },
       { say: ["Hear ye! Welcome to Thistledown, the biggest town in the land. Mind the council; they are quarrelling."] }
     ] }
-  }, MARKERS = {
+  };
+  TALK.nugget.rules.unshift({
+    if: { ch: { gte: 3 }, nugget: 0 },
+    now: { set: { nugget: 1 }, join: { name: "Nugget", cls: "warrior", min: 2 } },
+    say: ["The circle worked! I'm a circle person now.", "Can I come with you? I'm good at finding things. Mostly nuggets. But other things too, probably."],
+    then: { toast: "Nugget joins! (If the party is full he waits at the inn.)" }
+  });
+  var MARKERS = {
     elder: (q) => !q.moot || q.moot === 3 ? "!" : "",
     yarrow: (q) => q.moot === 2 ? "!" : "",
     wizzle: (q) => q.moot >= 3 ? "!" : "",
@@ -1707,9 +1742,10 @@ button,.rpb,.pill{touch-action:manipulation}
     bork: (q) => q.pb >= 2 ? "!" : "",
     ruddle: (q) => q.moot >= 5 && !q.ch ? "!" : q.ch === 1 && q.miners >= 4 || q.ch === 2 ? "?" : "",
     pickett: (q) => q.ch === 1 && !q.m_pickett ? "!" : "",
-    nugget: (q) => q.ch === 1 && !q.m_nugget ? "!" : "",
     dusty: (q) => q.ch === 1 && !q.m_dusty ? "!" : "",
     shale: (q) => q.ch === 1 && !q.m_shale ? "!" : "",
+    fennel: (q) => q.moot >= 5 && !q.fennel ? "!" : q.fennel === 2 ? "?" : "",
+    nugget: (q) => q.ch === 1 && !q.m_nugget || q.ch >= 3 && !q.nugget ? "!" : "",
     pebble: (q) => q.hat === 2 ? "?" : "",
     nettle: (q) => q.needles === 2 ? "?" : ""
   }, QUEST_LOG = [
@@ -1721,6 +1757,11 @@ button,.rpb,.pill{touch-action:manipulation}
     { show: { moot: { gte: 5 } }, done: { ch: 3 }, text: (q) => "Copperhollow (Route 3): the shift circle" + (q.ch === 1 ? " (" + Math.min(4, q.miners || 0) + "/4 miners)" : "") },
     { show: { ch: 3 }, text: "Thistledown: through the old tunnel (Route 8)" },
     { show: { wizzle: 0, moot: { gte: 3 } }, hint: !0, text: "Wizzle is waiting outside Yarrow's hut" },
+    { show: { fennel: 1 }, text: "Find Fennel's goat Parsnip on Route 1" },
+    { show: { fennel: 2 }, text: "Tell Fennel that Parsnip is home" },
+    { show: { fennel: 3 }, done: { fennel: 3 }, text: "Fennel joined" },
+    { show: { ch: { gte: 3 }, nugget: 0 }, hint: !0, text: "Nugget in Copperhollow wants to come along" },
+    { show: (s) => (s.roster || []).length > 0, hint: !0, text: "Innkeepers can change who comes along" },
     { show: { hat: 1 }, text: "Find Pebble's lost hat in the meadow grass" },
     { show: { hat: 2 }, text: "Bring the hat back to Pebble" },
     { show: { hat: 3 }, done: { hat: 3 }, text: "Found Pebble's hat" },
@@ -1764,9 +1805,13 @@ button,.rpb,.pill{touch-action:manipulation}
     { id: "ruddle", name: "Foreman Ruddle", ...atE(-3, 2), team: 1, w: "pan", hat: "bucket", face: 1 },
     { id: "snipe", name: "Snipe the copper snatcher", ...atE(-2, -2), team: 2, w: "blunder", hat: "bucket", face: 1, show: (s) => (s.q.moot || 0) >= 5 && (s.q.ch || 0) < 2 },
     { id: "pickett", name: "Pickett", ...atE(3, 2), team: 1, w: "stick", hat: "pot", face: -1 },
-    { id: "nugget", name: "Nugget", ...atE(4, -2), team: 1, w: "pan", hat: "none", face: -1, size: 0.85 },
+    { id: "nugget", name: "Nugget", ...atE(4, -2), team: 1, w: "pan", hat: "none", face: -1, size: 0.85, show: (s) => !s.q.nugget },
     { id: "dusty", name: "Dusty", place: "hE0", x: 4, y: 5, team: 1, w: "club", hat: "pot", face: 1 },
     { id: "shale", name: "Old Shale", place: "hE1", x: 2, y: 3, team: 1, w: "stick", hat: "none", face: 1, size: 0.9 },
+    { id: "fennel", name: "Fennel", ...atA(-2, -2), team: 0, w: "healwand", hat: "flower", face: 1, show: (s) => (s.q.fennel || 0) < 3 },
+    { id: "parsnip", name: "Parsnip the goat", ...openSpot(66, 12), team: 3, w: "stick", hat: "none", face: -1, size: 0.8, show: (s) => s.q.fennel === 1 },
+    { id: "keeperA", name: "Lodge keeper Moss", place: "hA0", x: 6, y: 3, team: 0, w: "spoon", hat: "pot", face: -1 },
+    { id: "keeperE", name: "Lodge keeper Flint", place: "hE0", x: 6, y: 3, team: 1, w: "pan", hat: "bucket", face: -1 },
     /* Thistledown (the story goes on here next) */
     { id: "herald", name: "Thistledown herald", ...atD(-3, 2), team: 3, w: "healwand", hat: "cone", face: 1 }
   ], RP_BOSSES = {
@@ -3028,7 +3073,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T11:26:38Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T11:36:27Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -3308,6 +3353,45 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   });
 
+  // src/ui/roster.js
+  var PARTY_MAX = 3;
+  function rpOpenRoster() {
+    rp.mode = "roster", rpUI(!0);
+  }
+  function rosterLine(m) {
+    return esc2(m.name) + " · " + RP_CLS[m.cls].n + " " + m.lvl;
+  }
+  function rosterHtml() {
+    let s = rp.s, bench = s.roster || [], full = s.party.length >= PARTY_MAX;
+    return '<div class="rpdlg"><div class="who">Who comes along?</div><p>Three can travel together. The rest wait at the inn and learn from your stories (half the XP of every fight).</p></div><div class="rpcmd">' + s.party.map((m, i) => i === 0 ? '<button class="rpb" type="button" disabled>' + rosterLine(m) + "<small>Always comes along</small></button>" : '<button class="rpb x" type="button" data-rp="rostout" data-i="' + i + '">' + rosterLine(m) + "<small>Send to wait at the inn</small></button>").join("") + bench.map((m, i) => '<button class="rpb go" type="button" data-rp="rostin" data-i="' + i + '"' + (full ? " disabled" : "") + ">" + rosterLine(m) + "<small>" + (full ? "The party is full: send someone to the inn first" : "Bring along") + "</small></button>").join("") + '<button class="rpb x" type="button" data-rp="rostclose">Done</button></div>';
+  }
+  function rpJoinRoster(m) {
+    let s = rp.s;
+    return s.party.length < PARTY_MAX ? (s.party.push(m), "party") : (s.roster = (s.roster || []).concat([m]), "inn");
+  }
+  function rpBenchXp(xp, need) {
+    for (let m of rp.s.roster || [])
+      for (m.xp += Math.round(xp / 2); m.xp >= need(m.lvl); )
+        m.xp -= need(m.lvl), m.lvl++, m.pend = (m.pend || 0) + 1;
+  }
+  feature({
+    id: "roster",
+    panels: { roster: { sig: () => rp.s.party.map((m) => m.name).join() + "|" + (rp.s.roster || []).map((m) => m.name).join(), html: rosterHtml } },
+    actions: {
+      rostout: (d) => {
+        let s = rp.s, i = +d.i;
+        i < 1 || !s.party[i] || (s.roster = (s.roster || []).concat(s.party.splice(i, 1)), rpSave());
+      },
+      rostin: (d) => {
+        let s = rp.s, b = s.roster || [], i = +d.i;
+        !b[i] || s.party.length >= PARTY_MAX || (s.party.push(b.splice(i, 1)[0]), rpSave());
+      },
+      rostclose: () => {
+        rp.mode = "map", rpSave();
+      }
+    }
+  });
+
   // src/core/rules.js
   var OPS = { lt: (a, b) => a < b, lte: (a, b) => a <= b, gt: (a, b) => a > b, gte: (a, b) => a >= b, ne: (a, b) => a !== b };
   function value(k) {
@@ -3353,13 +3437,13 @@ button,.rpb,.pill{touch-action:manipulation}
       ctx2.ups = (ctx2.ups || []).concat(rpGiveXp(n));
     },
     join: (j) => {
-      let s = rp.s, m = rpMember(j.name, j.cls, Math.max(j.min || 1, s.party[0].lvl));
-      s.party.length < 3 ? s.party.push(m) : j.slot != null && s.party.splice(j.slot, 1, m);
+      let s = rp.s;
+      s.party.concat(s.roster || []).some((m) => m.name === j.name) || rpJoinRoster(rpMember(j.name, j.cls, Math.max(j.min || 1, s.party[0].lvl)));
     },
     heal: () => rpHealAll(),
     save: () => rpSave(),
     open: (w) => {
-      w === "shop" ? rpOpenShop() : w === "smith" ? rpOpenSmith() : w === "letter" && rpOpenLetter();
+      w === "shop" ? rpOpenShop() : w === "smith" ? rpOpenSmith() : w === "letter" ? rpOpenLetter() : w === "roster" && rpOpenRoster();
     },
     fight: ([keys, opt]) => rpFight(keys, opt),
     toast: (t, ctx2) => rpToast(fill(t, ctx2))
@@ -6125,7 +6209,7 @@ button,.rpb,.pill{touch-action:manipulation}
         let st = rpStats(m);
         m.hp = Math.min(st.hp, m.hp + 9), ups.push(m.name + " reached level " + m.lvl + "!");
       }
-    }), b.drops = [];
+    }), rpBenchXp(xp, rpXpNeed), b.drops = [];
     let B = b.boss && RP_BOSSES[b.boss];
     if (B)
       run(B.win), b.drops.push(...B.drops);

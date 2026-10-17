@@ -8,7 +8,7 @@
      a function (s,q)=>bool for anything else
    Effects ("now", "then", or a choice's "do"): an object, applied in this order
      set:{flag:v}  add:{flag:n}  gold:n  bag:{ether:2}  item:'cap_cone'  mat:{spore:-3}  xp:n
-     join:{name,cls,min,slot}  heal:true  save:true  open:'shop'|'smith'  fight:[keys,opt]  toast:'text'
+     join:{name,cls,min} (waits at the inn if the party is full)  heal:true  save:true  open:'shop'|'smith'|'letter'|'roster'  fight:[keys,opt]  toast:'text'
    A line can be {who,text} to have someone else say it (Pip thinking aloud).
    Text: "{kills}" fills in a quest flag, "{up}" becomes " · level up!" when the effects levelled someone up. */
 import {rpSave} from './save.js';
@@ -20,6 +20,7 @@ import {rpHealAll,rpOpenShop,rpOpenSmith} from '../game/npcs.js';
 import {rpGiveXp,rpMember} from '../game/stats.js';
 import {rpFight} from '../net/lobby.js';
 import {rpOpenLetter} from '../net/mail.js';
+import {rpJoinRoster,rpOpenRoster} from '../ui/roster.js';
 
 const OPS={lt:(a,b)=>a<b,lte:(a,b)=>a<=b,gt:(a,b)=>a>b,gte:(a,b)=>a>=b,ne:(a,b)=>a!==b};
 function value(k){const s=rp.s,q=s.q;
@@ -41,10 +42,10 @@ const EFFECTS={
   item:id=>rpGive(id),
   mat:o=>{const m=rpMats();for(const k in o)m[k]=(m[k]||0)+o[k]},
   xp:(n,ctx)=>{ctx.ups=(ctx.ups||[]).concat(rpGiveXp(n))},
-  join:j=>{const s=rp.s,m=rpMember(j.name,j.cls,Math.max(j.min||1,s.party[0].lvl));if(s.party.length<3)s.party.push(m);else if(j.slot!=null)s.party.splice(j.slot,1,m)},
+  join:j=>{const s=rp.s;if(s.party.concat(s.roster||[]).some(m=>m.name===j.name))return;rpJoinRoster(rpMember(j.name,j.cls,Math.max(j.min||1,s.party[0].lvl)))},
   heal:()=>rpHealAll(),
   save:()=>rpSave(),
-  open:w=>{if(w==='shop')rpOpenShop();else if(w==='smith')rpOpenSmith();else if(w==='letter')rpOpenLetter()},
+  open:w=>{if(w==='shop')rpOpenShop();else if(w==='smith')rpOpenSmith();else if(w==='letter')rpOpenLetter();else if(w==='roster')rpOpenRoster()},
   fight:([keys,opt])=>rpFight(keys,opt),
   toast:(t,ctx)=>rpToast(fill(t,ctx))};
 const ORDER=['set','add','gold','bag','item','mat','xp','join','heal','save','toast','open','fight'];
