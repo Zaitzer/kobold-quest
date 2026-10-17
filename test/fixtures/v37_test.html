@@ -2494,7 +2494,7 @@ function updateDgChip(){
 function dgSave(){
   try{
     if(!dg.active){localStorage.removeItem(DG_KEY);return}
-    localStorage.setItem(DG_KEY,JSON.stringify({v:2,act:dg.act,map:dg.map,cur:dg.cur,sel:dg.sel,panel:dg.panel,party:dg.party,gold:dg.gold,relics:dg.relics,charges:dg.charges,stops:dg.stops,team:dg.team,stats:dg.stats,node:dg.node?dg.node.id:null}));
+    localStorage.setItem(DG_KEY,JSON.stringify({epoch:1,v:2,act:dg.act,map:dg.map,cur:dg.cur,sel:dg.sel,panel:dg.panel,party:dg.party,gold:dg.gold,relics:dg.relics,charges:dg.charges,stops:dg.stops,team:dg.team,stats:dg.stats,node:dg.node?dg.node.id:null}));
   }catch(e){}
 }
 function dgLoad(){

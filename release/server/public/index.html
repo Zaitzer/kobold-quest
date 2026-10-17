@@ -1272,7 +1272,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/core/save.js
-  var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, saveKey = SAVE_KEY;
+  var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 1, saveKey = SAVE_KEY;
   function setSaveKey(k) {
     saveKey = k;
   }
@@ -1308,7 +1308,7 @@ button,.rpb,.pill{touch-action:manipulation}
         o = src.get();
       } catch {
       }
-      o && o.party && o.party.length && (!best || (o.savedAt || 0) > (best.savedAt || 0)) && (best = o);
+      o && o.party && o.party.length && (o.epoch || 0) >= SAVE_EPOCH && (!best || (o.savedAt || 0) > (best.savedAt || 0)) && (best = o);
     }
     try {
       return migrate(best);
@@ -1317,7 +1317,7 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
   function rpSave() {
-    rp.headless || (rp.s.savedAt = Date.now(), store.set(saveKey, rp.s), emit("save", rp.s));
+    rp.headless || (rp.s.savedAt = Date.now(), rp.s.epoch = SAVE_EPOCH, store.set(saveKey, rp.s), emit("save", rp.s));
   }
 
   // src/data/gear.js
@@ -3028,7 +3028,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T08:50:46Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T11:26:38Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":

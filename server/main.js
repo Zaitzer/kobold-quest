@@ -7,6 +7,7 @@ const PORT=+process.env.PORT||8080,DATA=process.env.DATA||path.join(__dirname,'d
 /* which version of the game this server hands out; players on an older page are told to reload */
 let BUILD=process.env.KQ_BUILD||'dev';if(!process.env.KQ_BUILD)try{BUILD=fs.readFileSync(path.join(__dirname,'BUILD'),'utf8').trim()}catch(e){}
 const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG)});
+require('./reset.js').resetWorld(store,CONFIG.epoch).then(r=>{if(r)console.log('progress reset to epoch '+r.epoch+': '+r.saves+' saves and '+r.market+' market listings cleared')}).catch(e=>console.error('reset',e));
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon','.webmanifest':'application/manifest+json','.json':'application/json'};
 const server=http.createServer((req,res)=>{
   const u=decodeURIComponent((req.url||'/').split('?')[0]);if(u==='/health'){res.end('ok');return}

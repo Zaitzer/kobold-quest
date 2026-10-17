@@ -7,6 +7,9 @@ import {rp} from './state.js';
 import {rpAutoTalents,rpClsOfWeapon,rpStats} from '../game/stats.js';
 
 const SAVE_KEY='kobold-pit-rpg',SAVE_VERSION=2;
+/* a progress reset: saves from before the current epoch (local or cloud) are ignored, so everyone starts fresh.
+   Bump it (and "epoch" in server/config.json, which also clears the website's market and cloud saves) to reset again. */
+const SAVE_EPOCH=1;
 /* where this browser keeps its copy: the website keeps one per account */
 let saveKey=SAVE_KEY;
 function setSaveKey(k){saveKey=k}
@@ -24,7 +27,7 @@ function migrate(o){
   for(const k of ['inv','chests','taken'])if(!Array.isArray(o[k]))o[k]=[];
   if(!o.bag)o.bag={};return o}
 function rpLoad(){let best=null;
-  for(const src of saveSources){let o=null;try{o=src.get()}catch(e){}if(o&&o.party&&o.party.length&&(!best||(o.savedAt||0)>(best.savedAt||0)))best=o}
+  for(const src of saveSources){let o=null;try{o=src.get()}catch(e){}if(o&&o.party&&o.party.length&&(o.epoch||0)>=SAVE_EPOCH&&(!best||(o.savedAt||0)>(best.savedAt||0)))best=o}
   try{return migrate(best)}catch(e){return null}}
-function rpSave(){if(rp.headless)return;rp.s.savedAt=Date.now();store.set(saveKey,rp.s);emit('save',rp.s)}
-export {MIGRATIONS,SAVE_KEY,SAVE_VERSION,migrate,rpLoad,rpSave,saveKey,saveSources,setSaveKey};
+function rpSave(){if(rp.headless)return;rp.s.savedAt=Date.now();rp.s.epoch=SAVE_EPOCH;store.set(saveKey,rp.s);emit('save',rp.s)}
+export {MIGRATIONS,SAVE_EPOCH,SAVE_KEY,SAVE_VERSION,migrate,rpLoad,rpSave,saveKey,saveSources,setSaveKey};
