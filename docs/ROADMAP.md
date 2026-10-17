@@ -10,7 +10,7 @@ ends at its **gate**: Joakim (creative director / producer) says it's good enoug
 |---|---|---|---|
 | 1.1 | Creative director + game designer | **Vision**: what the game is, who it's for, its pillars, what it is *not* (`docs/vision.md`) | done |
 | 1.2 | Game designer | **Design document**: core loop, session length, progression, battles, party, economy, multiplayer's role (`docs/design.md`) | done |
-| 1.3 | Narrative writer | **Story bible**: the Hatching, characters, tone rules (`docs/story-hatching.md` is the start) | started |
+| 1.3 | Narrative writer | **Story bible**: the Hatching, characters, tone rules (`docs/story-bible.md`, plot in `docs/story-hatching.md`) | draft, 5 decisions open |
 | 1.4 | Level designer | **World plan**: what each town and route is for, level ranges, where the key items go | |
 | 1.5 | Art director (Joakim draws) | **Style guide**: palette, shapes, outline, how kobolds/monsters/tiles look, sizes to draw at | |
 | 1.6 | Sound designer | **Audio plan**: music per area, sound list | |
