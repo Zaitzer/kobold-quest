@@ -65,6 +65,10 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
   are grown from the plan with noise but always get a path through; towns get a ring wall, roads, a healing fountain (`O`),
   signs (`i`) and houses whose doors open into rooms made on the spot. The Burrowhome valley sits unchanged in the
   north-west corner. `test/logic/overworld.test.js` checks every town, route, door and sign.
+* **Drawings** (`art/sprites/*.png`, names listed in `art/WANTED.md`, which the build writes) replace the look drawn in
+  code wherever they exist: characters by id (`makeK({art})`, `engine/sprites.js`), tiles by letter (`TILE_ART` in
+  `render/map.js`). The Claude page has them built in (`KQ_ART`); the website fetches `art/manifest.json`, which
+  `deploy/install.sh` makes on every update with `server/art.js`, so a pushed drawing is live in about two minutes.
 * **Rooms** are drawn as rows of letters in `data/places.js`; `RP_DOORS` says which world door leads where. NPCs, chests and
   quest spots take `place:'inn'` to live inside. `test/logic/places.test.js` checks every room is closed in and reachable.
 * **Pickups and quest spots** on the map are in `data/world.js` (`RP_PICKUPS`, `RP_SPOTS`).

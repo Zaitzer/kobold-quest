@@ -11,7 +11,7 @@ function netHere(P){return(P.presence.pl||'world')===rpPlace()}
 function netPartnerK(dt){
   if(!rp.s||view!=='rpg')return[];const out=[];
   (net.others||[]).forEach(P=>{const pr=P.presence;if(pr.m==='battle'||!netHere(P))return;let E=net.pks[P.peer];
-    if(!E||E.k.weapon!==pr.w){E=net.pks[P.peer]={k:makeK({team:0,name:netName(P),weapon:WEAPONS[pr.w]?pr.w:'stick',hat:pr.h||'none',pers:'brave',speed:1,hp:30,size:.72},0,0,false),pos:null}}
+    if(!E||E.k.weapon!==pr.w){E=net.pks[P.peer]={k:makeK({team:0,name:netName(P),art:'pip',weapon:WEAPONS[pr.w]?pr.w:'stick',hat:pr.h||'none',pers:'brave',speed:1,hp:30,size:.72},0,0,false),pos:null}}
     const k=E.k;k.hat=pr.h||'none';const tx=(+pr.x||0)*RT,ty=(+pr.y||0)*RT+10;
     if(!E.pos||Math.hypot(E.pos.x-tx,E.pos.y-ty)>RT*6)E.pos={x:tx,y:ty};
     const dx=tx-E.pos.x,dy=ty-E.pos.y;E.pos.x+=dx*Math.min(1,dt*10);E.pos.y+=dy*Math.min(1,dt*10);

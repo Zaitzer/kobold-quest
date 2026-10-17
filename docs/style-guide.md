@@ -3,15 +3,26 @@
 *Step 1.5 of the roadmap. Joakim draws in Paint.NET with a pen on a touch screen. This page says what to draw, at what
 size, and how to hand it over. The look itself is up to him; the "suggested" parts are only a starting point.*
 
-## How to hand over a drawing
+## How a drawing gets into the game
 
-1. Start from a template in `art/templates/` (open it in Paint.NET, draw on a **new layer** above the grid, hide the
-   grid layer before saving).
-2. **File → Save As → PNG**, transparent background. Keep the `.pdn` too, in case it needs changes.
-3. Name it as in the lists below, e.g. `pip.png`, `tile-grass.png`.
-4. Send it in this chat (attach the PNG). I put it in `art/` in the repo and wire it into the game.
+**Once, to set up (5 minutes, on the PC):**
+1. Install **GitHub Desktop** (desktop.github.com) and sign in with your GitHub account.
+2. **File → Clone repository → Zaitzer/kobold-quest**. It lands in e.g. `Documents\GitHub\kobold-quest`.
 
-You can send rough sketches too; a placeholder drawing in the game beats waiting for a perfect one.
+**Every time:**
+1. In GitHub Desktop, press **Fetch origin** (and **Pull** if it offers), so you have my latest changes.
+2. Open a template from `art\templates\` in Paint.NET, draw on a **new layer**, hide the grid layer.
+3. **File → Save As → PNG** straight into `art\sprites\`, named exactly as in **`art/WANTED.md`** (e.g. `pip.png`,
+   `tile-grass.png`). Keep the `.pdn` somewhere outside the repo, or next to it with the same name.
+4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
+5. About **2 minutes** later it's on joakimskar.no (reload the page). The Claude page gets it with my next update.
+
+The game takes it from there: it moves feet that are slightly off the line onto it, flips characters to face left,
+and uses the drawing wherever that character or tile appears (map, battles, the party screen). Anything without a
+drawing keeps its look drawn in code, so you can draw in any order. To change a drawing, save over it and push
+again; to go back, GitHub Desktop's **History** has every version.
+
+`art/WANTED.md` is the checklist: every drawing the game can use, its template, and ✅ once it's in.
 
 ## Sizes (templates)
 
@@ -48,23 +59,13 @@ You can send rough sketches too; a placeholder drawing in the game beats waiting
 | gold / shiny | `#ffd54a` |
 | UI purple | `#4a35b0` `#2a1a73` |
 
-## What to draw, in order (the vertical slice first)
+## What to draw first
 
-**1. The heroes** (most important, seen all the time)
-- `pip.png`, `bork.png`, `wizzle.png`
+The full list with file names is `art/WANTED.md`. Suggested order:
+1. **Heroes:** `pip.png`, `bork.png`, `wizzle.png`.
+2. **Burrowhome:** `elder.png`, `yarrow.png`, `tikka.png`, `toast.png`, `biscuit.png`, `clink.png`, `pebble.png`, `nettle.png`, `quill.png`.
+3. **The first towns:** `turnip.png`, `grubb.png`, `ruddle.png`, `snipe.png`, `pickett.png`, `nugget.png`, `dusty.png`, `shale.png`.
+4. **Monsters met early:** `scout.png`, `slinger.png`, `thief.png`.
+5. **Tiles**, if you want to: `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-tree.png`, `tile-water.png`.
 
-**2. Burrowhome's people**
-- `elder-mumble.png`, `yarrow.png`, `tikka.png`, `toast.png`, `biscuit.png`, `clink.png`, `pebble.png`, `nettle.png`, `quill.png`
-
-**3. The slice's story**
-- `turnip.png`, `fennel.png`, `ruddle.png`, `nugget.png`, `pickett.png`, `dusty.png`, `shale.png`
-- `grubb.png`, `snipe.png`, `snatchclaw.png`
-- `glitterbeak.png` (boss size), the three eggs: `egg-spiky.png`, `egg-sleepy.png`, `egg-shiny.png` (character size)
-
-**4. Monsters of the slice**
-- `bandit-scout.png`, `bandit-slinger.png`, `beetle.png`, `rock-goat.png`, `spore-critter.png`
-
-**5. Tiles** (only if you want to: the drawn tiles can stay for a while)
-- `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-tree.png`, `tile-water.png`, `tile-flowers.png`, `house-small.png`
-
-Later: walking frames (two extra poses per character), portraits, the other towns' people and monsters.
+Later: walking frames, portraits, houses, the eggs, the other towns' people and monsters.

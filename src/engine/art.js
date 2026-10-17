@@ -1,3 +1,4 @@
+import {drawCharSprite,sprite} from './sprites.js';
 import {R,clamp,eob,heartPath,rr,starPath} from './util.js';
 let ctx=null;let selected=null;
 const TEAMS=[
@@ -31,7 +32,7 @@ const FAC=[
   {hp:1,dmg:1,dmgBrawl:.95,spd:1,magCd:.9,chill:0,shroom:1,disc:{magician:2}}
 ];
 function makeK(e,x,y,pop){
-  const k={e,team:e.team,name:e.name,weapon:e.weapon,W:WEAPONS[e.weapon],hat:e.hat,pers:e.pers,
+  const k={e,team:e.team,name:e.name,art:e.art||null,weapon:e.weapon,W:WEAPONS[e.weapon],hat:e.hat,pers:e.pers,
     x,y,kx:0,ky:0,z:0,vz:0,hp:e.cur!=null?e.cur:e.hp,max:e.hp,size:e.size||1,dmgMul:(e.dmgMul||1)*FAC[e.team].dmg*(WEAPONS[e.weapon].ranged?1:FAC[e.team].dmgBrawl),spd:(e.speed||1)*FAC[e.team].spd,cdMul:WEAPONS[e.weapon].magic?FAC[e.team].magCd:1,chill:Math.max(FAC[e.team].chill,e.chill||0),boss:!!e.boss,face:x<240?1:-1,state:'idle',st:0,cd:R(0,.6),stun:0,hurt:0,happy:0,munch:0,
     target:null,retarget:0,wander:{x,y,t:0,wait:0},phase:R(0,6),bob:R(0,6),walk:0,moving:false,pop:pop?0:1,kos:0,
     fleeT:0,fleeCd:0,slow:0,squash:0,rot:0,rotT:0,koT:0,dead:false,blink:R(2,5),wa:.35,t:0,
@@ -166,6 +167,10 @@ function drawKobold(k){
   ctx.translate(0,-12);ctx.rotate(k.rot);ctx.translate(0,12);
   ctx.scale(pop*(1+.2*sq)*k.face*k.size,pop*(1-.2*sq)*k.size);
   ctx.translate(0,bob);
+  /* a drawing from art/sprites, if there is one for this character */
+  const art=sprite(k.art);
+  if(art){if(lying)ctx.rotate(-1.35);if(flash)ctx.globalAlpha=.45;drawCharSprite(ctx,art,k.size);ctx.globalAlpha=1}
+  else{
   ctx.lineCap='round';ctx.lineJoin='round';
   // tail
   const wag=Math.sin(k.t*(k.state==='cheer'?14:6)+k.phase)*(moving?5:3);
@@ -274,6 +279,7 @@ function drawKobold(k){
     ctx.strokeStyle=d;ctx.lineWidth=4.6;ctx.beginPath();ctx.moveTo(6,-15);ctx.lineTo(hp[0],hp[1]);ctx.stroke();
     ctx.save();ctx.translate(hp[0],hp[1]);ctx.rotate(k.wa);drawWeapon(k.weapon);ctx.restore();
     el(hp[0],hp[1],4.5,4.5,OL);el(hp[0],hp[1],2.9,2.9,c);
+  }
   }
   ctx.restore();
   if(ko){

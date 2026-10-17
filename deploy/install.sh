@@ -7,6 +7,9 @@ echo "== packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq nodejs caddy ufw >/dev/null
+echo "== drawings"
+# Joakim's drawings live in the repo's art/sprites; copy them into the website (skipped when installing from a tarball)
+[ -d ../art/sprites ] && node server/art.js ../art/sprites server/public/art || true
 echo "== game server"
 id -u kobold >/dev/null 2>&1 || useradd --system --home /var/lib/kobold-quest --shell /usr/sbin/nologin kobold
 mkdir -p /opt/kobold-quest /var/lib/kobold-quest

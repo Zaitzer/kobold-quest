@@ -4,6 +4,7 @@ import {rpTacBtn,rpTacTap} from '../battle/input.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {registry} from './registry_view.js';
+import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
 import {rpTalk} from '../game/npcs.js';
 import {rpEnterPlace} from '../game/world.js';
@@ -16,5 +17,5 @@ export function installHooks(){
   window.__rp=rp;
   window.__rpB={battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
   window.__net=net;window.__rpF=(k,o)=>rpFight(k,o);window.__netBtn=d=>{netBtn(d);rpUI(true)};window.__rpS=()=>rpSave();
-  window.__kq={talk:rpTalk,say:rpSay,hero:rpHeroOpen,enter:rpEnterPlace,registry};
+  window.__kq={talk:rpTalk,say:rpSay,hero:rpHeroOpen,enter:rpEnterPlace,registry,sprite};
 }

@@ -971,6 +971,50 @@ button,.rpb,.pill{touch-action:manipulation}
     paladin: { n: "Paladin", base: "cleric", d: "+4 attack, +2 defence. Holy strike: hit a foe and heal yourself.", st: { atk: 4, def: 2 }, gr: { atk: 0.6, def: 0.4 }, sk: "holy" }
   };
 
+  // src/engine/sprites.js
+  var SPR = {}, onLoad = [];
+  function spritesInit(list) {
+    for (let n in list) {
+      if (SPR[n]) continue;
+      let img = new Image(), s = { img, ready: !1 };
+      SPR[n] = s, img.onload = () => {
+        s.w = img.naturalWidth, s.h = img.naturalHeight, s.feet = feetOf(img), s.ready = !0, onLoad.forEach((f) => f(n));
+      }, img.onerror = () => {
+        delete SPR[n];
+      }, img.src = list[n];
+    }
+  }
+  function feetOf(img) {
+    let W = img.naturalWidth, H = img.naturalHeight, line = H * 112 / 128;
+    try {
+      let c = document.createElement("canvas");
+      c.width = W, c.height = H;
+      let g = c.getContext("2d");
+      g.drawImage(img, 0, 0);
+      let d = g.getImageData(0, 0, W, H).data;
+      for (let y = H - 1; y >= 0; y--)
+        for (let x = 0; x < W; x++) if (d[(y * W + x) * 4 + 3] > 40) {
+          let b = y + 1;
+          return Math.abs(b - line) <= H * 0.15 ? b : line;
+        }
+    } catch {
+    }
+    return line;
+  }
+  function sprite(n) {
+    let s = n && SPR[n];
+    return s && s.ready ? s : null;
+  }
+  function onSpriteLoad(f) {
+    onLoad.push(f);
+  }
+  var SPRITE_UNIT = 76 / 128;
+  function drawCharSprite(g, s, size) {
+    let u = SPRITE_UNIT * (s.w > 200 ? 1 / Math.max(1, size) : 1);
+    g.drawImage(s.img, -s.w / 2 * u, -s.feet * u, s.w * u, s.h * u);
+  }
+  var artName = (name) => String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
   // src/engine/util.js
   var R = (a, b) => a + Math.random() * (b - a), pick = (a) => a[Math.random() * a.length | 0], clamp = (v, a, b) => v < a ? a : v > b ? b : v, eob = (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2), RM = !1;
   function rr(c, x, y, w, h, r) {
@@ -1037,6 +1081,7 @@ button,.rpb,.pill{touch-action:manipulation}
       e,
       team: e.team,
       name: e.name,
+      art: e.art || null,
       weapon: e.weapon,
       W: WEAPONS[e.weapon],
       hat: e.hat,
@@ -1140,66 +1185,72 @@ button,.rpb,.pill{touch-action:manipulation}
   function drawKobold(k) {
     let T = TEAMS[k.team], ko = k.state === "ko", pop = k.pop < 1 ? eob(k.pop) : 1, zf = Math.max(0.25, 1 - k.z / 90), lying = ko && k.z < 2;
     ctx.fillStyle = "rgba(10,5,16," + (0.38 * zf).toFixed(3) + ")", ctx.beginPath(), ctx.ellipse(k.x, k.y + 1, (lying ? 18 : 13) * k.size * zf * pop, (lying ? 5.2 : 4.5) * k.size * zf * pop, 0, 0, 7), ctx.fill(), selected === k && (ctx.strokeStyle = "rgba(255,255,255,.85)", ctx.lineWidth = 2, ctx.setLineDash([4, 4]), ctx.beginPath(), ctx.ellipse(k.x, k.y + 1, 19, 7, 0, 0, 7), ctx.stroke(), ctx.setLineDash([]));
-    let c = k.hurt > 0 && (k.hurt * 40 | 0) % 2 === 0 ? "#ffffff" : T.body, d = T.dark, b = T.belly, atk = k.state === "windup" || k.state === "strike", scared = !ko && (k.fleeT > 0 || k.pers === "scaredy" && k.hp < k.max * 0.35), happy = !ko && (k.state === "cheer" || k.happy > 0 || k.munch > 0), moving = k.moving && !ko, m = moving ? 1 : 0, bob = ko ? 0 : moving ? -Math.abs(Math.sin(k.walk)) * 2.4 : Math.sin(k.t * 3 + k.bob) * 0.7, sq = k.squash;
-    ctx.save(), ctx.translate(k.x + (k.hurt > 0 ? Math.sin(k.hurt * 90) * 1.6 : 0), k.y - k.z), ctx.translate(0, -12), ctx.rotate(k.rot), ctx.translate(0, 12), ctx.scale(pop * (1 + 0.2 * sq) * k.face * k.size, pop * (1 - 0.2 * sq) * k.size), ctx.translate(0, bob), ctx.lineCap = "round", ctx.lineJoin = "round";
-    let wag = Math.sin(k.t * (k.state === "cheer" ? 14 : 6) + k.phase) * (moving ? 5 : 3), tcy = -4 + wag * 0.3, tx = -34, ty = -14 + wag * 1.15;
-    ctx.strokeStyle = OL, ctx.lineWidth = 8.4, ctx.beginPath(), ctx.moveTo(-8, -8), ctx.quadraticCurveTo(-22, tcy, tx + 4, ty + 0.5), ctx.stroke(), ctx.strokeStyle = ko ? d : c, ctx.lineWidth = 5.6, ctx.beginPath(), ctx.moveTo(-8, -8), ctx.quadraticCurveTo(-22, tcy, tx + 4, ty + 0.5), ctx.stroke(), ctx.lineWidth = 3.4, ctx.beginPath(), ctx.moveTo(-22, -6 + wag * 0.2), ctx.quadraticCurveTo(-27, tcy - 1, tx + 4, ty + 0.5), ctx.stroke(), ctx.fillStyle = d, [[-14, -6.6], [-20, -6 + wag * 0.25], [-26, -7.5 + wag * 0.5]].forEach((q) => {
-      ctx.beginPath(), ctx.moveTo(q[0] - 2.4, q[1] - 2.2), ctx.lineTo(q[0] + 0.4, q[1] - 6), ctx.lineTo(q[0] + 2.4, q[1] - 2.4), ctx.closePath(), ctx.fill();
-    }), ctx.save(), ctx.translate(tx + 4, ty + 0.5), ctx.rotate(Math.atan2(ty + 0.5 - tcy, tx + 4 + 22)), ctx.beginPath(), ctx.moveTo(1, 0), ctx.lineTo(-3, -4.2), ctx.lineTo(-9, 0), ctx.lineTo(-3, 4.2), ctx.closePath(), ctx.fill(), ctx.strokeStyle = OL, ctx.lineWidth = 1.5, ctx.stroke(), ctx.restore();
-    let ph = k.walk, s1 = Math.sin(ph) * m;
-    el(-4 + s1 * 3, -2 - Math.max(0, Math.cos(ph)) * 2.5 * m, 6.6, 4.6, OL), el(5 - s1 * 3, -2 - Math.max(0, -Math.cos(ph)) * 2.5 * m, 6.6, 4.6, OL), el(-4 + s1 * 3, -2 - Math.max(0, Math.cos(ph)) * 2.5 * m, 5, 3, d), el(5 - s1 * 3, -2 - Math.max(0, -Math.cos(ph)) * 2.5 * m, 5, 3, d), ctx.fillStyle = "#fff0d2", [-4 + s1 * 3, 5 - s1 * 3].forEach((fx, fi) => {
-      let fy = -2 - Math.max(0, fi ? -Math.cos(ph) : Math.cos(ph)) * 2.5 * m;
-      [0, 1.9, 3.8].forEach((o) => {
-        ctx.beginPath(), ctx.moveTo(fx + 3.6 + o * 0.3, fy - 1.4 + o * 0.4), ctx.lineTo(fx + 6.2 + o * 0.3, fy + 0.2 + o * 0.5), ctx.lineTo(fx + 3.6 + o * 0.3, fy + 1.3 + o * 0.4), ctx.closePath(), ctx.fill();
-      });
-    }), ctx.fillStyle = d, [[-8.5, -19.6], [-11.2, -14.2], [-10, -8.6]].forEach((q) => {
-      ctx.beginPath(), ctx.moveTo(q[0] + 3, q[1] - 2.6), ctx.lineTo(q[0] - 3.2, q[1] - 0.4), ctx.lineTo(q[0] + 3, q[1] + 2.4), ctx.closePath(), ctx.fill();
-    }), el(0, -12, 12.7, 11.7, OL), el(0, -12, 11, 10, c), el(2, -10.5, 6.6, 7, b), ctx.strokeStyle = "rgba(60,25,40,.16)", ctx.lineWidth = 1, [-15, -12, -9].forEach((yy) => {
-      ctx.beginPath(), ctx.moveTo(-1.6, yy), ctx.quadraticCurveTo(3, yy + 1.2, 7, yy), ctx.stroke();
-    }), el(-6, -16, 1.4, 1.1, d), el(-4, -9.5, 1.3, 1, d), el(-7, -12, 1.2, 1, d);
-    let ew = Math.sin(k.t * 4 + k.phase) * 1.2, droop = k.hurt > 0 || scared || ko ? 7 : 0;
-    if (ctx.fillStyle = d, ctx.strokeStyle = OL, ctx.lineWidth = 2.4, ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.fill(), ctx.fillStyle = c, ctx.beginPath(), ctx.moveTo(-8.5, -31.5), ctx.lineTo(-16.5, -35.4 + droop * 0.7 + ew), ctx.lineTo(-9.4, -28), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9.4, -27), ctx.lineTo(-18.5, -28.3 + droop * 0.5 + ew * 0.6), ctx.lineTo(-10, -23.4), ctx.closePath(), ctx.fill(), (k.hat === "none" || k.hat === "leaf" || k.hat === "flower") && (ctx.strokeStyle = OL, ctx.lineWidth = 2.6, ctx.lineJoin = "round", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.stroke(), ctx.fillStyle = "#fff0d2", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.fill(), ctx.fillStyle = "rgba(120,80,50,.35)", ctx.beginPath(), ctx.moveTo(-15.6, -47.4), ctx.lineTo(-19.5, -49), ctx.lineTo(-13.6, -44), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-5.5, -49.6), ctx.lineTo(-9, -51.4), ctx.lineTo(-3.8, -46), ctx.closePath(), ctx.fill()), el(1, -28, 14.5, 12.7, OL), el(10, -25.4, 10.5, 7.5, OL), el(1, -28, 12.8, 11, c), el(10, -25.4, 8.8, 5.8, c), el(9.4, -22.6, 7.4, 3.3, b), el(-4.5, -35.4, 1, 1, d), el(-0.5, -37.2, 1, 1, d), el(-8, -31, 1.1, 1, d), el(2.5, -34.5, 0.9, 0.9, d), el(17.6, -27.4, 2.1, 1.6, "#33202c"), el(17, -27.9, 0.6, 0.5, "#ffffff"), ctx.strokeStyle = "rgba(40,20,30,.55)", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(14.4, -26.2), ctx.quadraticCurveTo(15.2, -25.4, 16, -26.2), ctx.stroke(), atk)
-      el(11, -21.3, 5.2, 3.4, "#5a1a2a"), el(11, -19.9, 3.2, 1.4, "#ff7a8a"), ctx.fillStyle = "#ffffff", [8, 11.4, 14.6].forEach((tx2) => {
-        ctx.beginPath(), ctx.moveTo(tx2 - 1.3, -23.6), ctx.lineTo(tx2 + 1.3, -23.6), ctx.lineTo(tx2, -21), ctx.closePath(), ctx.fill();
-      });
-    else if (k.munch > 0) {
-      let o = Math.sin(k.munch * 32) > 0 ? 2.6 : 0.8;
-      el(11, -21.7, 4.4, o, "#5a1a2a");
-    } else ko ? (el(11, -20.4, 3.4, 2, "#ff8a9a"), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(8.6, -23), ctx.lineTo(10.4, -23), ctx.lineTo(9.5, -20.6), ctx.closePath(), ctx.fill()) : (ctx.strokeStyle = "#4a2a38", ctx.lineWidth = 1.4, ctx.beginPath(), ctx.moveTo(4.2, -22.6), ctx.quadraticCurveTo(10.5, -20.2, 17, -23.4), ctx.stroke(), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(9.4, -21.6), ctx.lineTo(11.6, -21.4), ctx.lineTo(10.6, -19), ctx.closePath(), ctx.fill());
-    let ex = [-3, 6.5], ey = -30;
-    if (ctx.strokeStyle = "#2c1a2a", ctx.lineWidth = 1.8, ko)
-      ex.forEach((x) => {
-        ctx.beginPath(), ctx.moveTo(x - 2.6, ey - 2.6), ctx.lineTo(x + 2.6, ey + 2.6), ctx.moveTo(x + 2.6, ey - 2.6), ctx.lineTo(x - 2.6, ey + 2.6), ctx.stroke();
-      });
-    else if (k.hurt > 0)
-      ctx.beginPath(), ctx.moveTo(ex[0] - 2.5, ey - 3), ctx.lineTo(ex[0] + 2, ey), ctx.lineTo(ex[0] - 2.5, ey + 3), ctx.stroke(), ctx.beginPath(), ctx.moveTo(ex[1] + 2.5, ey - 3), ctx.lineTo(ex[1] - 2, ey), ctx.lineTo(ex[1] + 2.5, ey + 3), ctx.stroke();
-    else if (happy)
-      ex.forEach((x) => {
-        ctx.beginPath(), ctx.moveTo(x - 3, ey + 1.6), ctx.quadraticCurveTo(x, ey - 4, x + 3, ey + 1.6), ctx.stroke();
-      });
-    else if (k.blink < 0)
-      ex.forEach((x) => {
-        ctx.beginPath(), ctx.moveTo(x - 3, ey + 0.5), ctx.lineTo(x + 3, ey + 0.5), ctx.stroke();
-      });
+    let flash = k.hurt > 0 && (k.hurt * 40 | 0) % 2 === 0, c = flash ? "#ffffff" : T.body, d = T.dark, b = T.belly, atk = k.state === "windup" || k.state === "strike", scared = !ko && (k.fleeT > 0 || k.pers === "scaredy" && k.hp < k.max * 0.35), happy = !ko && (k.state === "cheer" || k.happy > 0 || k.munch > 0), moving = k.moving && !ko, m = moving ? 1 : 0, bob = ko ? 0 : moving ? -Math.abs(Math.sin(k.walk)) * 2.4 : Math.sin(k.t * 3 + k.bob) * 0.7, sq = k.squash;
+    ctx.save(), ctx.translate(k.x + (k.hurt > 0 ? Math.sin(k.hurt * 90) * 1.6 : 0), k.y - k.z), ctx.translate(0, -12), ctx.rotate(k.rot), ctx.translate(0, 12), ctx.scale(pop * (1 + 0.2 * sq) * k.face * k.size, pop * (1 - 0.2 * sq) * k.size), ctx.translate(0, bob);
+    let art = sprite(k.art);
+    if (art)
+      lying && ctx.rotate(-1.35), flash && (ctx.globalAlpha = 0.45), drawCharSprite(ctx, art, k.size), ctx.globalAlpha = 1;
     else {
-      let lkx = 1, lky = 0, t = k.target;
-      if (t && t.state !== "ko") {
-        let dx = t.x - k.x, dy = t.y - k.y, dd = Math.hypot(dx, dy) || 1;
-        lkx = dx / dd * k.face, lky = dy / dd;
+      ctx.lineCap = "round", ctx.lineJoin = "round";
+      let wag = Math.sin(k.t * (k.state === "cheer" ? 14 : 6) + k.phase) * (moving ? 5 : 3), tcy = -4 + wag * 0.3, tx = -34, ty = -14 + wag * 1.15;
+      ctx.strokeStyle = OL, ctx.lineWidth = 8.4, ctx.beginPath(), ctx.moveTo(-8, -8), ctx.quadraticCurveTo(-22, tcy, tx + 4, ty + 0.5), ctx.stroke(), ctx.strokeStyle = ko ? d : c, ctx.lineWidth = 5.6, ctx.beginPath(), ctx.moveTo(-8, -8), ctx.quadraticCurveTo(-22, tcy, tx + 4, ty + 0.5), ctx.stroke(), ctx.lineWidth = 3.4, ctx.beginPath(), ctx.moveTo(-22, -6 + wag * 0.2), ctx.quadraticCurveTo(-27, tcy - 1, tx + 4, ty + 0.5), ctx.stroke(), ctx.fillStyle = d, [[-14, -6.6], [-20, -6 + wag * 0.25], [-26, -7.5 + wag * 0.5]].forEach((q) => {
+        ctx.beginPath(), ctx.moveTo(q[0] - 2.4, q[1] - 2.2), ctx.lineTo(q[0] + 0.4, q[1] - 6), ctx.lineTo(q[0] + 2.4, q[1] - 2.4), ctx.closePath(), ctx.fill();
+      }), ctx.save(), ctx.translate(tx + 4, ty + 0.5), ctx.rotate(Math.atan2(ty + 0.5 - tcy, tx + 4 + 22)), ctx.beginPath(), ctx.moveTo(1, 0), ctx.lineTo(-3, -4.2), ctx.lineTo(-9, 0), ctx.lineTo(-3, 4.2), ctx.closePath(), ctx.fill(), ctx.strokeStyle = OL, ctx.lineWidth = 1.5, ctx.stroke(), ctx.restore();
+      let ph = k.walk, s1 = Math.sin(ph) * m;
+      el(-4 + s1 * 3, -2 - Math.max(0, Math.cos(ph)) * 2.5 * m, 6.6, 4.6, OL), el(5 - s1 * 3, -2 - Math.max(0, -Math.cos(ph)) * 2.5 * m, 6.6, 4.6, OL), el(-4 + s1 * 3, -2 - Math.max(0, Math.cos(ph)) * 2.5 * m, 5, 3, d), el(5 - s1 * 3, -2 - Math.max(0, -Math.cos(ph)) * 2.5 * m, 5, 3, d), ctx.fillStyle = "#fff0d2", [-4 + s1 * 3, 5 - s1 * 3].forEach((fx, fi) => {
+        let fy = -2 - Math.max(0, fi ? -Math.cos(ph) : Math.cos(ph)) * 2.5 * m;
+        [0, 1.9, 3.8].forEach((o) => {
+          ctx.beginPath(), ctx.moveTo(fx + 3.6 + o * 0.3, fy - 1.4 + o * 0.4), ctx.lineTo(fx + 6.2 + o * 0.3, fy + 0.2 + o * 0.5), ctx.lineTo(fx + 3.6 + o * 0.3, fy + 1.3 + o * 0.4), ctx.closePath(), ctx.fill();
+        });
+      }), ctx.fillStyle = d, [[-8.5, -19.6], [-11.2, -14.2], [-10, -8.6]].forEach((q) => {
+        ctx.beginPath(), ctx.moveTo(q[0] + 3, q[1] - 2.6), ctx.lineTo(q[0] - 3.2, q[1] - 0.4), ctx.lineTo(q[0] + 3, q[1] + 2.4), ctx.closePath(), ctx.fill();
+      }), el(0, -12, 12.7, 11.7, OL), el(0, -12, 11, 10, c), el(2, -10.5, 6.6, 7, b), ctx.strokeStyle = "rgba(60,25,40,.16)", ctx.lineWidth = 1, [-15, -12, -9].forEach((yy) => {
+        ctx.beginPath(), ctx.moveTo(-1.6, yy), ctx.quadraticCurveTo(3, yy + 1.2, 7, yy), ctx.stroke();
+      }), el(-6, -16, 1.4, 1.1, d), el(-4, -9.5, 1.3, 1, d), el(-7, -12, 1.2, 1, d);
+      let ew = Math.sin(k.t * 4 + k.phase) * 1.2, droop = k.hurt > 0 || scared || ko ? 7 : 0;
+      if (ctx.fillStyle = d, ctx.strokeStyle = OL, ctx.lineWidth = 2.4, ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.fill(), ctx.fillStyle = c, ctx.beginPath(), ctx.moveTo(-8.5, -31.5), ctx.lineTo(-16.5, -35.4 + droop * 0.7 + ew), ctx.lineTo(-9.4, -28), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9.4, -27), ctx.lineTo(-18.5, -28.3 + droop * 0.5 + ew * 0.6), ctx.lineTo(-10, -23.4), ctx.closePath(), ctx.fill(), (k.hat === "none" || k.hat === "leaf" || k.hat === "flower") && (ctx.strokeStyle = OL, ctx.lineWidth = 2.6, ctx.lineJoin = "round", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.stroke(), ctx.fillStyle = "#fff0d2", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.fill(), ctx.fillStyle = "rgba(120,80,50,.35)", ctx.beginPath(), ctx.moveTo(-15.6, -47.4), ctx.lineTo(-19.5, -49), ctx.lineTo(-13.6, -44), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-5.5, -49.6), ctx.lineTo(-9, -51.4), ctx.lineTo(-3.8, -46), ctx.closePath(), ctx.fill()), el(1, -28, 14.5, 12.7, OL), el(10, -25.4, 10.5, 7.5, OL), el(1, -28, 12.8, 11, c), el(10, -25.4, 8.8, 5.8, c), el(9.4, -22.6, 7.4, 3.3, b), el(-4.5, -35.4, 1, 1, d), el(-0.5, -37.2, 1, 1, d), el(-8, -31, 1.1, 1, d), el(2.5, -34.5, 0.9, 0.9, d), el(17.6, -27.4, 2.1, 1.6, "#33202c"), el(17, -27.9, 0.6, 0.5, "#ffffff"), ctx.strokeStyle = "rgba(40,20,30,.55)", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(14.4, -26.2), ctx.quadraticCurveTo(15.2, -25.4, 16, -26.2), ctx.stroke(), atk)
+        el(11, -21.3, 5.2, 3.4, "#5a1a2a"), el(11, -19.9, 3.2, 1.4, "#ff7a8a"), ctx.fillStyle = "#ffffff", [8, 11.4, 14.6].forEach((tx2) => {
+          ctx.beginPath(), ctx.moveTo(tx2 - 1.3, -23.6), ctx.lineTo(tx2 + 1.3, -23.6), ctx.lineTo(tx2, -21), ctx.closePath(), ctx.fill();
+        });
+      else if (k.munch > 0) {
+        let o = Math.sin(k.munch * 32) > 0 ? 2.6 : 0.8;
+        el(11, -21.7, 4.4, o, "#5a1a2a");
+      } else ko ? (el(11, -20.4, 3.4, 2, "#ff8a9a"), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(8.6, -23), ctx.lineTo(10.4, -23), ctx.lineTo(9.5, -20.6), ctx.closePath(), ctx.fill()) : (ctx.strokeStyle = "#4a2a38", ctx.lineWidth = 1.4, ctx.beginPath(), ctx.moveTo(4.2, -22.6), ctx.quadraticCurveTo(10.5, -20.2, 17, -23.4), ctx.stroke(), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(9.4, -21.6), ctx.lineTo(11.6, -21.4), ctx.lineTo(10.6, -19), ctx.closePath(), ctx.fill());
+      let ex = [-3, 6.5], ey = -30;
+      if (ctx.strokeStyle = "#2c1a2a", ctx.lineWidth = 1.8, ko)
+        ex.forEach((x) => {
+          ctx.beginPath(), ctx.moveTo(x - 2.6, ey - 2.6), ctx.lineTo(x + 2.6, ey + 2.6), ctx.moveTo(x + 2.6, ey - 2.6), ctx.lineTo(x - 2.6, ey + 2.6), ctx.stroke();
+        });
+      else if (k.hurt > 0)
+        ctx.beginPath(), ctx.moveTo(ex[0] - 2.5, ey - 3), ctx.lineTo(ex[0] + 2, ey), ctx.lineTo(ex[0] - 2.5, ey + 3), ctx.stroke(), ctx.beginPath(), ctx.moveTo(ex[1] + 2.5, ey - 3), ctx.lineTo(ex[1] - 2, ey), ctx.lineTo(ex[1] + 2.5, ey + 3), ctx.stroke();
+      else if (happy)
+        ex.forEach((x) => {
+          ctx.beginPath(), ctx.moveTo(x - 3, ey + 1.6), ctx.quadraticCurveTo(x, ey - 4, x + 3, ey + 1.6), ctx.stroke();
+        });
+      else if (k.blink < 0)
+        ex.forEach((x) => {
+          ctx.beginPath(), ctx.moveTo(x - 3, ey + 0.5), ctx.lineTo(x + 3, ey + 0.5), ctx.stroke();
+        });
+      else {
+        let lkx = 1, lky = 0, t = k.target;
+        if (t && t.state !== "ko") {
+          let dx = t.x - k.x, dy = t.y - k.y, dd = Math.hypot(dx, dy) || 1;
+          lkx = dx / dd * k.face, lky = dy / dd;
+        }
+        ex.forEach((x) => {
+          ctx.fillStyle = "#ffe27a", ctx.strokeStyle = "rgba(44,26,42,.6)", ctx.lineWidth = 1, ctx.beginPath(), ctx.arc(x, ey, 4.3, 0, 7), ctx.fill(), ctx.stroke();
+          let px = x + lkx * 1.1, py = ey + lky * 0.9 + 0.2;
+          el(px, py, scared ? 0.9 : 1.5, scared ? 2.7 : 3.4, "#2c1a2a"), el(px - 1.1, py - 1.5, 0.9, 0.9, "#ffffff"), ctx.strokeStyle = d, ctx.lineWidth = 1.7, ctx.beginPath(), ctx.moveTo(x - 4.4, ey - 2.6), ctx.quadraticCurveTo(x, ey - 5.6, x + 4.4, ey - 3), ctx.stroke();
+        });
       }
-      ex.forEach((x) => {
-        ctx.fillStyle = "#ffe27a", ctx.strokeStyle = "rgba(44,26,42,.6)", ctx.lineWidth = 1, ctx.beginPath(), ctx.arc(x, ey, 4.3, 0, 7), ctx.fill(), ctx.stroke();
-        let px = x + lkx * 1.1, py = ey + lky * 0.9 + 0.2;
-        el(px, py, scared ? 0.9 : 1.5, scared ? 2.7 : 3.4, "#2c1a2a"), el(px - 1.1, py - 1.5, 0.9, 0.9, "#ffffff"), ctx.strokeStyle = d, ctx.lineWidth = 1.7, ctx.beginPath(), ctx.moveTo(x - 4.4, ey - 2.6), ctx.quadraticCurveTo(x, ey - 5.6, x + 4.4, ey - 3), ctx.stroke();
-      });
-    }
-    if (atk && (ctx.strokeStyle = "#3a2030", ctx.lineWidth = 2, ctx.beginPath(), ctx.moveTo(-7.5, -36), ctx.lineTo(-1, -33.8), ctx.stroke(), ctx.beginPath(), ctx.moveTo(10.5, -36), ctx.lineTo(4, -33.8), ctx.stroke()), scared) {
-      let sy = -38 + Math.sin(k.t * 8);
-      ctx.fillStyle = "#8fd8ff", ctx.beginPath(), ctx.moveTo(-14, sy - 4), ctx.quadraticCurveTo(-18, sy + 1, -14, sy + 3), ctx.quadraticCurveTo(-10, sy + 1, -14, sy - 4), ctx.fill();
-    }
-    if (drawHat(k.hat), !ko) {
-      let hp = handPos(k.wa);
-      ctx.strokeStyle = OL, ctx.lineWidth = 7.4, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.strokeStyle = d, ctx.lineWidth = 4.6, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.save(), ctx.translate(hp[0], hp[1]), ctx.rotate(k.wa), drawWeapon(k.weapon), ctx.restore(), el(hp[0], hp[1], 4.5, 4.5, OL), el(hp[0], hp[1], 2.9, 2.9, c);
+      if (atk && (ctx.strokeStyle = "#3a2030", ctx.lineWidth = 2, ctx.beginPath(), ctx.moveTo(-7.5, -36), ctx.lineTo(-1, -33.8), ctx.stroke(), ctx.beginPath(), ctx.moveTo(10.5, -36), ctx.lineTo(4, -33.8), ctx.stroke()), scared) {
+        let sy = -38 + Math.sin(k.t * 8);
+        ctx.fillStyle = "#8fd8ff", ctx.beginPath(), ctx.moveTo(-14, sy - 4), ctx.quadraticCurveTo(-18, sy + 1, -14, sy + 3), ctx.quadraticCurveTo(-10, sy + 1, -14, sy - 4), ctx.fill();
+      }
+      if (drawHat(k.hat), !ko) {
+        let hp = handPos(k.wa);
+        ctx.strokeStyle = OL, ctx.lineWidth = 7.4, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.strokeStyle = d, ctx.lineWidth = 4.6, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.save(), ctx.translate(hp[0], hp[1]), ctx.rotate(k.wa), drawWeapon(k.weapon), ctx.restore(), el(hp[0], hp[1], 4.5, 4.5, OL), el(hp[0], hp[1], 2.9, 2.9, c);
+      }
     }
     if (ctx.restore(), ko)
       for (let i = 0; i < 3; i++) {
@@ -1704,8 +1755,8 @@ button,.rpb,.pill{touch-action:manipulation}
     vexx: { n: "King Vexx", w: "sword", team: 3, hp: 1450, atk: 47, def: 12, spd: 8, xp: 0, gold: 350, size: 1.8, boss: 1, smash: 3, hat: "crown" },
     lancer: { n: "Hoard lancer", w: "spear", team: 3, hp: 95, atk: 22, def: 9, spd: 6, xp: 46, gold: 20 },
     /* the story: the Hatching */
-    tollboss: { n: "Grubb the toll boss", w: "club", team: 2, hp: 170, atk: 12, def: 3, spd: 4, xp: 70, gold: 40, size: 1.3, boss: 1, hat: "pot" },
-    collector: { n: "Snipe the copper snatcher", w: "blunder", team: 2, hp: 300, atk: 17, def: 5, spd: 6, xp: 130, gold: 60, size: 1.2, boss: 1, hat: "bucket", all: 0.3 }
+    tollboss: { n: "Grubb the toll boss", art: "grubb", w: "club", team: 2, hp: 170, atk: 12, def: 3, spd: 4, xp: 70, gold: 40, size: 1.3, boss: 1, hat: "pot" },
+    collector: { n: "Snipe the copper snatcher", art: "snipe", w: "blunder", team: 2, hp: 300, atk: 17, def: 5, spd: 6, xp: 130, gold: 60, size: 1.2, boss: 1, hat: "bucket", all: 0.3 }
   }, RP_ZONE = {
     ",": { n: "Bandit Meadow", t: { scout: 3, slinger: 3, thief: 2 }, max: 2 },
     ";": { n: "Whisper Woods", t: { apprentice: 2, bruiser: 2, frostbandit: 2, scout: 1 }, max: 3 },
@@ -2941,7 +2992,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-16T18:12:17Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T07:41:11Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -3305,7 +3356,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let pr = P.presence;
       if (pr.m === "battle" || !netHere(P)) return;
       let E = net.pks[P.peer];
-      (!E || E.k.weapon !== pr.w) && (E = net.pks[P.peer] = { k: makeK({ team: 0, name: netName(P), weapon: WEAPONS[pr.w] ? pr.w : "stick", hat: pr.h || "none", pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1), pos: null });
+      (!E || E.k.weapon !== pr.w) && (E = net.pks[P.peer] = { k: makeK({ team: 0, name: netName(P), art: "pip", weapon: WEAPONS[pr.w] ? pr.w : "stick", hat: pr.h || "none", pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1), pos: null });
       let k = E.k;
       k.hat = pr.h || "none";
       let tx = (+pr.x || 0) * RT, ty = (+pr.y || 0) * RT + 10;
@@ -3420,7 +3471,27 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/render/map.js
-  var GROUND = /* @__PURE__ */ new Set([".", ",", "F", ";", "z", "u", "v", "=", "C"]);
+  var TILE_ART = {
+    ".": "tile-grass",
+    ",": "tile-tallgrass",
+    ";": "tile-forest-floor",
+    T: "tile-tree",
+    F: "tile-flowers",
+    "~": "tile-water",
+    "=": "tile-path",
+    "#": "tile-rock",
+    z: "tile-sand",
+    q: "tile-cactus",
+    v: "tile-snow",
+    P: "tile-pine",
+    u: "tile-gravel",
+    C: "tile-cave",
+    b: "tile-bridge",
+    j: "tile-bridge-across",
+    i: "tile-sign",
+    O: "tile-fountain",
+    n: "tile-fence"
+  }, TILE_ON_GROUND = /* @__PURE__ */ new Set(["T", "F", "q", "P", "i", "O", "n"]), GROUND = /* @__PURE__ */ new Set([".", ",", "F", ";", "z", "u", "v", "=", "C"]);
   function rpTile(g, c, x, y, X, Y) {
     if (rpTileRoom(g, c, x, y, X, Y)) return;
     let r = seeded(x * 131 + y * 977), grass = () => {
@@ -3445,6 +3516,13 @@ button,.rpb,.pill{touch-action:manipulation}
       let c2 = nbGround();
       !c2 || c2 === "." || c2 === "F" || c2 === "," ? grass() : rpTile(g, c2, x, y, X, Y);
     };
+    {
+      let sp = sprite(TILE_ART[c]);
+      if (sp) {
+        TILE_ON_GROUND.has(c) && under(), g.drawImage(sp.img, X, Y, RT + 1, RT + 1);
+        return;
+      }
+    }
     switch (c) {
       case ".":
         grass();
@@ -3639,7 +3717,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpNpcK(n) {
     let k = rp.npcK[n.id];
-    return k || (k = makeK({ team: n.team, name: n.name, weapon: n.w, hat: n.hat, pers: "brave", speed: 1, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face, rp.npcK[n.id] = k), k;
+    return k || (k = makeK({ team: n.team, name: n.name, art: n.art || n.id, weapon: n.w, hat: n.hat, pers: "brave", speed: 1, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face, rp.npcK[n.id] = k), k;
   }
   function rpDrawMap(dt) {
     let s = rp.s, ctx0 = ctx;
@@ -3659,7 +3737,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let ents = rpNpcs().map((n) => {
       let kk = rpNpcK(n);
       return kk.x = n.x * RT + 16, kk.y = n.y * RT + 26, kk.t += dt, kk.blink -= dt, kk.blink < -0.12 && (kk.blink = R(2, 5)), kk.moving = !1, kk.wa = 0.35 + Math.sin(kk.t * 2 + kk.phase) * 0.4, Math.abs(s.x - n.x) + Math.abs(s.y - n.y) <= 2 && (kk.face = s.x > n.x ? 1 : s.x < n.x ? -1 : kk.face), kk;
-    }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", weapon: s.party[0].w, hat: s.party[0].hat, pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1));
+    }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", art: "pip", weapon: s.party[0].w, hat: s.party[0].hat, pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1));
     pk.weapon !== s.party[0].w && (pk.weapon = s.party[0].w, pk.W = WEAPONS[pk.weapon]), pk.hat = rpHat(s.party[0]), pk.x = px * RT + 16, pk.y = py * RT + 26, pk.t += dt, pk.blink -= dt, pk.blink < -0.12 && (pk.blink = R(2, 5)), pk.moving = rp.moving, rp.moving && (pk.walk += dt * 12), s.face === "left" ? pk.face = -1 : s.face === "right" && (pk.face = 1), pk.wa += ((WEAPONS[pk.weapon].ranged && !WEAPONS[pk.weapon].magic ? 1.45 : 0.35) - pk.wa) * Math.min(1, dt * 10), ents.concat([pk], netPartnerK(dt)).sort((a, b) => a.y - b.y).forEach(drawKobold), netDrawTags(), rpNpcs().forEach((n) => {
       let m = rpMarker(n.id);
       if (!m) return;
@@ -3842,11 +3920,11 @@ button,.rpb,.pill{touch-action:manipulation}
           m.hp = v;
         }, get max() {
           return rpStats(m).hp;
-        } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: u.max, size: 0.62 }, 0, 0, !0);
+        } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: u.max, size: 0.62 }, 0, 0, !0);
       } else {
         let E = RP_E[o.k];
         if (!E) return;
-        u = { side, E, key: o.k, name: E.n, x: o.x, y, sz: o.z, hp: o.hp, max: o.mx, atk: o.a, def: o.d, spd: o.sp, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !!o.aw, pod: o.pd, turns: 0, fled: !1, own: "e", ctl: "ai" }, u.k = makeK({ team: E.team, name: E.n, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !0);
+        u = { side, E, key: o.k, name: E.n, x: o.x, y, sz: o.z, hp: o.hp, max: o.mx, atk: o.a, def: o.d, spd: o.sp, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !!o.aw, pod: o.pd, turns: 0, fled: !1, own: "e", ctl: "ai" }, u.k = makeK({ team: E.team, name: E.n, art: E.art || o.k, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !0);
       }
       u.k.face = side === 0 ? 1 : -1;
       let hh = tcHome(u);
@@ -4414,7 +4492,7 @@ button,.rpb,.pill{touch-action:manipulation}
       if (g.setTransform) {
         let main = ctx;
         set_ctx(g), g.setTransform(d * sz / 100, 0, 0, d * sz / 100, 0, 0);
-        let k = makeK({ team: 0, name: m.name, weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: 30, size: 1.15 }, 50, 92, !1);
+        let k = makeK({ team: 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: 30, size: 1.15 }, 50, 92, !1);
         k.face = 1, k.wa = 0.35, g.fillStyle = "rgba(255,215,90,.12)", g.beginPath(), g.ellipse(50, 92, 34, 9, 0, 0, 7), g.fill(), drawKobold(k), set_ctx(main);
       }
     }
@@ -5541,7 +5619,7 @@ button,.rpb,.pill{touch-action:manipulation}
           return rpStats(m).hp;
         }
       };
-      u.k = makeK({ team: side === 1 ? 3 : 0, name: m.name, weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: st.hp, size: 0.62 }, 0, 0, !rp.headless), u.k.face = side ? -1 : 1, m.hp <= 0 && (u.k.state = "ko", u.k.rot = -Math.PI / 2);
+      u.k = makeK({ team: side === 1 ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: st.hp, size: 0.62 }, 0, 0, !rp.headless), u.k.face = side ? -1 : 1, m.hp <= 0 && (u.k.state = "ko", u.k.rot = -Math.PI / 2);
       let y0 = side ? 0 : H - 3, yc = side ? 1 : H - 2, spot = null, bd = 1e9;
       for (let y = y0; y < y0 + 3; y++) for (let x = 0; x < W; x++) {
         if (!tcFits(b, u, x, y)) continue;
@@ -5600,7 +5678,7 @@ button,.rpb,.pill{touch-action:manipulation}
           sc > best && (best = sc, spot = [x, y]);
         }
       }
-      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, b.units.push(u);
+      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, art: E.art || key, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, b.units.push(u);
     }), b.units.forEach((u) => {
       let h = tcHome(u);
       u.k.x = h.x, u.k.y = h.y;
@@ -6410,6 +6488,18 @@ button,.rpb,.pill{touch-action:manipulation}
     } },
     tiles: { m: { use: () => rpOpenWorldMap() } }
   });
+
+  // src/game/artload.js
+  feature({ id: "art", init() {
+    onSpriteLoad(() => {
+      rp.mapImg = null;
+    }), typeof fetch == "function" && fetch("art/manifest.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).then((m) => {
+      let L = {};
+      for (let n in m) L[n] = "art/" + n + ".png?v=" + m[n].v;
+      spritesInit(L);
+    }).catch(() => {
+    });
+  } });
 
   // src/main.js
   boot();

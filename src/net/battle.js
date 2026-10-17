@@ -12,6 +12,7 @@ import {RP_E} from '../data/monsters.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {confetti} from '../engine/fx.js';
+import {artName} from '../engine/sprites.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
 import {rpHat,rpMemSkills,rpStats} from '../game/stats.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
@@ -34,9 +35,9 @@ function netBuildMirror(d,hostPeer){
   d.u.forEach(o=>{const side=flip?1-o.s:o.s,y=flip?H-o.z-o.y:o.y;let u;
     if(o.o==='g'||o.o==='h'){const m=o.o==='g'?s.party[o.gi]:netCleanParty([o.m])[0];if(!m)return;
       u={side,m,name:m.name,x:o.x,y,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,own:o.o,ctl:o.o==='g'?'me':'remote',get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
-      u.k=makeK({team:o.o==='g'?0:(flip?3:0),name:m.name,weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:u.max,size:.62},0,0,true)}
+      u.k=makeK({team:o.o==='g'?0:(flip?3:0),name:m.name,art:artName(m.name),weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:u.max,size:.62},0,0,true)}
     else{const E=RP_E[o.k];if(!E)return;u={side,E,key:o.k,name:E.n,x:o.x,y,sz:o.z,hp:o.hp,max:o.mx,atk:o.a,def:o.d,spd:o.sp,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!o.aw,pod:o.pd,turns:0,fled:false,own:'e',ctl:'ai'};
-      u.k=makeK({team:E.team,name:E.n,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
+      u.k=makeK({team:E.team,name:E.n,art:E.art||o.k,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
     u.k.face=side===0?1:-1;const hh=tcHome(u);u.k.x=hh.x;u.k.y=hh.y;b.units.push(u)});
   if(b.units.length!==d.u.length)return;
   rp.bt=b;rp.mode='battle';rp.path=null;rpInputReset();tcVis(b);tcCamTo(b,b.units.find(u=>u.ctl==='me')||b.units[0],true);

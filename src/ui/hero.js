@@ -6,6 +6,7 @@ import {rp} from '../core/state.js';
 import {RP_ADV,RP_CLS,RP_SK,RP_TAL} from '../data/classes.js';
 import {RP_IT,RP_SLOTNAME,RP_SLOTS9} from '../data/items.js';
 import {ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
+import {artName} from '../engine/sprites.js';
 import {$,esc2} from '../engine/util.js';
 import {rpItemTone,rpSetLine} from '../game/gear.js';
 import {rpCanEquip,rpEquip,rpItemDesc,rpUnequip} from '../game/items.js';
@@ -39,7 +40,7 @@ function rpHeroRender(){
   el.innerHTML=h;
   el.querySelectorAll('canvas[data-icon]').forEach(c=>rpIcon(c,c.dataset.icon,c.closest('.hh-slot')?44:38));
   const por=$('hh-por');if(por&&por.getContext){const sz=por.clientWidth||160,d=Math.min(2,window.devicePixelRatio||1);por.width=sz*d;por.height=sz*d;const g=por.getContext('2d');
-    if(g.setTransform){const main=ctx;set_ctx(g);g.setTransform(d*sz/100,0,0,d*sz/100,0,0);const k=makeK({team:0,name:m.name,weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:30,size:1.15},50,92,false);k.face=1;k.wa=.35;
+    if(g.setTransform){const main=ctx;set_ctx(g);g.setTransform(d*sz/100,0,0,d*sz/100,0,0);const k=makeK({team:0,name:m.name,art:artName(m.name),weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:30,size:1.15},50,92,false);k.face=1;k.wa=.35;
       g.fillStyle='rgba(255,215,90,.12)';g.beginPath();g.ellipse(50,92,34,9,0,0,7);g.fill();drawKobold(k);set_ctx(main)}}
 }
 function rpHeroAct(target){
