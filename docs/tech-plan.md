@@ -26,7 +26,7 @@
 | content | where it lives | how it gets in |
 |---|---|---|
 | Drawings | `art/sprites/*.png` | Joakim saves from Paint.NET and pushes; live in ~2 minutes (built) |
-| Sounds (optional) | `art/sounds/*.ogg` | same as drawings (to build when needed) |
+| Music and sounds | `src/engine/music.js`, `src/engine/audio.js` | made in code (decided: no recordings) |
 | Dialogue and quests | `src/data/dialogue.js` (rules) | written by me; checked by the story test |
 | World | `REGION` in `src/data/overworld.js`, towns by theme, rooms in `places.js` | edited as data; overworld test checks every route, door and sign |
 | Monsters, items, balance | `src/data/*.js` | data tables; simulators check balance |

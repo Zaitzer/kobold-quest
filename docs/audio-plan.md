@@ -6,9 +6,8 @@
 
 The game already makes its own music and sounds in code: little chiptune tracks built from a key, a tempo and a seed
 (`engine/music.js`), and short synth sounds (`engine/audio.js`). That suits the game: it costs nothing to download,
-works offline in the Claude page, and every area can have its own tune. The plan keeps that, and adds a way to drop in
-recorded sounds later through the same pipeline as the drawings (`art/sounds/*.ogg`), for things a synth does badly
-(a real yip, a dragon's roar).
+works offline in the Claude page, and every area can have its own tune. The plan keeps that: all music and sounds are
+made in code.
 
 Rules:
 1. **Sound is on by default, quiet by default.** A tap starts the audio (browsers require it); a mute button is always one tap away.
@@ -55,10 +54,9 @@ Short jingles: spark gained, level up, recruit joins, key item, battle won, batt
 | bump | walking into a barrier or wall | new |
 | spark | gaining a spark | new jingle |
 | level up | | new jingle |
-| egg crack, dragon roar | the hatchings, Glitterbeak | new (maybe recorded) |
+| egg crack, dragon roar | the hatchings, Glitterbeak | new |
 | menu tap | buttons | new, very soft |
 
-## Decision for the creative director
+## Decision
 
-- Keep everything generated in code (small, consistent, cheap), or record some real sounds yourself (a yip, kobold
-  voices) and drop them in through the pipeline?
+- **Everything generated in code** (Joakim, 17 Oct 2026). No recorded sounds; the `art/sounds` idea is dropped.
