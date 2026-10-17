@@ -23,6 +23,7 @@ function rpQuestLine(){const r=QUEST_LINE.find(r=>test(r.if));return r?fill(r.te
 function rpQuestList(){const q=rp.s.q,L=[];
   for(const e of QUEST_LOG){if(!test(e.show))continue;const t=typeof e.text==='function'?e.text(q):e.text;L.push((e.hint?'·':e.done&&test(e.done)?'✔':'•')+' '+t)}
   const B=RP_BOUNTY[q.bty||0];if(B&&q.btyBase!=null)L.push('• Bounty: '+B.zn+' ('+Math.min(B.n,((q.kz||{})[B.z]||0)-q.btyBase)+'/'+B.n+')');else if(B&&test(B.if))L.push('· New bounty on the board by the inn');
+  if(rp.s.dust)L.push('· Helper\'s spark dust: '+rp.s.dust+' (for cosmetics, coming later)');
   return L.join('<br>')}
 function rpOpenShop(){rp.mode='shop';rp.shopFor=null;rpUI(true)}
 function rpBuyGear(id){const it=RP_IT[id];if(!it||rp.s.gold<it.price)return;rp.s.gold-=it.price;rpGive(id);if(!rp.headless)sfx('win');rpToast(it.n+' is in your backpack');rpUI(true)}

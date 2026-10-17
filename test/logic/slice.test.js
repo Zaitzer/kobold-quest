@@ -45,4 +45,14 @@ console.log((fails?'FAIL':'ok')+' slice: 4 route zones, fountains, travel, losin
  G.actions.rostout({i:'0'});if(s.party[0].name!=='Pip')bad('Pip can be sent away');
  const lv=s.roster[0].lvl,xp0=s.roster[0].xp;G.rpBenchXp(40,G.rpXpNeed);if(s.roster[0].xp===xp0&&s.roster[0].lvl===lv)bad('the inn got no XP');
  for(const id of ['keeperA','keeperE']){const n=G.RP_NPC.find(n=>n.id===id);if(!G.RP_PLACES[n.place])bad(id+' is in a room that does not exist: '+n.place)}}
-console.log((fails?'FAIL':'ok')+' slice: roster, recruits, inns');process.exitCode=fails?1:0;
+// co-op: level sync brings a strong friend's kobold down to the host's level; bosses count only for players at that step
+{const m=G.rpMember('Bork','warrior',12);m.hp=Math.round(G.rpStats(m).hp/2);const c=G.netLevelSync(m,4),a=G.rpStats(m),b=G.rpStats(c);
+ if(c.lvl!==4||c.synced!==12||b.hp>=a.hp||b.atk>=a.atk)bad('level sync: '+JSON.stringify({lvl:c.lvl,hp:[a.hp,b.hp],atk:[a.atk,b.atk]}));
+ if(Math.abs(c.hp/b.hp-.5)>.05)bad('level sync should keep the share of health: '+c.hp+'/'+b.hp);
+ if(G.netLevelSync(G.rpMember('Pip','ranger',3),4).lvl!==3)bad('a weaker kobold should not change');
+ const winBoss=pb=>{fresh();const s=G.rp.s;Object.assign(s.q,{moot:5,pb});G.rpBattle(['tollboss'],{boss:'tollboss'});G.rpWin();const r={pb:s.q.pb,dust:s.dust||0,msg:G.rp.bt.msg,drops:G.rp.bt.drops.length};G.rp.bt=null;G.rp.mode='map';return r};
+ const ready=winBoss(1),early=winBoss(0),helper=winBoss(3);
+ if(ready.pb!==2||!ready.drops)bad('a ready player did not get the boss: '+JSON.stringify(ready));
+ if(early.pb!==0||early.drops||!/isn't part of your story/.test(early.msg))bad('a player not at the step got the boss: '+JSON.stringify(early));
+ if(helper.pb!==3||helper.dust!==3)bad('a helper past the step got no spark dust: '+JSON.stringify(helper))}
+console.log((fails?'FAIL':'ok')+' slice: roster, recruits, inns, level sync, shared boss credit');process.exitCode=fails?1:0;

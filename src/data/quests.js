@@ -31,10 +31,12 @@ const RP_NPC=[
   /* Thistledown (the story goes on here next) */
   {id:'herald',name:'Thistledown herald',...atD(-3,2),team:3,w:'healwand',hat:'cone',face:1}
 ];
-/* bosses: what beating them does (rules), what they drop, and what is said when the battle closes */
+/* bosses: what beating them does (rules), what they drop, and what is said when the battle closes.
+   ready: the story step a player must be at for the win to count for them (friends who help but aren't there yet
+   just get the normal rewards); done: a player past it, who gets helper's spark dust for helping */
 const RP_BOSSES={
-  tollboss:{win:{set:{pb:2}},drops:['sh_spike'],after:[{who:'Grubb',text:'Ow! My belly! Fine, FINE, drink all you want!'},{who:'',text:'Grubb waddles off towards Thistledown. Farmer Turnip will want to hear about this.'}]},
-  collector:{win:{set:{ch:2}},drops:['rg_might'],after:[{who:'Snipe',text:'You can\'t rob a kobold who is running away! Ha! ...Wait, that\'s me.'},{who:'',text:'Snipe flees down the mountain. The shift circle can finally sit down. Foreman Ruddle looks very nervous and very happy.'}]}};
+  tollboss:{ready:{pb:1},done:{pb:{gte:2}},win:{set:{pb:2}},drops:['sh_spike'],after:[{who:'Grubb',text:'Ow! My belly! Fine, FINE, drink all you want!'},{who:'',text:'Grubb waddles off towards Thistledown. Farmer Turnip will want to hear about this.'}]},
+  collector:{ready:{ch:1,miners:{gte:4}},done:{ch:{gte:2}},win:{set:{ch:2}},drops:['rg_might'],after:[{who:'Snipe',text:'You can\'t rob a kobold who is running away! Ha! ...Wait, that\'s me.'},{who:'',text:'Snipe flees down the mountain. The shift circle can finally sit down. Foreman Ruddle looks very nervous and very happy.'}]}};
 /* kill tallies: winning a fight in `zone` while `if` holds adds the number of foes to quest flag `flag` */
 const RP_TALLIES=[];
 /* bounties on the board by the inn, one after another */

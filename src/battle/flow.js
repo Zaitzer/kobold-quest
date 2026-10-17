@@ -281,11 +281,14 @@ function rpRewards(b){
   {const n=b.units.filter(f=>f.side===1).length;for(const T of RP_TALLIES)if(T.zone===b.zone&&test(T.if))s.q[T.flag]=(s.q[T.flag]||0)+n}
   const ups=[];s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});rpBenchXp(xp,rpXpNeed);
   b.drops=[];
-  const B=b.boss&&RP_BOSSES[b.boss];
-  if(B){run(B.win);b.drops.push(...B.drops)}
+  /* a boss counts for you only if you have reached that step of your own story (ready); a friend who is past it
+     and came to help gets helper's spark dust instead (done) */
+  const B=b.boss&&RP_BOSSES[b.boss];let help='';
+  if(B&&(!B.ready||test(B.ready))){run(B.win);b.drops.push(...B.drops)}
+  else if(B){if(B.done&&test(B.done)){s.dust=(s.dust||0)+3;help=' Helper\'s spark dust +3.'}else help=' (This fight isn\'t part of your story yet.)'}
   else{const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
   const sp=rpBattleSpoils(b);b.drops.forEach(rpGive);
-  b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'');
+  b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'')+help;
   b.units.forEach(u=>{u.buff={atk:0,def:0};u.guard=0;u.watch=0;b.vis.fill(2)});
   if(!rp.headless){confetti();sfx('win')}
   emit('battle:won',b);

@@ -31,7 +31,7 @@ function netLobFix(L,who){
 }
 function netLobSend(){const L=net.lob;if(!L||!L.host)return;
   const sum=p=>p.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:Math.max(0,m.hp),mx:rpStats(m).hp}));
-  netEmit({t:'lob',id:L.id,duel:L.duel,title:netLobTitle(L),hp:sum(rp.s.party),hsel:L.hsel,g:L.g?{peer:L.g.peer,sel:L.g.sel}:null});L.sent=performance.now()}
+  netEmit({t:'lob',id:L.id,duel:L.duel,title:netLobTitle(L),hp:sum(rp.s.party),hsel:L.hsel,g:L.g?{peer:L.g.peer,sel:L.g.sel}:null,cap:L.duel?0:rp.s.party[0].lvl});L.sent=performance.now()}
 function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.boss?RP_E[o.boss].n:(RP_ZONE[o.zone]||{n:'Battle'}).n}
 function netLobHtml(){
   const L=net.lob;if(!L)return'';const host=L.host,V=L.view||{};
@@ -42,6 +42,7 @@ function netLobHtml(){
     h+='<p>'+(L.duel?(g?'Pick 1 to 3 kobolds each, then start.':'Waiting for '+esc2(netName())+' to answer…'):g?'Pick who fights: at least one each, up to 4 together ('+tot+'/4).':'Pick your kobolds. '+esc2(netName())+' can join now, or start without them.')+'</p></div>';
     h+='<div class="lobp"><small>Your party</small>'+chips(rp.s.party,L.hsel,true,'h')+'</div>';
     if(g)h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(g.party.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:m.hp,mx:rpStats(m).hp})),g.sel,false)+'</div>';
+    if(g&&!L.duel&&g.party.some(m=>m.lvl>rp.s.party[0].lvl))h+='<p class="rptip">'+esc2(netName())+'\'s kobolds fight at level '+rp.s.party[0].lvl+' (level sync).</p>';
     h+='<div class="tbar two"><button class="rpb x" type="button" data-net="lobcancel">'+(L.duel?'✕ Cancel duel':'✕ '+(g?'Fight alone':'Back'))+'</button><button class="rpb go" type="button" data-net="lobstart"'+(L.duel&&!g?' disabled':'')+'>Start battle ▸<small>'+(g?'with '+esc2(netName()):'on your own')+'</small></button></div>';
     if(!L.duel&&!g&&L.keys&&L.opt&&!L.opt.boss)h=h.replace('✕ Back','✕ Back');}
   else{
@@ -50,6 +51,7 @@ function netLobHtml(){
     h+='<p>'+(L.duel?'Pick 1 to 3 kobolds. ':'Pick at least one kobold ('+tot+'/4 together). ')+esc2(netName())+' starts the battle.</p></div>';
     h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(V.hp,V.hsel||[],false)+'</div>';
     h+='<div class="lobp"><small>Your party</small>'+chips(rp.s.party,mySel,true,'g')+'</div>';
+    if(V.cap&&rp.s.party.some(m=>m.lvl>V.cap))h+='<p class="rptip">Your kobolds fight at level '+V.cap+' to match '+esc2(netName())+' (level sync). You still get your rewards.</p>';
     h+='<div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>'}
   return h;
 }
@@ -59,11 +61,16 @@ function netLobPick(who,i){const L=net.lob;if(!L)return;
   else if(who==='g'&&!L.host){let s=(L.sel||[0]).slice();const j=s.indexOf(i);if(j>=0){if(s.length>1)s.splice(j,1)}else{s.push(i);s.sort()}
     if(L.duel&&s.length>3)s=s.slice(0,3);L.sel=s;netEmit({t:'pick',id:L.id,sel:s,to:L.hostPeer})}
 }
+/* level sync: a friend's kobolds above the host's level fight as if they were at the host's level (talents beyond it
+   rest, promotion only from level 10); health and mana keep the same share they had */
+function netLevelSync(m,cap){if(!m||m.lvl<=cap)return m;
+  const c=Object.assign({},m,{lvl:cap,tal:(m.tal||[]).slice(0,Math.max(0,cap-1)),adv:cap>=10?m.adv:null,synced:m.lvl});
+  const a=rpStats(m),b=rpStats(c);c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
 /* ---------- starting a battle together ---------- */
 function netStart(){
   const L=net.lob;if(!L||!L.host)return;const s=rp.s;
   const mine=L.hsel.filter(i=>s.party[i]&&s.party[i].hp>0).map(i=>({m:s.party[i],ctl:'me',own:'h'}));if(!mine.length)return;
-  const theirs=L.g?L.g.sel.map(i=>L.g.party[i]).filter(m=>m&&m.hp>0).map(m=>({m,ctl:'remote',own:'g'})):[];
+  const cap=s.party[0].lvl,theirs=L.g?L.g.sel.map(i=>L.g.party[i]).filter(m=>m&&m.hp>0).map(m=>({m:L.duel?m:netLevelSync(m,cap),ctl:'remote',own:'g'})):[];
   net.lob=null;
   if(L.duel){if(!theirs.length)return rpToast('Waiting for '+netName()+'.');rpBattle([],{duel:true,members:mine,foes:theirs,net:L.g.peer,nid:L.id,gParty:L.g.party})}
   else{let keys=L.keys;const o=L.opt||{};
@@ -94,4 +101,4 @@ feature({id:'net-lobby-io',
       if(L.g){netEmit({t:'nolob',id:L.id,to:L.g.peer,why:netName()+' went ahead alone.'});L.g=null;netStart();return}
       net.lob=null;rpBattle(L.keys,L.opt);return}},
     'net:lobleave'(d){{const L=net.lob;if(L)netEmit({t:'leave',id:L.id,to:L.hostPeer});net.lob=null;rp.mode='map';return}}}});
-export {netCleanParty,netLobFix,netLobHtml,netLobPick,netLobSend,netLobTitle,netOpenLobby,netParty,netStart,rpFight};
+export {netCleanParty,netLevelSync,netLobFix,netLobHtml,netLobPick,netLobSend,netLobTitle,netOpenLobby,netParty,netStart,rpFight};
