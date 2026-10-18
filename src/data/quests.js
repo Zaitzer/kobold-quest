@@ -13,6 +13,14 @@ const RP_NPC=[
   {id:'quill',name:'Quill the scribe',place:'inn',x:10,y:3,team:2,w:'healwand',hat:'wizard',face:-1},
   {id:'tikka',name:'Tikka',place:'inn',x:2,y:5,team:2,w:'squirt',hat:'flower',face:1},
   {id:'nettle',name:'Granny Nettle',place:'elder',x:6,y:2,team:0,w:'spoon',hat:'flower',face:-1,size:.9},
+  /* round the Great Nest (17, 26): one opinion each (TALK NEST in dialogue.js); the stranger with the sack leaves after the hatching */
+  {id:'bramble',name:'Bramble',x:14,y:25,team:1,w:'stick',hat:'pot',face:1},
+  {id:'mallow',name:'Old Mallow',x:21,y:25,team:0,w:'spoon',hat:'flower',face:-1,size:.9},
+  {id:'glint',name:'Glint',x:21,y:27,team:3,w:'popgun',hat:'cone',face:-1,size:.85},
+  {id:'grumble',name:'Grumble',x:14,y:27,team:2,w:'pan',hat:'bucket',face:1},
+  {id:'sorrel',name:'Sorrel',x:13,y:26,team:0,w:'healwand',hat:'leaf',face:1},
+  {id:'dottie',name:'Dottie',x:22,y:26,team:0,w:'spoon',hat:'none',face:-1},
+  {id:'stranger',name:'A friendly stranger',x:18,y:28,team:2,w:'fish',hat:'cone',face:-1,show:s=>(s.q.moot||0)<3},
   /* Pebblebrook */
   {id:'turnip',name:'Farmer Turnip',...atA(-3,2),team:0,w:'stick',hat:'leaf',face:1},
   {id:'grubb',name:'Grubb the toll boss',...atA(1,-1),team:2,w:'club',hat:'pot',face:-1,size:1.2,show:s=>(s.q.moot||0)>=5&&(s.q.pb||0)<2},

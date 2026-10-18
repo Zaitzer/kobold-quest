@@ -1641,10 +1641,7 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/data/dialogue.js
   var PIP = "Pip", HATCHED = {
-    skip: `Most of the village kept their embers, like you. "They're all ugly," they said. Only a handful of eggs got warmed at all.`,
-    spiky: "Your ember went to the spiky egg. A few others did the same. Not many. Most of the village kept their embers at home.",
-    sleepy: "Your ember went to the sleepy egg. A few others did the same. Not many. Most of the village kept their embers at home.",
-    shiny: "Your ember went to the shiny egg. So did a few others. Not many. Most of the village kept their embers at home."
+    skip: `Most of the village kept their embers, like you. "They're all ugly," they said. Only a handful of eggs got warmed at all.`
   }, RESULT_TAIL = [
     "But somebody sat by the shiny egg all night with a whole sack of embers. Snatchclaw's bandits.",
     "At dawn it hatched. Meet our guardian: Glitterbeak. He is small, greedy and loves anything shiny, and the bandits feed him.",
@@ -1665,25 +1662,18 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { moot: 1 }, say: ["The Great Nest is on the green, east of here. Three eggs. Pick one, or at least have a look."] },
       { if: { moot: 2 }, say: ["The eggs need until dawn. Nobody sleeps much on hatching night.", "Witch Yarrow sent word that she wants to see you. Over the bridge north, then west into Whisper Woods."] },
       resultRule("skip"),
-      resultRule("spiky"),
-      resultRule("sleepy"),
-      resultRule("shiny"),
       { if: { moot: 3 }, say: ["The hatching is over, Pip. Sit down."].concat(RESULT_TAIL), then: { set: { moot: 5 }, toast: "New quest: a spark from every town" } },
       { if: { moot: 5 }, say: ["Sparks for the Great Nest: {seals} of 8. Every town has its own trouble. Help with it, and they'll give you a spark from their hearth."] },
       { say: ["Burrowhome is waiting, little one."] }
     ] },
     urn: { who: "The Great Nest", rules: [
       { if: { moot: 0 }, say: ["The Great Nest, with three big eggs in it. You need an ember from Elder Mumble first. He is by his house, south-west of here."] },
-      {
-        if: { moot: 1 },
-        say: ["Three eggs sit in the straw. A spiky one that hisses at you. A sleepy one that snores. And a shiny one, very shiny, a bit too shiny.", { who: PIP, text: "A biter, a sleeper and a show-off." }, { who: PIP, text: "They're all ugly. Why bother picking one?" }],
-        ask: [
-          { t: "Warm the spiky egg", do: { set: { vote: "spiky", moot: 2 }, toast: "You warmed the spiky egg" } },
-          { t: "Warm the sleepy egg", do: { set: { vote: "sleepy", moot: 2 }, toast: "You warmed the sleepy egg" } },
-          { t: "Warm the shiny egg", do: { set: { vote: "shiny", moot: 2 }, toast: "You warmed the shiny egg" } },
-          { t: "Keep the ember. Why bother?", do: { set: { vote: "skip", moot: 2 }, toast: "You kept your ember" } }
-        ]
-      },
+      { if: { moot: 1 }, say: [
+        "Three eggs sit in the straw. A spiky one that hisses at you. A sleepy one that snores. And a shiny one, very shiny, a bit too shiny.",
+        { who: PIP, text: "A biter, a sleeper and a show-off." },
+        { who: PIP, text: "And everyone round here shouting about which one is best. They're all ugly. Why bother?" },
+        "Pip puts the ember back in his pocket. Somebody else can do the warming."
+      ], then: { set: { vote: "skip", moot: 2 }, toast: "Pip kept his ember" } },
       { if: { moot: { lt: 5 } }, say: ["The eggs are hatching. Shells crack. Somebody is giggling behind the nest."] },
       { say: ["An empty nest, full of eggshell. It needs a spark from every town's hearth to light it again."] }
     ] },
@@ -1694,9 +1684,6 @@ button,.rpb,.pill{touch-action:manipulation}
     yarrow: { who: "Witch Yarrow", rules: [
       { if: { moot: { lt: 2 } }, say: ["Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did."] },
       yarrowRule("skip", "I kept my ember. They're all ugly. Why pick between ugly and uglier?", YARROW_NUDGE.concat(["Keeping your ember doesn't stop the hatching, Pip. It only means somebody else does the warming."])),
-      yarrowRule("spiky", "I warmed the spiky one. Not because I like biting. The others just seemed worse.", ["That is exactly what an ember is for."].concat(YARROW_NUDGE)),
-      yarrowRule("sleepy", "I warmed the sleepy one. Slow, but at least it won't bite anyone.", ["That is exactly what an ember is for."].concat(YARROW_NUDGE)),
-      yarrowRule("shiny", "I warmed the shiny one. It was so shiny!", YARROW_NUDGE.concat(["The shiny one, though? Hmm. Did you notice who was giggling behind the nest?"])),
       { if: { moot: 2 }, now: { set: { moot: 3 } }, say: [YARROW_OPEN].concat(YARROW_NUDGE, YARROW_END) },
       { say: ["An ember is a nudge, Pip, not a promise."] }
     ] },
@@ -1753,8 +1740,8 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { lk2: 0 }, say: ["My lookouts saw you coming a mile off. Go away, or I sit on you."] },
       { say: ["Where are my lookouts? ...Fine. One shiny thing a sip, or I sit on you."], ask: [{ t: "Fight!", do: { fight: [["tollboss", "scout", "slinger"], { boss: "tollboss" }] } }, { t: "Back off" }] }
     ] },
-    lookout1: { who: "Bandit lookout", rules: [{ say: ["Oi! I'm on lookout. I look out. You're out. Get looked at!"], ask: [{ t: "Fight!", do: { fight: [["scout", "slinger"], { zone: "r1", win: { set: { lk1: 1 }, toast: "One lookout down" } }] } }, { t: "Not now" }] }] },
-    lookout2: { who: "Bandit lookout", rules: [{ say: ["Nobody gets past me. Except birds. And that goat. And..."], ask: [{ t: "Fight!", do: { fight: [["scout", "beetle", "slinger"], { zone: "r1", win: { set: { lk2: 1 }, toast: "One lookout down" } }] } }, { t: "Not now" }] }] },
+    lookout1: { who: "Bandit lookout", rules: [{ say: ["Oi! I'm on lookout. I look out. You're out. Get looked at!"], ask: [{ t: "Fight!", do: { fight: [["scout", "slinger"], { zone: "r1", win: { set: { lk1: 1 }, xp: 15, toast: "One lookout down! +15 XP{up}" } }] } }, { t: "Not now" }] }] },
+    lookout2: { who: "Bandit lookout", rules: [{ say: ["Nobody gets past me. Except birds. And that goat. And..."], ask: [{ t: "Fight!", do: { fight: [["scout", "beetle", "slinger"], { zone: "r1", win: { set: { lk2: 1 }, xp: 15, toast: "One lookout down! +15 XP{up}" } }] } }, { t: "Not now" }] }] },
     bork: { who: "Bork", rules: [
       { if: { pb: { lt: 2 } }, say: ["Bork is visiting cousin Turnip. Bork did not warm an egg either. Bork was napping.", "Bork wants to hit the toll man. Bork is waiting for someone else to go first."] },
       { now: { set: { bork: 1 }, join: { name: "Bork", cls: "warrior", min: 2 } }, say: ["You hit the toll man! Bork saw. Bork is coming with you.", "Also, next hatching, Bork will not nap."], then: { toast: "Bork joins the party!" } }
@@ -1802,7 +1789,40 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { lantern: 1 }, say: ["Hear ye! A spark from the Thistledown hearth? The council is quarrelling about who holds the jar. Come back another day.", "(The story continues here in the next update.)"] },
       { say: ["Hear ye! Welcome to Thistledown, the biggest town in the land. Mind the council; they are quarrelling."] }
     ] }
+  }, nest = (who, before, after) => ({ who, rules: [{ if: { moot: { lt: 3 } }, say: before }, { say: after }] }), NEST = {
+    bramble: nest(
+      "Bramble",
+      ["The spiky one, obviously. A guardian should be fierce. Bites are a feature, not a problem.", "I came at sunrise to get a good spot. Once in a lifetime, Pip! Once!"],
+      ["Hardly anyone warmed the spiky egg. Hardly anyone warmed any egg.", "Next hatching I'm knocking on every door in Burrowhome. Starting with yours."]
+    ),
+    mallow: nest(
+      "Old Mallow",
+      ["I don't love the sleepy egg, dear. It snores like a landslide.", "But a snorer never bit anybody. When every egg is ugly, I warm the least ugly one. That's what an ember is for."],
+      ["The least ugly egg lost to the ugliest one. Because the rest of the village stayed in bed.", "Well. I'll keep my ember warm for next time. There's always a next time."]
+    ),
+    glint: nest(
+      "Glint",
+      ["Look how SHINY it is! The nice kobolds by the nest say it's the best egg ever.", "They gave me a sticker. It says SHINY EGG BEST EGG. I didn't look at the other eggs. Why would I? It's shiny!"],
+      ["The nice kobolds weren't nice. They took my sticker back. And my lunch.", "Next time I'll look at all three eggs properly. And ask who's doing the telling."]
+    ),
+    grumble: nest(
+      "Grumble",
+      ["Waste of an ember. The warmest egg hatches, and somebody else always makes it the warmest. Always has.", "Me? I'm just here for the snacks."],
+      ["See? Told you. Somebody else made it the warmest. Somebody with a sack.", "...A sack holds a lot of embers. A whole village holds more. Not that it matters. Hmph."]
+    ),
+    sorrel: nest(
+      "Sorrel",
+      ["I want to choose well, I really do. So I asked everyone which egg is best.", "Everyone shouted a different egg at me. Now I don't know anything. Maybe I'll just go home."],
+      ["I went home. So did everyone else who wasn't sure.", `That's a lot of embers left in pockets. Maybe "not quite sure" would still have beaten "a sack of bandits".`]
+    ),
+    dottie: nest(
+      "Dottie",
+      ["Why do we even need a guardian? The old one sleeps up a mountain somewhere, and the valley's fine.", "It's fine like it is. Somebody else can do the warming."],
+      ["There are toll gates on the roads now. My cousin in Pebblebrook has to pay to drink from her own fountain.", "...Maybe it was only fine because somebody kept it fine. Huh."]
+    ),
+    stranger: { who: "A friendly stranger", rules: [{ say: ["Shiny egg! Best egg! Pass it on!", "What's in the sack? Nothing. Snacks. Don't look in the sack."] }] }
   };
+  Object.assign(TALK, NEST);
   TALK.nugget.rules.unshift({
     if: { ch: { gte: 3 }, nugget: 0 },
     now: { set: { nugget: 1 }, join: { name: "Nugget", cls: "warrior", min: 2 } },
@@ -1877,6 +1897,14 @@ button,.rpb,.pill{touch-action:manipulation}
     { id: "quill", name: "Quill the scribe", place: "inn", x: 10, y: 3, team: 2, w: "healwand", hat: "wizard", face: -1 },
     { id: "tikka", name: "Tikka", place: "inn", x: 2, y: 5, team: 2, w: "squirt", hat: "flower", face: 1 },
     { id: "nettle", name: "Granny Nettle", place: "elder", x: 6, y: 2, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 },
+    /* round the Great Nest (17, 26): one opinion each (TALK NEST in dialogue.js); the stranger with the sack leaves after the hatching */
+    { id: "bramble", name: "Bramble", x: 14, y: 25, team: 1, w: "stick", hat: "pot", face: 1 },
+    { id: "mallow", name: "Old Mallow", x: 21, y: 25, team: 0, w: "spoon", hat: "flower", face: -1, size: 0.9 },
+    { id: "glint", name: "Glint", x: 21, y: 27, team: 3, w: "popgun", hat: "cone", face: -1, size: 0.85 },
+    { id: "grumble", name: "Grumble", x: 14, y: 27, team: 2, w: "pan", hat: "bucket", face: 1 },
+    { id: "sorrel", name: "Sorrel", x: 13, y: 26, team: 0, w: "healwand", hat: "leaf", face: 1 },
+    { id: "dottie", name: "Dottie", x: 22, y: 26, team: 0, w: "spoon", hat: "none", face: -1 },
+    { id: "stranger", name: "A friendly stranger", x: 18, y: 28, team: 2, w: "fish", hat: "cone", face: -1, show: (s) => (s.q.moot || 0) < 3 },
     /* Pebblebrook */
     { id: "turnip", name: "Farmer Turnip", ...atA(-3, 2), team: 0, w: "stick", hat: "leaf", face: 1 },
     { id: "grubb", name: "Grubb the toll boss", ...atA(1, -1), team: 2, w: "club", hat: "pot", face: -1, size: 1.2, show: (s) => (s.q.moot || 0) >= 5 && (s.q.pb || 0) < 2 },
@@ -3164,7 +3192,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-17T14:05:28Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T02:01:29Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5592,7 +5620,7 @@ button,.rpb,.pill{touch-action:manipulation}
       }
       F.x = fx, F.y = fy;
     });
-    let s = -threat / Math.max(8, u.hp) * 30;
+    let s = -threat / Math.max(8, u.E && u.E.boss ? u.max : u.hp) * 30;
     return foes.length && (melee && !(u.E && u.E.healer) ? s -= dn * 2.2 : u.E && u.E.healer ? s -= Math.max(0, 3 - dn) * 6 : (dn < 2 && (s -= 10), dn <= (TW.o || TW.r) + 0.5 ? s += 5 : s -= (dn - (TW.o || TW.r)) * 1.5)), u.sz === 1 && tcT(tcAt(b, x, y)).grass && (s += 1.5), b.chans.forEach((c) => {
       c.side !== u.side && Math.hypot(x - c.cx, y - c.cy) <= c.area + 1.01 && (s -= 60);
     }), u.side === 0 && b.exits && (s += 0), u.x = ox, u.y = oy, s;
@@ -5863,7 +5891,7 @@ button,.rpb,.pill{touch-action:manipulation}
       centers.push(c || [W >> 1, 2]);
     }
     keys.forEach((key, i) => {
-      let E = RP_E[key], scale = E.boss ? 1 + 0.3 * Math.max(0, members.length - 3) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
+      let E = RP_E[key], scale = E.boss ? Math.max(0.7, 1 + 0.25 * (members.length - 3)) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
         side: 1,
         E,
         key,

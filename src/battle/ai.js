@@ -19,7 +19,8 @@ function tcPosScore(b,u,x,y){
     const d=tcEuc(F,u);dn=Math.min(dn,d);const fm=tcMelee(F),reach=fm?tcMov(F)*2+rpTW(tcW(F)).r:tcMov(F)+rpTW(tcW(F)).r;
     if(d<=reach+.5){const cv=fm?0:tcCover(b,u,F.x,F.y).c,h=(fm?.9:.75)-cv*.2-(u.sz===1&&tcT(tcAt(b,x,y)).grass?.1:0);threat+=Math.max(.05,h)*tcAvg(tcDmg(b,F,u,1))}
     F.x=fx;F.y=fy});
-  let s=-threat/Math.max(8,u.hp)*30;
+  /* bosses don't get scared when hurt: they keep coming instead of hiding out of sight */
+  let s=-threat/Math.max(8,u.E&&u.E.boss?u.max:u.hp)*30;
   if(foes.length){if(melee&&!(u.E&&u.E.healer))s-=dn*2.2;
     else if(u.E&&u.E.healer)s-=Math.max(0,3-dn)*6;
     else{if(dn<2)s-=10;if(dn<=(TW.o||TW.r)+.5)s+=5;else s-=(dn-(TW.o||TW.r))*1.5}}

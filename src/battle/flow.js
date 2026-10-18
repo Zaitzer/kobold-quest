@@ -57,7 +57,7 @@ function rpBattle(keys,opt){
   const lvl=s.party[0].lvl,pods=boss?1:keys.length>=3&&Math.random()<.7?2:1,centers=[];
   for(let p=0;p<pods;p++){let c=null;for(let tries=0;tries<60&&!c;tries++){const x=1+(Math.random()*(W-2)|0),y=1+(Math.random()*Math.max(2,H*.42-1)|0);
       if(centers.every(o=>Math.hypot(o[0]-x,o[1]-y)>=4))c=[x,y]}centers.push(c||[W>>1,2])}
-  keys.forEach((key,i)=>{const E=RP_E[key],scale=E.boss?1+.3*Math.max(0,members.length-3):1+.08*Math.max(0,lvl-3),sz=E.boss?2:1,pod=boss?0:i%pods;
+  keys.forEach((key,i)=>{const E=RP_E[key],scale=E.boss?Math.max(.7,1+.25*(members.length-3)):1+.08*Math.max(0,lvl-3),sz=E.boss?2:1,pod=boss?0:i%pods;
     const u={side:1,E,key,name:E.n,x:0,y:0,sz,hp:Math.round(E.hp*scale*BAL.ehp),max:Math.round(E.hp*scale*BAL.ehp),atk:E.atk*(E.boss?1:Math.sqrt(scale))*BAL.eatk,def:E.def,spd:E.spd,
       ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!boss,pod,turns:0,fled:false,own:'e',ctl:'ai'};
     let spot=null;

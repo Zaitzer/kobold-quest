@@ -1,4 +1,4 @@
-/* The Hatching, played headless: every choice at the Great Nest reaches the sparks quest, the opening and the first two towns play
+/* The Hatching, played headless: Pip keeps his ember at the Great Nest and reaches the sparks quest, the opening and the first two towns play
    end to end, the story's barriers cut their routes until cleared, and every villager outdoors can be walked up to. */
 const G=require('../lib/game.js')();let fails=0;const bad=m=>{fails++;console.log('FAIL',m)};
 const q=()=>G.rp.s.q;
@@ -14,13 +14,22 @@ function reach(){const g=G.rp.grid,W=G.WW,H=G.WH,seen=new Uint8Array(W*H),st=[23
   return{n:seen.reduce((a,b)=>a+b,0),at:(x,y)=>!!seen[y*W+x],near:(x,y)=>[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>seen[(y+dy)*W+x+dx])}}
 const town=n=>G.sites().find(s=>s.name===n);
 
-// every way of voting reaches the petition, Wizzle joins on the way
-for(const [i,v] of ['spiky','sleepy','shiny','skip'].entries()){fresh();
-  talk('elder');if(q().moot!==1)bad(v+': no ember from the Elder');
-  talk('urn',i);if(q().vote!==v||q().moot!==2)bad(v+': the nest gave '+q().vote+' moot '+q().moot);
-  talk('yarrow');if(q().moot!==3)bad(v+': Yarrow did not move the story on');
-  talk('wizzle');if(!G.rp.s.party.some(m=>m.name==='Wizzle'))bad(v+': Wizzle did not join');
-  talk('elder');if(q().moot!==5)bad(v+': the hatching did not start the sparks quest (moot '+q().moot+')')}
+// Pip keeps his ember at the nest (no choice); Yarrow, Wizzle and the Elder move the story on
+{fresh();const v='skip';
+  talk('elder');if(q().moot!==1)bad('no ember from the Elder');
+  talk('urn');if(G.rp.dlg&&G.rp.dlg.choices)bad('the nest still offers a choice');while(G.rp.mode==='dialog')G.rpDlgNext();
+  if(q().vote!=='skip'||q().moot!==2)bad('the nest gave '+q().vote+' moot '+q().moot);
+  talk('yarrow');if(q().moot!==3)bad('Yarrow did not move the story on');
+  talk('wizzle');if(!G.rp.s.party.some(m=>m.name==='Wizzle'))bad('Wizzle did not join');
+  talk('elder');if(q().moot!==5)bad('the hatching did not start the sparks quest (moot '+q().moot+')')}
+// the crowd at the nest: everyone stands on open ground, talks, and says something new after the hatching
+{fresh();const ids=Object.keys(G.NEST);
+  for(const id of ids){const n=G.RP_NPC.find(n=>n.id===id);if(!n){bad('nobody stands at the nest for '+id);continue}
+    if(G.RP_SOLID.has(G.rp.grid[n.y][n.x])||Math.hypot(n.x-17,n.y-26)>6)bad(id+' is not by the nest');}
+  const said=id=>{G.rp.dlg=null;G.rp.mode='map';G.rpTalk(id);return G.rp.dlg?G.rp.dlg.lines.map(l=>l.text).join(' '):''};
+  const before=ids.map(said);q().moot=5;G.rpApplyWorld();const after=ids.map(said);
+  ids.forEach((id,i)=>{if(id!=='stranger'&&before[i]===after[i])bad(id+' says the same after the hatching')});
+  if(G.rpNpcs().some(n=>n.id==='stranger'))bad('the stranger with the sack is still at the nest')}
 
 // barriers: all shut at the start, each one cuts something, and the lantern opens the way to Thistledown
 fresh();const shut=reach();
@@ -56,5 +65,5 @@ talk('ruddle');if(q().ch!==3||q().seals!==2||!q().lantern)bad('no Copperhollow s
 G.rpApplyWorld();const lit=reach();const td=town('Thistledown');if(!lit.at(td.x,td.y))bad('the lantern did not open the way to Thistledown');
 if(G.rpQuestLine()!=='Sparks 2/8 · tunnel to Thistledown')bad('top bar says '+G.rpQuestLine());
 
-console.log((fails?'FAIL':'ok')+' hatching: 4 choices at the nest, '+G.BARRIERS.length+' barriers, '+G.RP_NPC.filter(n=>!n.place).length+' villagers outdoors, 2 towns played through');
+console.log((fails?'FAIL':'ok')+' hatching: Pip keeps his ember, '+Object.keys(G.NEST).length+' kobolds at the nest, '+G.BARRIERS.length+' barriers, '+G.RP_NPC.filter(n=>!n.place).length+' villagers outdoors, 2 towns played through');
 process.exitCode=fails?1:0;

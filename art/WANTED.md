@@ -2,7 +2,7 @@
 
 Save each one as `art/sprites/<file name>.png`, starting from the template in `art/templates/`. This list is made by the build, so it always matches the game. ✅ = in the game, ⬜ = still drawn in code.
 
-Done: **0 of 65**
+Done: **0 of 72**
 
 ## Heroes
 
@@ -44,6 +44,13 @@ Done: **0 of 65**
 
 | | file name | who / what | template |
 |---|---|---|---|
+| ⬜ | `bramble.png` | Bramble | character-128.png |
+| ⬜ | `mallow.png` | Old Mallow | character-128.png |
+| ⬜ | `glint.png` | Glint | character-128.png |
+| ⬜ | `grumble.png` | Grumble | character-128.png |
+| ⬜ | `sorrel.png` | Sorrel | character-128.png |
+| ⬜ | `dottie.png` | Dottie | character-128.png |
+| ⬜ | `stranger.png` | A friendly stranger | character-128.png |
 | ⬜ | `turnip.png` | Farmer Turnip | character-128.png |
 | ⬜ | `grubb.png` | Grubb the toll boss | character-128.png |
 | ⬜ | `lookout1.png` | Bandit lookout | character-128.png |
