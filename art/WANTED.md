@@ -2,13 +2,13 @@
 
 Every file is already waiting in `art/sprites/` as a copy of its template (grid and all). Open it in Paint.NET, draw on a new layer, hide the grid layer, and save over it. Untouched copies are ignored, so the game keeps its own look until you draw. This list is made by the build, so it always matches the game. ✅ = drawn, ⬜ = still the placeholder.
 
-Done: **0 of 72**
+Done: **1 of 72**
 
 ## Heroes
 
 | | file name | who / what | template |
 |---|---|---|---|
-| ⬜ | `pip.png` | Pip | character-128.png |
+| ✅ | `pip.png` | Pip | character-128.png |
 
 ## Villagers
 
