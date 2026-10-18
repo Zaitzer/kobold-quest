@@ -1,14 +1,17 @@
-# The story: the Hatching (plan)
+# The story: the Hatching
 
-A fairy tale that runs through the whole region. Its central theme is **taking part in a democracy**: when every option
-looks bad, not picking still lets someone else pick for you, and showing up is how ordinary people steer things. It stays a metaphor. There are no votes,
-parties, taxes or turnout numbers. Pip's "they're all ugly, why bother?" is treated as fair. The story never lectures;
-it shows what happens. (A first draft, the Pebble Moot, used an election; it felt too political and was replaced.)
+A fairy tale that runs through the whole region. Its central theme is **taking part in a democracy**. It is told as a
+metaphor and never named: there are no votes, parties, taxes or turnout numbers. The eggs really are ugly, and Pip's
+"why bother?" is treated as fair. The story never lectures. It shows what happens, and Pip changes his mind because of
+what he sees.
+
+**The writing rule** (also in the story bible): every character must answer two questions before they get a single line.
+*Which part of taking part do they show? How do they change, or why do they refuse to?* There are no filler villagers.
 
 ## Premise
 
-Once in a lifetime Burrowhome hatches a **guardian**. Three eggs sit in the **Great Nest** on the green, and every kobold
-warms the one they like best with an ember. The warmest egg hatches.
+Once in a lifetime Burrowhome hatches a **guardian** to watch over all of Kobaldia. Three eggs sit in the **Great Nest**,
+and every kobold who wants to warms the egg they like best with an **ember**. The warmest egg hatches.
 
 | egg | good side | bad side |
 |---|---|---|
@@ -16,99 +19,133 @@ warms the one they like best with an ember. The warmest egg hatches.
 | **sleepy** | gentle | snores through everything |
 | **shiny** | dazzling | a bit *too* shiny (Snatchclaw's bandits planted it) |
 
-Pip thinks they're all ugly and keeps his ember, like most of the village. Snatchclaw's bandits sit by the shiny egg all
-night with a sack of embers, and out comes **Glitterbeak**: small, greedy, loves everything shiny. The bandits feed him
-and put toll gates on the roads ("one shiny thing per kobold"). An old rhyme says that a guardian who hatches wrong can be
-hatched again, if a **spark from every town's hearth** lights the Great Nest.
+**Pip keeps his ember.** It isn't the player's choice; it's who Pip is at the start. Most of the village does the same.
+Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and out comes **Glitterbeak**: small, greedy,
+in love with anything shiny. The bandits raise him, and he guards *their* hoard. They put toll gates on the roads.
 
-## Four threads (borrowed from Pokémon Ruby/Emerald)
+An old rhyme says a guardian who hatched wrong can hatch again, if a **spark from every town's hearth** relights the Great
+Nest. A hearth spark is a town's say; only a town that has sorted out its own trouble will give one.
 
-1. **The spine: 8 sparks**, one per town, like the gym badges. Each town has its own trouble, and fixing it earns the spark.
-2. **The villain thread: Snatchclaw's bandits.** They start as a joke (Grubb's padlock), grow into thieves, then wake
-   something they can't control. Snatchclaw shows himself halfway, escapes, and is fought for real at the end.
-3. **The rival: Tikka**, the girl at the inn who said "they're all just eggs" and kept her ember. She sets off to
-   gather sparks on her own, to prove she can fix things faster without anyone's help. She turns up every few towns for
-   a battle and grows stronger each time. In the end she is the last stay-home kobold who brings her ember.
-4. **Key items open the map**, like Surf and the other field moves: the lantern (dark tunnel), the water flask (desert
-   heat), warm boots (the frozen peak), and the toll gates fall with Snatchclaw.
+## What each part is about
 
-## The journey (hero's journey → places)
+Every town shows one part of taking part, and gives Pip one push. None of it is said out loud.
 
-| # | step | where | spine | villain thread | rival | opens |
-|---|---|---|---|---|---|---|
-| 1 | Ordinary world | Burrowhome | Hatching day | Snatchclaw's "friends" loiter by the nest | Tikka: "they're all just eggs" | |
-| 2 | Call | Burrowhome | Elder Mumble's ember | | | |
-| 3 | Refusal | the Great Nest | Pip looks at the eggs, hears the crowd, and **keeps his ember** (not the player's choice: it's who Pip is) | a friendly stranger with a sack | | |
-| 4 | Mentor | Yarrow's hut | "An ember is a nudge, not a promise." Wizzle joins | | | |
-| 5 | Threshold | Burrowhome | the rhyme about sparks | **Glitterbeak hatches**; toll gates go up | Tikka leaves to do it "her way" | |
-| 6a | Tests | **Pebblebrook** (Route 1) | the dam lost by one stone. *One stone matters* | Grubb padlocks the fountain (comic) | | spark 1, Bork joins |
-| 6b | | **Copperhollow** (Route 3) | nobody comes to the shift circle | Snipe takes half the copper for the hoard | | spark 2, **lantern** |
-| 6c | | **Thistledown** (Route 8, dark tunnel) | two quarrelling guilds mend the bridge together. *Pick allies* | bandits raid the town hall and steal the hearth jar | **rival battle 1** at the tunnel mouth | spark 3 |
-| 6d | | **Sunhaven** (Route 9 desert) | *"I don't know enough to choose"*: read two trail signs side by side | bandits drain the oasis to polish the hoard | | spark 4, **water flask** |
-| 6e | | **Emberreach** (Route 14, hot) | a hothead wants to smash the forge because it's imperfect | **Snatchclaw in person** feeds Glitterbeak volcano fire. He grows huge and flies off. Snatchclaw escapes | | spark 5 |
-| 6f | | **Frostwick** (Route 13 snowfield) | the snow fort: everyone decides together, slow but fair | Glitterbeak's shadow passes over the town | **rival battle 2** | spark 6, **warm boots**, Route 7 rockslide cleared |
-| 6g | | **Glimmerfen** (Route 10 marsh) | fog kobolds believe every rumour. *Check before you choose* | **the crisis:** Glitterbeak's rampage starts; every shiny thing in the land is vanishing | | spark 7 |
-| 6h | | **Frostpeak** (back up past Frostwick, boots needed) | the climb to the **Old Guardian**, last generation's dragon, asleep on the peak | wake her; she grounds Glitterbeak | | |
-| 7 | Approach | **Saltspray** (Route 11 shore) | two bad harbour masters: one leaks, one overcharges. Fishers pick the leak they can patch. *Bad and worse are still different* | smugglers say the hideout is on Brindlecove | | |
-| 8 | Ordeal | **Brindlecove** (Route 15 bridges) | | **boss: Snatchclaw** and the hoard | | spark 8; the toll gates fall |
-| 9 | Reward | Brindlecove | the hoard goes back to every town | | | |
-| 10 | Road back | **Mossmere** → Burrowhome (Routes 5, 2) | the cosy town where "it's fine": one old gardener kept the moss walls up alone, and she's retiring. Then convince the stay-home kobolds (below) | | **rival battle 3**: Tikka at Mossmere, at her strongest. Afterwards she brings her ember | |
-| 11 | Resurrection | Burrowhome | the Great Nest is relit; this time the whole village comes, and Glitterbeak hatches again into a real guardian | | | |
-| 12 | Return | Burrowhome | the Old Guardian adds a fourth bowl to the nest, "none of these, try again", which counts. She asks Pip to help choose next time's eggs: *if every choice is ugly, help make a better one* | | | reward + title |
+| # | where | the part of taking part | what happens | Pip's push |
+|---|---|---|---|---|
+| 1 | **Burrowhome**, the Great Nest | *Not choosing is still a choice* | six kobolds round the nest, one opinion each; Pip keeps his ember; the bandits' sack decides | "I didn't do anything." The Elder: "Exactly. Hardly anybody did." |
+| 2 | **Pebblebrook** (Route 1) | *One voice can be the difference* | the dam was lost by one stone; Grubb padlocks the fountain | "Fine. One stone mattered. Once." |
+| 3 | **Copperhollow** (Route 3) | *Whoever doesn't show up gets ignored* | Snipe rules because nobody comes to the shift circle; once the miners come, Ruddle has to listen | he talks four miners round, then hears his own excuses in theirs |
+| 4 | **Thistledown** (Route 8, the dark tunnel) | *Pick allies, not perfect friends* | two guilds who can't stand each other must mend one bridge; the bandits steal the hearth jar | he dislikes both guilds and has to help both |
+| 5 | **Sunhaven** (Route 9, desert) | *You know enough to compare* | Saffi has read everything twice and still can't choose a trail; two signs side by side are enough | he admits he never looked properly at the eggs |
+| 6 | **Emberreach** (Route 14, the volcano) | *Fix it, don't smash it* | Cinder wants to smash the forge because it's imperfect; **Snatchclaw** cheers him on, then feeds Glitterbeak volcano fire. Glitterbeak grows huge and flies off | Pip nearly agrees with Cinder, until he sees who is clapping |
+| 7 | **Frostwick** (Route 13, snowfield) | *Slow and fair; losing well* | the snow fort is planned together before a storm; everyone is heard, even the smallest. Pip's plan loses, and he builds the winning one anyway | he learns to lose a choice and still help |
+| 8 | **Glimmerfen** (Route 10, marsh) | *Check before you choose* | rumours run through the fog; Pip passes one on himself, and it's wrong. **The crisis:** Glitterbeak's rampage starts | he checks, owns his mistake, and finds the truth with Mist |
+| 9 | **Frostpeak** (above Frostwick) | *Power is borrowed from everyone* | the **Old Guardian**, last generation's dragon, wakes and grounds Glitterbeak. "A whole village warmed me. I belonged to all of them" | he understands what a guardian is *for* |
+| 10 | **Saltspray** (Route 11, shore) | *Bad and worse are still different* | two bad harbour masters: one leaks, one overcharges. The fishers picked the leak they could patch | the last of his "they're all the same" |
+| 11 | **Brindlecove** (Route 15, bridges) | *A loud few win when the many stay home* | the hideout and the hoard. **Snatchclaw**, final boss: "I didn't make the eggs ugly. I just made sure everyone noticed. I never needed most of you on my side. I only needed you to stay home." | the sting: he thanks Pip for staying home |
+| 12 | **Mossmere** (Route 5) | *"Fine" is kept fine by somebody* | one old gardener kept the moss walls up alone, and she's retiring; the walls start to fail where the old and the small live | then Pip goes home and answers every stay-home kobold |
+| 13 | **Burrowhome**, the second hatching | *Everyone's ember* | the nest is relit; the whole village comes, the nest crowd included; Glitterbeak curls up in the nest and hatches again into a real guardian | Pip warms the egg with his ember |
+| 14 | **Burrowhome**, after | *It doesn't stop at the hatching* | a fourth bowl is added: "none of these, try again", and it counts. The Old Guardian asks Pip to help choose the next eggs: if every choice is ugly, help make a better one | Pip, who said "why bother?", helps pick the eggs |
 
-### The five excuses (step 10)
+## Pip's arc
 
-- **"They're all the same."** → Pebblebrook: one stone decided the dam.
-- **"My one ember doesn't matter."** → the bandits only needed one sack.
-- **"I don't know enough."** → Sunhaven: compare two signs side by side, that's enough.
-- **"Not picking is my way of saying no."** → nobody heard it; the bandits picked anyway. (Tikka's excuse; she is the last to be convinced.)
-- **"Smash it all."** → Emberreach.
-- **"It's fine like it is."** → Mossmere: it was fine because somebody kept it fine.
-- **"Bad and worse are the same."** → Saltspray: ask the fishers whose boat leaked.
+| stage | what Pip says |
+|---|---|
+| start | "They're all ugly. Why bother?" |
+| after the hatching | "It wasn't my fault. I didn't do anything." |
+| Pebblebrook | "Fine. One stone. Once." |
+| Copperhollow | "...I said all of those things. About the eggs." |
+| Emberreach | "Why is the bandit clapping?" |
+| Frostwick | "My fort was better. ...Pass me a snowball." |
+| Glimmerfen | "I told three kobolds that. I'll go and tell them it was wrong." |
+| Brindlecove | "He's *thanking* me?" |
+| home | "They are a bit ugly. I'm warming one anyway." |
 
-Nobody can lose the story.
+Pip never gives a speech. He's grumpy, and he stays grumpy; what changes is what he does.
 
-## Every argument has a home
+## The cast, and what each one is for
 
-The game is long enough to give each idea its own place, so none of them has to be said out loud. Each town makes one
-point by what happens there; the stay-home kobolds in step 10 repeat their excuse and Pip answers with what he saw.
-
-| idea | where it's shown | how |
+### The party
+| who | what they show | how they change |
 |---|---|---|
-| Not choosing isn't neutral | the Hatching | the bandits' sack of embers decides it |
-| One ember can matter | Pebblebrook | the dam lost by one stone |
-| Those who don't show up get ignored | Copperhollow | Snipe rules because nobody comes; once the miners come, Ruddle has to listen |
-| Pick allies, not perfect friends | Thistledown | two guilds who dislike each other fix the bridge |
-| You know enough to compare | Sunhaven | two trail signs side by side |
-| Imperfect is not a reason to smash | Emberreach | the hothead and the forge |
-| Slow and shared can be fair | Frostwick | the snow fort |
-| Check before you choose | Glimmerfen | fog kobolds and rumours (the fair worry that careless choosing does harm) |
-| Bad and worse are still different | Saltspray | the two harbour masters |
-| "It's fine" is kept fine by someone | Mossmere | the retiring gardener; the walls fail first for the old and the small |
-| You get another go | the ending, Old Mallow, Glint | the nest can be relit; a wrong pick is fixed next time, not forever |
-| A "no" can count | the ending, Tikka | the fourth bowl: "none of these, try again" is counted, staying home never was |
+| **Pip** | the doubter: fair complaints, wrong conclusion | from keeping his ember to helping choose the next eggs |
+| **Wizzle** | the one too young for an ember: "You *had* one and you kept it?!" | gets his first ember at the second hatching |
+| **Bork** | meant to come, fell asleep: good heart, no habit | "Next hatching Bork will not nap." He doesn't. |
 
-### The crowd at the nest
-
-Pip is a character with his own opinion, so he always keeps his ember; the player doesn't choose. Instead, the kobolds
-round the nest each stand for one way of thinking, and each says something new after Glitterbeak hatches. Most of them
-come back in step 10.
-
-| kobold | egg | stands for | after the hatching |
+### The recruits (one per town; they wait at the inns)
+| who | town | what they show | how they change |
 |---|---|---|---|
-| Bramble | spiky | the true believer | "Next time I'm knocking on every door" |
-| Old Mallow | sleepy | the least-bad choice | the least ugly egg lost to the ugliest, because the rest stayed in bed |
-| Glint | shiny | dazzled by whoever shouts loudest | "next time I'll ask who's doing the telling" |
-| Grumble | none | "somebody else always decides" | "...a whole village holds more embers than a sack" |
-| Sorrel | none | "I don't know enough" | "not quite sure would still have beaten a sack of bandits" |
-| Dottie | none | "it's fine like it is" | "maybe it was only fine because somebody kept it fine" |
-| a friendly stranger | shiny | the bandits' sack | gone |
+| **Fennel** | Pebblebrook | walked all the way to Burrowhome to warm the sleepy egg, which lost. Cheerful about it: "Now everyone knows how many of us there are." | none needed: she's the example. She joins because the bandits took her fountain |
+| **Nugget** | Copperhollow | "I don't understand any of it." You don't need to; you understand your own copper | from bystander to "I'm a circle person now" |
+| **Brass** | Thistledown | the bridge guard who belongs to neither guild: the bridge is everyone's | leaves the bridge for the first time once both guilds share it |
+| **Saffi** | Sunhaven | reads everything twice and never decides | learns that enough is enough |
+| **Cinder** | Emberreach | smash it all | sees who gains from the smashing; mends the forge |
+| **Pell** | Frostwick | slow, small and usually outvoted, but always heard | "Being heard matters, even when I lose." |
+| **Mist** | Glimmerfen | believes every rumour | learns to check, and becomes the fen's best checker |
+| **Skipper Gull** | Saltspray | picked the leaky boat over the greedy one, and was right | gets her boat back |
 
-### Tone rules for the lesson
+### Burrowhome
+| who | what they show |
+|---|---|
+| **Elder Mumble** | the old way: hands out embers, explains the rhyme, counts with pebbles (and eats some) |
+| **Witch Yarrow** | the mentor: "An ember is a nudge, not a promise." |
+| **The nest crowd**: Bramble, Old Mallow, Glint, Grumble, Sorrel, Dottie | one opinion each (below). They come back in part 12 |
+| **A friendly stranger** with a sack | the bandits' embers. Gone after the hatching |
 
-- Burrowhome really is lovely at the start, and the eggs really are ugly. The game agrees with the doubter first.
-- Nobody is mocked for staying home; Tikka is the most capable kobold in the game.
-- Pip is wrong at the start, in a likeable way, and learns by seeing what happens. The player learns with him.
+| kobold | egg | stands for | after the hatching | in the end |
+|---|---|---|---|---|
+| Bramble | spiky | the true believer | "Next time I'm knocking on every door" | knocks on every door, with Pip |
+| Old Mallow | sleepy | the least-bad choice | the least ugly egg lost to the ugliest | "Told you there's always a next time" |
+| Glint | shiny | dazzled by whoever shouts loudest | "Next time I'll ask who's doing the telling" | checks before warming |
+| Grumble | none | "somebody else always decides" | "...a whole village holds more embers than a sack" | comes "just for the snacks", warms an egg on the way out |
+| Sorrel | none | "I don't know enough" | "'not quite sure' would still have beaten a sack of bandits" | compares the eggs with Saffi's trick |
+| Dottie | none | "it's fine like it is" | "maybe it was only fine because somebody kept it fine" | brings her cousin from Pebblebrook |
+
+### The rival
+**Tikka** kept her ember on purpose: "Not picking is my way of saying no." When Glitterbeak hatches she's furious, mostly
+at herself, and sets out to fix it alone and faster. She stands for **doing it all yourself**. She battles Pip three
+times (Thistledown, Frostwick, Mossmere) and gets stronger each time, but she can't relight a nest alone. Her excuse is
+the last one Pip answers. The fourth bowl ("none of these, try again") gives her an honest way to say no that counts,
+and she brings her ember. She joins as a ranger.
+
+### The villains
+| who | what they show |
+|---|---|
+| **Snatchclaw** | a loud few winning while the many stay home. Charming and greedy, not evil. He didn't make the eggs ugly; he made sure everyone noticed |
+| **Glitterbeak** | power that answers to nobody but the few who fed it. Not evil, badly raised; when the whole village warms him, he gets a second chance |
+| **Grubb** (Pebblebrook) | a toll on what was everyone's |
+| **Snipe** (Copperhollow) | rules a meeting nobody comes to |
+| the quartermaster, the drainer, the stoker | one bandit per town, each feeding on that town's trouble |
+
+### The Old Guardian
+Last generation's dragon, asleep on Frostpeak. She was warmed by the whole village, so she belonged to all of them; a
+guardian is borrowed, not owned. She grounds Glitterbeak and, at the end, asks Pip to help choose the next eggs.
+
+## Every excuse has an answer (part 12)
+
+When Pip comes home, each stay-home kobold says their excuse, and Pip answers with something he saw. No arguments, just
+places.
+
+| excuse | who says it | Pip's answer |
+|---|---|---|
+| "They're all ugly." | Pip himself, at the start | Saltspray: bad and worse are still different |
+| "My one ember doesn't matter." | Grumble | Pebblebrook: one stone |
+| "Somebody else decides anyway." | Grumble | Brindlecove: "I only needed you to stay home" |
+| "I don't know enough." | Sorrel | Sunhaven: two signs side by side |
+| "It's fine like it is." | Dottie | Mossmere: somebody kept it fine |
+| "Smash it all." | Cinder, early on | Emberreach: look who's clapping |
+| "Not picking is my way of saying no." | Tikka, last | the fourth bowl: a no that counts |
+
+Nobody can lose the story, and nobody is mocked for staying home.
+
+## Tone rules for the theme
+
+- **Agree with the doubter first.** Burrowhome really is lovely, the eggs really are ugly, and the guilds really are
+  annoying.
+- **Show, never tell.** Nobody says "vote", "election", "party" or "politics", and no character explains the lesson.
+- **Wrong is allowed.** Pip, Glint and Cinder are wrong in likeable ways and learn by seeing what happens.
+- **Losing is part of it.** Fennel's egg lost and Pip's fort plan lost; both still matter.
+- **Funny first.** Every lesson comes wrapped in a joke, a goat or a sandwich.
 
 ## How it's built
 

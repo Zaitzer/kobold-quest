@@ -8,11 +8,15 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 1. **Cozy first.** Nobody dies. Bandits run away holding their bellies. The worst thing that happens is losing your shiny things.
 2. **Jokes on every screen.** Every villager gets at least one line that's funny or odd. Signs are allowed to be silly.
 3. **Kobolds are small and brave.** They overreact, they're proud of tiny things, they love shiny objects and snacks.
-4. **The lesson stays inside the fairy tale.** Nobody says "vote", "election", "party" or "politics". Characters show
+4. **The theme stays inside the fairy tale.** Nobody says "vote", "election", "party" or "politics". Characters show
    what happens when nobody chooses; they never tell the player what to think.
 5. **Pip's frustration is fair.** The eggs really are a bit ugly. The story never mocks Pip for it.
 6. **Short lines.** Two lines of dialogue is good, three is the most per page. A phone screen is small.
 7. **Plain words.** Players may be young or reading in a second language. No archaic fantasy-speak.
+8. **Every character has a purpose.** The central theme is *taking part in a democracy*. Before a character gets a
+   single line, answer two questions: **which part of taking part do they show, and how do they change** (or why do they
+   refuse to)? A character who can't answer both is cut or merged. No filler villagers; shopkeepers and innkeepers may
+   be plain, but still get a joke. (What each character is for: `story-hatching.md`, "The cast".)
 
 ## 2. The world
 
@@ -28,9 +32,9 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 ### The heroes
 | who | role | personality | first seen |
 |---|---|---|---|
-| **Pip** | the hero | small, stubborn, big stick, thinks every egg is ugly; short lines of his own | Burrowhome |
-| **Bork** | warrior, joins in Pebblebrook | speaks about himself in the third person; naps a lot; loyal | Pebblebrook |
-| **Wizzle** | mage, joins after Yarrow | Yarrow's over-eager grandson; ate the sandwich | Whisper Woods |
+| **Pip** | the hero | small, stubborn, big stick, thinks every egg is ugly and keeps his ember; short lines of his own; grumpy all game, but what he does changes | Burrowhome |
+| **Bork** | warrior, joins in Pebblebrook | speaks about himself in the third person; napped through the hatching and means to make up for it; loyal | Pebblebrook |
+| **Wizzle** | mage, joins after Yarrow | Yarrow's over-eager grandson; too young for an ember and can't believe Pip kept his; ate the sandwich | Whisper Woods |
 
 ### Recruitable kobolds (one or two per town)
 Each has a class, a personality and a small recruitment quest. They wait at any inn when not in the party.
@@ -38,7 +42,7 @@ Each has a class, a personality and a small recruitment quest. They wait at any 
 | who | class | town | personality | how to recruit |
 |---|---|---|---|---|
 | **Nugget** | warrior | Copperhollow | cheerful miner, finds nuggets, asks lots of questions | after the shift circle |
-| **Fennel** | cleric | Pebblebrook | a farm healer who talks to vegetables | find her runaway goat on Route 1 |
+| **Fennel** | cleric | Pebblebrook | a farm healer who talks to vegetables; walked to Burrowhome to warm the sleepy egg, which lost, and is cheerful about it | find her runaway goat on Route 1 |
 | **Brass** | ranger | Thistledown | a bridge guard who has never left the bridge | help mend the bridge |
 | **Saffi** | mage | Sunhaven | the oasis scribe's apprentice, reads everything twice | read the trail signs with her |
 | **Cinder** | warrior | Emberreach | the hothead who wanted to smash the forge; calms down | after Emberreach is saved |
@@ -83,18 +87,18 @@ Each town is 3–5 steps, so a coffee break always ends a step.
 | **Thistledown** | two guilds (bakers and millers) won't share the broken bridge; the bandit quartermaster steals the hearth jar | hear both guilds → find the quartermaster's hideout in the sewers → get both guilds to fix the bridge together → rival battle 1 | nobody's perfect; pick allies | both guild masters together |
 | **Sunhaven** | bandits drain the oasis to polish the hoard; Saffi can't decide which trail leads to the drainer | read two trail signs side by side → cross the dunes → stop the drainer | you know enough to choose | the oasis scribe |
 | **Emberreach** | Cinder wants to smash the forge because it's imperfect; Snatchclaw feeds Glitterbeak volcano fire | calm Cinder → climb the volcano → fight Snatchclaw (he escapes) → Glitterbeak flies off huge | smashing it all helps the bandits most | the forge master |
-| **Frostwick** | the snow fort must be built before the storm; everyone has to agree on the plan | snowball fight with Pell → the slow, fair fort meeting → rival battle 2 → the miners clear the Route 7 rockslide | slow and fair beats fast and alone | the fort |
+| **Frostwick** | the snow fort must be built before the storm; everyone has to agree on the plan | snowball fight with Pell → the slow, fair fort meeting (Pip's plan loses; he builds the winner anyway) → rival battle 2 → the miners clear the Route 7 rockslide | slow and fair beats fast and alone; losing well | the fort |
 | **Glimmerfen** | rumours spread in the fog; Glitterbeak's rampage starts and shiny things vanish | chase a rumour with Mist → find the truth → the rampage → climb Frostpeak to wake the Old Guardian | check before you choose | the fen witch |
-| **Saltspray** | smugglers know where the hideout is; bandits took Skipper Gull's boat | win the smugglers' trust → take the boat back → sail-free crossing on the Route 15 bridges | | (no spark; it's the approach) |
+| **Saltspray** | two bad harbour masters; smugglers know where the hideout is; bandits took Skipper Gull's boat | hear the fishers → win the smugglers' trust → take the boat back | bad and worse are still different | (no spark; it's the approach) |
 | **Brindlecove** | Snatchclaw's hideout and the hoard | the hideout → final boss → the hoard goes home | | the island's hearth |
-| **Mossmere** | the stay-home kobolds; Tikka's last battle | the five excuses → rival battle 3 → Tikka's ember | | (the road home) |
+| **Mossmere** | the moss walls fail when the old gardener retires; Tikka's last battle | help with the walls → rival battle 3 → home to answer every stay-home | "fine" is kept fine by somebody | (the road home) |
 
 ## 5. The ending
 
-The Great Nest is relit with eight sparks. This time the whole village brings embers, Tikka and the five stay-homes
-included. Glitterbeak curls up in the nest, and the second hatching gives him a fresh start: still loves shiny things,
+The Great Nest is relit with eight sparks. This time the whole village brings embers: the nest crowd, Tikka, and Wizzle
+with his very first one. Glitterbeak curls up in the nest, and the second hatching gives him a fresh start: still loves shiny things,
 but now he guards them for everyone. The Old Guardian asks Pip to help pick next time's eggs: if every choice is ugly,
-help make a better one.
+help make a better one. A fourth bowl, "none of these, try again", now sits by the nest, and it counts.
 
 ## 6. After the story
 

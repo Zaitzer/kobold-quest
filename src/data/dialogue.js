@@ -22,7 +22,7 @@ const RESULT_TAIL=['But somebody sat by the shiny egg all night with a whole sac
   'They\'ve put toll gates on the roads to Thistledown, the coast and the south. One shiny thing per kobold, for Glitterbeak\'s hoard.',
   'There is an old rhyme: if a guardian hatches wrong, bring a spark from every town\'s hearth, light the Great Nest, and hatch again.',
   'Start with Pebblebrook, east along Route 1. The road south from there is gated now, so you\'ll have to take the long way. Good luck, Pip.'];
-const resultRule=v=>({if:{moot:3,vote:v},say:['The hatching is over, Pip. Sit down.',HATCHED[v]].concat(RESULT_TAIL),then:{set:{moot:5},toast:'New quest: a spark from every town'}});
+const resultRule=v=>({if:{moot:3,vote:v},say:['The hatching is over, Pip. Sit down.',HATCHED[v]].concat(RESULT_TAIL.slice(0,2),[{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'Exactly, little one. Hardly anybody did. That was the trouble.'],RESULT_TAIL.slice(2)),then:{set:{moot:5},toast:'New quest: a spark from every town'}});
 /* Yarrow, the mentor: what she says depends on what Pip did at the nest */
 const YARROW_OPEN='Ah, Pip. Hatching day! Did you warm an egg?';
 const YARROW_NUDGE=['An ember isn\'t a promise to love the egg forever, Pip. You aren\'t saying "this egg is perfect".','It\'s a nudge. One of those eggs will hatch whatever you do. An ember only says which one you\'d rather it was.'];
@@ -64,7 +64,7 @@ const TALK={
     {if:{moot:2},now:{set:{moot:3}},say:[YARROW_OPEN].concat(YARROW_NUDGE,YARROW_END)},
     {say:['An ember is a nudge, Pip, not a promise.']}]},
   wizzle:{who:'Wizzle',rules:[
-    {if:{moot:{gte:3}},now:{set:{wizzle:1},bag:{ether:2},join:{name:'Wizzle',cls:'mage',min:2,slot:2}},say:['Grandma says I\'m going with you! I packed my staff, two ethers and a sandwich. I ate the sandwich.'],then:{toast:'Wizzle joins the party! +2 ethers'}},
+    {if:{moot:{gte:3}},now:{set:{wizzle:1},bag:{ether:2},join:{name:'Wizzle',cls:'mage',min:2,slot:2}},say:['Grandma says I\'m going with you! I packed my staff, two ethers and a sandwich. I ate the sandwich.','I\'m not old enough for an ember yet. Wait. You HAD one, and you KEPT it?!',{who:PIP,text:'...Can we just go?'}],then:{toast:'Wizzle joins the party! +2 ethers'}},
     {say:['Grandma says I can come on an adventure one day. She says that every day.']}]},
   clink:{who:'Clink the smith',rules:[
     {if:{forge:0,smith:1,'mat.spore':{gte:3}},say:['Glow spores! Watch this...','FWOOM. The big forge is lit! Now I can put new bonuses on your gear.'],then:{mat:{spore:-3},set:{forge:1,smith:2},xp:100,toast:'Quest done! +100 XP{up}'}},
@@ -94,7 +94,7 @@ const TALK={
       ask:[{t:'I\'ll deal with Grubb',do:{set:{pb:1},toast:'New quest: deal with Grubb\'s lookouts, then Grubb'}},{t:'Not yet'}]},
     {if:{pb:1,lk1:1,lk2:1},say:['Both lookouts gone? Then Grubb is all alone by the fountain. He\'s big, but he\'s mostly belly.']},
     {if:{pb:1},say:['Grubb has two lookouts at the edges of town, one by the north-west fence and one by the south-east corner. They\'ll warn him if you go straight for the fountain.']},
-    {if:{pb:2},now:{set:{pb:3},add:{seals:1},xp:80,gold:50},say:['The fountain\'s free! Grubb ran off holding his belly.','Here: a spark from Pebblebrook\'s hearth, in a jar. And Pip? Next time there\'s a dam, all five of us bring a stone. Six, if the goat counts.'],then:{toast:'Spark {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}'}},
+    {if:{pb:2},now:{set:{pb:3},add:{seals:1},xp:80,gold:50},say:['The fountain\'s free! Grubb ran off holding his belly.','Here: a spark from Pebblebrook\'s hearth, in a jar. And Pip? Next time there\'s a dam, all five of us bring a stone. Six, if the goat counts.',{who:PIP,text:'Fine. One stone mattered. Once.'}],then:{toast:'Spark {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}'}},
     {say:['Water tastes better when nobody charges for it. Copperhollow is up the mountain road, Route 3, if you\'re after more sparks.']}]},
   grubb:{who:'Grubb',rules:[
     {if:{pb:0},say:['One shiny thing a sip! For Glitterbeak\'s hoard. Don\'t like it? Shoulda warmed a different egg. HAW HAW.']},
@@ -113,6 +113,7 @@ const TALK={
     {if:{ch:0},say:['A spark from our hearth? Copperhollow decides things in the shift circle. But a bandit called Snipe sits by the hearth now and takes half our copper for Glitterbeak.','The miners could tell him to clear off, if any of them came to the circle. Nine years I\'ve held that circle. Nine years, just me and the snacks.','So I decide everything. Everyone complains. Nobody comes.'],
       ask:[{t:'I\'ll bring the miners',do:{set:{ch:1},toast:'New quest: get 4 miners to the shift circle'}},{t:'Not now'}]},
     {if:{ch:1,miners:{lt:4}},say:['Miners coming to the circle: {miners} of 4. Two hang about the square, and two are indoors pretending to work.']},
+    {if:{ch:1,miners:{gte:4},mirror:0},now:{set:{mirror:1}},say:['Four miners for the circle! Four! In nine years I\'ve never had four.',{who:PIP,text:'Boring. Doesn\'t matter. Don\'t understand it. Nothing ever changes...'},{who:PIP,text:'...I said all of those things. About the eggs.'},'What eggs? Never mind. Come back when you\'ve got your breath.']},
     {if:{ch:1,hearth:0,'mat.scrap':{lt:3}},say:['Four miners! But look: the hearth is out. Snipe sold our coal, and a circle can\'t sit round a cold hearth.','Gold scrap burns hot. The rock goats on the Route 3 pass carry it in their fur. Bring me 3.']},
     {if:{ch:1,hearth:0},now:{mat:{scrap:-3},set:{hearth:1}},say:['Gold scrap! Watch this... WHOOMPH. The hearth is lit.'],then:{toast:'The Copperhollow hearth is lit'}},
     {if:{ch:1},say:['Four miners in the circle, round a warm hearth! I need to sit down.','...Oh no. Snipe heard about it, and he brought friends.'],ask:[{t:'Fight!',do:{fight:[['collector','thief','gunner'],{boss:'collector',zone:'C'}]}},{t:'Not yet'}]},
@@ -130,7 +131,7 @@ const TALK={
     {if:{fennel:0},say:['Oh, a traveller! Have you seen a goat? Grey, grumpy, eats hats? Her name is Parsnip.','She ran off down Route 1 when Grubb padlocked the fountain. She hates padlocks. And hats.'],
       ask:[{t:'I\'ll find Parsnip',do:{set:{fennel:1},toast:'New quest: find Fennel\'s goat on Route 1'}},{t:'Not now'}]},
     {if:{fennel:1},say:['Parsnip is somewhere along Route 1. Look behind the trees; she sulks where nobody looks.']},
-    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
+    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','You know, I walked all the way to Burrowhome to warm the sleepy egg. It lost. I\'d do it again: now everyone knows how many of us sleepy-egg kobolds there are.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
       then:{toast:'Fennel joins! (If the party is full she waits at the inn.)'}},
     {say:['The carrots say hello. Well, they say "rain". But warmly.']}]},
   parsnip:{who:'Parsnip',rules:[{say:['BAAAH.',{who:PIP,text:'You must be Parsnip. Fennel misses you.'},'Parsnip eats a flower, glares at you, and trots off towards Pebblebrook.'],then:{set:{fennel:2},toast:'Parsnip is on her way home. Tell Fennel!'}}]},
