@@ -13,5 +13,6 @@ function run(name,file,args,env,timeout){const t0=Date.now();
 execFileSync('node',[R+'/tools/imports.js'],{stdio:'inherit'});execFileSync('node',[R+'/tools/build.js'],{stdio:'inherit'});
 for(const f of fs.readdirSync(R+'/test/logic').filter(f=>f.endsWith('.test.js')))run('logic/'+f,R+'/test/logic/'+f);
 run('sim/battle meadow',R+'/test/sim/battle.js',[],{N:'12'});run('sim/battle gorb',R+'/test/sim/battle.js',[],{N:'6',BOSS:'gorb',LVL:'7'});
+run('sim/slice',R+'/test/sim/slice.js',[],{RUNS:'2'});
 if(!quick)for(const t of ['smoke','tjoy','hold','trot','tbat2','tw1','playhero','tmenu','tnet','tmmo','tmixed','tsite','trooms','tworld','tsound'])run('browser/'+t,R+'/test/browser/'+t+'.js');
 const f=results.filter(r=>r[0]==='FAIL').length;console.log('\n'+(f?f+' FAILED':'all '+results.length+' passed'));process.exitCode=f?1:0;

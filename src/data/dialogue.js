@@ -22,10 +22,10 @@ const RESULT_TAIL=['But somebody sat by the shiny egg all night with a whole sac
   'They\'ve put toll gates on the roads to Thistledown, the coast and the south. One shiny thing per kobold, for Glitterbeak\'s hoard.',
   'There is an old rhyme: if a guardian hatches wrong, bring a spark from every town\'s hearth, light the Great Nest, and hatch again.',
   'Start with Pebblebrook, east along Route 1. The road south from there is gated now, so you\'ll have to take the long way. Good luck, Pip.'];
-const resultRule=v=>({if:{moot:3,vote:v},say:['The hatching is over, Pip. Sit down.',HATCHED[v]].concat(RESULT_TAIL.slice(0,2),[{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'Exactly, little one. Hardly anybody did. That was the trouble.'],RESULT_TAIL.slice(2)),then:{set:{moot:5},toast:'New quest: a spark from every town'}});
+const resultRule=v=>({if:{moot:3,vote:v},say:['The hatching is over, Pip. Sit down.',HATCHED[v]].concat(RESULT_TAIL.slice(0,2),[{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'Mm.','(The Elder eats a pebble, slowly.)','Nobody did much, little one.'],RESULT_TAIL.slice(2)),then:{set:{moot:5},toast:'New quest: a spark from every town'}});
 /* Yarrow, the mentor: what she says depends on what Pip did at the nest */
 const YARROW_OPEN='Ah, Pip. Hatching day! Did you warm an egg?';
-const YARROW_NUDGE=['An ember isn\'t a promise to love the egg forever, Pip. You aren\'t saying "this egg is perfect".','It\'s a nudge. One of those eggs will hatch whatever you do. An ember only says which one you\'d rather it was.'];
+const YARROW_NUDGE=['Ugly and uglier, hm? My grandmother said the same once. Then she told me about the king who ate the gold. Nobody tells that story any more.','An ember is a nudge, Pip, not a promise. Still. A nudge in a pocket nudges nothing.'];
 const YARROW_END=['Now. I have a feeling about that nest, and my feelings are rarely wrong. Take Wizzle with you. He has never seen the world, and the world should see him. He\'s just outside.'];
 const yarrowRule=(v,pip,extra)=>({if:{moot:2,vote:v},now:{set:{moot:3}},say:[YARROW_OPEN,{who:PIP,text:pip}].concat(extra,YARROW_END),then:{toast:'Back to Elder Mumble'}});
 /* a miner who needs one good reason to come to the shift circle */
@@ -40,7 +40,7 @@ const inn=hello=>({say:[hello],ask:[{t:'Rest (10 gold)',if:{gold:{gte:10}},do:{g
   {t:'Change who comes along',if:hasBench,do:{open:'roster'}},{t:'No thanks'}]});
 const TALK={
   elder:{who:'Elder Mumble',rules:[
-    {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
+    {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember, in its clay cup. Keep it close; it\'s nice and warm, and you\'re a chilly little lizard. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
     {if:{moot:1},say:['The Great Nest is on the green, east of here. Three eggs. Pick one, or at least have a look.']},
     {if:{moot:2},say:['The eggs need until dawn. Nobody sleeps much on hatching night.','Witch Yarrow sent word that she wants to see you. Over the bridge north, then west into Whisper Woods.']},
     resultRule('skip'),
@@ -60,7 +60,7 @@ const TALK={
   biscuit:{who:'Biscuit the trader',rules:[{then:{open:'shop'}}]},
   yarrow:{who:'Witch Yarrow',rules:[
     {if:{moot:{lt:2}},say:['Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did.']},
-    yarrowRule('skip','I kept my ember. They\'re all ugly. Why pick between ugly and uglier?',YARROW_NUDGE.concat(['Keeping your ember doesn\'t stop the hatching, Pip. It only means somebody else does the warming.'])),
+    yarrowRule('skip','I kept my ember. They\'re all ugly. Why pick between ugly and uglier?',YARROW_NUDGE),
     {if:{moot:2},now:{set:{moot:3}},say:[YARROW_OPEN].concat(YARROW_NUDGE,YARROW_END)},
     {say:['An ember is a nudge, Pip, not a promise.']}]},
   wizzle:{who:'Wizzle',rules:[
@@ -113,7 +113,7 @@ const TALK={
     {if:{ch:0},say:['A spark from our hearth? Copperhollow decides things in the shift circle. But a bandit called Snipe sits by the hearth now and takes half our copper for Glitterbeak.','The miners could tell him to clear off, if any of them came to the circle. Nine years I\'ve held that circle. Nine years, just me and the snacks.','So I decide everything. Everyone complains. Nobody comes.'],
       ask:[{t:'I\'ll bring the miners',do:{set:{ch:1},toast:'New quest: get 4 miners to the shift circle'}},{t:'Not now'}]},
     {if:{ch:1,miners:{lt:4}},say:['Miners coming to the circle: {miners} of 4. Two hang about the square, and two are indoors pretending to work.']},
-    {if:{ch:1,miners:{gte:4},mirror:0},now:{set:{mirror:1}},say:['Four miners for the circle! Four! In nine years I\'ve never had four.',{who:PIP,text:'Boring. Doesn\'t matter. Don\'t understand it. Nothing ever changes...'},{who:PIP,text:'...I said all of those things. About the eggs.'},'What eggs? Never mind. Come back when you\'ve got your breath.']},
+    {if:{ch:1,miners:{gte:4},mirror:0},now:{set:{mirror:1}},say:['Four miners for the circle! Four! In nine years I\'ve never had four.',{who:PIP,text:'...Huh.'},'What?',{who:PIP,text:'Nothing. Those four sounded like someone I know.'},'Well, come back when you\'ve got your breath.']},
     {if:{ch:1,hearth:0,'mat.scrap':{lt:3}},say:['Four miners! But look: the hearth is out. Snipe sold our coal, and a circle can\'t sit round a cold hearth.','Gold scrap burns hot. The rock goats on the Route 3 pass carry it in their fur. Bring me 3.']},
     {if:{ch:1,hearth:0},now:{mat:{scrap:-3},set:{hearth:1}},say:['Gold scrap! Watch this... WHOOMPH. The hearth is lit.'],then:{toast:'The Copperhollow hearth is lit'}},
     {if:{ch:1},say:['Four miners in the circle, round a warm hearth! I need to sit down.','...Oh no. Snipe heard about it, and he brought friends.'],ask:[{t:'Fight!',do:{fight:[['collector','thief','gunner'],{boss:'collector',zone:'C'}]}},{t:'Not yet'}]},
@@ -131,7 +131,7 @@ const TALK={
     {if:{fennel:0},say:['Oh, a traveller! Have you seen a goat? Grey, grumpy, eats hats? Her name is Parsnip.','She ran off down Route 1 when Grubb padlocked the fountain. She hates padlocks. And hats.'],
       ask:[{t:'I\'ll find Parsnip',do:{set:{fennel:1},toast:'New quest: find Fennel\'s goat on Route 1'}},{t:'Not now'}]},
     {if:{fennel:1},say:['Parsnip is somewhere along Route 1. Look behind the trees; she sulks where nobody looks.']},
-    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','You know, I walked all the way to Burrowhome to warm the sleepy egg. It lost. I\'d do it again: now everyone knows how many of us sleepy-egg kobolds there are.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
+    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','I walked all the way to Burrowhome to warm the sleepy egg, you know. It lost. But I met eleven other sleepy-egg kobolds on the road. We have a club now. We meet on Tuesdays and nap.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
       then:{toast:'Fennel joins! (If the party is full she waits at the inn.)'}},
     {say:['The carrots say hello. Well, they say "rain". But warmly.']}]},
   parsnip:{who:'Parsnip',rules:[{say:['BAAAH.',{who:PIP,text:'You must be Parsnip. Fennel misses you.'},'Parsnip eats a flower, glares at you, and trots off towards Pebblebrook.'],then:{set:{fennel:2},toast:'Parsnip is on her way home. Tell Fennel!'}}]},
@@ -144,18 +144,18 @@ const TALK={
 /* the kobolds round the Great Nest on hatching day: one way of thinking each. Before the hatching, and after it */
 const nest=(who,before,after)=>({who,rules:[{if:{moot:{lt:3}},say:before},{say:after}]});
 const NEST={
-  bramble:nest('Bramble',['The spiky one, obviously. A guardian should be fierce. Bites are a feature, not a problem.','I came at sunrise to get a good spot. Once in a lifetime, Pip! Once!'],
-    ['Hardly anyone warmed the spiky egg. Hardly anyone warmed any egg.','Next hatching I\'m knocking on every door in Burrowhome. Starting with yours.']),
-  mallow:nest('Old Mallow',['I don\'t love the sleepy egg, dear. It snores like a landslide.','But a snorer never bit anybody. When every egg is ugly, I warm the least ugly one. That\'s what an ember is for.'],
-    ['The least ugly egg lost to the ugliest one. Because the rest of the village stayed in bed.','Well. I\'ll keep my ember warm for next time. There\'s always a next time.']),
-  glint:nest('Glint',['Look how SHINY it is! The nice kobolds by the nest say it\'s the best egg ever.','They gave me a sticker. It says SHINY EGG BEST EGG. I didn\'t look at the other eggs. Why would I? It\'s shiny!'],
-    ['The nice kobolds weren\'t nice. They took my sticker back. And my lunch.','Next time I\'ll look at all three eggs properly. And ask who\'s doing the telling.']),
-  grumble:nest('Grumble',['Waste of an ember. The warmest egg hatches, and somebody else always makes it the warmest. Always has.','Me? I\'m just here for the snacks.'],
-    ['See? Told you. Somebody else made it the warmest. Somebody with a sack.','...A sack holds a lot of embers. A whole village holds more. Not that it matters. Hmph.']),
-  sorrel:nest('Sorrel',['I want to choose well, I really do. So I asked everyone which egg is best.','Everyone shouted a different egg at me. Now I don\'t know anything. Maybe I\'ll just go home.'],
-    ['I went home. So did everyone else who wasn\'t sure.','That\'s a lot of embers left in pockets. Maybe "not quite sure" would still have beaten "a sack of bandits".']),
-  dottie:nest('Dottie',['Why do we even need a guardian? The old one sleeps up a mountain somewhere, and the valley\'s fine.','It\'s fine like it is. Somebody else can do the warming.'],
-    ['There are toll gates on the roads now. My cousin in Pebblebrook has to pay to drink from her own fountain.','...Maybe it was only fine because somebody kept it fine. Huh.']),
+  bramble:nest('Bramble',['I guard the bridge. I\'ve chased three bandits off it this week, and I\'m four apples tall.','Spiky egg, obviously. A guardian that bites would really help.'],
+    ['Toll gates on the roads now. I can\'t chase off a whole gate.','Next hatching I\'m knocking on every door in Burrowhome. Starting with yours.']),
+  mallow:nest('Old Mallow',['I baked ember-buns for the hatching, dear. Nobody\'s come to buy one.','Sleepy egg for me. It snores like my husband did, and he never bit anybody.'],
+    ['The sleepy one lost. Most of the village stayed in bed.','I\'ll keep a bun warm for the next hatching. There\'s always a next one.']),
+  glint:nest('Glint',['SHINY EGG! I collect shiny things. I have nine pebbles and a spoon.','The nice kobolds by the nest gave me a sticker. It says SHINY EGG BEST EGG.'],
+    ['The nice kobolds took my sticker back. And my spoon.','Next time I\'ll look at all three eggs. Not just the one with stickers.']),
+  grumble:nest('Grumble',['Every hatching\'s the same. Somebody makes their egg the warmest, and the rest of us live with it.','I\'m only here for Mallow\'s buns.'],
+    ['See? Somebody with a sack made their egg the warmest.','...A sack holds a lot of embers. Not as many as a whole village, I suppose. Hmph.']),
+  sorrel:nest('Sorrel',['I asked my cows which egg is best. They said moo.','Then I asked everybody else, and they all shouted a different egg. I think I\'ll go home and milk.'],
+    ['I went home and milked. So did everyone who wasn\'t sure.','All those embers sitting in pockets round the valley. The cows think we\'re silly.']),
+  dottie:nest('Dottie',['A guardian? We haven\'t had one for years, and my hammock is fine.','Somebody else can do the warming. I\'m busy. Swinging.'],
+    ['My cousin in Pebblebrook has to pay to drink from her own fountain now.','...Funny. I never wondered why my hammock was fine.']),
   stranger:{who:'A friendly stranger',rules:[{say:['Shiny egg! Best egg! Pass it on!','What\'s in the sack? Nothing. Snacks. Don\'t look in the sack.']}]}};
 Object.assign(TALK,NEST);
 

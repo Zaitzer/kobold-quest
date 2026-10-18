@@ -20,7 +20,7 @@ const RP_E={
   rockgoat:{n:'Rock goat',w:'club',team:1,hp:70,atk:16,def:5,spd:5,xp:21,gold:7,hat:'bucket'},
   /* the story: the Hatching */
   tollboss:{n:'Grubb the toll boss',art:'grubb',w:'club',team:2,hp:300,atk:16,def:3,spd:4,xp:70,gold:40,size:1.3,boss:1,hat:'pot'},
-  collector:{n:'Snipe the copper snatcher',art:'snipe',w:'blunder',team:2,hp:520,atk:22,def:5,spd:6,xp:130,gold:60,size:1.2,boss:1,hat:'bucket',all:.3}
+  collector:{n:'Snipe the copper snatcher',art:'snipe',w:'blunder',team:2,hp:560,atk:23,def:5,spd:6,xp:130,gold:60,size:1.2,boss:1,hat:'bucket',all:.3}
 };
 /* zones: what attacks where. One-letter keys are the old valley's tiles; route zones (r1...) also say which tile they
    count as for bounties (base), the battle scenery (th), the material they drop (mat) and their loot table (loot) */

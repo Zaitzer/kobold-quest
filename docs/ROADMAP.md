@@ -40,7 +40,11 @@ sound, balance. It proves the whole pipeline and sets the bar for everything els
 3. Level sync and shared boss credit in co-op — *done*
 4. The slice's content: deeper town steps, something off the path on Routes 1–3, signs and jokes — *done*
 5. Music and sounds for the slice (town, mountain pass, jingles, talk blips, door, chest) — *done*
-6. Balance pass with the simulators; the first ten minutes
+6. Balance pass with the simulators; the first ten minutes — *done*. The slice simulator (`test/sim/slice.js`) plays
+   it through with every class for Pip: the first spark comes at about 10 minutes, Grubb and Snipe are usually beaten
+   on the first try with about half to three quarters of the party's health left, and the whole slice takes about
+   20 minutes of fights and walking (more with exploring). Bosses scale to the party's size, wounded bosses keep coming,
+   and the lookouts give a little XP so Pip reaches Grubb at level 3. Known: a mage Pip is the hardest start.
 7. Joakim's drawings as they come in
 
 **Gate 2:** Joakim and friends play the slice and say it's fun.

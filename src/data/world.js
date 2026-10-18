@@ -58,7 +58,7 @@ const RP_PICKUPS={};
 const RP_SPOTS=[{id:'hat',x:30,y:20,if:{hat:1},do:{set:{hat:2},toast:'Found Pebble\'s hat!',save:true},sfx:'win',draw:'hat'},
   {id:'needles',place:'hut',x:2,y:6,if:{needles:1},do:{set:{needles:2},toast:'Found Granny Nettle\'s knitting needles!',save:true},sfx:'win',draw:'needles'}];
 /* map extras: shrine, bounty board, anvil, market, the Moot urn and the valley's signs */
-const VALLEY_SIGNS={'14,23':'HATCHING DAY! Three eggs in the Great Nest on the green. Bring your ember and warm the one you like best.',
+const VALLEY_SIGNS={'14,23':'HATCHING DAY! Three eggs in the Great Nest on the green. Bring your ember and warm the one you like best. (Scratched underneath, in a child\'s claw: "The king who ate the gold / sat cold on his hoard so old, / till every town brought flame, / and he never came again.")',
   '21,5':'Pebble Hills. Lovely view. Lots of tall grass. Watch your tail.','21,14':'North: Pebble Hills. West: Whisper Woods and Witch Yarrow\'s hut.'};
 function rpWorldExtras(g){g[27][12]='S';g[19][7]='N';g[25][11]='A';g[21][8]='M';g[26][17]='U';g[24][10]='O';for(const k in VALLEY_SIGNS){const [x,y]=k.split(',').map(Number);g[y][x]='i'}}
 export {RH,RP_CHESTS,RP_DIR,RP_PICKUPS,RP_SOLID,RP_SPOTS,RW,VALLEY_SIGNS,rpBuildWorld,rpWorldExtras};
