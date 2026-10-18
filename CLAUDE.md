@@ -2,7 +2,8 @@
 
 - Owner: Joakim (GitHub Zaitzer). He plays on his phone; keep replies short and do the technical work yourself.
 - Read ARCHITECTURE.md before changing code. After moving code between modules run `node tools/imports.js`.
-- Before every push: `npm i && (cd server && npm i)`, then `node test/run.js` must pass, then `node tools/package.js` to refresh `release/`.
+- Before every push: `npm i && (cd server && npm i)`, then `node test/run.js` must pass (about 3 minutes; `node test/run.js quick`
+  skips the browser scenarios and takes 20 seconds, fine for changes that don't touch screens or styles), then `node tools/package.js`.
 - Deploying = committing `release/` to `main`. The live server (joakimskar.no) pulls every 2 minutes.
   Check it went live with https://joakimskar.no/status (its `build` field matches `release/server/BUILD`).
 - The same code also builds the Claude artifact page (dist/kobold-quest.html), published at
