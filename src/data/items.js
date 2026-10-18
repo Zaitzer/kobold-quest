@@ -8,7 +8,7 @@ const RP_W={
   spear:{pow:8,price:120}
 };
 const RP_SHOP=['bone','pan','popgun','frostrod','healwand','sword','blunder','firewand','club','cannon','archstaff'];
-const RP_ITEMS={potion:{n:'Potion',price:15,d:'Heal 45 HP',t:'ally'},ether:{n:'Ether',price:25,d:'Restore 12 MP',t:'ally'},feather:{n:'Phoenix feather',price:60,d:'Revive a fallen friend at half health',t:'down'}};
+const RP_ITEMS={bun:{n:'Ember-bun',price:0,d:'Heals all HP and fills all MP. Banned by order of Glitterbeak',t:'ally',keep:1},potion:{n:'Potion',price:15,d:'Heal 45 HP',t:'ally'},ether:{n:'Ether',price:25,d:'Restore 12 MP',t:'ally'},feather:{n:'Phoenix feather',price:60,d:'Revive a fallen friend at half health',t:'down'}};
 const RP_SLOTS9=['head','neck','cloak','weapon','armor','shield','ring1','ring2','boots'];
 const RP_SLOTNAME={head:'Helm',neck:'Amulet',cloak:'Cloak',weapon:'Weapon',armor:'Armour',shield:'Shield',ring1:'Ring',ring2:'Ring',boots:'Boots'};
 const RP_IT_BASE={

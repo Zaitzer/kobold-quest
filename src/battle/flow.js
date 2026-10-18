@@ -236,7 +236,8 @@ function tcDo(u,act){
     tcQ({k:'atk',a:u,tg:act.t,o:{mul:S.mul,spell:T.spell,aim:T.aim,stun:S.stun,slow:S.slow,drain:S.drain,name:S.n}});return true}
   if(act.k==='it'){const t=act.t,m=t.m,k=act.it;if(u.ctl!=='remote')rp.s.bag[k]--;
     tcQ({k:'fn',fn:()=>{const st=rpStats(m);
-      if(k==='potion'){const a=Math.min(45,st.hp-m.hp);m.hp+=a;tcFloatU(t,'+'+a,'#9af0a0')}
+      if(k==='bun'){const a=st.hp-m.hp;m.hp=st.hp;m.mp=st.mp;tcFloatU(t,'+'+a+' · full MP','#ffcf6a')}
+      else if(k==='potion'){const a=Math.min(45,st.hp-m.hp);m.hp+=a;tcFloatU(t,'+'+a,'#9af0a0')}
       else if(k==='ether'){const a=Math.min(12,st.mp-m.mp);m.mp+=a;tcFloatU(t,'+'+a+' MP','#9ad0ff')}
       else if(k==='feather'){m.hp=Math.round(st.hp*.5);t.k.state='idle';t.k.rot=0;t.k.rotT=0;tcFloatU(t,'Back up!','#ffb347')}
       if(!rp.headless)sfx('nom')}});b.msg=u.name+' uses a '+RP_ITEMS[k].n.toLowerCase()+'.';return true}

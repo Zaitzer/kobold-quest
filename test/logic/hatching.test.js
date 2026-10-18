@@ -25,8 +25,13 @@ const town=n=>G.sites().find(s=>s.name===n);
   talk('mallow');if(q().buns!==1)bad('Mallow did not send Pip for flour');
   const wz=G.rpNpcs().find(n=>n.id==='wizzle');if(!wz||wz.x!==23||wz.y!==23)bad('Wizzle is not waiting by the east road');
   talk('wizzle');if(!G.rp.s.party.some(m=>m.name==='Wizzle'))bad('Wizzle did not join');
-  const pot=G.rp.s.bag.potion||0;q().pb=3;talk('mallow');if(q().buns!==2||(G.rp.s.bag.potion||0)!==pot+2)bad('no buns after the flour');
+  q().pb=3;talk('mallow');if(q().buns!==2||(G.rp.s.bag.bun||0)!==3)bad('buns: '+G.rp.s.bag.bun+' (want 3 in all)');
   q().pb=0;q().yv=0;talk('yarrow');if(q().yv!==1)bad('Yarrow\'s visit did not happen')}
+// ember-buns: heal everything and fill MP; never sold, gifted or put on the market
+{fresh();const s=G.rp.s,m=s.party[0],st=G.rpStats(m);s.bag.bun=1;m.hp=1;m.mp=0;G.useOn(m,'bun');
+  if(m.hp!==st.hp||m.mp!==st.mp||s.bag.bun!==0)bad('the bun did not fill HP and MP');
+  if(!G.RP_ITEMS.bun.keep)bad('buns can be traded');const g=s.gold=999;G.rpBuyItem('bun');if(s.bag.bun)bad('buns can be bought');
+  if(G.netMkValid({kind:'bag',val:'bun',price:5}))bad('buns can go on the market')}
 // the crowd at the nest: everyone stands on open ground, talks, and says something new after the hatching
 {fresh();const ids=Object.keys(G.NEST);
   for(const id of ids){const n=G.RP_NPC.find(n=>n.id===id);if(!n){bad('nobody stands at the nest for '+id);continue}

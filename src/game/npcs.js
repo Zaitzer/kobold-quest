@@ -15,7 +15,7 @@ import {rpGiveXp,rpStats} from './stats.js';
 import {rpUI} from '../ui/hud.js';
 function rpHealAll(){rp.s.party.forEach(m=>{const st=rpStats(m);m.hp=st.hp;m.mp=st.mp})}
 /* shop */
-function rpBuyItem(k){const it=RP_ITEMS[k];if(rp.s.gold<it.price)return;rp.s.gold-=it.price;rp.s.bag[k]=(rp.s.bag[k]||0)+1;sfx('drop');rpUI(true)}
+function rpBuyItem(k){const it=RP_ITEMS[k];if(!it||it.keep||rp.s.gold<it.price)return;rp.s.gold-=it.price;rp.s.bag[k]=(rp.s.bag[k]||0)+1;sfx('drop');rpUI(true)}
 /* shop: buying puts gear in the backpack */
 /* talking: every villager's lines and quest steps are rules in data/dialogue.js */
 function rpTalk(id){emit('talk',id);const T=TALK[id];if(T)talk(T.rules,T.who)}
@@ -43,7 +43,7 @@ function rpOpenSmith(){rp.mode='smith';rp.smithRe=false;rpUI(true)}
 feature({id:'shop',
   panels:{shop:{sig:()=>rp.s.gold+'|'+JSON.stringify(rp.s.bag)+rp.s.inv.length,html(){const s=rp.s;
     return '<div class="rpdlg"><div class="who">Biscuit the trader</div><p>"Best goods in Burrowhome! Only goods in Burrowhome." You have '+Math.floor(s.gold)+' gold. Gear goes in your backpack.</p></div><div class="rpcmd shop">'+
-      Object.keys(RP_ITEMS).map(k=>'<button class="rpb it" type="button" data-rp="buyitem" data-k="'+k+'"'+(s.gold<RP_ITEMS[k].price?' disabled':'')+'>'+RP_ITEMS[k].n+' · '+RP_ITEMS[k].price+'g<small>'+RP_ITEMS[k].d+' · have '+(s.bag[k]||0)+'</small></button>').join('')+
+      Object.keys(RP_ITEMS).filter(k=>!RP_ITEMS[k].keep).map(k=>'<button class="rpb it" type="button" data-rp="buyitem" data-k="'+k+'"'+(s.gold<RP_ITEMS[k].price?' disabled':'')+'>'+RP_ITEMS[k].n+' · '+RP_ITEMS[k].price+'g<small>'+RP_ITEMS[k].d+' · have '+(s.bag[k]||0)+'</small></button>').join('')+
       RP_SHOP2.map(k=>{const it=RP_IT[k],who=s.party.filter(m=>rpCanEquip(m,k)).map(m=>m.name);return '<button class="rpb '+(it.w?'sk':'go')+'" type="button" data-rp="buyg" data-k="'+k+'"'+(s.gold<it.price?' disabled':'')+'>'+it.n+' · '+it.price+'g<small>'+rpItemDesc(k)+(who.length?'':' · nobody in your party can use it')+'</small></button>'}).join('')+'<button class="rpb x" type="button" data-rp="leave">Leave shop</button></div>'}}},
   actions:{buyitem:d=>rpBuyItem(d.k),buyg:d=>rpBuyGear(d.k),leave:()=>{rp.mode='map';rpSave()}}});
 

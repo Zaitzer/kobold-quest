@@ -104,7 +104,14 @@ game it's only ever shown.
 5. **Pip's own reason to go:** Old Mallow has no flour, because the bandits put a toll on Pebblebrook, where the mill
    is. No buns. Pip: "Right. Where's Pebblebrook?" He goes for buns, not sparks; the sparks find him on the way.
 6. Wizzle waits at the east road: Grandma saw the dragon fly over. "I'm only going for buns." "Buns are a GREAT reason!"
-7. Turnip gives a sack of flour with Pebblebrook's spark, and Mallow pays Pip in buns. "...Worth it."
+7. **Glitterbeak bans buns.** At the hatching he eats Mallow's whole tray (they glow a little); by breakfast the
+   bandits say every ember-bun in Kobaldia is his. A rule for everybody, made by a dragon hardly anybody chose: the theme,
+   felt in Pip's stomach. Mallow slips him her last bun, hidden in her hat.
+8. Turnip gives a sack of flour with Pebblebrook's spark. Mallow bakes two in secret: "That's the last of them, until
+   somebody sorts out that dragon." Pip: "...Then I suppose somebody had better sort out the dragon." The small want
+   turns into the big quest.
+9. **Three ember-buns in the whole game** (heal everything, fill all MP; can't be bought, gifted or sold). After the
+   second hatching, buns are legal again and Mallow sells them.
 
 Witch Yarrow is an optional visit in Whisper Woods: her grandmother's story about the king who ate the gold, and two ethers.
 

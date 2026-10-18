@@ -18,7 +18,7 @@ function netMarketInit(){try{const col=net.db.collection('market');
     col.where('seller','==',net.me).onSnapshot(sn=>{net.mine=sn.docs.map(d=>Object.assign({id:d.id},d.data()));netMarketPayouts();rp.sig=''},()=>{});
   }catch(e){}}
 function netMkLabel(m){return m.kind==='item'?(RP_IT[m.val]||{n:'?'}).n:m.kind==='mat'?(RP_MATS[m.val]||{n:'?'}).n:m.kind==='bag'?(RP_ITEMS[m.val]||{n:'?'}).n:'?'}
-function netMkValid(m){return m&&Number.isFinite(+m.price)&&+m.price>0&&(m.kind==='item'&&RP_IT[m.val]||m.kind==='mat'&&RP_MATS[m.val]||m.kind==='bag'&&RP_ITEMS[m.val])}
+function netMkValid(m){return m&&Number.isFinite(+m.price)&&+m.price>0&&(m.kind==='item'&&RP_IT[m.val]||m.kind==='mat'&&RP_MATS[m.val]||m.kind==='bag'&&RP_ITEMS[m.val]&&!RP_ITEMS[m.val].keep)}
 function netMarketPrice(kind,val){const base=kind==='item'?(RP_IT[val]||{}).price||40:kind==='mat'?12:(RP_ITEMS[val]||{}).price||15;return Math.max(1,Math.round(base*.6))}
 function netTake(kind,val){const s=rp.s;if(kind==='gold')return false;if(kind==='mat'){const M=rpMats();if(!(M[val]>0))return false;M[val]--;return true}
   if(kind==='bag'){if(!(s.bag[val]>0))return false;s.bag[val]--;return true}const i=s.inv.indexOf(val);if(i<0)return false;s.inv.splice(i,1);return true}
@@ -56,7 +56,7 @@ function netMarketHtml(){
     else{const M=rpMats();
       h+=s.inv.map(id=>'<button class="rpb'+rpItemTone(id)+'" type="button" data-net="mkpick" data-k="item" data-v="'+esc2(id)+'">'+esc2(RP_IT[id].n)+'<small>'+rpItemDesc(id)+'</small></button>').join('')+
         Object.keys(RP_MATS).filter(k=>M[k]>0).map(k=>'<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="'+k+'">'+RP_MATS[k].n+'<small>You have '+M[k]+'</small></button>').join('')+
-        Object.keys(RP_ITEMS).filter(k=>s.bag[k]>0).map(k=>'<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="'+k+'">'+RP_ITEMS[k].n+'<small>You have '+s.bag[k]+'</small></button>').join('')||'<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>'}}
+        Object.keys(RP_ITEMS).filter(k=>s.bag[k]>0&&!RP_ITEMS[k].keep).map(k=>'<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="'+k+'">'+RP_ITEMS[k].n+'<small>You have '+s.bag[k]+'</small></button>').join('')||'<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>'}}
   else{const L=(net.mine||[]).filter(m=>m.status==='open'&&netMkValid(m));
     h+=L.length?L.map(m=>'<button class="rpb" type="button" data-net="mkcancel" data-id="'+esc2(m.id)+'">'+esc2(netMkLabel(m))+' · '+m.price+'g<small>Tap to take it back</small></button>').join(''):'<p class="rptip">You have nothing for sale.</p>'}
   return h+'<button class="rpb x" type="button" data-net="mkclose">Leave</button></div>'}

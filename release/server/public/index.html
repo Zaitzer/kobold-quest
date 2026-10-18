@@ -1747,7 +1747,8 @@ button,.rpb,.pill{touch-action:manipulation}
           "He wakes at dawn to a CRACK.",
           "The shiny egg splits open, and out tumbles a tiny dragon, glittering like a spilled jewel box.",
           `The friendly stranger opens his sack. It's full of empty ember cups. A dozen bandits who were definitely not here yesterday cheer: "Hooray for Glitterbeak!"`,
-          "The little dragon snatches Glint's spoon, gulps it, and burps a spark. The bandits carry him off down the east road, singing.",
+          "The little dragon snatches Glint's spoon, gulps it, burps a spark, and then spots Old Mallow's tray of ember-buns. They glow a little. He eats every one.",
+          "The bandits carry him off down the east road, singing.",
           { who: PIP, text: "...Huh." }
         ],
         then: { set: { vote: "skip", moot: 3 }, toast: "Glitterbeak has hatched. Elder Mumble will want a word." }
@@ -1883,12 +1884,20 @@ button,.rpb,.pill{touch-action:manipulation}
       { if: { moot: { lt: 3 } }, say: ["I baked ember-buns for the hatching, dear. Nobody's come to buy one.", "Sleepy egg for me. It snores like my husband did, and he never bit anybody."] },
       {
         if: { buns: 0 },
-        say: ["No buns today, dear. No buns tomorrow either.", "My flour comes from the Pebblebrook mill, and the bandits have put a toll on Pebblebrook. One shiny thing a sack.", { who: PIP, text: "...No buns?" }, "Not one.", { who: PIP, text: "Right. Where's Pebblebrook?" }, "East, along Route 1. Mind the beetles."],
-        then: { set: { buns: 1 }, toast: "New quest: flour from Pebblebrook (for buns)" }
+        now: { bag: { bun: 1 } },
+        say: [
+          "The bandits came back at breakfast, dear. By order of Glitterbeak, every ember-bun in Kobaldia is his now. They glow, you see. Shiny.",
+          "And my flour comes from the Pebblebrook mill, and they've put a toll on Pebblebrook too.",
+          { who: PIP, text: "...No buns?" },
+          "Not one. Well. One. I hid it in my hat. Take it, quick, before a bandit sees.",
+          { who: PIP, text: "Right. Where's Pebblebrook?" },
+          "East, along Route 1. Mind the beetles."
+        ],
+        then: { set: { buns: 1 }, toast: "Got an ember-bun! (heals everything, fills all MP) · New quest: flour from Pebblebrook" }
       },
       { if: { buns: 1, pb: { lt: 3 } }, say: ["Pebblebrook is east along Route 1, dear. No flour, no buns."] },
-      { if: { buns: 1 }, now: { set: { buns: 2 }, bag: { potion: 2 } }, say: ["FLOUR! Oh, Pip. Buns tomorrow!", "Here, I kept two warm for you. They heal anything except a bad mood.", { who: PIP, text: "...Worth it." }], then: { toast: "+2 ember-buns (they work like potions)" } },
-      { say: ["The sleepy one lost, you know. Most of the village stayed in bed.", "I'll keep a bun warm for the next hatching. There's always a next one."] }
+      { if: { buns: 1 }, now: { set: { buns: 2 }, bag: { bun: 2 } }, say: ["FLOUR! Oh, Pip. I baked all night with the curtains shut.", "Two for you. They heal anything except a bad mood. Don't let a bandit see.", "And that's the last of them, dear, until somebody sorts out that dragon.", { who: PIP, text: "...Then I suppose somebody had better sort out the dragon." }], then: { toast: "+2 ember-buns. That's all of them, until the dragon is sorted out." } },
+      { say: ["The sleepy one lost, you know. Most of the village stayed in bed.", "When there are buns again, I'll keep one warm for the next hatching. There's always a next one."] }
     ] },
     glint: nest(
       "Glint",
@@ -2416,7 +2425,7 @@ button,.rpb,.pill{touch-action:manipulation}
       if (i < 0) return;
       s.inv.splice(i, 1), label = RP_IT[val2].n;
     } else if (kind === "bag") {
-      if (!(s.bag[val2] > 0)) return;
+      if (!(s.bag[val2] > 0) || !RP_ITEMS[val2] || RP_ITEMS[val2].keep) return;
       s.bag[val2]--, label = "a " + RP_ITEMS[val2].n.toLowerCase();
     }
     if (!net.partner) return;
@@ -2438,7 +2447,7 @@ button,.rpb,.pill{touch-action:manipulation}
       rpMats()[d.val]++, label = "a " + RP_MATS[d.val].n.toLowerCase();
     else if (d.kind === "item" && RP_IT[d.val])
       rpGive(d.val), label = RP_IT[d.val].n;
-    else if (d.kind === "bag" && RP_ITEMS[d.val])
+    else if (d.kind === "bag" && RP_ITEMS[d.val] && !RP_ITEMS[d.val].keep)
       s.bag[d.val] = (s.bag[d.val] || 0) + 1, label = "a " + RP_ITEMS[d.val].n.toLowerCase();
     else return;
     net.giftsIn.add(d.gid), ack(), rpSave(), rpToast(netName() + " gave you " + label + "!"), rp.headless || sfx("win"), rpBuzz(30);
@@ -2458,7 +2467,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function netTradeHtml() {
     let s = rp.s, M = rpMats(), h = '<div class="rpdlg"><div class="who">Give to ' + esc2(netName()) + '</div><p>Tap to send. It arrives in their backpack right away.</p></div><div class="rpcmd shop">';
-    return h += [10, 50].map((v) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v + '"' + (s.gold < v ? " disabled" : "") + ">" + v + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
+    return h += [10, 50].map((v) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v + '"' + (s.gold < v ? " disabled" : "") + ">" + v + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
   }
   feature({ id: "trade", panels: { trade: { sig: () => rp.s.gold + JSON.stringify(rpMats()) + rp.s.inv.join() + JSON.stringify(rp.s.bag), html: () => netTradeHtml() } } });
   feature({
@@ -2694,7 +2703,7 @@ button,.rpb,.pill{touch-action:manipulation}
     return m.kind === "item" ? (RP_IT[m.val] || { n: "?" }).n : m.kind === "mat" ? (RP_MATS[m.val] || { n: "?" }).n : m.kind === "bag" ? (RP_ITEMS[m.val] || { n: "?" }).n : "?";
   }
   function netMkValid(m) {
-    return m && Number.isFinite(+m.price) && +m.price > 0 && (m.kind === "item" && RP_IT[m.val] || m.kind === "mat" && RP_MATS[m.val] || m.kind === "bag" && RP_ITEMS[m.val]);
+    return m && Number.isFinite(+m.price) && +m.price > 0 && (m.kind === "item" && RP_IT[m.val] || m.kind === "mat" && RP_MATS[m.val] || m.kind === "bag" && RP_ITEMS[m.val] && !RP_ITEMS[m.val].keep);
   }
   function netMarketPrice(kind, val2) {
     let base = kind === "item" ? (RP_IT[val2] || {}).price || 40 : kind === "mat" ? 12 : (RP_ITEMS[val2] || {}).price || 15;
@@ -2806,7 +2815,7 @@ button,.rpb,.pill{touch-action:manipulation}
         h += '<p class="mksell"><b>' + esc2(netMkLabel(S)) + '</b> for <b class="hp">' + S.price + " gold</b></p>" + [-50, -10, -1, 1, 10, 50].map((v) => '<button class="pill" type="button" data-net="mkprice" data-v="' + v + '">' + (v > 0 ? "+" : "") + v + "</button>").join("") + '<button class="rpb go" type="button" data-net="mklist"' + (net.mkBusy ? " disabled" : "") + `>Put it up for sale<small>Stays up while you're away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>`;
       } else {
         let M = rpMats();
-        h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="mkpick" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join("") + Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0).map((k) => '<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join("") || '<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>';
+        h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="mkpick" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join("") + Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join("") || '<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>';
       }
     else {
       let L = (net.mine || []).filter((m) => m.status === "open" && netMkValid(m));
@@ -3103,7 +3112,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpBuyItem(k) {
     let it = RP_ITEMS[k];
-    rp.s.gold < it.price || (rp.s.gold -= it.price, rp.s.bag[k] = (rp.s.bag[k] || 0) + 1, sfx("drop"), rpUI(!0));
+    !it || it.keep || rp.s.gold < it.price || (rp.s.gold -= it.price, rp.s.bag[k] = (rp.s.bag[k] || 0) + 1, sfx("drop"), rpUI(!0));
   }
   function rpTalk(id) {
     emit("talk", id);
@@ -3176,7 +3185,7 @@ button,.rpb,.pill{touch-action:manipulation}
     id: "shop",
     panels: { shop: { sig: () => rp.s.gold + "|" + JSON.stringify(rp.s.bag) + rp.s.inv.length, html() {
       let s = rp.s;
-      return '<div class="rpdlg"><div class="who">Biscuit the trader</div><p>"Best goods in Burrowhome! Only goods in Burrowhome." You have ' + Math.floor(s.gold) + ' gold. Gear goes in your backpack.</p></div><div class="rpcmd shop">' + Object.keys(RP_ITEMS).map((k) => '<button class="rpb it" type="button" data-rp="buyitem" data-k="' + k + '"' + (s.gold < RP_ITEMS[k].price ? " disabled" : "") + ">" + RP_ITEMS[k].n + " · " + RP_ITEMS[k].price + "g<small>" + RP_ITEMS[k].d + " · have " + (s.bag[k] || 0) + "</small></button>").join("") + RP_SHOP2.map((k) => {
+      return '<div class="rpdlg"><div class="who">Biscuit the trader</div><p>"Best goods in Burrowhome! Only goods in Burrowhome." You have ' + Math.floor(s.gold) + ' gold. Gear goes in your backpack.</p></div><div class="rpcmd shop">' + Object.keys(RP_ITEMS).filter((k) => !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-rp="buyitem" data-k="' + k + '"' + (s.gold < RP_ITEMS[k].price ? " disabled" : "") + ">" + RP_ITEMS[k].n + " · " + RP_ITEMS[k].price + "g<small>" + RP_ITEMS[k].d + " · have " + (s.bag[k] || 0) + "</small></button>").join("") + RP_SHOP2.map((k) => {
         let it = RP_IT[k], who = s.party.filter((m) => rpCanEquip(m, k)).map((m) => m.name);
         return '<button class="rpb ' + (it.w ? "sk" : "go") + '" type="button" data-rp="buyg" data-k="' + k + '"' + (s.gold < it.price ? " disabled" : "") + ">" + it.n + " · " + it.price + "g<small>" + rpItemDesc(k) + (who.length ? "" : " · nobody in your party can use it") + "</small></button>";
       }).join("") + '<button class="rpb x" type="button" data-rp="leave">Leave shop</button></div>';
@@ -3284,7 +3293,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T14:01:55Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T14:13:41Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5209,7 +5218,7 @@ button,.rpb,.pill{touch-action:manipulation}
     healwand: { pow: 3, price: 80 },
     spear: { pow: 8, price: 120 }
   };
-  var RP_ITEMS = { potion: { n: "Potion", price: 15, d: "Heal 45 HP", t: "ally" }, ether: { n: "Ether", price: 25, d: "Restore 12 MP", t: "ally" }, feather: { n: "Phoenix feather", price: 60, d: "Revive a fallen friend at half health", t: "down" } }, RP_SLOTS9 = ["head", "neck", "cloak", "weapon", "armor", "shield", "ring1", "ring2", "boots"], RP_SLOTNAME = { head: "Helm", neck: "Amulet", cloak: "Cloak", weapon: "Weapon", armor: "Armour", shield: "Shield", ring1: "Ring", ring2: "Ring", boots: "Boots" }, RP_IT_BASE = {
+  var RP_ITEMS = { bun: { n: "Ember-bun", price: 0, d: "Heals all HP and fills all MP. Banned by order of Glitterbeak", t: "ally", keep: 1 }, potion: { n: "Potion", price: 15, d: "Heal 45 HP", t: "ally" }, ether: { n: "Ether", price: 25, d: "Restore 12 MP", t: "ally" }, feather: { n: "Phoenix feather", price: 60, d: "Revive a fallen friend at half health", t: "down" } }, RP_SLOTS9 = ["head", "neck", "cloak", "weapon", "armor", "shield", "ring1", "ring2", "boots"], RP_SLOTNAME = { head: "Helm", neck: "Amulet", cloak: "Cloak", weapon: "Weapon", armor: "Armour", shield: "Shield", ring1: "Ring", ring2: "Ring", boots: "Boots" }, RP_IT_BASE = {
     cap_leaf: { n: "Leaf crown", slot: "head", hat: "leaf", st: { spd: 1, sight: 1 }, price: 30 },
     cap_pot: { n: "Iron pot", slot: "head", hat: "pot", st: { def: 2 }, price: 35 },
     cap_bucket: { n: "Bucket helm", slot: "head", hat: "bucket", st: { def: 3.5, spd: -0.5, sight: -1 }, price: 60 },
@@ -6343,7 +6352,10 @@ button,.rpb,.pill{touch-action:manipulation}
       let t = act.t, m = t.m, k = act.it;
       return u.ctl !== "remote" && rp.s.bag[k]--, tcQ({ k: "fn", fn: () => {
         let st = rpStats(m);
-        if (k === "potion") {
+        if (k === "bun") {
+          let a = st.hp - m.hp;
+          m.hp = st.hp, m.mp = st.mp, tcFloatU(t, "+" + a + " · full MP", "#ffcf6a");
+        } else if (k === "potion") {
           let a = Math.min(45, st.hp - m.hp);
           m.hp += a, tcFloatU(t, "+" + a, "#9af0a0");
         } else if (k === "ether") {
@@ -6721,10 +6733,10 @@ button,.rpb,.pill{touch-action:manipulation}
   });
 
   // src/ui/menu.js
-  var ITEMS_USABLE = ["potion", "ether", "feather"];
+  var ITEMS_USABLE = ["bun", "potion", "ether", "feather"];
   function useOn(m, k) {
     let s = rp.s, st = rpStats(m);
-    !m || !(s.bag[k] > 0) || (k === "potion" && m.hp > 0 && m.hp < st.hp ? (m.hp = Math.min(st.hp, m.hp + 45), s.bag[k]--) : k === "ether" && m.hp > 0 && m.mp < st.mp ? (m.mp = Math.min(st.mp, m.mp + 12), s.bag[k]--) : k === "feather" && m.hp <= 0 && (m.hp = Math.round(st.hp * 0.5), s.bag[k]--), s.bag[k] > 0 || (rp.menuSel = null), rpSave());
+    !m || !(s.bag[k] > 0) || (k === "bun" && m.hp > 0 && (m.hp < st.hp || m.mp < st.mp) ? (m.hp = st.hp, m.mp = st.mp, s.bag[k]--) : k === "potion" && m.hp > 0 && m.hp < st.hp ? (m.hp = Math.min(st.hp, m.hp + 45), s.bag[k]--) : k === "ether" && m.hp > 0 && m.mp < st.mp ? (m.mp = Math.min(st.mp, m.mp + 12), s.bag[k]--) : k === "feather" && m.hp <= 0 && (m.hp = Math.round(st.hp * 0.5), s.bag[k]--), s.bag[k] > 0 || (rp.menuSel = null), rpSave());
   }
   function menuHtml() {
     let s = rp.s, stats = s.party.map((m) => {

@@ -17,9 +17,10 @@ import {rpStats,rpXpNeed} from '../game/stats.js';
 import {netLeaveRpg} from '../net/core.js';
 import {rpPartyHtml} from './hud.js';
 
-const ITEMS_USABLE=['potion','ether','feather'];
+const ITEMS_USABLE=['bun','potion','ether','feather'];
 function useOn(m,k){const s=rp.s,st=rpStats(m);if(!m||!(s.bag[k]>0))return;
-  if(k==='potion'&&m.hp>0&&m.hp<st.hp){m.hp=Math.min(st.hp,m.hp+45);s.bag[k]--}
+  if(k==='bun'&&m.hp>0&&(m.hp<st.hp||m.mp<st.mp)){m.hp=st.hp;m.mp=st.mp;s.bag[k]--}
+  else if(k==='potion'&&m.hp>0&&m.hp<st.hp){m.hp=Math.min(st.hp,m.hp+45);s.bag[k]--}
   else if(k==='ether'&&m.hp>0&&m.mp<st.mp){m.mp=Math.min(st.mp,m.mp+12);s.bag[k]--}
   else if(k==='feather'&&m.hp<=0){m.hp=Math.round(st.hp*.5);s.bag[k]--}
   if(!(s.bag[k]>0))rp.menuSel=null;rpSave()}
