@@ -1,6 +1,6 @@
 # Drawings the game can use
 
-Save each one as `art/sprites/<file name>.png`, starting from the template in `art/templates/`. This list is made by the build, so it always matches the game. ✅ = in the game, ⬜ = still drawn in code.
+Every file is already waiting in `art/sprites/` as a copy of its template (grid and all). Open it in Paint.NET, draw on a new layer, hide the grid layer, and save over it. Untouched copies are ignored, so the game keeps its own look until you draw. This list is made by the build, so it always matches the game. ✅ = drawn, ⬜ = still the placeholder.
 
 Done: **0 of 72**
 
@@ -79,8 +79,8 @@ Done: **0 of 72**
 
 | | file name | who / what | template |
 |---|---|---|---|
-| ⬜ | `keeperA.png` | Lodge keeper Moss | character-128.png |
-| ⬜ | `keeperE.png` | Lodge keeper Flint | character-128.png |
+| ⬜ | `keepera.png` | Lodge keeper Moss | character-128.png |
+| ⬜ | `keepere.png` | Lodge keeper Flint | character-128.png |
 
 ## Villagers
 

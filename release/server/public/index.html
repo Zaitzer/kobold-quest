@@ -3282,7 +3282,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T14:26:16Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T19:17:47Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -4046,7 +4046,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpNpcK(n) {
     let k = rp.npcK[n.id];
-    return k || (k = makeK({ team: n.team, name: n.name, art: n.art || n.id, weapon: n.w, hat: n.hat, pers: "brave", speed: 1, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face, rp.npcK[n.id] = k), k;
+    return k || (k = makeK({ team: n.team, name: n.name, art: artName(n.art || n.id), weapon: n.w, hat: n.hat, pers: "brave", speed: 1, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face, rp.npcK[n.id] = k), k;
   }
   function rpDrawMap(dt) {
     let s = rp.s, ctx0 = ctx;

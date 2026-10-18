@@ -13,5 +13,12 @@ if(!fs.existsSync(path.join(to,'pip.png'))||fs.existsSync(path.join(to,'fake.png
 const real=prepare(path.join(R,'art/sprites'),path.join(T,'real'));if(real.warn.length)bad('art/sprites: '+real.warn.join('; '));
 const L=artList(G);if(L.unknown.length)bad('drawings the game does not use: '+L.unknown.join(', '));
 for(const n of ['pip','elder','turnip','grubb','scout','tile-grass','tile-tree'])if(!L.rows.some(x=>x.name===n))bad('wanted list misses '+n);
+// placeholders: every wanted drawing has a file; untouched template copies are skipped, a changed one counts
+for(const x of L.rows)if(!fs.existsSync(path.join(R,'art/sprites',x.name+'.png')))bad('no placeholder for '+x.name);
+for(const x of L.rows)if(!/^[a-z0-9][a-z0-9-]*$/.test(x.name))bad('bad file name '+x.name);
+{const f2=path.join(T,'ph'),t2=path.join(T,'phout'),tp=path.join(T,'templates');fs.mkdirSync(f2);fs.mkdirSync(tp);
+  fs.copyFileSync(path.join(R,'art/templates/character-128.png'),path.join(tp,'character-128.png'));
+  fs.copyFileSync(path.join(R,'art/templates/character-128.png'),path.join(f2,'elder.png'));fs.copyFileSync(path.join(R,'test/fixtures/art/pip.png'),path.join(f2,'pip.png'));
+  const p=prepare(f2,t2,tp);if(p.count!==1||p.blank!==1||p.warn.length)bad('placeholder handling: '+JSON.stringify(p))}
 fs.rmSync(T,{recursive:true,force:true});
 console.log((fails?'FAIL':'ok')+' art: server step, '+real.count+' drawings in art/sprites, '+L.rows.length+' wanted');process.exitCode=fails?1:0;

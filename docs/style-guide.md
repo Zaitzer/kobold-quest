@@ -11,9 +11,10 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
 
 **Every time:**
 1. In GitHub Desktop, press **Fetch origin** (and **Pull** if it offers), so you have my latest changes.
-2. Open a template from `art\templates\` in Paint.NET, draw on a **new layer**, hide the grid layer.
-3. **File → Save As → PNG** straight into `art\sprites\`, named exactly as in **`art/WANTED.md`** (e.g. `pip.png`,
-   `tile-grass.png`). Keep the `.pdn` somewhere outside the repo, or next to it with the same name.
+2. Open the drawing's file in `art\sprites\` (e.g. `pip.png`). Every file is already there, as a copy of its template
+   with the grid. Draw on a **new layer** and hide the grid layer.
+3. **File → Save** (PNG, flatten) over the same file. Untouched copies are ignored, so anything you haven't drawn keeps
+   its look drawn in code. Keep the `.pdn` somewhere outside the repo if you want the layers.
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
 5. About **2 minutes** later it's on joakimskar.no (reload the page). The Claude page gets it with my next update.
 
