@@ -1592,6 +1592,72 @@ button,.rpb,.pill{touch-action:manipulation}
     return shake = v;
   }
 
+  // src/data/banter.js
+  var BANTER = [
+    { id: "bork_wizzle", a: "Bork", b: "Wizzle", lines: [
+      { who: "Wizzle", text: "Bork, what did you do on hatching night?" },
+      { who: "Bork", text: "Bork had an ember. Bork put it under his pillow to keep his feet warm. Bork slept very well." },
+      { who: "Wizzle", text: "You had an EMBER and you SLEPT on it?!" },
+      { who: "Bork", text: "Next time Bork will not nap." },
+      { who: "Wizzle", text: "Can I have yours next time? In case you nap?" },
+      { who: "Bork", text: "No. It is Bork's ember." }
+    ] },
+    { id: "fennel_nugget", a: "Fennel", b: "Nugget", lines: [
+      { who: "Nugget", text: "Want a nugget? They're not for eating. I just like giving them to people." },
+      { who: "Fennel", text: "I'll trade you a carrot. It's for eating. Mostly. It has opinions." },
+      { who: "Nugget", text: "This is the best trade of my whole life." },
+      { who: "Nugget", text: "Grandad lost his lucky nugget in the pass when I was little. Shaped like a duck. I always look." },
+      { who: "Fennel", text: "Then we'll all look. Parsnip is very good at finding things. Mostly hats." }
+    ] },
+    { id: "pip_wizzle", a: "Pip", b: "Wizzle", if: { pb: { gte: 3 } }, lines: [
+      { who: "Wizzle", text: "Pip? Can I see it? Your ember?" },
+      { who: "Pip", text: "...It's just an ember." },
+      { who: "Wizzle", text: "It's still warm! You've carried it all this way?" },
+      { who: "Pip", text: "Pockets are cold." },
+      { who: "Wizzle", text: "Right. Pockets." }
+    ] },
+    { id: "bork_fennel", a: "Bork", b: "Fennel", lines: [
+      { who: "Fennel", text: "Our sleepy-egg club meets on Tuesdays. We nap." },
+      { who: "Bork", text: "Bork would like to join this club." },
+      { who: "Fennel", text: "You'd have to warm the sleepy egg at the next hatching. That's the only rule." },
+      { who: "Bork", text: "Bork will think about it." },
+      { who: "Bork", text: "...While napping." }
+    ] },
+    { id: "nugget_pip", a: "Nugget", b: "Pip", lines: [
+      { who: "Nugget", text: "Why is the sky up? Why are eggs round? Why do goats eat hats?" },
+      { who: "Pip", text: "Why do you ask so many questions?" },
+      { who: "Nugget", text: "How else do you find stuff out?" },
+      { who: "Pip", text: "...Fair." }
+    ] }
+  ], bondKey = (a, b) => [a, b].sort().join("|");
+  function banterNext(s, test2) {
+    let names = s.party.map((m) => m.name), seen = s.banter || [], bond = s.bond || {};
+    return BANTER.find((B) => !seen.includes(B.id) && names.includes(B.a) && names.includes(B.b) && (bond[bondKey(B.a, B.b)] || 0) >= (B.need || 3) && (!B.if || !test2 || test2(B.if))) || null;
+  }
+
+  // src/game/banter.js
+  function rpBanterNext() {
+    return rp.s ? banterNext(rp.s, test) : null;
+  }
+  function rpFireside() {
+    let B = rpBanterNext();
+    if (!B) {
+      rpSay([{ who: "", text: "Everyone stares into the fire. Somebody's tummy rumbles." }]);
+      return;
+    }
+    rp.s.banter = (rp.s.banter || []).concat([B.id]), rpSay([{ who: "", text: "You sit by the fire. " + B.a + " and " + B.b + " get talking." }].concat(B.lines.map((l) => ({ who: l.who, text: l.text })))), rpSave();
+  }
+  feature({ id: "banter", on: { "battle:won"() {
+    let s = rp.s;
+    if (!s) return;
+    let n = s.party.map((m) => m.name);
+    s.bond = s.bond || {};
+    for (let i = 0; i < n.length; i++) for (let j = i + 1; j < n.length; j++) {
+      let k = bondKey(n[i], n[j]);
+      s.bond[k] = (s.bond[k] || 0) + 1;
+    }
+  } } });
+
   // src/game/items.js
   function rpGive(id) {
     rp.s.inv.push(id);
@@ -1655,6 +1721,7 @@ button,.rpb,.pill{touch-action:manipulation}
   ] }), hasBench = (s) => (s.roster || []).length > 0 || s.party.length > 1, inn = (hello) => ({ say: [hello], ask: [
     { t: "Rest (10 gold)", if: { gold: { gte: 10 } }, do: { gold: -10, heal: !0, save: !0, toast: "Everyone is rested. Game saved." } },
     { t: "Change who comes along", if: hasBench, do: { open: "roster" } },
+    { t: "Sit by the fire", show: (s) => !!banterNext(s, test), do: { open: "fire" } },
     { t: "No thanks" }
   ] }), TALK = {
     elder: { who: "Elder Mumble", rules: [
@@ -1779,7 +1846,7 @@ button,.rpb,.pill{touch-action:manipulation}
       {
         if: { fennel: 2 },
         now: { set: { fennel: 3 }, join: { name: "Fennel", cls: "cleric", min: 2 } },
-        say: ["Parsnip! You found her! She ate your hat? She does that.", "I walked all the way to Burrowhome to warm the sleepy egg, you know. It lost. But I met eleven other sleepy-egg kobolds on the road. We have a club now. We meet on Tuesdays and nap.", "Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting."],
+        say: ["Parsnip! You found her! She ate your hat? She does that.", "I walked all the way to Burrowhome to warm the sleepy egg, you know. It lost. But I met eleven other sleepy-egg kobolds on the road. We have a club now. We meet on Tuesdays and nap.", "Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.", "Maybe Parsnip will even like me one day. She bit me this morning, but softly."],
         then: { toast: "Fennel joins! (If the party is full she waits at the inn.)" }
       },
       { say: ['The carrots say hello. Well, they say "rain". But warmly.'] }
@@ -1827,7 +1894,7 @@ button,.rpb,.pill{touch-action:manipulation}
   TALK.nugget.rules.unshift({
     if: { ch: { gte: 3 }, nugget: 0 },
     now: { set: { nugget: 1 }, join: { name: "Nugget", cls: "warrior", min: 2 } },
-    say: ["The circle worked! I'm a circle person now.", "Can I come with you? I'm good at finding things. Mostly nuggets. But other things too, probably."],
+    say: ["The circle worked! I'm a circle person now.", "Can I come with you? I'm good at finding things. Mostly nuggets. But other things too, probably.", "And if you ever see a nugget shaped like a duck, that's Grandad's. He lost it in the pass when I was little."],
     then: { toast: "Nugget joins! (If the party is full he waits at the inn.)" }
   });
   var MARKERS = {
@@ -3193,7 +3260,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T07:58:36Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-18T09:02:00Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -3563,7 +3630,7 @@ button,.rpb,.pill{touch-action:manipulation}
     heal: () => rpHealAll(),
     save: () => rpSave(),
     open: (w) => {
-      w === "shop" ? rpOpenShop() : w === "smith" ? rpOpenSmith() : w === "letter" ? rpOpenLetter() : w === "roster" && rpOpenRoster();
+      w === "shop" ? rpOpenShop() : w === "smith" ? rpOpenSmith() : w === "letter" ? rpOpenLetter() : w === "roster" ? rpOpenRoster() : w === "fire" && rpFireside();
     },
     fight: ([keys, opt]) => rpFight(keys, opt),
     toast: (t, ctx2) => rpToast(fill(t, ctx2))
@@ -3581,7 +3648,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let ctx2 = run(r.now);
     if (!r.say)
       return run(r.then, ctx2), !0;
-    let lines = r.say.map((t) => typeof t == "string" ? { who: r.who || who, text: fill(t, ctx2) } : { who: t.who, text: fill(t.text, ctx2) }), choices = r.ask && r.ask.map((c) => ({ t: c.t, ok: c.if ? () => test(c.if) : null, fn: c.do ? () => run(c.do) : null }));
+    let lines = r.say.map((t) => typeof t == "string" ? { who: r.who || who, text: fill(t, ctx2) } : { who: t.who, text: fill(t.text, ctx2) }), choices = r.ask && r.ask.filter((c) => !c.show || test(c.show)).map((c) => ({ t: c.t, ok: c.if ? () => test(c.if) : null, fn: c.do ? () => run(c.do) : null }));
     return rpSay(lines, choices || null, r.then ? () => run(r.then, ctx2) : null), !0;
   }
 

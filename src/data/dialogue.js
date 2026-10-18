@@ -12,7 +12,8 @@
      ch     Copperhollow: 1 bring miners (miners = 0..4) · 2 Snipe beaten · 3 spark given (lantern)
    The theme is taking part in a democracy, kept inside the fairy tale: not choosing still lets someone choose for you.
    The kobolds round the nest each stand for a different way of thinking about it (see NEST below). */
-import {value} from '../core/rules.js';
+import {test,value} from '../core/rules.js';
+import {banterNext} from './banter.js';
 
 const PIP='Pip';
 /* what the Elder says about the hatching, for each thing Pip did at the nest */
@@ -37,7 +38,7 @@ const miner=(id,excuse,answer,yes,idle,after)=>({who:null,rules:[
 /* every innkeeper: a bed, and the roster (who travels with Pip, who waits at the inn) */
 const hasBench=s=>(s.roster||[]).length>0||s.party.length>1;
 const inn=hello=>({say:[hello],ask:[{t:'Rest (10 gold)',if:{gold:{gte:10}},do:{gold:-10,heal:true,save:true,toast:'Everyone is rested. Game saved.'}},
-  {t:'Change who comes along',if:hasBench,do:{open:'roster'}},{t:'No thanks'}]});
+  {t:'Change who comes along',if:hasBench,do:{open:'roster'}},{t:'Sit by the fire',show:s=>!!banterNext(s,test),do:{open:'fire'}},{t:'No thanks'}]});
 const TALK={
   elder:{who:'Elder Mumble',rules:[
     {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember, in its clay cup. Keep it close; it\'s nice and warm, and you\'re a chilly little lizard. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
@@ -131,7 +132,7 @@ const TALK={
     {if:{fennel:0},say:['Oh, a traveller! Have you seen a goat? Grey, grumpy, eats hats? Her name is Parsnip.','She ran off down Route 1 when Grubb padlocked the fountain. She hates padlocks. And hats.'],
       ask:[{t:'I\'ll find Parsnip',do:{set:{fennel:1},toast:'New quest: find Fennel\'s goat on Route 1'}},{t:'Not now'}]},
     {if:{fennel:1},say:['Parsnip is somewhere along Route 1. Look behind the trees; she sulks where nobody looks.']},
-    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','I walked all the way to Burrowhome to warm the sleepy egg, you know. It lost. But I met eleven other sleepy-egg kobolds on the road. We have a club now. We meet on Tuesdays and nap.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.'],
+    {if:{fennel:2},now:{set:{fennel:3},join:{name:'Fennel',cls:'cleric',min:2}},say:['Parsnip! You found her! She ate your hat? She does that.','I walked all the way to Burrowhome to warm the sleepy egg, you know. It lost. But I met eleven other sleepy-egg kobolds on the road. We have a club now. We meet on Tuesdays and nap.','Let me come with you. I heal kobolds the way I heal carrots: patience, and a little shouting.','Maybe Parsnip will even like me one day. She bit me this morning, but softly.'],
       then:{toast:'Fennel joins! (If the party is full she waits at the inn.)'}},
     {say:['The carrots say hello. Well, they say "rain". But warmly.']}]},
   parsnip:{who:'Parsnip',rules:[{say:['BAAAH.',{who:PIP,text:'You must be Parsnip. Fennel misses you.'},'Parsnip eats a flower, glares at you, and trots off towards Pebblebrook.'],then:{set:{fennel:2},toast:'Parsnip is on her way home. Tell Fennel!'}}]},
@@ -161,7 +162,7 @@ Object.assign(TALK,NEST);
 
 /* Nugget joins once the shift circle has met */
 TALK.nugget.rules.unshift({if:{ch:{gte:3},nugget:0},now:{set:{nugget:1},join:{name:'Nugget',cls:'warrior',min:2}},
-  say:['The circle worked! I\'m a circle person now.','Can I come with you? I\'m good at finding things. Mostly nuggets. But other things too, probably.'],then:{toast:'Nugget joins! (If the party is full he waits at the inn.)'}});
+  say:['The circle worked! I\'m a circle person now.','Can I come with you? I\'m good at finding things. Mostly nuggets. But other things too, probably.','And if you ever see a nugget shaped like a duck, that\'s Grandad\'s. He lost it in the pass when I was little.'],then:{toast:'Nugget joins! (If the party is full he waits at the inn.)'}});
 /* the ! and ? over a villager's head */
 const MARKERS={
   elder:q=>!q.moot||q.moot===3?'!':'',

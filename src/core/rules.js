@@ -8,11 +8,13 @@
      a function (s,q)=>bool for anything else
    Effects ("now", "then", or a choice's "do"): an object, applied in this order
      set:{flag:v}  add:{flag:n}  gold:n  bag:{ether:2}  item:'cap_cone'  mat:{spore:-3}  xp:n
-     join:{name,cls,min} (waits at the inn if the party is full)  heal:true  save:true  open:'shop'|'smith'|'letter'|'roster'  fight:[keys,opt]  toast:'text'
+     join:{name,cls,min} (waits at the inn if the party is full)  heal:true  save:true  open:'shop'|'smith'|'letter'|'roster'|'fire'  fight:[keys,opt]  toast:'text'
+   Choices ("ask"): {t, do, if (shown greyed out until it holds), show (hidden until it holds)}.
    A line can be {who,text} to have someone else say it (Pip thinking aloud).
    Text: "{kills}" fills in a quest flag, "{up}" becomes " · level up!" when the effects levelled someone up. */
 import {rpSave} from './save.js';
 import {rp} from './state.js';
+import {rpFireside} from '../game/banter.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
 import {rpMats} from '../game/gear.js';
 import {rpGive} from '../game/items.js';
@@ -45,7 +47,7 @@ const EFFECTS={
   join:j=>{const s=rp.s;if(s.party.concat(s.roster||[]).some(m=>m.name===j.name))return;rpJoinRoster(rpMember(j.name,j.cls,Math.max(j.min||1,s.party[0].lvl)))},
   heal:()=>rpHealAll(),
   save:()=>rpSave(),
-  open:w=>{if(w==='shop')rpOpenShop();else if(w==='smith')rpOpenSmith();else if(w==='letter')rpOpenLetter();else if(w==='roster')rpOpenRoster()},
+  open:w=>{if(w==='shop')rpOpenShop();else if(w==='smith')rpOpenSmith();else if(w==='letter')rpOpenLetter();else if(w==='roster')rpOpenRoster();else if(w==='fire')rpFireside()},
   fight:([keys,opt])=>rpFight(keys,opt),
   toast:(t,ctx)=>rpToast(fill(t,ctx))};
 const ORDER=['set','add','gold','bag','item','mat','xp','join','heal','save','toast','open','fight'];
@@ -57,7 +59,7 @@ function talk(rules,who){
   const ctx=run(r.now);
   if(!r.say){run(r.then,ctx);return true}
   const lines=r.say.map(t=>typeof t==='string'?{who:r.who||who,text:fill(t,ctx)}:{who:t.who,text:fill(t.text,ctx)});
-  const choices=r.ask&&r.ask.map(c=>({t:c.t,ok:c.if?()=>test(c.if):null,fn:c.do?()=>run(c.do):null}));
+  const choices=r.ask&&r.ask.filter(c=>!c.show||test(c.show)).map(c=>({t:c.t,ok:c.if?()=>test(c.if):null,fn:c.do?()=>run(c.do):null}));
   rpSay(lines,choices||null,r.then?()=>run(r.then,ctx):null);
   return true}
 export {EFFECTS,OPS,ORDER,fill,run,talk,test,value};

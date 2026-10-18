@@ -39,6 +39,7 @@ import './ui/login.js';
 import './ui/worldmap.js';
 import './ui/roster.js';
 import './game/jingles.js';
+import './game/banter.js';
 import './game/artload.js';
 import './battle/view.js';
 import './battle/rules.js';

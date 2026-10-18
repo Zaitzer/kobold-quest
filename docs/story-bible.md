@@ -64,7 +64,7 @@ No loyalty missions. Instead, three cheap layers that fit short phone sessions:
    Fennel wants her goat to like her; Nugget wants his grandad's lost nugget; Brass has never seen the sea; Saffi wants
    to finish one book without starting another; Cinder wants to make something nobody laughs at; Pell wants to win one
    snowball fight; Mist wants one rumour that turns out true; Gull wants her boat back.
-2. **Campfire banter** at inns: short chats between two party members, unlocked by travelling together. Opinions come
+2. **Campfire banter** at inns (*built*: `data/banter.js`, "Sit by the fire" at any innkeeper; five chats so far): short chats between two party members, unlocked by travelling together. Opinions come
    out as arguments between friends, never speeches. First pairs: Cinder and Brass (smash it / keep it), Saffi and Bork
    (overthinking / napping), Wizzle and Tikka (wants an ember / threw hers away), Fennel and Nugget (snacks).
 3. **One beat each at the second hatching**: every recruit decides whether to bring an ember, for their own reason.
