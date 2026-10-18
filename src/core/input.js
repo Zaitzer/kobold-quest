@@ -4,11 +4,11 @@ import {RPH,RPW,RT,rpLayout,rpLoc,rpResize,rpVec,rpcv} from './layout.js';
 import {feature} from './registry.js';
 import {rp} from './state.js';
 import {$} from '../engine/util.js';
-import {rpDlgNext} from '../game/dialogue.js';
+import {rpChoose,rpDlgNext} from '../game/dialogue.js';
 import {rpTapTile} from '../game/move.js';
 import {netSay} from '../net/chat.js';
 import {rpHeroClose,rpHeroOpen} from '../ui/hero.js';
-import {rpMenuClick} from '../ui/hud.js';
+import {rpMenuClick,rpUI} from '../ui/hud.js';
 function rpStickEnd(e){const S=rp.stick;if(!S||(e&&S.id!==e.pointerId))return;if(S.on){rp.held=null;rp.stickUsed=true;setTimeout(()=>{rp.stickUsed=false},0)}rp.stick=null}
 const RP_KEYS={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
 function rpJoyKnob(dx,dy){const j=document.querySelector?document.querySelector('#rp-panel [data-joy]'):null;if(!j||!j.style)return;j.style.setProperty('--jx',dx+'px');j.style.setProperty('--jy',dy+'px');j.classList.toggle('on',!!(dx||dy))}
@@ -34,6 +34,9 @@ $('rp-panel').addEventListener('pointerdown',e=>{const b=e.target.closest&&e.tar
 ['pointerup','pointercancel','pointerleave'].forEach(t=>$('rp-panel').addEventListener(t,()=>{rp.held=null}));
 document.addEventListener('keydown',e=>{if(view!=='rpg')return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){if(e.key==='Enter'&&e.target.id==='kq-chat'){netSay(e.target.value);e.target.value='';e.preventDefault()}return}const k=e.key.toLowerCase();
   if(RP_KEYS[k]&&rp.mode==='map'){rp.keys.add(RP_KEYS[k]);rp.path=null;e.preventDefault();return}
+  if(k==='m'){if(rp.mode==='map'){rp.mode='menu';rp.menuSel=null;rpUI(true)}else if(rp.mode==='menu'){rp.mode='map';rpUI(true)}return}
+  if(k==='escape'){if(rp.mode==='menu'){rp.mode='map';rpUI(true)}else if(rp.mode==='hero')rpHeroClose();return}
+  if(rp.mode==='dialog'&&/^[1-9]$/.test(k)&&rp.dlg&&rp.dlg.choices&&rp.dlg.i>=rp.dlg.lines.length-1){rpChoose(+k-1);return}
   if(k==='h'||k==='i'){if(rp.mode==='map')rpHeroOpen(0);else if(rp.mode==='hero')rpHeroClose();return}
   if(k==='enter'||k===' '||k==='e'){if(rp.mode==='dialog'&&(!rp.dlg.choices||rp.dlg.i<rp.dlg.lines.length-1))rpDlgNext();else if(rp.mode==='map')rpMenuClick({target:{closest:()=>({disabled:false,dataset:{rp:'act'}})}});e.preventDefault()}});
 document.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(RP_KEYS[k])rp.keys.delete(RP_KEYS[k])});
