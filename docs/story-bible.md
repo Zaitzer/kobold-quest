@@ -58,6 +58,18 @@ Each has a class, a personality and a small recruitment quest. They wait at any 
 | **Mist** | ranger | Glimmerfen | believes rumours, then learns to check them | track down a rumour together |
 | **Skipper Gull** | ranger | Saltspray | a retired smuggler with a soft heart | take her boat back from the bandits |
 
+### How the party carries the story (decided 18 Oct 2026)
+No loyalty missions. Instead, three cheap layers that fit short phone sessions:
+1. **A personal want, not about eggs**, folded into each recruit's join quest and paid off later in passing:
+   Fennel wants her goat to like her; Nugget wants his grandad's lost nugget; Brass has never seen the sea; Saffi wants
+   to finish one book without starting another; Cinder wants to make something nobody laughs at; Pell wants to win one
+   snowball fight; Mist wants one rumour that turns out true; Gull wants her boat back.
+2. **Campfire banter** at inns: short chats between two party members, unlocked by travelling together. Opinions come
+   out as arguments between friends, never speeches. First pairs: Cinder and Brass (smash it / keep it), Saffi and Bork
+   (overthinking / napping), Wizzle and Tikka (wants an ember / threw hers away), Fennel and Nugget (snacks).
+3. **One beat each at the second hatching**: every recruit decides whether to bring an ember, for their own reason.
+   Most reasons are funny; one or two are touching.
+
 ### Mentors and villagers
 - **Elder Mumble** (Burrowhome): kind, slow, eats the pebbles when counting. Explains the rhyme of the sparks.
 - **Witch Yarrow** (Whisper Woods): sharp, warm, "an ember is a nudge, not a promise". Never gives anything back.
