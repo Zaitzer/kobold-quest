@@ -1,19 +1,9 @@
-/* Loading screen and title screen. */
+/* Title screen. */
 .foot{margin:10px 0 0;text-align:center;font-size:12px;font-weight:600;color:var(--muted);line-height:1.6}
 .foot b{color:var(--amber)}
-#boot{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center;cursor:pointer;
-  background:radial-gradient(ellipse at 50% 30%,#8a6bff 0%,#3a22a0 55%,#1a0d4a 100%)}
-#boot::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 40%,rgba(255,255,255,.08) 0 5deg,transparent 5deg 10deg);pointer-events:none}
-#boot .logo{position:relative;font:400 clamp(52px,16vw,96px)/.95 var(--font-display);color:#fff;-webkit-text-stroke:5px var(--line);paint-order:stroke fill;text-shadow:0 7px 0 var(--line);transform:rotate(-3deg)}
-#boot .logo span{color:var(--amber);display:block}
-#boot .bar{position:relative;width:min(340px,80vw);height:26px;border:4px solid var(--line);border-radius:99px;background:#12082e;overflow:hidden;box-shadow:0 4px 0 var(--line)}
-#boot .bar i{display:block;height:100%;width:0;background:linear-gradient(#ffe36e,#ff9f1a);box-shadow:inset 0 5px 0 rgba(255,255,255,.45)}
-#boot p{position:relative;margin:0;font-weight:700;color:#fff;text-shadow:0 2px 0 var(--line)}
-#boot small{position:relative;color:var(--muted);font-weight:600}
 
 /* title: logo, three kobolds, one big Play button. Upright phones stack it; anything wide puts the button beside the art */
 #v-title{position:fixed;inset:0;z-index:40;display:grid;place-content:center;justify-items:center;gap:10px;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));text-align:center;overflow:hidden;
-  background:radial-gradient(ellipse at 50% 30%,#8a6bff 0%,#3a22a0 55%,#1a0d4a 100%)}
 #v-title::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 40%,rgba(255,255,255,.07) 0 5deg,transparent 5deg 10deg);pointer-events:none}
 #v-title>*{position:relative}
 .tlogo{font:400 clamp(46px,13vmin,92px)/.92 var(--font-display);color:#fff;-webkit-text-stroke:5px var(--line);paint-order:stroke fill;text-shadow:0 7px 0 var(--line);transform:rotate(-3deg)}

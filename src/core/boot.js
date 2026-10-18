@@ -1,10 +1,10 @@
-/* Boot: loading screen, the title screen, the sound toggle and the one frame loop. */
+/* Boot: the title screen, the sound toggle and the one frame loop. */
 import {view} from './app.js';
 import {inits} from './registry.js';
 import {installHooks} from '../dev/hooks.js';
 import {ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {audio,set_soundOn,sfx,soundOn} from '../engine/audio.js';
-import {$,RM} from '../engine/util.js';
+import {$} from '../engine/util.js';
 import {rpFrame} from '../game/play.js';
 
 const TITLE_KS=[
@@ -23,16 +23,6 @@ function drawTitle(dt){
 function soundButton(){const b=$('sound');if(!b)return;
   const sync=()=>{b.setAttribute('aria-pressed',soundOn?'true':'false');b.textContent=soundOn?'Sound on':'Sound off'};sync();
   b.addEventListener('click',()=>{set_soundOn(!soundOn);sync();if(soundOn){audio();sfx('drop')}})}
-function bootScreen(){
-  const bt=$('boot'),bb=$('boot-bar'),tx=$('boot-t');
-  const done=()=>{bt.hidden=true;try{sessionStorage.setItem('kobold-pit-booted','1')}catch(e){}};
-  let seen=false;try{seen=!!sessionStorage.getItem('kobold-pit-booted')}catch(e){}
-  if(RM||seen){done();return}
-  bt.addEventListener('click',done);
-  let t0=0;const tick=ts=>{if(bt.hidden)return;if(!t0)t0=ts;const p=Math.min(100,Math.round((ts-t0)/16));
-    bb.style.width=p+'%';tx.textContent='Loading... '+p+'%';if(p>=100)setTimeout(done,250);else requestAnimationFrame(tick)};
-  requestAnimationFrame(tick);
-}
 let last=0;
 function frame(ts){
   const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
@@ -43,6 +33,6 @@ function frame(ts){
 export function boot(){
   if(typeof TEST!=='undefined'&&TEST)installHooks();
   for(const fn of inits)fn();
-  soundButton();bootScreen();requestAnimationFrame(frame);
+  soundButton();requestAnimationFrame(frame);
 }
-export {TITLE_KS,bootScreen,drawTitle,frame,last,soundButton,titleKs};
+export {TITLE_KS,drawTitle,frame,last,soundButton,titleKs};
