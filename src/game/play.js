@@ -13,7 +13,7 @@ import {rpMoveFrame} from './move.js';
 import {rpPendingMember,rpPromoteWho} from './promote.js';
 import {rpDrawMap} from '../render/map.js';
 import {rpUI} from '../ui/hud.js';
-function rpIntro(){rpSay([{who:'',text:'Burrowhome is a sleepy kobold village, and today is hatching day: once in a lifetime the village hatches a new guardian from one of three eggs.'},{who:'',text:'You are Pip, a small kobold with a big stick and strong opinions. Elder Mumble is waiting by his house, just south of here.'},{who:'',text:'Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk.'}],null,()=>{rp.s.q.intro=1;rp.mode='class';rpSave();rpUI(true)})}
+function rpIntro(){rpSay([{who:'',text:'Burrowhome is a sleepy kobold village, and today is hatching day: once in a lifetime the village hatches a new guardian from one of three eggs.'},{who:'',text:'You are Pip: a small kobold with a big stick, strong opinions, and one great love, Old Mallow\'s ember-buns. Elder Mumble is waiting by his house, just south of here.'},{who:'',text:'Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk.'}],null,()=>{rp.s.q.intro=1;rp.mode='class';rpSave();rpUI(true)})}
 function rpStart(fresh){
   const sv=fresh?null:rpLoad();rp.s=sv||rpNewState();rpApplyWorld();rp.mode='map';rp.bt=null;$('rp-hero').hidden=true;rp.dlg=null;rp.pk=null;rp.npcK={};rp.grace=4;rp.pos=null;rp.path=null;rp.keys.clear();rp.sig='';parts.length=0;texts.length=0;
   show('rpg');rpLayout();requestAnimationFrame(()=>{rpResize();rpUI(true)});

@@ -18,17 +18,15 @@ import {banterNext} from './banter.js';
 const PIP='Pip';
 /* what the Elder says about the hatching, for each thing Pip did at the nest */
 const HATCHED={
-  skip:'Most of the village kept their embers, like you. "They\'re all ugly," they said. Only a handful of eggs got warmed at all.'};
-const RESULT_TAIL=['But somebody sat by the shiny egg all night with a whole sack of embers. Snatchclaw\'s bandits.','At dawn it hatched. Meet our guardian: Glitterbeak. He is small, greedy and loves anything shiny, and the bandits feed him.',
-  'They\'ve put toll gates on the roads to Thistledown, the coast and the south. One shiny thing per kobold, for Glitterbeak\'s hoard.',
-  'There is an old rhyme: if a guardian hatches wrong, bring a spark from every town\'s hearth, light the Great Nest, and hatch again.',
-  'Start with Pebblebrook, east along Route 1. The road south from there is gated now, so you\'ll have to take the long way. Good luck, Pip.'];
-const resultRule=v=>({if:{moot:3,vote:v},say:['The hatching is over, Pip. Sit down.',HATCHED[v]].concat(RESULT_TAIL.slice(0,2),[{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'Mm.','(The Elder eats a pebble, slowly.)','Nobody did much, little one.'],RESULT_TAIL.slice(2)),then:{set:{moot:5},toast:'New quest: a spark from every town'}});
+  skip:'Most of the village kept their embers, like you. Only a handful of eggs got warmed at all. And then a sack-full.'};
+const RESULT_TAIL=['The bandits have put toll gates on the roads. One shiny thing per kobold, for Glitterbeak\'s hoard.',
+  'There\'s an old rhyme. If a guardian hatches wrong, bring a spark from every town\'s hearth, light the Great Nest, and hatch again.',
+  {who:PIP,text:'Sounds like a job for somebody else.'},'Mm. Somebody else is a very busy kobold.'];
+const resultRule=v=>({if:{moot:{gte:2,lte:3}},say:['The hatching is over, Pip. Sit down.',HATCHED[v],{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'(The Elder eats a pebble, slowly.) Nobody did much, little one.'].concat(RESULT_TAIL),
+  then:{set:{moot:5},toast:'New quest (if anybody wants it): a spark from every town'}});
 /* Yarrow, the mentor: what she says depends on what Pip did at the nest */
-const YARROW_OPEN='Ah, Pip. Hatching day! Did you warm an egg?';
+const YARROW_OPEN='Ah, Pip. I saw a little dragon fly over my roof this morning. So. Did you warm an egg?';
 const YARROW_NUDGE=['Ugly and uglier, hm? My grandmother said the same once. Then she told me about the king who ate the gold. Nobody tells that story any more.','An ember is a nudge, Pip, not a promise. Still. A nudge in a pocket nudges nothing.'];
-const YARROW_END=['Now. I have a feeling about that nest, and my feelings are rarely wrong. Take Wizzle with you. He has never seen the world, and the world should see him. He\'s just outside.'];
-const yarrowRule=(v,pip,extra)=>({if:{moot:2,vote:v},now:{set:{moot:3}},say:[YARROW_OPEN,{who:PIP,text:pip}].concat(extra,YARROW_END),then:{toast:'Back to Elder Mumble'}});
 /* a miner who needs one good reason to come to the shift circle */
 const miner=(id,excuse,answer,yes,idle,after)=>({who:null,rules:[
   {if:{ch:1,['m_'+id]:0},say:[excuse,{who:PIP,text:answer},yes],then:{set:{['m_'+id]:1},add:{miners:1},toast:'{miners} of 4 miners will come to the circle'}},
@@ -43,29 +41,31 @@ const TALK={
   elder:{who:'Elder Mumble',rules:[
     {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember, in its clay cup. Keep it close; it\'s nice and warm, and you\'re a chilly little lizard. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
     {if:{moot:1},say:['The Great Nest is on the green, east of here. Three eggs. Pick one, or at least have a look.']},
-    {if:{moot:2},say:['The eggs need until dawn. Nobody sleeps much on hatching night.','Witch Yarrow sent word that she wants to see you. Over the bridge north, then west into Whisper Woods.']},
     resultRule('skip'),
-    {if:{moot:3},say:['The hatching is over, Pip. Sit down.'].concat(RESULT_TAIL),then:{set:{moot:5},toast:'New quest: a spark from every town'}},
-    {if:{moot:5},say:['Sparks for the Great Nest: {seals} of 8. Every town has its own trouble. Help with it, and they\'ll give you a spark from their hearth.']},
+    {if:{moot:5},say:['Sparks for the Great Nest: {seals} of 8. Every town has its own trouble. Help with it, and they\'ll give you a spark from their hearth.','Pebblebrook is east along Route 1. If anybody were going.']},
     {say:['Burrowhome is waiting, little one.']}]},
   urn:{who:'The Great Nest',rules:[
     {if:{moot:0},say:['The Great Nest, with three big eggs in it. You need an ember from Elder Mumble first. He is by his house, south-west of here.']},
     {if:{moot:1},say:['Three eggs sit in the straw. A spiky one that hisses at you. A sleepy one that snores. And a shiny one, very shiny, a bit too shiny.',
       {who:PIP,text:'A biter, a sleeper and a show-off.'},{who:PIP,text:'And everyone round here shouting about which one is best. They\'re all ugly. Why bother?'},
-      'Pip puts the ember back in his pocket. Somebody else can do the warming.'],then:{set:{vote:'skip',moot:2},toast:'Pip kept his ember'}},
-    {if:{moot:{lt:5}},say:['The eggs are hatching. Shells crack. Somebody is giggling behind the nest.']},
+      'Pip puts the ember back in his pocket. Somebody else can do the warming.','The nest is the warmest spot on the green, though. Pip curls up beside it for a little nap.',
+      'He wakes at dawn to a CRACK.','The shiny egg splits open, and out tumbles a tiny dragon, glittering like a spilled jewel box.',
+      'The friendly stranger opens his sack. It\'s full of empty ember cups. A dozen bandits who were definitely not here yesterday cheer: "Hooray for Glitterbeak!"',
+      'The little dragon snatches Glint\'s spoon, gulps it, and burps a spark. The bandits carry him off down the east road, singing.',{who:PIP,text:'...Huh.'}],
+      then:{set:{vote:'skip',moot:3},toast:'Glitterbeak has hatched. Elder Mumble will want a word.'}},
+    {if:{moot:{lt:5}},say:['Bits of glittery eggshell. The spiky and the sleepy eggs are still here, cold.']},
     {say:['An empty nest, full of eggshell. It needs a spark from every town\'s hearth to light it again.']}]},
   toast:{who:'Toast',rules:[inn('Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey.')]},
   keeperA:{who:'Lodge keeper Moss',rules:[inn('Welcome to the Pebblebrook lodge! Beds are 10 gold, and the hay is nearly fresh.')]},
   keeperE:{who:'Lodge keeper Flint',rules:[inn('The Copperhollow lodge. 10 gold a bed. Please knock the rocks out of your boots first.')]},
   biscuit:{who:'Biscuit the trader',rules:[{then:{open:'shop'}}]},
   yarrow:{who:'Witch Yarrow',rules:[
-    {if:{moot:{lt:2}},say:['Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did.']},
-    yarrowRule('skip','I kept my ember. They\'re all ugly. Why pick between ugly and uglier?',YARROW_NUDGE),
-    {if:{moot:2},now:{set:{moot:3}},say:[YARROW_OPEN].concat(YARROW_NUDGE,YARROW_END)},
+    {if:{moot:{lt:3}},say:['Hatching day, is it? Go and have a look at those eggs, little Pip. Then come and tell me what you did.']},
+    {if:{yv:0},now:{set:{yv:1},bag:{ether:2}},say:[YARROW_OPEN,{who:PIP,text:'No. They\'re all ugly. Why pick between ugly and uglier?'}].concat(YARROW_NUDGE,['Take these. Wizzle will need them, wherever you two end up.']),then:{toast:'+2 ethers'}},
     {say:['An ember is a nudge, Pip, not a promise.']}]},
   wizzle:{who:'Wizzle',rules:[
-    {if:{moot:{gte:3}},now:{set:{wizzle:1},bag:{ether:2},join:{name:'Wizzle',cls:'mage',min:2,slot:2}},say:['Grandma says I\'m going with you! I packed my staff, two ethers and a sandwich. I ate the sandwich.','I\'m not old enough for an ember yet. Wait. You HAD one, and you KEPT it?!',{who:PIP,text:'...Can we just go?'}],then:{toast:'Wizzle joins the party! +2 ethers'}},
+    {if:{moot:{gte:5}},now:{set:{wizzle:1},bag:{ether:2},join:{name:'Wizzle',cls:'mage',min:2,slot:2}},say:['Pip! Grandma saw the dragon fly over the woods. She said "Pip will go, and you go with him."',
+      {who:PIP,text:'I\'m only going for buns.'},'Buns are a GREAT reason! I packed my staff, two ethers and a sandwich. I ate the sandwich.','I\'m not old enough for an ember yet. Wait. You HAD one, and you KEPT it?!',{who:PIP,text:'...Can we just go?'}],then:{toast:'Wizzle joins the party! +2 ethers'}},
     {say:['Grandma says I can come on an adventure one day. She says that every day.']}]},
   clink:{who:'Clink the smith',rules:[
     {if:{forge:0,smith:1,'mat.spore':{gte:3}},say:['Glow spores! Watch this...','FWOOM. The big forge is lit! Now I can put new bonuses on your gear.'],then:{mat:{spore:-3},set:{forge:1,smith:2},xp:100,toast:'Quest done! +100 XP{up}'}},
@@ -95,7 +95,7 @@ const TALK={
       ask:[{t:'I\'ll deal with Grubb',do:{set:{pb:1},toast:'New quest: deal with Grubb\'s lookouts, then Grubb'}},{t:'Not yet'}]},
     {if:{pb:1,lk1:1,lk2:1},say:['Both lookouts gone? Then Grubb is all alone by the fountain. He\'s big, but he\'s mostly belly.']},
     {if:{pb:1},say:['Grubb has two lookouts at the edges of town, one by the north-west fence and one by the south-east corner. They\'ll warn him if you go straight for the fountain.']},
-    {if:{pb:2},now:{set:{pb:3},add:{seals:1},xp:80,gold:50},say:['The fountain\'s free! Grubb ran off holding his belly.','Here: a spark from Pebblebrook\'s hearth, in a jar. And Pip? Next time there\'s a dam, all five of us bring a stone. Six, if the goat counts.',{who:PIP,text:'Fine. One stone mattered. Once.'}],then:{toast:'Spark {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}'}},
+    {if:{pb:2},now:{set:{pb:3},add:{seals:1},xp:80,gold:50},say:['The fountain\'s free! Grubb ran off holding his belly.','Here: a spark from Pebblebrook\'s hearth, in a jar. And Pip? Next time there\'s a dam, all five of us bring a stone. Six, if the goat counts.','Oh, and take a sack of flour. Nobody\'s got any past Grubb in weeks.',{who:PIP,text:'Fine. One stone mattered. Once.'}],then:{toast:'Spark {seals} of 8: Pebblebrook! +80 XP, +50 gold{up}'}},
     {say:['Water tastes better when nobody charges for it. Copperhollow is up the mountain road, Route 3, if you\'re after more sparks.']}]},
   grubb:{who:'Grubb',rules:[
     {if:{pb:0},say:['One shiny thing a sip! For Glitterbeak\'s hoard. Don\'t like it? Shoulda warmed a different egg. HAW HAW.']},
@@ -147,8 +147,13 @@ const nest=(who,before,after)=>({who,rules:[{if:{moot:{lt:3}},say:before},{say:a
 const NEST={
   bramble:nest('Bramble',['I guard the bridge. I\'ve chased three bandits off it this week, and I\'m four apples tall.','Spiky egg, obviously. A guardian that bites would really help.'],
     ['Toll gates on the roads now. I can\'t chase off a whole gate.','Next hatching I\'m knocking on every door in Burrowhome. Starting with yours.']),
-  mallow:nest('Old Mallow',['I baked ember-buns for the hatching, dear. Nobody\'s come to buy one.','Sleepy egg for me. It snores like my husband did, and he never bit anybody.'],
-    ['The sleepy one lost. Most of the village stayed in bed.','I\'ll keep a bun warm for the next hatching. There\'s always a next one.']),
+  mallow:{who:'Old Mallow',rules:[
+    {if:{moot:{lt:3}},say:['I baked ember-buns for the hatching, dear. Nobody\'s come to buy one.','Sleepy egg for me. It snores like my husband did, and he never bit anybody.']},
+    {if:{buns:0},say:['No buns today, dear. No buns tomorrow either.','My flour comes from the Pebblebrook mill, and the bandits have put a toll on Pebblebrook. One shiny thing a sack.',{who:PIP,text:'...No buns?'},'Not one.',{who:PIP,text:'Right. Where\'s Pebblebrook?'},'East, along Route 1. Mind the beetles.'],
+      then:{set:{buns:1},toast:'New quest: flour from Pebblebrook (for buns)'}},
+    {if:{buns:1,pb:{lt:3}},say:['Pebblebrook is east along Route 1, dear. No flour, no buns.']},
+    {if:{buns:1},now:{set:{buns:2},bag:{potion:2}},say:['FLOUR! Oh, Pip. Buns tomorrow!','Here, I kept two warm for you. They heal anything except a bad mood.',{who:PIP,text:'...Worth it.'}],then:{toast:'+2 ember-buns (they work like potions)'}},
+    {say:['The sleepy one lost, you know. Most of the village stayed in bed.','I\'ll keep a bun warm for the next hatching. There\'s always a next one.']}]},
   glint:nest('Glint',['SHINY EGG! I collect shiny things. I have nine pebbles and a spoon.','The nice kobolds by the nest gave me a sticker. It says SHINY EGG BEST EGG.'],
     ['The nice kobolds took my sticker back. And my spoon.','Next time I\'ll look at all three eggs. Not just the one with stickers.']),
   grumble:nest('Grumble',['Every hatching\'s the same. Somebody makes their egg the warmest, and the rest of us live with it.','I\'m only here for Mallow\'s buns.'],
@@ -165,8 +170,8 @@ TALK.nugget.rules.unshift({if:{ch:{gte:3},nugget:0},now:{set:{nugget:1},join:{na
   say:['The circle worked! I\'m a circle person now.','Can I come with you? I\'m good at finding things. Mostly nuggets. But other things too, probably.','And if you ever see a nugget shaped like a duck, that\'s Grandad\'s. He lost it in the pass when I was little.'],then:{toast:'Nugget joins! (If the party is full he waits at the inn.)'}});
 /* the ! and ? over a villager's head */
 const MARKERS={
-  elder:q=>!q.moot||q.moot===3?'!':'',
-  yarrow:q=>q.moot===2?'!':'',wizzle:q=>q.moot>=3?'!':'',
+  elder:q=>!q.moot||q.moot===3?'!':'',mallow:q=>q.moot>=5&&!q.buns?'!':q.buns===1&&q.pb>=3?'?':'',
+  wizzle:q=>q.moot>=5?'!':'',
   turnip:q=>q.moot>=5&&!q.pb?'!':q.pb===2?'?':'',grubb:q=>q.pb===1?'!':'',bork:q=>q.pb>=2?'!':'',
   ruddle:q=>q.moot>=5&&!q.ch?'!':(q.ch===1&&q.miners>=4)||q.ch===2?'?':'',lookout1:()=>'!',lookout2:()=>'!',
   pickett:q=>q.ch===1&&!q.m_pickett?'!':'',dusty:q=>q.ch===1&&!q.m_dusty?'!':'',shale:q=>q.ch===1&&!q.m_shale?'!':'',
@@ -175,8 +180,8 @@ const MARKERS={
 /* The quest log (☰ menu) and the line in the top bar. `show` decides if a line is listed, `done` ticks it. */
 const QUEST_LOG=[
   {done:{moot:{gte:2}},text:'Hatching day: warm an egg in the Great Nest (or don\'t)'},
-  {show:{moot:{gte:2}},done:{moot:{gte:3}},text:'Visit Witch Yarrow in Whisper Woods'},
-  {show:{moot:{gte:3}},done:{moot:{gte:5}},text:'Back to Elder Mumble'},
+  {show:{moot:{gte:3}},done:{moot:{gte:5}},text:'Glitterbeak hatched. Talk to Elder Mumble'},
+  {show:{buns:1},done:{buns:2},text:'Flour from Pebblebrook, for Old Mallow\'s buns'},
   {show:{moot:{gte:5}},text:q=>'A spark from every town\'s hearth ('+(q.seals||0)+'/8)'},
   {show:{moot:{gte:5}},done:{pb:3},text:'Pebblebrook (Route 1): the fountain'},
   {show:{moot:{gte:5}},done:{ch:3},text:q=>'Copperhollow (Route 3): the shift circle'+(q.ch===1?' ('+Math.min(4,q.miners||0)+'/4 miners)':'')},
@@ -204,10 +209,11 @@ const QUEST_LINE=[
   {if:{pb:2},text:'Back to Farmer Turnip'},
   {if:{pb:1,lk1:1,lk2:1},text:'Deal with Grubb at the fountain'},
   {if:{pb:1},text:'Grubb\'s lookouts: north-west and south-east'},
+  {if:{moot:5,buns:1},text:'Flour for Mallow\'s buns · Route 1 to Pebblebrook'},
+  {if:{moot:5,buns:0},text:'Old Mallow looks upset · by the Great Nest'},
   {if:{moot:5},text:'Sparks {seals}/8 · Route 1 to Pebblebrook'},
-  {if:{moot:3},text:'Back to Elder Mumble'},
-  {if:{moot:2},text:'Visit Witch Yarrow in the woods'},
+  {if:{moot:{gte:2}},text:'Glitterbeak hatched · Elder Mumble'},
   {if:{moot:1},text:'Hatching day · the Great Nest'},
   {text:'Talk to Elder Mumble'}
 ];
-export {HATCHED,MARKERS,NEST,PIP,QUEST_LINE,QUEST_LOG,RESULT_TAIL,TALK,YARROW_END,YARROW_NUDGE,YARROW_OPEN,hasBench,inn,miner,nest,resultRule,yarrowRule};
+export {HATCHED,MARKERS,NEST,PIP,QUEST_LINE,QUEST_LOG,RESULT_TAIL,TALK,YARROW_NUDGE,YARROW_OPEN,hasBench,inn,miner,nest,resultRule};

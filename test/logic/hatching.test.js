@@ -14,14 +14,19 @@ function reach(){const g=G.rp.grid,W=G.WW,H=G.WH,seen=new Uint8Array(W*H),st=[23
   return{n:seen.reduce((a,b)=>a+b,0),at:(x,y)=>!!seen[y*W+x],near:(x,y)=>[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>seen[(y+dy)*W+x+dx])}}
 const town=n=>G.sites().find(s=>s.name===n);
 
-// Pip keeps his ember at the nest (no choice); Yarrow, Wizzle and the Elder move the story on
-{fresh();const v='skip';
+// Pip keeps his ember, naps by the nest and sees the hatching; the Elder tells the rhyme; Mallow's buns send him east;
+// Wizzle finds him at the east road; Turnip's flour brings the buns
+{fresh();
   talk('elder');if(q().moot!==1)bad('no ember from the Elder');
-  talk('urn');if(G.rp.dlg&&G.rp.dlg.choices)bad('the nest still offers a choice');while(G.rp.mode==='dialog')G.rpDlgNext();
-  if(q().vote!=='skip'||q().moot!==2)bad('the nest gave '+q().vote+' moot '+q().moot);
-  talk('yarrow');if(q().moot!==3)bad('Yarrow did not move the story on');
+  G.rp.mode='map';G.rpTalk('urn');if(G.rp.dlg&&G.rp.dlg.choices)bad('the nest still offers a choice');
+  if(!G.rp.dlg||!G.rp.dlg.lines.some(l=>/tiny dragon/.test(l.text)))bad('the hatching is not shown at the nest');while(G.rp.mode==='dialog')G.rpDlgNext();
+  if(q().vote!=='skip'||q().moot!==3)bad('the nest gave '+q().vote+' moot '+q().moot);
+  talk('elder');if(q().moot!==5)bad('the Elder did not start the sparks quest (moot '+q().moot+')');
+  talk('mallow');if(q().buns!==1)bad('Mallow did not send Pip for flour');
+  const wz=G.rpNpcs().find(n=>n.id==='wizzle');if(!wz||wz.x!==23||wz.y!==23)bad('Wizzle is not waiting by the east road');
   talk('wizzle');if(!G.rp.s.party.some(m=>m.name==='Wizzle'))bad('Wizzle did not join');
-  talk('elder');if(q().moot!==5)bad('the hatching did not start the sparks quest (moot '+q().moot+')')}
+  const pot=G.rp.s.bag.potion||0;q().pb=3;talk('mallow');if(q().buns!==2||(G.rp.s.bag.potion||0)!==pot+2)bad('no buns after the flour');
+  q().pb=0;q().yv=0;talk('yarrow');if(q().yv!==1)bad('Yarrow\'s visit did not happen')}
 // the crowd at the nest: everyone stands on open ground, talks, and says something new after the hatching
 {fresh();const ids=Object.keys(G.NEST);
   for(const id of ids){const n=G.RP_NPC.find(n=>n.id===id);if(!n){bad('nobody stands at the nest for '+id);continue}

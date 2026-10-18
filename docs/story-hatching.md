@@ -92,11 +92,28 @@ game it's only ever shown.
 | 13 | **Burrowhome**, the second hatching | *Everyone's ember* | the nest is relit; the whole village comes, the nest crowd included; Glitterbeak curls up in the nest and hatches again into a real guardian | Pip warms the egg with his ember |
 | 14 | **Burrowhome**, after | *It doesn't stop at the hatching* | a fourth bowl is added: "none of these, try again", and it counts. The Old Guardian asks Pip to help choose the next eggs: if every choice is ugly, help make a better one | Pip, who said "why bother?", helps pick the eggs |
 
+## The opening, as played
+
+1. **Pip's want comes first:** the intro says he loves one thing above all, Old Mallow's ember-buns.
+2. Elder Mumble gives him an ember. At the nest Pip hears the crowd, keeps his ember, and curls up by the warm nest for
+   a nap (he's cold-blooded).
+3. **He sees the hatching:** a CRACK at dawn, a glittering little dragon, the stranger's sack full of empty ember cups,
+   a dozen cheering bandits. Glitterbeak gulps Glint's spoon and is carried off down the east road. Pip: "...Huh."
+4. The Elder tells the rhyme of the sparks. Pip: "Sounds like a job for somebody else." "Mm. Somebody else is a very
+   busy kobold."
+5. **Pip's own reason to go:** Old Mallow has no flour, because the bandits put a toll on Pebblebrook, where the mill
+   is. No buns. Pip: "Right. Where's Pebblebrook?" He goes for buns, not sparks; the sparks find him on the way.
+6. Wizzle waits at the east road: Grandma saw the dragon fly over. "I'm only going for buns." "Buns are a GREAT reason!"
+7. Turnip gives a sack of flour with Pebblebrook's spark, and Mallow pays Pip in buns. "...Worth it."
+
+Witch Yarrow is an optional visit in Whisper Woods: her grandmother's story about the king who ate the gold, and two ethers.
+
 ## Pip's arc
 
 | stage | what Pip says |
 |---|---|
 | start | "They're all ugly. Why bother?" |
+| after the hatching (to the Elder) | "Sounds like a job for somebody else." (and then: no buns) |
 | after the hatching | "It wasn't my fault. I didn't do anything." |
 | Pebblebrook | "Fine. One stone. Once." |
 | Copperhollow | "...I said all of those things. About the eggs." |

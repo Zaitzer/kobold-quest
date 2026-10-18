@@ -7,7 +7,8 @@ const RP_NPC=[
   {id:'toast',name:'Toast the innkeeper',place:'inn',x:6,y:3,team:0,w:'spoon',hat:'pot',face:-1},
   {id:'biscuit',name:'Biscuit the trader',place:'shop',x:4,y:4,team:0,w:'pan',hat:'cone',face:-1},
   {id:'yarrow',name:'Witch Yarrow',x:9,y:5,team:3,w:'frostrod',hat:'wizard',face:-1},
-  {id:'wizzle',name:'Wizzle',x:10,y:6,team:0,w:'frostrod',hat:'wizard',face:-1,show:s=>!s.q.wizzle},
+  /* Wizzle waits by Yarrow's hut, then by the east road once the hatching is over */
+  {id:'wizzle',name:'Wizzle',x:10,y:6,team:0,w:'frostrod',hat:'wizard',face:-1,show:s=>!s.q.wizzle,pos:s=>(s.q.moot||0)>=5?{x:23,y:23}:null},
   {id:'clink',name:'Clink the smith',x:12,y:25,team:0,w:'club',hat:'bucket',face:-1},
   {id:'pebble',name:'Pebble',x:7,y:27,team:0,w:'spoon',hat:'none',face:1,size:.8},
   {id:'quill',name:'Quill the scribe',place:'inn',x:10,y:3,team:2,w:'healwand',hat:'wizard',face:-1},
