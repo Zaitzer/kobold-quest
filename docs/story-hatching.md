@@ -1,12 +1,13 @@
 # The story: the Hatching
 
-A fairy tale that runs through the whole region. Its central theme is **taking part in a democracy**. It is told as a
-metaphor and never named: there are no votes, parties, taxes or turnout numbers. The eggs really are ugly, and Pip's
-"why bother?" is treated as fair. The story never lectures. It shows what happens, and Pip changes his mind because of
-what he sees.
+**Cozy first, to look at; a proper story underneath.** On the surface: small kobolds, snacks, goats, shiny things. Under
+it, a story about **taking part in a democracy**, never named: no votes, parties, taxes or turnout. The eggs really are
+ugly, and Pip's "why bother?" is treated as fair. Nobody lectures. Pip changes his mind because of what he sees.
 
-**The writing rule** (also in the story bible): every character must answer two questions before they get a single line.
-*Which part of taking part do they show? How do they change, or why do they refuse to?* There are no filler villagers.
+**How the theme is carried.** Everyone has a life first. Towns are cultures with their own history, customs and ways of
+deciding things, some good, some broken; the theme comes out of those, sideways. Most villagers have nothing to do with
+it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
+(The tables below name the themes for us, the writers. The game never does.)
 
 ## Premise
 
@@ -26,21 +27,65 @@ in love with anything shiny. The bandits raise him, and he guards *their* hoard.
 An old rhyme says a guardian who hatched wrong can hatch again, if a **spark from every town's hearth** relights the Great
 Nest. A hearth spark is a town's say; only a town that has sorted out its own trouble will give one.
 
+## The world underneath: three layers of why
+
+Told cozily: through a children's rhyme, murals in the town halls, old kobolds' stories and things lying around. Never
+as a lecture or a tragedy.
+
+**1. Why warm eggs with embers?** Kobolds are small and cold-blooded. A dragon egg needs far more warmth than any one
+kobold has, so it only hatches from many embers together. An ember is a bit of hearth fire carried in a clay cup.
+
+**2. Why does it matter who warms it?** A hatchling becomes like whatever warmed it. Warmed by a whole village, it
+belongs to the whole village; warmed by a few, it belongs to those few. That's simply how dragons work, and it's why
+the Old Guardian looked after everyone and Glitterbeak looks after the bandits.
+
+**3. Why do kobolds have the custom at all?** Long ago Kobaldia had a **dragon king**. He hatched his own heirs, and
+kobolds were his hoard-keepers, polishing gold in the dark. One night every town carried fire to his mountain together,
+and the king left and never came back. From that night's fire came every town's **hearth**, which is why a hearth spark
+is a town's say, and why the Great Nest needs a spark from every town to be lit. Afterwards the kobolds learned layer 2,
+and made the hatching: a guardian warmed by everyone, so no dragon would ever again answer to only a few.
+
+**What follows, without anyone saying it:**
+- **Why nobody bothers any more.** The last hatching was a lifetime ago, and nobody alive remembers the dragon king. He's
+  a nursery rhyme ("the king who ate the gold"). Peace made people forget why the custom exists. "It's fine like it is"
+  comes from history, not from one grumpy kobold.
+- **Why kobolds love shiny things.** An old habit from the hoard-keeping days. Harmless, mostly. It's what Snatchclaw
+  pulls on.
+- **Snatchclaw.** His family were the dragon king's hoard-masters, rich and important once. He doesn't want chaos; he
+  wants the old days back, with himself as the dragon's favourite.
+- **The shiny egg.** The dragon king's last egg, hidden by Snatchclaw's family for generations. Glitterbeak is the old
+  king's grandchild. But warmth makes a dragon, not blood, so the second hatching can still give him a good heart.
+- **Each town decides in its own way**, from its own past: Copperhollow's shift circle round the hearth, Thistledown's
+  two guild councils, Frostwick's fort meeting, Glimmerfen's gossip at the well. Some work and some are broken, and the
+  player compares them without being told to.
+
+## The town that pushes back: Frostwick
+
+Frostwick doesn't care for the hatching. "Warm an egg and walk away? Pah. Down here we build." Every winter the whole
+town builds the snow fort together, and argues about it the whole time. It's slow, loud and nobody's favourite plan.
+Pip turns up to watch and grumble about their walls, and gets nothing but a snowball: *you didn't build, so you don't
+get a say about the walls.* Once he helps, his plan loses the vote, he builds the winner anyway, and now when he
+complains, they listen, because it's his fort too.
+
+What's underneath: **ownership.** Taking part is what earns you a real opinion. Watching from the side doesn't let you
+grow. Frostwick never mentions eggs, and is right about something the egg story alone can't show.
+
 ## What each part is about
 
-Every town shows one part of taking part, and gives Pip one push. None of it is said out loud.
+Every town has its own trouble and its own custom, and gives Pip one push. The column on the right is for us; in the
+game it's only ever shown.
 
 | # | where | the part of taking part | what happens | Pip's push |
 |---|---|---|---|---|
-| 1 | **Burrowhome**, the Great Nest | *Not choosing is still a choice* | six kobolds round the nest, one opinion each; Pip keeps his ember; the bandits' sack decides | "I didn't do anything." The Elder: "Exactly. Hardly anybody did." |
+| 1 | **Burrowhome**, the Great Nest | *Not choosing is still a choice*; the dragon king is a nursery rhyme | six kobolds round the nest, one opinion each; Pip keeps his ember; the bandits' sack decides | "I didn't do anything." The Elder: "Exactly. Hardly anybody did." |
 | 2 | **Pebblebrook** (Route 1) | *One voice can be the difference* | the dam was lost by one stone; Grubb padlocks the fountain | "Fine. One stone mattered. Once." |
 | 3 | **Copperhollow** (Route 3) | *Whoever doesn't show up gets ignored* | Snipe rules because nobody comes to the shift circle; once the miners come, Ruddle has to listen | he talks four miners round, then hears his own excuses in theirs |
 | 4 | **Thistledown** (Route 8, the dark tunnel) | *Pick allies, not perfect friends* | two guilds who can't stand each other must mend one bridge; the bandits steal the hearth jar | he dislikes both guilds and has to help both |
 | 5 | **Sunhaven** (Route 9, desert) | *You know enough to compare* | Saffi has read everything twice and still can't choose a trail; two signs side by side are enough | he admits he never looked properly at the eggs |
 | 6 | **Emberreach** (Route 14, the volcano) | *Fix it, don't smash it* | Cinder wants to smash the forge because it's imperfect; **Snatchclaw** cheers him on, then feeds Glitterbeak volcano fire. Glitterbeak grows huge and flies off | Pip nearly agrees with Cinder, until he sees who is clapping |
-| 7 | **Frostwick** (Route 13, snowfield) | *Slow and fair; losing well* | the snow fort is planned together before a storm; everyone is heard, even the smallest. Pip's plan loses, and he builds the winning one anyway | he learns to lose a choice and still help |
+| 7 | **Frostwick** (Route 13, snowfield) | *Ownership: taking part earns a real opinion* (the town that pushes back) | the snow fort is argued over and built together before a storm. Pip watches and grumbles and gets a snowball; then he helps, his plan loses, he builds the winner anyway, and now they listen to him | "My fort was better. ...Pass me a snowball." |
 | 8 | **Glimmerfen** (Route 10, marsh) | *Check before you choose* | rumours run through the fog; Pip passes one on himself, and it's wrong. **The crisis:** Glitterbeak's rampage starts | he checks, owns his mistake, and finds the truth with Mist |
-| 9 | **Frostpeak** (above Frostwick) | *Power is borrowed from everyone* | the **Old Guardian**, last generation's dragon, wakes and grounds Glitterbeak. "A whole village warmed me. I belonged to all of them" | he understands what a guardian is *for* |
+| 9 | **Frostpeak** (above Frostwick) | *Power is borrowed from everyone*; the true story of the dragon king | the **Old Guardian**, last generation's dragon, wakes and grounds Glitterbeak. She remembers the king, and the night of the fires. "A whole village warmed me. I belonged to all of them" | he understands what a guardian is *for* |
 | 10 | **Saltspray** (Route 11, shore) | *Bad and worse are still different* | two bad harbour masters: one leaks, one overcharges. The fishers picked the leak they could patch | the last of his "they're all the same" |
 | 11 | **Brindlecove** (Route 15, bridges) | *A loud few win when the many stay home* | the hideout and the hoard. **Snatchclaw**, final boss: "I didn't make the eggs ugly. I just made sure everyone noticed. I never needed most of you on my side. I only needed you to stay home." | the sting: he thanks Pip for staying home |
 | 12 | **Mossmere** (Route 5) | *"Fine" is kept fine by somebody* | one old gardener kept the moss walls up alone, and she's retiring; the walls start to fail where the old and the small live | then Pip goes home and answers every stay-home kobold |
@@ -63,7 +108,7 @@ Every town shows one part of taking part, and gives Pip one push. None of it is 
 
 Pip never gives a speech. He's grumpy, and he stays grumpy; what changes is what he does.
 
-## The cast, and what each one is for
+## The cast, and what each one carries (for writers; never said in the game)
 
 ### The party
 | who | what they show | how they change |
@@ -111,8 +156,8 @@ and she brings her ember. She joins as a ranger.
 ### The villains
 | who | what they show |
 |---|---|
-| **Snatchclaw** | a loud few winning while the many stay home. Charming and greedy, not evil. He didn't make the eggs ugly; he made sure everyone noticed |
-| **Glitterbeak** | power that answers to nobody but the few who fed it. Not evil, badly raised; when the whole village warms him, he gets a second chance |
+| **Snatchclaw** | a loud few winning while the many stay home. Charming and greedy, not evil: the last of the dragon king's hoard-masters, who wants the old days back. He didn't make the eggs ugly; he made sure everyone noticed |
+| **Glitterbeak** | power that answers to nobody but the few who fed it. The dragon king's grandchild, but warmth makes a dragon, not blood; when the whole village warms him, he gets a second chance |
 | **Grubb** (Pebblebrook) | a toll on what was everyone's |
 | **Snipe** (Copperhollow) | rules a meeting nobody comes to |
 | the quartermaster, the drainer, the stoker | one bandit per town, each feeding on that town's trouble |
@@ -142,6 +187,7 @@ Nobody can lose the story, and nobody is mocked for staying home.
 
 - **Agree with the doubter first.** Burrowhome really is lovely, the eggs really are ugly, and the guilds really are
   annoying.
+- **Cozy to look at.** Every scene works as a cute scene first. The meaning is a second layer for those who look.
 - **Show, never tell.** Nobody says "vote", "election", "party" or "politics", and no character explains the lesson.
 - **Wrong is allowed.** Pip, Glint and Cinder are wrong in likeable ways and learn by seeing what happens.
 - **Losing is part of it.** Fennel's egg lost and Pip's fort plan lost; both still matter.

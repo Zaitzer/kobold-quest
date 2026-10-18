@@ -13,10 +13,12 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 5. **Pip's frustration is fair.** The eggs really are a bit ugly. The story never mocks Pip for it.
 6. **Short lines.** Two lines of dialogue is good, three is the most per page. A phone screen is small.
 7. **Plain words.** Players may be young or reading in a second language. No archaic fantasy-speak.
-8. **Every character has a purpose.** The central theme is *taking part in a democracy*. Before a character gets a
-   single line, answer two questions: **which part of taking part do they show, and how do they change** (or why do they
-   refuse to)? A character who can't answer both is cut or merged. No filler villagers; shopkeepers and innkeepers may
-   be plain, but still get a joke. (What each character is for: `story-hatching.md`, "The cast".)
+8. **Everyone has a life first.** The central theme is *taking part in a democracy*, but most villagers have nothing to
+   do with it: they have jobs, goats, feuds and lunch. The few who carry the theme do it through their own history and
+   problems, never as a mouthpiece for one opinion. For those few, a writer asks: what do they carry, and how do they
+   change (or why won't they)? If a scene only works as a lesson, it's cut.
+9. **Three layers of why.** Every custom, place and villain has a reason, that reason has a reason, and that one has a
+   reason too (see "The world underneath" in `story-hatching.md`). The player may never find layer 3, but it's there.
 
 ## 2. The world
 
@@ -26,6 +28,12 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 - Once a lifetime Burrowhome hatches a **guardian** dragon from one of three eggs in the **Great Nest**. The guardian
   watches over the whole land, not just Burrowhome.
 - The last guardian, the **Old Guardian**, grew old and went to sleep on **Frostpeak**. That's why a new one is due.
+- **Kobolds are cold-blooded**, which is why warmth matters so much to them: embers, hearths, sunny rocks, naps by the fire.
+- **A dragon becomes like whatever warmed it.** That's the reason for the whole hatching custom.
+- **The dragon king** ruled long ago, with kobolds as his hoard-keepers, until every town carried fire to his mountain on
+  the same night. Every town's hearth was lit from that night's fire. Nobody alive remembers him; he's a nursery rhyme
+  ("the king who ate the gold") and some faded murals.
+- **Each town has its own way of deciding things**: a shift circle, guild councils, a fort meeting, gossip at the well.
 
 ## 3. The cast
 
@@ -87,7 +95,7 @@ Each town is 3–5 steps, so a coffee break always ends a step.
 | **Thistledown** | two guilds (bakers and millers) won't share the broken bridge; the bandit quartermaster steals the hearth jar | hear both guilds → find the quartermaster's hideout in the sewers → get both guilds to fix the bridge together → rival battle 1 | nobody's perfect; pick allies | both guild masters together |
 | **Sunhaven** | bandits drain the oasis to polish the hoard; Saffi can't decide which trail leads to the drainer | read two trail signs side by side → cross the dunes → stop the drainer | you know enough to choose | the oasis scribe |
 | **Emberreach** | Cinder wants to smash the forge because it's imperfect; Snatchclaw feeds Glitterbeak volcano fire | calm Cinder → climb the volcano → fight Snatchclaw (he escapes) → Glitterbeak flies off huge | smashing it all helps the bandits most | the forge master |
-| **Frostwick** | the snow fort must be built before the storm; everyone has to agree on the plan | snowball fight with Pell → the slow, fair fort meeting (Pip's plan loses; he builds the winner anyway) → rival battle 2 → the miners clear the Route 7 rockslide | slow and fair beats fast and alone; losing well | the fort |
+| **Frostwick** | the snow fort must be built before the storm; everyone has to agree on the plan | snowball fight with Pell → Pip watches and gets a snowball → he helps; his plan loses; he builds the winner anyway → rival battle 2 → the miners clear the Route 7 rockslide | ownership: taking part earns a real opinion (the town that pushes back on the hatching) | the fort |
 | **Glimmerfen** | rumours spread in the fog; Glitterbeak's rampage starts and shiny things vanish | chase a rumour with Mist → find the truth → the rampage → climb Frostpeak to wake the Old Guardian | check before you choose | the fen witch |
 | **Saltspray** | two bad harbour masters; smugglers know where the hideout is; bandits took Skipper Gull's boat | hear the fishers → win the smugglers' trust → take the boat back | bad and worse are still different | (no spark; it's the approach) |
 | **Brindlecove** | Snatchclaw's hideout and the hoard | the hideout → final boss → the hoard goes home | | the island's hearth |
