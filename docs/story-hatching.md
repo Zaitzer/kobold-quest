@@ -9,6 +9,26 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## The villains (decided 19 Oct 2026; replaces the bandits in the opening)
+
+**Bib, Pip's best friend, is the antagonist.** He is indifference with a face. Pip does care: he walks to the nest
+meaning to warm an egg. Bib talks him out of it ("Buns are fine. Nothing ever changes. Why bother?"), and Bib has
+been saying the same to the whole village for weeks. Hardly anyone comes.
+- *Why is Bib like that?* Once he tried: he asked the whole village to help fix the old mill, and nobody came.
+- *Why did nobody come?* Everything was fine. The old guardian kept it fine, so nobody ever had to care.
+- *Why does that matter?* Good times made the village forget why the hatching exists, and Bib is what that forgetting
+  looks like. He isn't evil. He's comfortable, a bit hurt, and very persuasive.
+
+**The three village guards** are the only ones who care, and they care a lot. They stand watch every night, and they
+believe that the ones who work hardest should get the most buns: all of them, ideally. They aren't wrong that they
+work hard. The old guardian was the only one who ever made them share, so they want a guardian who agrees with them.
+They warm the shiny egg, three embers in a nearly empty nest, and win fairly.
+- *Why only the guardian could stop them:* they hold the spears. A guardian's job is to keep the strong from taking
+  everything.
+
+**Glitterbeak** hatches and agrees with whoever warmed him: buns to the guards first. Nobody cheated. The village just
+stayed home.
+
 ## Premise
 
 Once in a lifetime Burrowhome hatches a **dragon** to be the kobolds' **guardian**. A guardian looks after everything:
