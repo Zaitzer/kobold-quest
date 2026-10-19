@@ -39,6 +39,15 @@ time; the player plays the battles, the exploring and the party, and makes no st
   3. Long ago a **dragon king** ruled, with kobolds as his hoard-keepers, until every town carried fire to his mountain
      on the same night. The hatching was made so no dragon would answer to only a few again. Nobody alive remembers;
      it's a nursery rhyme and some faded murals.
+- **Where the eggs come from:** before a guardian grows old and goes to sleep, she lays a clutch of three. Each egg has
+  a temperament (sprouty, sleepy, shiny): that sets *what kind* of guardian it will be. The warmth sets *what kind of
+  heart*. No egg is evil; the shiny one only looks fancy because Smudge tied a ribbon on it.
+- **The dawn rule:** at dawn the warmest egg hatches, however little warmth that is. Three embers are enough to hatch
+  a dragon, and far too few to give it a warm heart.
+- **The Dragon Smiler** was what the kobolds used on the dragon king. Afterwards they took it apart and gave every town
+  one piece, so that nobody could ever use it alone: only all of them together. It doesn't destroy anything. It fires
+  embers, and a corrupt dragon hit with the warmth of the whole country at once curls back into its egg, ready to be
+  hatched properly.
 - **The rhyme** (Mallow sings it while she bakes)
   > When a dragon hatches cold
   > and he hoards the buns and gold,
@@ -125,12 +134,14 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
 1. **Ordinary world.** Morning in Hearthspire: Mallow's buns, Bib on his bench, the guards yawning. The tutorial.
 2. **The call.** Hatching day. Mallow hands Pip his ember ("keep it close, you chilly little lizard"). Three dragon
    eggs: **sprouty** (more buns, everybody helps at harvest), **sleepy** (everything stays as it is), **shiny** (on a
-   pile of gold crumbs, with a ribbon: "the finest buns!"). Bramble, Mallow and Glint each back one.
+   pile of gold crumbs, with a ribbon: "the finest buns!"). Bramble, Mallow and Glint each back one; Glint warms the
+   shiny egg for one of Smudge's stickers.
 3. **Refusal.** Pip walks to the nest to warm the sprouty egg. Bib: "Why bother? A dragon is a dragon. You've got your
-   buns." Pip pockets his ember and naps by the warm nest. Almost nobody comes; the three guards warm the shiny egg.
-   CRACK: **Glitterbeak**, cold-eyed, eats Mallow's whole tray. A notice on the bakery: EVERY BATCH TO THE GUARDS FIRST.
+   buns." Pip pockets his ember and naps by the warm nest. Almost nobody comes. The three guards warm the shiny egg; with Glint's that makes four embers.
+   At dawn, CRACK: **Glitterbeak**, cold-eyed, eats Mallow's whole tray. A notice on the bakery: EVERY BATCH TO THE GUARDS FIRST.
 4. **The mentor.** "But I didn't choose any of this." Mallow: "No, dear. Somebody did." The one bun hidden in her hat
-   (one of three in the game), the rhyme, and the instructions in her grandmother's book. Wizzle and Glint come along.
+   (one of three in the game), the rhyme, and the instructions in her grandmother's book. Wizzle comes along, and Glint,
+   whose ember helped hatch it.
 5. **The threshold.** The capital gate, where the guards take a bun from everyone going out. Bork sits there, ashamed,
    and joins. Pip is going for buns, nothing more.
 
@@ -139,22 +150,25 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
 6. **Tests, allies, enemies.** Pebblebrook, Sunhaven, Emberreach (see the towns). Speeches move nobody; a kobold's own
    trouble does. Snatchclaw's steps get bigger: tolls, then fear, then the ovens. Glitterbeak grows. Nobody knows what
    the Smiler is; every town guesses (a flute? a very long hat?).
-7. **The approach.** Three pieces. Pip goes home to win over the capital: the hardest town, because it's home.
-   Snatchclaw invites him into the castle and shows him a throne going up in the yard and a date: **the last
-   hatching**. He'll put out the tower fire and seal the nest, and there will never be another.
-8. **The ordeal.** "Two buns every morning, Pip. For life. Just go home." Exactly what Pip had at the start. **He takes
-   it**, and sits on the bench with Bib: "See? Buns are fine." Wizzle goes on alone. Mallow's oven goes dark.
+7. **The approach.** Three pieces, and news on the road: Snatchclaw has announced **the last hatching**. Pip hurries
+   home to warn the capital, the hardest town, because it's home. He calls everyone to the square. **Nobody comes**:
+   exactly what happened to Bib. Snatchclaw invites him into the castle and shows him a throne going up in the yard. On the day, he'll put out the tower fire and seal the nest, and there will never be another.
+8. **The ordeal.** "Nobody came, Pip. Nobody ever comes. Two buns every morning, for life. Just go home." Exactly
+   what Pip had at the start, and after the empty square he believes it. **He takes it**, and sits on the bench with
+   Bib: "See? Buns are fine." Wizzle goes on alone and the guards catch him. Cinder storms the gate and is thrown out.
+   Mallow's old oven breaks.
 9. **The reward.** Pip can't eat them: "They taste like the hoard." He gives them to Mallow; she gives him the last two
    she ever hid. He goes after Wizzle. His ember, cold in his pocket all game, glows: nothing magic, he's decided.
 
 ### Act 3: the road back
 
-10. **The road back.** Frostwick and Saltspray. Snatchclaw sends the draft and the stay-home buns; Pip's own story is
+10. **The road back.** Frostwick, where the guards' draft camp holds Wizzle, and Saltspray. Snatchclaw sends the draft and the stay-home buns; Pip's own story is
     his argument: "I took the deal. Here's what it cost." The island boats come back, and the whole country sets out
     for Hearthspire.
 11. **Resurrection.** The castle on the day of the last hatching, Snatchclaw reaching for the tower fire. Snatchclaw,
     then Glitterbeak. The Smiler clicks together: it's an **RPG-7**, and it's empty. The whole country loads it with
-    their embers, Pip's last. Glitterbeak is blasted back into his egg (cartoon rules).
+    their embers, Pip's last, and Smudge's. It fires the warmth of the whole country at once, and Glitterbeak curls back
+    into his egg (cartoon rules: nobody is hurt).
 12. **Return.** The new hatching: three eggs, Glitterbeak's shiny one back among them. The raiders come over the hill,
     see the whole country in the yard with embers glowing, and go home. Everyone warms an egg; the companions each for
     their own reason. A good guardian hatches by **one ember**, and every kobold in the yard is sure it was theirs.
@@ -219,6 +233,60 @@ Introduction, development, **twist**, reconciliation. A small story per town, wi
 | the tutorial: Pip lights a lamp from the tower fire | Snatchclaw's bucket of water over that fire in the finale |
 
 - **Ouroboros:** the story ends where it began, on Bib's bench.
+
+## Review: theme, sense, need, feeling (19 Oct 2026)
+
+Every beat and element checked against four questions: how it carries the theme, whether it makes sense inside
+Kobaldia, whether the story needs it, and what the player should feel. Fixes from this review are already in the
+story above.
+
+### The beats
+
+| beat | the theme | makes sense because | needed? | the player feels |
+|---|---|---|---|---|
+| 1 Ordinary world | comfort is where indifference grows | kobolds love warmth and buns; life is good | yes: it's what's lost, and the ending returns to it | cozy, a little smug |
+| 2 The call | the choice exists, and it's yours | the eggs are the old guardian's clutch; embers come from the tower fire via the bakers' ovens | yes | curious, amused (stickers, ribbons) |
+| 3 Refusal | not choosing is a choice; the few decide | the dawn rule: the warmest egg hatches however cold | yes, the core of the message | "oh no", and a guilty "that was me" |
+| 4 Mentor | responsibility: "somebody did" | Mallow is the one who hands out embers, so she knows who came | yes | the sting of that line, then a bun-shaped hope |
+| 5 Threshold | the cost of the new rule, felt at the gate | the guards take their cut at every gate | yes, short | setting off |
+| 6 Tests | taking part changes things, town by town; Snatchclaw takes one small step at a time | every town keeps a Smiler piece, by design | yes, it's most of the game | fun, then growing worry as Glitterbeak grows |
+| 7 Approach | Pip becomes Bib: he calls a meeting and nobody comes | news of the last hatching sends him home | yes, it makes the Ordeal believable | dread; recognising Bib's story in Pip's |
+| 8 Ordeal | indifference is comfortable, and it's a choice too | the deal is exactly the life Pip had | yes, the strongest beat | uncomfortable, sad, "I'd have taken it too" |
+| 9 Reward | caring is a decision, not a feeling that arrives | nothing magic: the ember glows because he decided | yes | relief, resolve |
+| 10 Road back | honesty about your own failure persuades better than speeches | Wizzle is in the draft camp; the boats are needed to bring the islands | yes | momentum, hope |
+| 11 Resurrection | a whole people together is stronger than the loud few | the Smiler fires warmth, not harm; a dragon warmed by all curls back into its egg | yes | triumph, and a big laugh (the RPG-7) |
+| 12 Return | a hatching with everyone; your one ember can be the one; some never learn | everyone came, so the good guardian hatches | yes | warm, proud, a little bittersweet (Bib) |
+
+### The elements
+
+| element | the theme | needed? | note |
+|---|---|---|---|
+| Buns | what a society makes and shares, felt in your stomach | yes | the reason the theme is cozy rather than preachy |
+| Bib | indifference with a friend's face | yes | must stay likeable; the player should like him and be annoyed by him |
+| Snatchclaw (False Hero) | the loud few, wrapped in protection | yes | his Sunhaven scene must be convincing; the player should half believe him |
+| Smudge (Shapeshifter) | even those who gained switch sides when the door closes for everyone | yes, but small | three short scenes; don't let him grow |
+| The guards | might and loud voices | yes | they're right that they work hard; keep that |
+| Raiders | the guardian's real job, and Snatchclaw's fear | yes | seen twice: mentioned at the nest, met at the end |
+| Seven companions | seven ways to waste an ember | yes | each lesson comes out in banter and their own quest, never in a speech |
+| The Smiler | only everyone together can do it | yes | the RPG-7 joke keeps the most earnest moment funny |
+| Three buns | scarcity you can feel in the bag | yes, gameplay | tie each one to a scene (hat, Reward x2) |
+| Field moves, classes | none | gameplay only | fine: not everything must carry the theme |
+| Mural, lamp, oven, book | none directly; setup and payoff | yes, cheap | they make the world feel planned |
+
+### The emotional curve
+
+Cozy and funny (1-2) → a guilty drop (3-4) → adventure and fun with rising worry (5-6) → dread (7) → the low point
+(8) → resolve (9) → momentum (10) → triumph and laughter (11) → warmth with one bittersweet note (12).
+
+### Holes found and fixed
+
+1. **Where do the eggs come from, and why can three embers hatch one?** The old guardian's clutch; the dawn rule.
+2. **Why is the Smiler in pieces, and what does it do?** Split up after the dragon king so no one could use it alone;
+   it fires warmth, which is why a corrupt dragon curls back into its egg (and why it fits a cozy game).
+3. **Why does Pip go home at the midpoint, and why would he take the deal after growing?** News of the last hatching;
+   then he calls the capital together and nobody comes, which is Bib's story happening to him.
+4. **Why does Glint come along?** His ember helped hatch Glitterbeak.
+5. **Where is Wizzle rescued?** The draft camp at Frostwick.
 
 ## What the game needs (from the current build)
 
