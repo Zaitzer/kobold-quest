@@ -137,7 +137,8 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
    pile of gold crumbs, with a ribbon: "the finest buns!"). Bramble, Mallow and Glint each back one; Glint warms the
    shiny egg for one of Smudge's stickers.
 3. **Refusal.** Pip walks to the nest to warm the sprouty egg. Bib: "Why bother? A dragon is a dragon. You've got your
-   buns." Pip pockets his ember and naps by the warm nest. Almost nobody comes. The three guards warm the shiny egg; with Glint's that makes four embers.
+   buns. Here, have mine too." He means it kindly; it's the last bun of the old days, and the first comfortable bribe
+   in the story (Snatchclaw offers two in the Ordeal). Pip pockets his ember and naps by the warm nest. Almost nobody comes. The three guards warm the shiny egg; with Glint's that makes four embers.
    At dawn, CRACK: **Glitterbeak**, cold-eyed, eats Mallow's whole tray. A notice on the bakery: EVERY BATCH TO THE GUARDS FIRST.
 4. **The mentor.** "But I didn't choose any of this." Mallow: "No, dear. Somebody did." The one bun hidden in her hat
    (one of three in the game), the rhyme, and the instructions in her grandmother's book. Wizzle comes along, and Glint,
@@ -172,7 +173,7 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
 12. **Return.** The new hatching: three eggs, Glitterbeak's shiny one back among them. The raiders come over the hill,
     see the whole country in the yard with embers glowing, and go home. Everyone warms an egg; the companions each for
     their own reason. A good guardian hatches by **one ember**, and every kobold in the yard is sure it was theirs.
-    Buns are shared again. Bib is on his bench: "Why bother?" Pip walks past him, a bun in each hand.
+    Buns are shared again. Bib is on his bench: "Why bother? ...Want a bun?" Pip takes it, says thanks, and walks past him to the nest.
 
 ## Shaping tools
 
@@ -262,14 +263,14 @@ story above.
 | element | the theme | needed? | note |
 |---|---|---|---|
 | Buns | what a society makes and shares, felt in your stomach | yes | the reason the theme is cozy rather than preachy |
-| Bib | indifference with a friend's face | yes | must stay likeable; the player should like him and be annoyed by him |
+| Bib | indifference with a friend's face | yes | must stay likeable: he gives Pip his own bun at the start and again at the end. Generous, kind, and never there when it counts |
 | Snatchclaw (False Hero) | the loud few, wrapped in protection | yes | his Sunhaven scene must be convincing; the player should half believe him |
 | Smudge (Shapeshifter) | even those who gained switch sides when the door closes for everyone | yes, but small | three short scenes; don't let him grow |
 | The guards | might and loud voices | yes | they're right that they work hard; keep that |
 | Raiders | the guardian's real job, and Snatchclaw's fear | yes | seen twice: mentioned at the nest, met at the end |
 | Seven companions | seven ways to waste an ember | yes | each lesson comes out in banter and their own quest, never in a speech |
 | The Smiler | only everyone together can do it | yes | the RPG-7 joke keeps the most earnest moment funny |
-| Three buns | scarcity you can feel in the bag | yes, gameplay | tie each one to a scene (hat, Reward x2) |
+| Mallow's three buns | scarcity you can feel in the bag | yes, gameplay | tied to scenes: her hat, and two in the Reward. Bib's bun at the start is an extra, the last bun of the old days |
 | Field moves, classes | none | gameplay only | fine: not everything must carry the theme |
 | Mural, lamp, oven, book | none directly; setup and payoff | yes, cheap | they make the world feel planned |
 
