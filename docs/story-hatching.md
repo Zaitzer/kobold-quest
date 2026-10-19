@@ -9,6 +9,19 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## Glitterbeak hatches wrong, and must be beaten (decided 19 Oct 2026)
+
+**Too few embers make a corrupt dragon.** A dragon egg needs the warmth of many. Warmed by only three greedy guards,
+it hatches half-cold: **Glitterbeak is corrupt and truly bad**, a guardian who only guards the hoard. That is the cost
+of too few kobolds giving their embers, and it's why he can't be talked round or given a second chance.
+- *Why does too little warmth do that?* A dragon becomes like whatever warmed it. Three greedy guards give a greedy
+  dragon; a cold nest gives a cold heart.
+- So the quest is to **beat Glitterbeak and hold the hatching again**, this time with everyone.
+
+**The new hatching (a re-election):** a beaten dragon that hatched wrong curls back into its egg. It goes back in the
+nest beside the sprouty and the sleepy eggs, so the shiny egg is on the ballot again, and the country chooses
+again. This time Pip warms an egg, and **the player picks which one**. (Cozy rules still hold: beaten, not killed.)
+
 ## Kobaldia makes buns together (draft, 19 Oct 2026)
 
 The story starts in **the capital, in the middle of the map**: marble streets, a castle, and the Great Nest in the

@@ -134,6 +134,6 @@ harder bounties.
 
 1. **The land's name:** Kobaldia. *Decided.*
 2. **Pip** has short lines of his own (a personality), like "They're all ugly. Why bother?" *Decided.*
-3. **Glitterbeak** gets a second chance: he hatches again in the relit nest and becomes a good guardian. *Decided.*
+3. **Glitterbeak** hatched from too few embers, is corrupt and must be beaten; he curls back into his egg and the country holds the hatching again, with the player choosing Pip's egg. *Decided 19 Oct 2026 (replaces the second chance).*
 4. **Tikka** joins as a **ranger**. *Decided.*
 5. **Recruits:** the eight above. *Decided.*
