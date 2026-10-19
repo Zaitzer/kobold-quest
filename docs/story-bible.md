@@ -22,6 +22,8 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 
 ## 2. The world
 
+- **No story choices for the player.** It's Pip's story, told the same way every time (decided 19 Oct 2026).
+
 - **Hearthspire** is the capital, in the middle of the map: marble streets, a castle, the Great Nest in the castle
   yard. Pip, Bib and the three guards live here. (Burrowhome is dropped.)
 - **The whole country makes ember-buns together:** Mossbacks farm, millers grind, bakers use the volcano, riders on
@@ -134,6 +136,6 @@ harder bounties.
 
 1. **The land's name:** Kobaldia. *Decided.*
 2. **Pip** has short lines of his own (a personality), like "They're all ugly. Why bother?" *Decided.*
-3. **Glitterbeak** hatched from too few embers, is corrupt and must be beaten; he curls back into his egg and the country holds the hatching again, with the player choosing Pip's egg. *Decided 19 Oct 2026 (replaces the second chance).*
+3. **Glitterbeak** hatched from too few embers, is corrupt and must be beaten; he curls back into his egg and the country holds the hatching again, with Pip warming an egg. *Decided 19 Oct 2026 (replaces the second chance).*
 4. **Tikka** joins as a **ranger**. *Decided.*
 5. **Recruits:** the eight above. *Decided.*

@@ -9,6 +9,27 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## The journey (hero's journey, v4, 19 Oct 2026)
+
+**The player doesn't make story choices.** It's Pip's story, told the same way every time; the player plays the
+battles, the exploring and the party. (Sections further down that still mention the old bandits, Burrowhome or player
+choices are being rewritten to match this one.)
+
+| # | stage | what happens |
+|---|---|---|
+| 1 | Ordinary world | Hearthspire. Two of Mallow's buns every morning, Bib on his bench. Pip is happy |
+| 2 | Call | Hatching day: the Elder gives Pip his ember |
+| 3 | Refusal | Pip means to warm an egg; Bib talks him out of it. Three guards warm the shiny egg; Glitterbeak hatches corrupt; buns to the hoard first |
+| 4 | Mentor | Old Mallow: a hidden bun, and "No, dear. Somebody did." The rhyme: a spark from every hearth, a new hatching with everyone |
+| 5 | Threshold | Out through the capital gate, past the guards' toll, with Wizzle. Pip is in it for buns |
+| 6 | Tests, allies, enemies | Three rising beats. **1** Pebblebrook, Copperhollow: speeches move nobody, a kobold's own trouble does; the sparks start. **2** Thistledown, Sunhaven: Snatchclaw pays **stay-home buns** to towns that keep out of it; one town took the deal, and they're hungry, not wrong. The raptor riders join. **3** Emberreach: the guards take the volcano ovens, Glitterbeak sleeps in the heat and grows huge; Cinder wants to smash it all; Tikka |
+| 7 | Approach | With half the sparks Pip goes home to win over the capital: Bib's bench, the castle, the guards. Snatchclaw invites him in |
+| 8 | Ordeal | "Two buns every morning. For life. Just go home." **Pip takes it.** On the bench with Bib: "See? Buns are fine." The sparks go cold, Wizzle goes on alone, Mallow's oven goes dark |
+| 9 | Reward | Pip can't eat them ("they taste like the hoard"). He gives them to Mallow and goes after Wizzle. His ember lights, because he decided |
+| 10 | Road back | Bringing the whole country to a new hatching. Frostwick, Glimmerfen, Saltspray, Mossmere: Pip's own story is the argument ("I took the deal. Here's what it cost"). Ends with **the great ride**: raptor riders carrying everyone's embers to Hearthspire while Glitterbeak hunts the convoy |
+| 11 | Resurrection | The castle: Snatchclaw, then Glitterbeak, in a nest so warm with the country's embers that he shrinks back into his egg. The new hatching: Pip warms an egg |
+| 12 | Return | Buns shared again. The fourth bowl, "none of these, try again", counts. Bib on his bench; Pip walks past |
+
 ## Glitterbeak hatches wrong, and must be beaten (decided 19 Oct 2026)
 
 **Too few embers make a corrupt dragon.** A dragon egg needs the warmth of many. Warmed by only three greedy guards,
@@ -20,7 +41,7 @@ of too few kobolds giving their embers, and it's why he can't be talked round or
 
 **The new hatching (a re-election):** a beaten dragon that hatched wrong curls back into its egg. It goes back in the
 nest beside the sprouty and the sleepy eggs, so the shiny egg is on the ballot again, and the country chooses
-again. This time Pip warms an egg, and **the player picks which one**. (Cozy rules still hold: beaten, not killed.)
+again. This time Pip warms an egg. (Cozy rules still hold: beaten, not killed.)
 
 ## Kobaldia makes buns together (draft, 19 Oct 2026)
 
