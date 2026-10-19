@@ -11,18 +11,24 @@ it. A player who only wants cozy kobolds should never feel taught; a player who 
 
 ## Premise
 
-Once in a lifetime Burrowhome hatches a **guardian** to watch over all of Kobaldia. Three eggs sit in the **Great Nest**,
-and every kobold who wants to warms the egg they like best with an **ember**. The warmest egg hatches.
+Once in a lifetime Burrowhome hatches a **dragon** to be the kobolds' **guardian**. A guardian looks after everything:
+the fields, the mill, the hearths, everything buns come from. Three dragon eggs sit in the **Great Nest**, and every
+kobold who wants to warms the egg they like best with an **ember**. The warmest egg hatches.
 
-| egg | good side | bad side |
+**Buns are the analogy for what a society makes and shares.** Old Mallow's ember-buns are what everyone gets from
+the way things are run. Each egg is a different way of running it:
+
+| egg | what that dragon would do | the catch |
 |---|---|---|
-| **spiky** | brave, would guard the valley | hisses and bites |
-| **sleepy** | gentle | snores through everything |
-| **shiny** | dazzling | a bit *too* shiny (Snatchclaw's bandits planted it) |
+| **sprouty** (green, a leaf on top) | ploughs new fields: more buns for everybody | everyone helps with the harvest |
+| **sleepy** | keeps everything just as it is | nothing gets better either (Mallow's old oven) |
+| **shiny** (on a pile of gold crumbs, with a ribbon) | promises "the finest buns" | buns go to its hoard first; kobolds get the crumbs. Snatchclaw's bandits planted it |
 
-**Pip keeps his ember.** It isn't the player's choice; it's who Pip is at the start. Most of the village does the same.
-Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and out comes **Glitterbeak**: small, greedy,
-in love with anything shiny. The bandits raise him, and he guards *their* hoard. They put toll gates on the roads.
+**Pip is content, so he keeps his ember.** He gets two buns every morning and can't eat more than two: "Everything's
+fine. Why bother?" It isn't the player's choice; it's who Pip is at the start. Most of the village feels the same.
+Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and out comes **Glitterbeak**, the kobolds'
+new guardian, who guards *his hoard*. By breakfast every batch goes to the hoard first. Pip: "But I didn't choose any
+of this." Mallow: "No, dear. Somebody did."
 
 An old rhyme says a guardian who hatched wrong can hatch again, if a **spark from every town's hearth** relights the Great
 Nest. A hearth spark is a town's say; only a town that has sorted out its own trouble will give one.
@@ -163,8 +169,8 @@ Pip never gives a speech. He's grumpy, and he stays grumpy; what changes is what
 
 | kobold | egg | stands for | after the hatching | in the end |
 |---|---|---|---|---|
-| Bramble | spiky | the true believer | "Next time I'm knocking on every door" | knocks on every door, with Pip |
-| Old Mallow | sleepy | the least-bad choice | the least ugly egg lost to the ugliest | "Told you there's always a next time" |
+| Bramble | sprouty | the true believer (more buns, more work, worth it) | "Next time I'm knocking on every door" | knocks on every door, with Pip |
+| Old Mallow | sleepy | keep it as it is (her oven is old) | the least ugly egg lost to the ugliest | "Told you there's always a next time" |
 | Glint | shiny | dazzled by whoever shouts loudest | "Next time I'll ask who's doing the telling" | checks before warming |
 | Grumble | none | "somebody else always decides" | "...a whole village holds more embers than a sack" | comes "just for the snacks", warms an egg on the way out |
 | Sorrel | none | "I don't know enough" | "'not quite sure' would still have beaten a sack of bandits" | compares the eggs with Saffi's trick |
