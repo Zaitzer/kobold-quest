@@ -9,6 +9,49 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## The guardian, the guards, and the Dragon Smiler (19 Oct 2026)
+
+**What a guardian is for:** keeping Kobaldia safe from raiders from outside (dwarves, elves, humans) who come for the
+buns. Every dragon does that job, so the stay-home excuse is "a dragon is a dragon, what difference does it make?"
+The difference is everything inside: who the buns go to. (Framed as defence against raids, not as keeping strangers
+out, so it doesn't read as one side of a real debate.)
+- **The dragon is the government. The guards are military might and the loudest voices.**
+
+**The Elder's rhyme**
+> When a dragon hatches cold
+> and he hoards the buns and gold,
+> bring a piece from every town,
+> build the Smiler, bring him down.
+> Load it with each kobold's ember,
+> aim it true, and then remember:
+> warmed by few, they're mean and small;
+> warmed by all, a dragon serves us all.
+
+**The Dragon Smiler** replaces the sparks. Every town gives one piece of a legendary weapon ("one look at it and any
+dragon smiles nervously"). Only the whole country together can build it: the people's combined might. When the last
+piece clicks in, it turns out to be... an **RPG-7**. Its ammunition is everyone's embers, so it only works if the
+whole country loads it. (Cartoon rules: Glitterbeak is blasted back into his egg, not hurt.)
+
+Draft pieces: Pebblebrook the tube (an old mill axle) · Copperhollow the trigger (copper) · Thistledown the strap
+(raptor leather) · Sunhaven the sight (a honey-glass lens) · Emberreach the igniter (volcano flint) · Frostwick the
+cooling fins (ice) · Glimmerfen the grip (marsh cork) · Saltspray the instructions (a smuggler's chart, upside down).
+
+**The recruits each carry one part of taking part** (with a life and a want of their own on top):
+
+| who | town | the part of taking part |
+|---|---|---|
+| Fennel | Pebblebrook | your egg can lose and your ember still counted (losing well) |
+| Nugget | Copperhollow | you don't need to understand everything; your own life is enough to start |
+| Brass | Thistledown | some things belong to everyone and no side (the bridge: shared institutions) |
+| Saffi | Sunhaven | you know enough to compare; waiting for perfect knowledge is staying home |
+| Cinder | Emberreach | fix it, don't smash it (reform, not burning it all down) |
+| Pell | Frostwick | the small voice gets heard, and then helps carry the result |
+| Mist | Glimmerfen | check before you pass it on (rumours) |
+| Skipper Gull | Saltspray | bad and worse are still different (the lesser evil) |
+| Tikka (rival) | | not picking as a protest: nobody heard it, until a "no" that counts exists |
+| Wizzle | Hearthspire | the first-time ember: too young last time, desperate to count |
+| Bork | Pebblebrook | meant to come, fell asleep: good heart, no habit |
+
 ## The journey (hero's journey, v4, 19 Oct 2026)
 
 **The player doesn't make story choices.** It's Pip's story, told the same way every time; the player plays the
@@ -29,7 +72,7 @@ another hatching. Lord Snatchclaw and his dragon, for good: the dragon king agai
 | 1 | Ordinary world | Hearthspire. Two of Mallow's buns every morning, Bib on his bench. Pip is happy |
 | 2 | Call | Hatching day: the Elder gives Pip his ember |
 | 3 | Refusal | Pip means to warm an egg; Bib talks him out of it. Three guards warm the shiny egg; Glitterbeak hatches corrupt; buns to the hoard first |
-| 4 | Mentor | Old Mallow: a hidden bun, and "No, dear. Somebody did." The rhyme: a spark from every hearth, a new hatching with everyone |
+| 4 | Mentor | Old Mallow: a hidden bun, and "No, dear. Somebody did." The Elder's rhyme of the Dragon Smiler: a piece from every town |
 | 5 | Threshold | Out through the capital gate, past the guards' toll, with Wizzle. Pip is in it for buns |
 | 6 | Tests, allies, enemies | Three rising beats. **1** Pebblebrook, Copperhollow: speeches move nobody, a kobold's own trouble does; the sparks start. **2** Thistledown, Sunhaven: Snatchclaw pays **stay-home buns** to towns that keep out of it; one town took the deal, and they're hungry, not wrong. The raptor riders join. **3** Emberreach: the guards take the volcano ovens, Glitterbeak sleeps in the heat and grows huge; Cinder wants to smash it all; Tikka |
 | 7 | Approach | With half the sparks Pip goes home to win over the capital: Bib's bench, the castle, the guards. Snatchclaw invites him in, and Pip sees the plan: a throne going up in the castle yard, and a date for "the last hatching" |
