@@ -15,6 +15,15 @@ it. A player who only wants cozy kobolds should never feel taught; a player who 
 battles, the exploring and the party. (Sections further down that still mention the old bandits, Burrowhome or player
 choices are being rewritten to match this one.)
 
+**Snatchclaw's plan: take over Kobaldia with the dragon.** "Buns to the guards first" is only the start. Step by
+step he uses Glitterbeak to make himself ruler: guard posts and tolls in every town; stay-home buns to keep people
+out of it; the volcano ovens seized, so he controls the bread; and finally **the last hatching**: he will put out the
+fire in Hearthspire's tower (the one every hearth was lit from) and seal the Great Nest, so there can never be
+another hatching. Lord Snatchclaw and his dragon, for good: the dragon king again, with a kobold holding the leash.
+- *Why does he think he can?* Because nobody came last time. "They didn't come when it was free. They won't come now."
+- *Why does it matter that he's a kobold?* He doesn't need to cheat to start; he only needs people to stay home
+  while he takes one small step at a time.
+
 | # | stage | what happens |
 |---|---|---|
 | 1 | Ordinary world | Hearthspire. Two of Mallow's buns every morning, Bib on his bench. Pip is happy |
@@ -23,11 +32,11 @@ choices are being rewritten to match this one.)
 | 4 | Mentor | Old Mallow: a hidden bun, and "No, dear. Somebody did." The rhyme: a spark from every hearth, a new hatching with everyone |
 | 5 | Threshold | Out through the capital gate, past the guards' toll, with Wizzle. Pip is in it for buns |
 | 6 | Tests, allies, enemies | Three rising beats. **1** Pebblebrook, Copperhollow: speeches move nobody, a kobold's own trouble does; the sparks start. **2** Thistledown, Sunhaven: Snatchclaw pays **stay-home buns** to towns that keep out of it; one town took the deal, and they're hungry, not wrong. The raptor riders join. **3** Emberreach: the guards take the volcano ovens, Glitterbeak sleeps in the heat and grows huge; Cinder wants to smash it all; Tikka |
-| 7 | Approach | With half the sparks Pip goes home to win over the capital: Bib's bench, the castle, the guards. Snatchclaw invites him in |
+| 7 | Approach | With half the sparks Pip goes home to win over the capital: Bib's bench, the castle, the guards. Snatchclaw invites him in, and Pip sees the plan: a throne going up in the castle yard, and a date for "the last hatching" |
 | 8 | Ordeal | "Two buns every morning. For life. Just go home." **Pip takes it.** On the bench with Bib: "See? Buns are fine." The sparks go cold, Wizzle goes on alone, Mallow's oven goes dark |
 | 9 | Reward | Pip can't eat them ("they taste like the hoard"). He gives them to Mallow and goes after Wizzle. His ember lights, because he decided |
-| 10 | Road back | Bringing the whole country to a new hatching. Frostwick, Glimmerfen, Saltspray, Mossmere: Pip's own story is the argument ("I took the deal. Here's what it cost"). Ends with **the great ride**: raptor riders carrying everyone's embers to Hearthspire while Glitterbeak hunts the convoy |
-| 11 | Resurrection | The castle: Snatchclaw, then Glitterbeak, in a nest so warm with the country's embers that he shrinks back into his egg. The new hatching: Pip warms an egg |
+| 10 | Road back | Snatchclaw sends Glitterbeak to bring the towns to heel before the last hatching. Pip races to bring the whole country to a new hatching first. Frostwick, Glimmerfen, Saltspray, Mossmere: Pip's own story is the argument ("I took the deal. Here's what it cost"). Ends with **the great ride**: raptor riders carrying everyone's embers to Hearthspire while Glitterbeak hunts the convoy |
+| 11 | Resurrection | The castle, on the day of "the last hatching", as Snatchclaw reaches for the tower fire: Snatchclaw, then Glitterbeak, in a nest so warm with the country's embers that he shrinks back into his egg. The new hatching: Pip warms an egg |
 | 12 | Return | Buns shared again. The fourth bowl, "none of these, try again", counts. Bib on his bench; Pip walks past |
 
 ## Glitterbeak hatches wrong, and must be beaten (decided 19 Oct 2026)
