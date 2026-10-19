@@ -37,6 +37,13 @@ been saying the same to the whole village for weeks. Hardly anyone comes.
 - *Why does that matter?* Good times made the village forget why the hatching exists, and Bib is what that forgetting
   looks like. He isn't evil. He's comfortable, a bit hurt, and very persuasive.
 
+**Bib is just a villager in Hearthspire, and he never learns.** He's there at the start, talking Pip out of it, and he's
+there at the end, on the same bench, saying the same thing. Pip walks past him to the nest. The lesson isn't that
+Bib changes; it's that Pip stops needing Bib's permission to care. (Tikka stays the rival who travels.)
+
+**The guard captain is Snatchclaw** (my call, easy to undo): as Glitterbeak grows, his guards spread out to collect
+from every town (Grubb at the Pebblebrook mill, Snipe at the Copperhollow mine), so there's one villain thread.
+
 **The three village guards** are the only ones who care, and they care a lot. They stand watch every night, and they
 believe that the ones who work hardest should get the most buns: all of them, ideally. They aren't wrong that they
 work hard. The old guardian was the only one who ever made them share, so they want a guardian who agrees with them.
