@@ -30,6 +30,12 @@ Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and o
 new guardian, who guards *his hoard*. By breakfast every batch goes to the hoard first. Pip: "But I didn't choose any
 of this." Mallow: "No, dear. Somebody did."
 
+**The bandits are kobolds.** Only kobolds have embers, and every kobold gets exactly one. Nobody cheats: the "sack of
+embers" is one ember from each of Snatchclaw's crew, carried together and all warming the same egg. They aren't
+stronger or smarter than the village; they simply all showed up for the same thing while most of the village stayed
+home. (Cheating would teach a different lesson, "the system is rigged", which is the opposite of ours.) The friendly
+stranger at the nest is a kobold from the hills, Snatchclaw's cousin.
+
 An old rhyme says a guardian who hatched wrong can hatch again, if a **spark from every town's hearth** relights the Great
 Nest. A hearth spark is a town's say; only a town that has sorted out its own trouble will give one.
 

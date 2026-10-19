@@ -89,7 +89,7 @@ No loyalty missions. Instead, three cheap layers that fit short phone sessions:
 - **Glitterbeak**: the guardian who hatched wrong. Small at first, greedy, a magpie-dragon. The bandits feed him; he grows
   huge at Emberreach and goes on a rampage at Glimmerfen. **He is not evil**, just badly raised. At the second hatching
   he gets a second chance.
-- **The bandit crew:** **Grubb** (toll boss, mostly belly), **Snipe** (copper snatcher, cowardly), plus one new face per
+- **The bandits are kobolds**, Snatchclaw's crew, one ember each like everyone else; they win the hatching by all turning up. **The bandit crew:** **Grubb** (toll boss, mostly belly), **Snipe** (copper snatcher, cowardly), plus one new face per
   town (a bandit **quartermaster** in Thistledown, a **drainer** at the oasis, a **stoker** at the volcano).
 
 ### The Old Guardian
