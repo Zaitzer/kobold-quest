@@ -1,5 +1,7 @@
 # Kobold Quest: story bible (draft)
 
+**Note (19 Oct 2026):** the story was rebuilt (Hearthspire, buns, Bib, Snatchclaw's guards, the Dragon Smiler). Where this file disagrees with `story-hatching.md`, story-hatching.md wins; this file keeps the tone rules and the world notes.
+
 *Step 1.3 of the roadmap. The who, where and how of the Hatching. The plot outline is in `story-hatching.md`; this file is
 what a writer checks before writing any line. Items marked **Decide** need the creative director.*
 
