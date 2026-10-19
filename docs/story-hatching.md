@@ -9,6 +9,23 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## Kobaldia makes buns together (draft, 19 Oct 2026)
+
+The story starts in **the capital, in the middle of the map**: marble streets, a castle, and the Great Nest in the
+castle yard. (Name to be decided.) The whole country works together to make ember-buns:
+
+| who | what they do | where (draft) |
+|---|---|---|
+| **Mossbacks** | farming kobolds: wheat | the green fields (Mossmere, Pebblebrook's farms) |
+| **millers** | grind the wheat | river mills (Pebblebrook) |
+| **bakers** | bake in the volcano's heat | Emberreach |
+| **riders** | carry flour and buns everywhere, riding dinosaur-like beasts | the roads, from a crossroads town (Thistledown) |
+| every other town | one ingredient or tool each: copper ovens (Copperhollow), salt (Saltspray), yeast from the marsh (Glimmerfen), ice cellars (Frostwick), honey (Sunhaven) | |
+
+Three layers of why: kobolds are cold-blooded, so ember-buns (baked with volcano fire, they stay warm for hours) are
+what keeps them going; no town can make one alone, because each has something the others lack; and that's why the
+guardian's job is to keep the whole chain fair, and why a spark from every town's hearth is needed to hatch one.
+
 ## The villains (decided 19 Oct 2026; replaces the bandits in the opening)
 
 **Bib, Pip's best friend, is the antagonist.** He is indifference with a face. Pip does care: he walks to the nest
