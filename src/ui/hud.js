@@ -39,7 +39,7 @@ function rpMenuClick(e){
 }
 const MAP_PANEL={
   sig:()=>rp.s.party.map(m=>m.hp+'/'+m.mp+'/'+m.lvl).join(',')+'|'+netMapRow(),
-  html:()=>netMapRow()+rpPartyHtml()+'<div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div>'+
+  html:()=>netMapRow()+rpPartyHtml()+'<p class="rpkeys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, or click, to walk · <kbd>E</kbd> talk · <kbd>I</kbd> heroes &amp; gear · <kbd>M</kbd> menu</p><div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div>'+
     '<div class="rpside"><button class="pill go big" type="button" data-rp="act">Talk / Use</button><div class="rprow2">'+(net.on?'<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>':'')+'<button class="pill" type="button" data-rp="hero">⚔ Gear</button><button class="pill" type="button" data-rp="menu">☰ Menu</button></div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'};
 feature({id:'hud',panels:{map:MAP_PANEL},routes:{dir:d=>rpTry(d.dir)},actions:{act:()=>rpActFacing()}});
 export {MAP_PANEL,rpBar,rpMenuClick,rpPartyHtml,rpUI};

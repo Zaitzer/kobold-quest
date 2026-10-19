@@ -4,6 +4,8 @@ const fs=require('fs'),path=require('path'),esbuild=require('esbuild');
 const R=path.join(__dirname,'..');
 const order=JSON.parse(fs.readFileSync(R+'/styles/order.json','utf8'));
 const css=order.map(f=>fs.readFileSync(R+'/styles/'+f,'utf8').trim()).join('\n');
+/* a missing } in one sheet silently breaks every sheet after it: refuse to build */
+for(const f of order){const t=fs.readFileSync(R+'/styles/'+f,'utf8').replace(/\/\*[\s\S]*?\*\//g,'').replace(/"[^"]*"/g,'');let d=0;for(const c of t){if(c==='{')d++;else if(c==='}')d--;if(d<0)break}if(d!==0)throw new Error('styles/'+f+': unbalanced { } ('+d+')')}
 const tpl=fs.readFileSync(R+'/index.html','utf8');
 /* every build gets an id; the server hands it out and pages from an older build reload themselves */
 const BUILD_ID=process.env.KQ_BUILD||new Date().toISOString().slice(0,19)+'Z';

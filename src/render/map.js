@@ -70,7 +70,7 @@ function rpTile(g,c,x,y,X,Y){
       g.fillStyle='#4fb3ff';g.beginPath();g.ellipse(X+16,Y+20,10,5,0,0,7);g.fill();g.fillStyle=OL;g.fillRect(X+13,Y+5,6,15);g.fillStyle='#a9a3bd';g.fillRect(X+14,Y+6,4,13);
       g.fillStyle='#bfe6ff';g.beginPath();g.arc(X+16,Y+5,3.5,0,7);g.fill();g.fillStyle='rgba(255,255,255,.8)';g.fillRect(X+9,Y+18,4,2);g.fillRect(X+20,Y+21,3,2);break;
     /* the Moot urn, and the barriers the story lays across routes */
-    case 'U':{under();/* the Great Nest: straw ring with three eggs (spiky, sleepy, shiny) until the hatching */
+    case 'U':{under();/* the Great Nest: straw ring with three dragon eggs (sprouty, sleepy, shiny) until the hatching */
       g.fillStyle=OL;g.beginPath();g.ellipse(X+16,Y+22,15,8,0,0,7);g.fill();g.fillStyle='#c9a053';g.beginPath();g.ellipse(X+16,Y+22,13,6.5,0,0,7);g.fill();
       g.strokeStyle='#8a6a2a';g.lineWidth=1.2;for(let i=0;i<6;i++){g.beginPath();g.moveTo(X+5+i*4,Y+19);g.lineTo(X+8+i*4,Y+25);g.stroke()}
       if((rp.s.q.moot||0)<3){const egg=(cx,col,dot)=>{g.fillStyle=OL;g.beginPath();g.ellipse(X+cx,Y+16,5.5,7.5,0,0,7);g.fill();g.fillStyle=col;g.beginPath();g.ellipse(X+cx,Y+16,4,6,0,0,7);g.fill();g.fillStyle=dot;g.fillRect(X+cx-1,Y+12,2,2);g.fillRect(X+cx+1,Y+17,2,2)};

@@ -22,7 +22,7 @@ for(const vp of [{n:'p',width:390,height:844},{n:'se',width:375,height:667},{n:'
  const cv1=await p.locator('#rpcv').boundingBox();
  await p.tap('#rp-panel [data-rp="act"]');await p.waitForTimeout(300);const cv2=await p.locator('#rpcv').boundingBox();
  await p.screenshot({path:__dirname+'/../out/joy_'+vp.n+'_dlg.png'});
- await p.tap('#rp-panel [data-rp="menu"]').catch(()=>{});
+ await p.tap('#rp-panel [data-rp="menu"]',{timeout:1000}).catch(()=>{});
  console.log(vp.n,'walk',pos0.x.toFixed(2),pos0.y.toFixed(2),'->',pos1.x.toFixed(2),pos1.y.toFixed(2),'stopped',pos1.x===pos2.x,'board map',Math.round(cv1.height),'dialog',Math.round(cv2.height),'errors',errs);
  await p.close()}
 await b.close()})();

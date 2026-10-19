@@ -9,20 +9,163 @@ deciding things, some good, some broken; the theme comes out of those, sideways.
 it. A player who only wants cozy kobolds should never feel taught; a player who looks closer should find the whole story.
 (The tables below name the themes for us, the writers. The game never does.)
 
+## The guardian, the guards, and the Dragon Smiler (19 Oct 2026)
+
+**What a guardian is for:** keeping Kobaldia safe from raiders from outside (dwarves, elves, humans) who come for the
+buns. Every dragon does that job, so the stay-home excuse is "a dragon is a dragon, what difference does it make?"
+The difference is everything inside: who the buns go to. (Framed as defence against raids, not as keeping strangers
+out, so it doesn't read as one side of a real debate.)
+- **The dragon is the government. The guards are military might and the loudest voices.**
+
+**The Elder's rhyme**
+> When a dragon hatches cold
+> and he hoards the buns and gold,
+> bring a piece from every town,
+> build the Smiler, bring him down.
+> Load it with each kobold's ember,
+> aim it true, and then remember:
+> warmed by few, they're mean and small;
+> warmed by all, a dragon serves us all.
+
+**The Dragon Smiler** replaces the sparks. Every town gives one piece of a legendary weapon ("one look at it and any
+dragon smiles nervously"). Only the whole country together can build it: the people's combined might. When the last
+piece clicks in, it turns out to be... an **RPG-7**. Its ammunition is everyone's embers, so it only works if the
+whole country loads it. (Cartoon rules: Glitterbeak is blasted back into his egg, not hurt.)
+
+Draft pieces: Pebblebrook the tube (an old mill axle) · Copperhollow the trigger (copper) · Thistledown the strap
+(raptor leather) · Sunhaven the sight (a honey-glass lens) · Emberreach the igniter (volcano flint) · Frostwick the
+cooling fins (ice) · Glimmerfen the grip (marsh cork) · Saltspray the instructions (a smuggler's chart, upside down).
+
+**The recruits each carry one part of taking part** (with a life and a want of their own on top):
+
+| who | town | the part of taking part |
+|---|---|---|
+| Fennel | Pebblebrook | your egg can lose and your ember still counted (losing well) |
+| Nugget | Copperhollow | you don't need to understand everything; your own life is enough to start |
+| Brass | Thistledown | some things belong to everyone and no side (the bridge: shared institutions) |
+| Saffi | Sunhaven | you know enough to compare; waiting for perfect knowledge is staying home |
+| Cinder | Emberreach | fix it, don't smash it (reform, not burning it all down) |
+| Pell | Frostwick | the small voice gets heard, and then helps carry the result |
+| Mist | Glimmerfen | check before you pass it on (rumours) |
+| Skipper Gull | Saltspray | bad and worse are still different (the lesser evil) |
+| Tikka (rival) | | not picking as a protest: nobody heard it, until a "no" that counts exists |
+| Wizzle | Hearthspire | the first-time ember: too young last time, desperate to count |
+| Bork | Pebblebrook | meant to come, fell asleep: good heart, no habit |
+
+## The journey (hero's journey, v4, 19 Oct 2026)
+
+**The player doesn't make story choices.** It's Pip's story, told the same way every time; the player plays the
+battles, the exploring and the party. (Sections further down that still mention the old bandits, Burrowhome or player
+choices are being rewritten to match this one.)
+
+**Snatchclaw's plan: take over Kobaldia with the dragon.** "Buns to the guards first" is only the start. Step by
+step he uses Glitterbeak to make himself ruler: guard posts and tolls in every town; stay-home buns to keep people
+out of it; the volcano ovens seized, so he controls the bread; and finally **the last hatching**: he will put out the
+fire in Hearthspire's tower (the one every hearth was lit from) and seal the Great Nest, so there can never be
+another hatching. Lord Snatchclaw and his dragon, for good: the dragon king again, with a kobold holding the leash.
+- *Why does he think he can?* Because nobody came last time. "They didn't come when it was free. They won't come now."
+- *Why does it matter that he's a kobold?* He doesn't need to cheat to start; he only needs people to stay home
+  while he takes one small step at a time.
+
+| # | stage | what happens |
+|---|---|---|
+| 1 | Ordinary world | Hearthspire. Two of Mallow's buns every morning, Bib on his bench. Pip is happy |
+| 2 | Call | Hatching day: the Elder gives Pip his ember |
+| 3 | Refusal | Pip means to warm an egg; Bib talks him out of it. Three guards warm the shiny egg; Glitterbeak hatches corrupt; buns to the hoard first |
+| 4 | Mentor | Old Mallow: a hidden bun, and "No, dear. Somebody did." The Elder's rhyme of the Dragon Smiler: a piece from every town |
+| 5 | Threshold | Out through the capital gate, past the guards' toll, with Wizzle. Pip is in it for buns |
+| 6 | Tests, allies, enemies | Three rising beats. **1** Pebblebrook, Copperhollow: speeches move nobody, a kobold's own trouble does; the sparks start. **2** Thistledown, Sunhaven: Snatchclaw pays **stay-home buns** to towns that keep out of it; one town took the deal, and they're hungry, not wrong. The raptor riders join. **3** Emberreach: the guards take the volcano ovens, Glitterbeak sleeps in the heat and grows huge; Cinder wants to smash it all; Tikka |
+| 7 | Approach | With half the sparks Pip goes home to win over the capital: Bib's bench, the castle, the guards. Snatchclaw invites him in, and Pip sees the plan: a throne going up in the castle yard, and a date for "the last hatching" |
+| 8 | Ordeal | "Two buns every morning. For life. Just go home." **Pip takes it.** On the bench with Bib: "See? Buns are fine." The sparks go cold, Wizzle goes on alone, Mallow's oven goes dark |
+| 9 | Reward | Pip can't eat them ("they taste like the hoard"). He gives them to Mallow and goes after Wizzle. His ember lights, because he decided |
+| 10 | Road back | Snatchclaw sends Glitterbeak to bring the towns to heel before the last hatching. Pip races to bring the whole country to a new hatching first. Frostwick, Glimmerfen, Saltspray, Mossmere: Pip's own story is the argument ("I took the deal. Here's what it cost"). Ends with **the great ride**: raptor riders carrying everyone's embers to Hearthspire while Glitterbeak hunts the convoy |
+| 11 | Resurrection | The castle, on the day of "the last hatching", as Snatchclaw reaches for the tower fire: Snatchclaw, then Glitterbeak, in a nest so warm with the country's embers that he shrinks back into his egg. The new hatching: Pip warms an egg |
+| 12 | Return | Buns shared again. The fourth bowl, "none of these, try again", counts. Bib on his bench; Pip walks past |
+
+## Glitterbeak hatches wrong, and must be beaten (decided 19 Oct 2026)
+
+**Too few embers make a corrupt dragon.** A dragon egg needs the warmth of many. Warmed by only three greedy guards,
+it hatches half-cold: **Glitterbeak is corrupt and truly bad**, a guardian who only guards the hoard. That is the cost
+of too few kobolds giving their embers, and it's why he can't be talked round or given a second chance.
+- *Why does too little warmth do that?* A dragon becomes like whatever warmed it. Three greedy guards give a greedy
+  dragon; a cold nest gives a cold heart.
+- So the quest is to **beat Glitterbeak and hold the hatching again**, this time with everyone.
+
+**The new hatching (a re-election):** a beaten dragon that hatched wrong curls back into its egg. It goes back in the
+nest beside the sprouty and the sleepy eggs, so the shiny egg is on the ballot again, and the country chooses
+again. This time Pip warms an egg. (Cozy rules still hold: beaten, not killed.)
+
+## Kobaldia makes buns together (draft, 19 Oct 2026)
+
+The story starts in **the capital, in the middle of the map**: marble streets, a castle, and the Great Nest in the
+castle yard. The capital is **Hearthspire** (every town's hearth was first lit from the fire in its tower).
+**Burrowhome is dropped:** Pip and Bib live in Hearthspire. The whole country works together to make ember-buns:
+
+| who | what they do | where (draft) |
+|---|---|---|
+| **Mossbacks** | farming kobolds: wheat (the old "Mossback" monsters get a new name: **Nettlenose** scouts and slingers) | the green fields (Mossmere, Pebblebrook's farms) |
+| **millers** | grind the wheat | river mills (Pebblebrook) |
+| **bakers** | bake in the volcano's heat | Emberreach |
+| **riders** | carry flour and buns everywhere, riding **raptors** | the roads, from a crossroads town (Thistledown) |
+| every other town | one ingredient or tool each: copper ovens (Copperhollow), salt (Saltspray), yeast from the marsh (Glimmerfen), ice cellars (Frostwick), honey (Sunhaven) | |
+
+Three layers of why: kobolds are cold-blooded, so ember-buns (baked with volcano fire, they stay warm for hours) are
+what keeps them going; no town can make one alone, because each has something the others lack; and that's why the
+guardian's job is to keep the whole chain fair, and why a spark from every town's hearth is needed to hatch one.
+
+## The villains (decided 19 Oct 2026; replaces the bandits in the opening)
+
+**Bib, Pip's best friend, is the antagonist.** He is indifference with a face. Pip does care: he walks to the nest
+meaning to warm an egg. Bib talks him out of it ("Buns are fine. Nothing ever changes. Why bother?"), and Bib has
+been saying the same to the whole village for weeks. Hardly anyone comes.
+- *Why is Bib like that?* Once he tried: he asked the whole village to help fix the old mill, and nobody came.
+- *Why did nobody come?* Everything was fine. The old guardian kept it fine, so nobody ever had to care.
+- *Why does that matter?* Good times made the village forget why the hatching exists, and Bib is what that forgetting
+  looks like. He isn't evil. He's comfortable, a bit hurt, and very persuasive.
+
+**Bib is just a villager in Hearthspire, and he never learns.** He's there at the start, talking Pip out of it, and he's
+there at the end, on the same bench, saying the same thing. Pip walks past him to the nest. The lesson isn't that
+Bib changes; it's that Pip stops needing Bib's permission to care. (Tikka stays the rival who travels.)
+
+**The guard captain is Snatchclaw** (my call, easy to undo): as Glitterbeak grows, his guards spread out to collect
+from every town (Grubb at the Pebblebrook mill, Snipe at the Copperhollow mine), so there's one villain thread.
+
+**The three village guards** are the only ones who care, and they care a lot. They stand watch every night, and they
+believe that the ones who work hardest should get the most buns: all of them, ideally. They aren't wrong that they
+work hard. The old guardian was the only one who ever made them share, so they want a guardian who agrees with them.
+They warm the shiny egg, three embers in a nearly empty nest, and win fairly.
+- *Why only the guardian could stop them:* they hold the spears. A guardian's job is to keep the strong from taking
+  everything.
+
+**Glitterbeak** hatches and agrees with whoever warmed him: buns to the guards first. Nobody cheated. The village just
+stayed home.
+
 ## Premise
 
-Once in a lifetime Burrowhome hatches a **guardian** to watch over all of Kobaldia. Three eggs sit in the **Great Nest**,
-and every kobold who wants to warms the egg they like best with an **ember**. The warmest egg hatches.
+Once in a lifetime Burrowhome hatches a **dragon** to be the kobolds' **guardian**. A guardian looks after everything:
+the fields, the mill, the hearths, everything buns come from. Three dragon eggs sit in the **Great Nest**, and every
+kobold who wants to warms the egg they like best with an **ember**. The warmest egg hatches.
 
-| egg | good side | bad side |
+**Buns are the analogy for what a society makes and shares.** Old Mallow's ember-buns are what everyone gets from
+the way things are run. Each egg is a different way of running it:
+
+| egg | what that dragon would do | the catch |
 |---|---|---|
-| **spiky** | brave, would guard the valley | hisses and bites |
-| **sleepy** | gentle | snores through everything |
-| **shiny** | dazzling | a bit *too* shiny (Snatchclaw's bandits planted it) |
+| **sprouty** (green, a leaf on top) | ploughs new fields: more buns for everybody | everyone helps with the harvest |
+| **sleepy** | keeps everything just as it is | nothing gets better either (Mallow's old oven) |
+| **shiny** (on a pile of gold crumbs, with a ribbon) | promises "the finest buns" | buns go to its hoard first; kobolds get the crumbs. Snatchclaw's bandits planted it |
 
-**Pip keeps his ember.** It isn't the player's choice; it's who Pip is at the start. Most of the village does the same.
-Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and out comes **Glitterbeak**: small, greedy,
-in love with anything shiny. The bandits raise him, and he guards *their* hoard. They put toll gates on the roads.
+**Pip is content, so he keeps his ember.** He gets two buns every morning and can't eat more than two: "Everything's
+fine. Why bother?" It isn't the player's choice; it's who Pip is at the start. Most of the village feels the same.
+Snatchclaw's bandits sit by the shiny egg all night with a sack of embers, and out comes **Glitterbeak**, the kobolds'
+new guardian, who guards *his hoard*. By breakfast every batch goes to the hoard first. Pip: "But I didn't choose any
+of this." Mallow: "No, dear. Somebody did."
+
+**The bandits are kobolds.** Only kobolds have embers, and every kobold gets exactly one. Nobody cheats: the "sack of
+embers" is one ember from each of Snatchclaw's crew, carried together and all warming the same egg. They aren't
+stronger or smarter than the village; they simply all showed up for the same thing while most of the village stayed
+home. (Cheating would teach a different lesson, "the system is rigged", which is the opposite of ours.) The friendly
+stranger at the nest is a kobold from the hills, Snatchclaw's cousin.
 
 An old rhyme says a guardian who hatched wrong can hatch again, if a **spark from every town's hearth** relights the Great
 Nest. A hearth spark is a town's say; only a town that has sorted out its own trouble will give one.
@@ -163,8 +306,8 @@ Pip never gives a speech. He's grumpy, and he stays grumpy; what changes is what
 
 | kobold | egg | stands for | after the hatching | in the end |
 |---|---|---|---|---|
-| Bramble | spiky | the true believer | "Next time I'm knocking on every door" | knocks on every door, with Pip |
-| Old Mallow | sleepy | the least-bad choice | the least ugly egg lost to the ugliest | "Told you there's always a next time" |
+| Bramble | sprouty | the true believer (more buns, more work, worth it) | "Next time I'm knocking on every door" | knocks on every door, with Pip |
+| Old Mallow | sleepy | keep it as it is (her oven is old) | the least ugly egg lost to the ugliest | "Told you there's always a next time" |
 | Glint | shiny | dazzled by whoever shouts loudest | "Next time I'll ask who's doing the telling" | checks before warming |
 | Grumble | none | "somebody else always decides" | "...a whole village holds more embers than a sack" | comes "just for the snacks", warms an egg on the way out |
 | Sorrel | none | "I don't know enough" | "'not quite sure' would still have beaten a sack of bandits" | compares the eggs with Saffi's trick |

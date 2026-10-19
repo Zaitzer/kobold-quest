@@ -19,7 +19,7 @@ const PIP='Pip';
 /* what the Elder says about the hatching, for each thing Pip did at the nest */
 const HATCHED={
   skip:'Most of the village kept their embers, like you. Only a handful of eggs got warmed at all. And then a sack-full.'};
-const RESULT_TAIL=['The bandits have put toll gates on the roads. One shiny thing per kobold, for Glitterbeak\'s hoard.',
+const RESULT_TAIL=['A guardian looks after the kobolds. This one looks after his hoard, and the bandits fill it for him: buns, copper, anything shiny. Toll gates on the roads, too.',
   'There\'s an old rhyme. If a guardian hatches wrong, bring a spark from every town\'s hearth, light the Great Nest, and hatch again.',
   {who:PIP,text:'Sounds like a job for somebody else.'},'Mm. Somebody else is a very busy kobold.'];
 const resultRule=v=>({if:{moot:{gte:2,lte:3}},say:['The hatching is over, Pip. Sit down.',HATCHED[v],{who:PIP,text:'It wasn\'t my fault. I didn\'t do anything.'},'(The Elder eats a pebble, slowly.) Nobody did much, little one.'].concat(RESULT_TAIL),
@@ -39,21 +39,22 @@ const inn=hello=>({say:[hello],ask:[{t:'Rest (10 gold)',if:{gold:{gte:10}},do:{g
   {t:'Change who comes along',if:hasBench,do:{open:'roster'}},{t:'Sit by the fire',show:s=>!!banterNext(s,test),do:{open:'fire'}},{t:'No thanks'}]});
 const TALK={
   elder:{who:'Elder Mumble',rules:[
-    {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a new guardian.','Three eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember, in its clay cup. Keep it close; it\'s nice and warm, and you\'re a chilly little lizard. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
+    {if:{moot:0},say:['Pip! Big day. It\'s hatching day: once in a lifetime Burrowhome hatches a dragon to be the kobolds\' guardian.','A guardian looks after everything: the fields, the mill, the hearths. Everything buns come from.','Three dragon eggs sit in the Great Nest on the green, east of here. Everyone warms the one they like best with an ember, and the warmest one hatches.','Here is your ember, in its clay cup. Keep it close; it\'s nice and warm, and you\'re a chilly little lizard. Warm whichever egg you like. Or don\'t. It\'s your ember.'],then:{set:{moot:1},toast:'Got an ember'}},
     {if:{moot:1},say:['The Great Nest is on the green, east of here. Three eggs. Pick one, or at least have a look.']},
     resultRule('skip'),
     {if:{moot:5},say:['Sparks for the Great Nest: {seals} of 8. Every town has its own trouble. Help with it, and they\'ll give you a spark from their hearth.','Pebblebrook is east along Route 1. If anybody were going.']},
     {say:['Burrowhome is waiting, little one.']}]},
   urn:{who:'The Great Nest',rules:[
     {if:{moot:0},say:['The Great Nest, with three big eggs in it. You need an ember from Elder Mumble first. He is by his house, south-west of here.']},
-    {if:{moot:1},say:['Three eggs sit in the straw. A spiky one that hisses at you. A sleepy one that snores. And a shiny one, very shiny, a bit too shiny.',
-      {who:PIP,text:'A biter, a sleeper and a show-off.'},{who:PIP,text:'And everyone round here shouting about which one is best. They\'re all ugly. Why bother?'},
+    {if:{moot:1},say:['Three dragon eggs sit in the straw.','A sprouty green one with a leaf on top. The old stories say a sprouty dragon ploughs new fields: more wheat, more buns, and everyone helps with the harvest.',
+      'A sleepy one, snoring. A sleepy dragon keeps everything just as it is.','And a shiny one, very shiny, sitting on a little pile of gold crumbs. Somebody has tied a ribbon on it.',
+      {who:PIP,text:'More buns, the same buns, or shiny buns.'},{who:PIP,text:'Mallow bakes, I eat two every morning. I can\'t eat more than two. Everything\'s fine. Why bother?'},
       'Pip puts the ember back in his pocket. Somebody else can do the warming.','The nest is the warmest spot on the green, though. Pip curls up beside it for a little nap.',
-      'He wakes at dawn to a CRACK.','The shiny egg splits open, and out tumbles a tiny dragon, glittering like a spilled jewel box.',
+      'He wakes at dawn to a CRACK.','The shiny egg splits open, and out tumbles a tiny dragon, glittering like a spilled jewel box. The kobolds\' new guardian.',
       'The friendly stranger opens his sack. It\'s full of empty ember cups. A dozen bandits who were definitely not here yesterday cheer: "Hooray for Glitterbeak!"',
-      'The little dragon snatches Glint\'s spoon, gulps it, burps a spark, and then spots Old Mallow\'s tray of ember-buns. They glow a little. He eats every one.','The bandits carry him off down the east road, singing.',{who:PIP,text:'...Huh.'}],
+      'The little dragon snatches Glint\'s spoon, gulps it, burps a spark, and then spots Old Mallow\'s tray of ember-buns. They glow a little. He eats every one.','The bandits nail a notice to Mallow\'s door: BY ORDER OF GLITTERBEAK, EVERY BATCH TO THE HOARD FIRST. Then they carry him off down the east road, singing.',{who:PIP,text:'...Huh.'}],
       then:{set:{vote:'skip',moot:3},toast:'Glitterbeak has hatched. Elder Mumble will want a word.'}},
-    {if:{moot:{lt:5}},say:['Bits of glittery eggshell. The spiky and the sleepy eggs are still here, cold.']},
+    {if:{moot:{lt:5}},say:['Bits of glittery eggshell. The sprouty and the sleepy eggs are still here, cold.']},
     {say:['An empty nest, full of eggshell. It needs a spark from every town\'s hearth to light it again.']}]},
   toast:{who:'Toast',rules:[inn('Welcome to the Snoring Snail! A warm bed is 10 gold. It heals everyone and saves your journey.')]},
   keeperA:{who:'Lodge keeper Moss',rules:[inn('Welcome to the Pebblebrook lodge! Beds are 10 gold, and the hay is nearly fresh.')]},
@@ -145,25 +146,25 @@ const TALK={
 /* the kobolds round the Great Nest on hatching day: one way of thinking each. Before the hatching, and after it */
 const nest=(who,before,after)=>({who,rules:[{if:{moot:{lt:3}},say:before},{say:after}]});
 const NEST={
-  bramble:nest('Bramble',['I guard the bridge. I\'ve chased three bandits off it this week, and I\'m four apples tall.','Spiky egg, obviously. A guardian that bites would really help.'],
-    ['Toll gates on the roads now. I can\'t chase off a whole gate.','Next hatching I\'m knocking on every door in Burrowhome. Starting with yours.']),
+  bramble:nest('Bramble',['I guard the bridge. I\'ve chased three bandits off it this week, and I\'m four apples tall.','Sprouty egg! New fields, more buns for everybody. Yes, we\'d all have to help with the harvest. Good. Work never hurt a kobold.'],
+    ['The bandits take the buns off Mallow\'s tray now. I can chase off a bandit. I can\'t chase off a dragon.','Next hatching I\'m knocking on every door in Burrowhome. Starting with yours.']),
   mallow:{who:'Old Mallow',rules:[
-    {if:{moot:{lt:3}},say:['I baked ember-buns for the hatching, dear. Nobody\'s come to buy one.','Sleepy egg for me. It snores like my husband did, and he never bit anybody.']},
-    {if:{buns:0},now:{bag:{bun:1}},say:['The bandits came back at breakfast, dear. By order of Glitterbeak, every ember-bun in Kobaldia is his now. They glow, you see. Shiny.','And my flour comes from the Pebblebrook mill, and they\'ve put a toll on Pebblebrook too.',{who:PIP,text:'...No buns?'},
+    {if:{moot:{lt:3}},say:['I baked ember-buns for the hatching, dear. Nobody\'s come to buy one.','A sprouty dragon would mean more buns. And more baking, at my age. I\'ll warm the sleepy one. My oven\'s old, and it likes things as they are.']},
+    {if:{buns:0},now:{bag:{bun:1}},say:['The bandits came at breakfast, dear. Every batch goes to the hoard first now. They take it warm off the tray. What\'s left is crumbs.','And they\'ve put a toll on the Pebblebrook mill, so flour costs a shiny thing a sack. Soon there won\'t even be crumbs.',{who:PIP,text:'...No buns? But I didn\'t choose any of this.'},'No, dear. Somebody did.',
       'Not one. Well. One. I hid it in my hat. Take it, quick, before a bandit sees.',{who:PIP,text:'Right. Where\'s Pebblebrook?'},'East, along Route 1. Mind the beetles.'],
       then:{set:{buns:1},toast:'Got an ember-bun! (heals everything, fills all MP) · New quest: flour from Pebblebrook'}},
     {if:{buns:1,pb:{lt:3}},say:['Pebblebrook is east along Route 1, dear. No flour, no buns.']},
     {if:{buns:1},now:{set:{buns:2},bag:{bun:2}},say:['FLOUR! Oh, Pip. I baked all night with the curtains shut.','Two for you. They heal anything except a bad mood. Don\'t let a bandit see.','And that\'s the last of them, dear, until somebody sorts out that dragon.',{who:PIP,text:'...Then I suppose somebody had better sort out the dragon.'}],then:{toast:'+2 ember-buns. That\'s all of them, until the dragon is sorted out.'}},
     {say:['The sleepy one lost, you know. Most of the village stayed in bed.','When there are buns again, I\'ll keep one warm for the next hatching. There\'s always a next one.']}]},
-  glint:nest('Glint',['SHINY EGG! I collect shiny things. I have nine pebbles and a spoon.','The nice kobolds by the nest gave me a sticker. It says SHINY EGG BEST EGG.'],
-    ['The nice kobolds took my sticker back. And my spoon.','Next time I\'ll look at all three eggs. Not just the one with stickers.']),
-  grumble:nest('Grumble',['Every hatching\'s the same. Somebody makes their egg the warmest, and the rest of us live with it.','I\'m only here for Mallow\'s buns.'],
+  glint:nest('Glint',['SHINY EGG! I collect shiny things. I have nine pebbles and a spoon.','The nice kobolds by the nest say the shiny dragon will bake the finest buns in Kobaldia. They gave me a sticker!'],
+    ['The nice kobolds took my sticker back. And my spoon. And my bun.','Next time I\'ll look at all three eggs. Not just the one with stickers.']),
+  grumble:nest('Grumble',['More buns, same buns. Every hatching\'s the same: somebody makes their egg the warmest, and the rest of us live with it.','I\'m only here for Mallow\'s buns.'],
     ['See? Somebody with a sack made their egg the warmest.','...A sack holds a lot of embers. Not as many as a whole village, I suppose. Hmph.']),
   sorrel:nest('Sorrel',['I asked my cows which egg is best. They said moo.','Then I asked everybody else, and they all shouted a different egg. I think I\'ll go home and milk.'],
     ['I went home and milked. So did everyone who wasn\'t sure.','All those embers sitting in pockets round the valley. The cows think we\'re silly.']),
-  dottie:nest('Dottie',['A guardian? We haven\'t had one for years, and my hammock is fine.','Somebody else can do the warming. I\'m busy. Swinging.'],
+  dottie:nest('Dottie',['Buns every morning, hammock every afternoon. It\'s fine like it is.','Somebody else can do the warming. I\'m busy. Swinging.'],
     ['My cousin in Pebblebrook has to pay to drink from her own fountain now.','...Funny. I never wondered why my hammock was fine.']),
-  stranger:{who:'A friendly stranger',rules:[{say:['Shiny egg! Best egg! Pass it on!','What\'s in the sack? Nothing. Snacks. Don\'t look in the sack.']}]}};
+  stranger:{who:'A friendly stranger',rules:[{say:['Shiny egg! Finest buns! Pass it on!','What\'s in the sack? Nothing. Snacks. Don\'t look in the sack.']}]}};
 Object.assign(TALK,NEST);
 
 /* Nugget joins once the shift circle has met */

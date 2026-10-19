@@ -22,6 +22,13 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 
 ## 2. The world
 
+- **No story choices for the player.** It's Pip's story, told the same way every time (decided 19 Oct 2026).
+
+- **Hearthspire** is the capital, in the middle of the map: marble streets, a castle, the Great Nest in the castle
+  yard. Pip, Bib and the three guards live here. (Burrowhome is dropped.)
+- **The whole country makes ember-buns together:** Mossbacks farm, millers grind, bakers use the volcano, riders on
+  raptors carry everything, and every other town adds one ingredient or tool (see `story-hatching.md`).
+
 - **The land** is called **Kobaldia**.
 - Kobolds live in ten towns joined by fifteen routes. Each town has a **hearth**, a fire that has burned since the town
   was founded; a spark from it carries the town's say.
@@ -89,7 +96,7 @@ No loyalty missions. Instead, three cheap layers that fit short phone sessions:
 - **Glitterbeak**: the guardian who hatched wrong. Small at first, greedy, a magpie-dragon. The bandits feed him; he grows
   huge at Emberreach and goes on a rampage at Glimmerfen. **He is not evil**, just badly raised. At the second hatching
   he gets a second chance.
-- **The bandit crew:** **Grubb** (toll boss, mostly belly), **Snipe** (copper snatcher, cowardly), plus one new face per
+- **The bandits are kobolds**, Snatchclaw's crew, one ember each like everyone else; they win the hatching by all turning up. **The bandit crew:** **Grubb** (toll boss, mostly belly), **Snipe** (copper snatcher, cowardly), plus one new face per
   town (a bandit **quartermaster** in Thistledown, a **drainer** at the oasis, a **stoker** at the volcano).
 
 ### The Old Guardian
@@ -129,6 +136,6 @@ harder bounties.
 
 1. **The land's name:** Kobaldia. *Decided.*
 2. **Pip** has short lines of his own (a personality), like "They're all ugly. Why bother?" *Decided.*
-3. **Glitterbeak** gets a second chance: he hatches again in the relit nest and becomes a good guardian. *Decided.*
+3. **Glitterbeak** hatched from too few embers, is corrupt and must be beaten; he curls back into his egg and the country holds the hatching again, with Pip warming an egg. *Decided 19 Oct 2026 (replaces the second chance).*
 4. **Tikka** joins as a **ranger**. *Decided.*
 5. **Recruits:** the eight above. *Decided.*
