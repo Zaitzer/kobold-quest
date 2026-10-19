@@ -64,7 +64,7 @@ time; the player plays the battles, the exploring and the party, and makes no st
 - **Glitterbeak**, the dragon hatched from three embers: corrupt and greedy, guards only the hoard, grows with every
   stolen bun.
 - **At the nest:** Bramble (sprouty: "work never hurt a kobold"), Mallow (sleepy: her oven is old), Glint (shiny: he
-  got a sticker).
+  got a sticker from **Smudge**, Snatchclaw's friendly cousin).
 
 ## Classes (the classic D&D twelve)
 
@@ -159,6 +159,66 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
     see the whole country in the yard with embers glowing, and go home. Everyone warms an egg; the companions each for
     their own reason. A good guardian hatches by **one ember**, and every kobold in the yard is sure it was theirs.
     Buns are shared again. Bib is on his bench: "Why bother?" Pip walks past him, a bun in each hand.
+
+## Shaping tools
+
+The hero's journey is the whole story and the seven sins are the companions. The tools below work at other levels,
+so they fit inside without competing.
+
+### The companions: sin to virtue, along Dan Harmon's story circle
+
+Each companion's side story runs through campfire chats and one small quest: **comfort, want, go, search, find, pay,
+return, changed.** Where they end up is the virtue opposite their sin.
+
+| companion | sin → virtue | comfort and want | search and find | the price | changed |
+|---|---|---|---|---|---|
+| Wizzle | envy → kindness | in Grandma's shadow, too young to count; wants to be taken seriously | glares at everyone with an ember; in Emberreach he meets kobolds who had embers and wasted them, and envy stops making sense | in the Ordeal he goes on alone, and the guards catch him | at the hatching, his first ember; he cheers everyone else's |
+| Glint | lust → discernment | collects shiny things; wants one that's really his | falls for every shiny offer on the road; in Sunhaven the honey-glass lens teaches him to look *through* things, not at them | trades his whole sticker collection to get the lens back | looks at all three eggs properly; his own shiny thing is a plain pebble he chose himself |
+| Bork | sloth → diligence | naps; wants never to nap through anything again | nods off at every big moment (running gag); in Frostwick he finds that work is nice when it's shared | stays awake all night guarding the fort against the draft | first one awake on hatching day, and he wakes the others |
+| Nugget | greed → charity | nuggets; wants his grandad's duck-shaped nugget | haggles over every piece; finds the duck nugget in Glitterbeak's hoard in the castle | the nugget is copper, exactly what Mallow's broken oven needs | he gives it to the oven; the buns that come out are for everyone |
+| Saffi | pride → humility | books; wants to finish one | lectures everyone; in Frostwick a "dim" builder's simple fort plan beats her clever one, and works | says so, out loud, in front of the whole fort | finishes her book (it was called *Why Only the Clever Should Choose*) and writes it a new ending |
+| Cinder | wrath → patience | rage at anything imperfect; wants to make something nobody laughs at | wants to blow things up, and the Smiler tempts him; finds that fixing Mallow's oven is slow and good | in the Ordeal he storms the castle gate alone and nearly ruins everything | at the castle he holds the Smiler and waits until the whole country has loaded it |
+| Crumb | gluttony → temperance | a full belly from stay-home buns; wants to cook for everyone, not just the guards | defends the deal; finds the islands cut off and hungry while she eats | gives up her bun ration | cooks the hatching feast from shared buns |
+
+**The golden mean.** Cinder is too much caring (smash it all); Bib is too little (why bother). The virtue sits in
+between: caring enough to fix things. That's where Pip ends up.
+
+### The towns: four beats each (kishōtenketsu)
+
+Introduction, development, **twist**, reconciliation. A small story per town, with no need for a mini hero's journey.
+
+| town | introduction | development | twist | reconciliation |
+|---|---|---|---|---|
+| Pebblebrook | the mill has stopped; Grubb's toll | the dam vote lost by one stone; getting the miners to the circle (Nugget haggles for everything) | **Grubb is a Pebblebrook kobold**; he went to the guards because nobody ever listened to him at the circle | the circle meets, Grubb included; the mill turns; the tube |
+| Sunhaven | the oasis is draining; nobody reads the two signs | **Snatchclaw arrives with medals and the town cheers its protector** ("without our dragon the elves walk in"); Saffi lectures | read side by side, the signs show the water running to the guards' barracks, not the border | the town reads the signs together; the sight; Saffi joins |
+| Emberreach | the ovens seized; Glitterbeak asleep in the volcano | Cinder wants to smash the ovens, the forge master wants to relight them | **the friendly cousin has been paying Cinder to smash them**, so the town would need the guards for bread | the ovens relit; the igniter; Cinder joins, furious at being used |
+| Frostwick | the fort before the storm: "we build, we don't warm eggs" | Pip grumbles and gets a snowball; he helps; Saffi's clever plan against a builder's simple one | Pip's plan and Saffi's both lose, and the simple one works | the draft refused together; the fins; Bork stays awake all night |
+| Saltspray | two bad harbour masters, the boats gone, stay-home buns | Crumb defends the deal; the fishers patch the leaky harbour | **the overcharging harbour master is in the guards' pay**: the stay-home buns come through him. The leaky one is at least honest | the boats come back; the ember chamber; Crumb joins |
+
+### The villains: a False Hero and a Shapeshifter
+
+- **Snatchclaw is the False Hero** (Propp): he claims the hero's job, "only my dragon keeps the raiders out", while
+  doing the opposite. His big scene is Sunhaven, where people cheer him. Pip, at that point, half believes him too.
+- **Smudge, the friendly cousin, is the Shapeshifter** (Vogler): hands out stickers at the nest, sells Glint shiny
+  junk on the road, is unmasked in Emberreach paying Cinder, and in the finale switches sides: he loads his ember into
+  the Smiler, because a sealed nest is sealed for him too.
+
+### Small devices
+
+- **Rule of three:** three eggs, three guards, three buns, three pieces before the midpoint, and Bib says "Why bother?"
+  three times (at the start, in the Ordeal, at the end).
+- **Chekhov's guns** (everything shown early pays off):
+
+| set up | pays off |
+|---|---|
+| Pip's cold ember, carried all game | glows in the Reward; the last ember into the Smiler |
+| Mallow's recipe book | the Smiler's instructions in the back |
+| a faded mural in the castle hall of "the dragon smiler", which looks like a tube on a shoulder | it's an RPG-7 |
+| Mallow's old oven that "likes things as they are" | breaks in the Ordeal; fixed with Nugget's nugget |
+| the raiders mentioned once at the nest | come over the hill at the new hatching |
+| the tutorial: Pip lights a lamp from the tower fire | Snatchclaw's bucket of water over that fire in the finale |
+
+- **Ouroboros:** the story ends where it began, on Bib's bench.
 
 ## What the game needs (from the current build)
 
