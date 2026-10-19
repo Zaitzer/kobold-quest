@@ -22,6 +22,11 @@ what a writer checks before writing any line. Items marked **Decide** need the c
 
 ## 2. The world
 
+- **Hearthspire** is the capital, in the middle of the map: marble streets, a castle, the Great Nest in the castle
+  yard. Pip, Bib and the three guards live here. (Burrowhome is dropped.)
+- **The whole country makes ember-buns together:** Mossbacks farm, millers grind, bakers use the volcano, riders on
+  raptors carry everything, and every other town adds one ingredient or tool (see `story-hatching.md`).
+
 - **The land** is called **Kobaldia**.
 - Kobolds live in ten towns joined by fifteen routes. Each town has a **hearth**, a fire that has burned since the town
   was founded; a spark from it carries the town's say.
