@@ -1,102 +1,214 @@
-# Kobold Quest: design document (draft)
+# Kobold Quest: design document (v2 draft, 20 Oct 2026, for story v6)
 
-*Step 1.2 of the roadmap. Built from the vision (`vision.md`) and what the prototype already does. Sections marked
-**Decide** need the creative director.*
+*Step 1.2 of the roadmap. Built from the vision (`vision.md`), the story (`story-hatching.md`), the world plan
+(`world-plan.md`) and what the engine already does (`src/data/classes.js`). Sections marked **Decide** need the
+creative director. Numbers (stats, damage, mana) are NOT set here; they come from the balance simulator in the slice.*
 
 ## 1. Core loop
 
 - **Moment to moment (seconds):** walk, bump into things, talk, open, fight. Every tap does something.
 - **Session (5–15 minutes, or an evening of them):** pick a goal from the top bar → travel a route (fights, finds) →
-  reach a town → solve one step of its trouble → heal at the fountain → save. Every step of a town's trouble is a
-  natural place to stop.
-- **Long term:** sparks (8) → the second hatching. Alongside: levels, promotions, gear sets, the rival, side quests.
+  reach a town → solve one step of the town's trouble → heal at the fountain → save. Every step is a natural place to
+  stop.
+- **Long term:** five **Smiler pieces** (plus the sixth from Mallow's book) → the Smiler → the new hatching.
+  Alongside: levels, subclasses, gear sets, seven companions and their quests, side quests.
+- **No story choices.** It's Pip's story, told the same way every time. The player chooses Pip's class, the party, the
+  gear and how to fight; never what the story says.
 
 ## 2. Exploring
 
-- The region: 10 towns, 15 routes, each route its own kind of land (see the world plan, step 1.4).
-- Key items open the map (lantern, flask, boots); the toll gates fall at the end.
+- **The map:** Hearthspire in the middle, five towns, seven routes (see the world plan).
+- **Barriers are story, not keys:** the toll on the bun road (until three pieces), the shut north and east gates
+  (until the flour tunnel, after the Ordeal), the island boats (until the harbour is patched). Each one is explained by
+  a sign or a villager before you hit it. The old key items (lantern, flask, boots) are cut.
+- **Field moves:**
+
+| move | when you get it | what it does |
+|---|---|---|
+| **Raptors** | after the first piece, at the riders' stable on the mill road | ride between stables; the loop becomes quick travel; one cliff shortcut on R3 |
+| **Boats** | after the harbour is patched in Saltspray | sail to the two islands |
+
 - **Fast travel:** fountains you have drunk from let you warp to any other drunk-from fountain. Unlocked after the
-  second spark so the early routes are walked at least once.
-- **Finds:** chests, hidden items, side quests, signs with jokes. Every route should have at least one thing off the path.
+  second piece, so the early routes are walked at least once. Raptors add stable-to-stable travel on top.
+- **Finds:** chests, hidden items, side quests, signs with jokes. Every route has at least one thing off the path, and
+  every route has its own landmark (see the world plan).
 
 ## 3. Battles
 
 - Small turn-based grid battles (already built): position, range, line of sight, skills that cost mana.
-- Enemies per kind of land, getting tougher further from Burrowhome; bosses with their own tricks.
+- **Foes by place:** Nettlenose scouts and slingers (Snatchclaw's, spreading along the roads as the story goes on),
+  Snatchclaw's guards (a strong version later), and the land's own creatures (beetles, sand skinks, rock goats, stokers,
+  snow beasts, crabs, smugglers).
+- **Bosses:** Grubb and Snipe (Pebblebrook), a guard captain per town, Snatchclaw (Emberreach, then the castle),
+  Glitterbeak (the castle roof). Each boss has its own trick.
 - You can always run from normal fights; bosses can be retried with no loss beyond the potions used.
-- Losing sends you back to the last fountain you drank from, with half your gold (decided).
+- **Losing** sends you back to the last fountain you drank from, with half your gold (decided).
+- Nobody dies in the story (cartoon rules): defeated foes "storm off" or "fall asleep", never die.
 
-## 4. Party and growth
+## 4. Classes: the classic twelve, in two waves
 
-- Pip plus up to two others at a time, chosen from a **roster of recruitable kobolds** (decided). Bork and Wizzle are the
-  first two; more can be met in towns, each with a class (warrior, ranger, mage, cleric), a personality and a small
-  recruitment quest. Those not in the party wait at the inn and catch up in level slowly.
-- Levels give a talent pick (3 offered). At level 10 a promotion: two paths per class (knight/berserker, sniper/scout,
-  archmage/battlemage, and two for the cleric). The moon shrine resets talents for gold.
-- Level range for the story: about 1 to 30 (a long story, see below).
+Pip can be any class. Each class has a role, 3–4 signature skills, and **two subclasses at level 8** (today's
+promotions). The existing four classes are renamed and kept; the other eight are new. Skills use the engine's existing
+fields where possible (`foe`, `foes`, `ally`, `allies`, `stun`, `slow`, `heal`, `buff`, `drain`, `revive`); the
+**New engine** column says what must be built.
 
-## 5. Gear and crafting
+### Wave 1: the classes the slice needs (8)
 
+The four we have, plus the four that the first companions play (Bork, Wizzle, Glint, Nugget).
+
+| class | flavour | role | signature skills | subclasses (level 8) | new engine |
+|---|---|---|---|---|---|
+| **Fighter** (was warrior) | capital soldier | front line, most health and defence | Power bonk, Cleave, Shield bash, Battle cry | **Knight** (Shield wall) · **Battle master** (Whirlwind; was Berserker) | none |
+| **Ranger** | raptor scout | range, goes first | Volley, Aimed shot, Arrow rain, **Mark** (a marked foe takes extra hits) | **Sniper** (Headshot) · **Scout** (hit and run) | mark |
+| **Wizard** (was mage) | scholar | big area spells, fragile | Ice bolt, Fireball, Chain lightning, Meteor | **Archmage** (Meteor, stronger spells) · **Battlemage** (Frost nova, sturdier) | none |
+| **Cleric** | temple healer | heals and protects | Heal, Group heal, Blessing, Revive | **Saint** (stronger heals, Sanctuary) · **War cleric** (Holy strike; was Paladin) | none |
+| **Monk** | fort-builder (Bork) | fast, many small hits, stuns | **Flurry** (3 weak hits), **Palm strike** (hit and stun), **Step** (move twice), **Still mind** (dodge) | **Open Hand** (stuns, heals self) · **Drunken Master** (random dodges, wild hits) | multi-hit |
+| **Sorcerer** | ember-blooded (Wizzle) | raw fire, unstable | **Spark** (cheap fire), **Ember burst** (big area), **Dragon's breath** (line), **Wild surge** (random extra effect) | **Dragonblood** (tougher, fire) · **Wild** (more surges, more risk) | surge table, line attack |
+| **Bard** | town crier (Glint) | buffs and confuses | **Rousing song** (party hits harder), **Lullaby** (slows a group), **Vicious mockery** (hit and weaken), **Rumour** (a foe attacks its friends) | **Lore** (more debuffs) · **Valor** (armour and a sword) | confuse, weaken |
+| **Rogue** | sapper and pickpocket (Nugget) | sneak attacks, traps, slips past lines | **Sneak attack** (big hit on a stunned or flanked foe), **Trap** (a hidden square), **Slip past** (move through foes), **Pickpocket** (steal a material from a foe) | **Thief** (steals more, finds more) · **Trapper** (more traps, bigger) | sneak bonus, traps, steal |
+
+### Wave 2: before Emberreach (4)
+
+| class | flavour | role | signature skills | subclasses | new engine |
+|---|---|---|---|---|---|
+| **Barbarian** | volcano-born (Cinder) | huge damage, stronger when hurt | **Rage** (+damage, takes less), **Reckless swing** (big hit, leaves you open), **Stomp** (hit all nearby), **Shrug it off** (heal on kill) | **Berserker** (fury below half health) · **Totem** (tougher, protects friends) | rage state |
+| **Paladin** | a guard who kept her oath | protector, smites, a little healing | **Smite**, **Lay on hands**, **Guard** (take a hit for a friend), **Oath** (aura: friends nearby take less damage) | **Devotion** (protect) · **Vengeance** (hunt one foe) | guard, aura |
+| **Druid** | Mossback farmer | roots foes, plants cover | **Vine snare** (root a foe), **Plant cover** (a bush blocks line of sight), **Thorns**, **Rain** (small heal over time) | **Land** (healing, plants) · **Moon** (a bear shape: tougher, melee) | root, terrain, shapeshift |
+| **Warlock** | pact with a talking teapot | curses, steady damage | **Hex** (a foe takes more damage), **Teapot blast** (steady ranged), **Whisper** (the teapot gives advice and a buff), **Pact boon** | **The Teapot** (fire, kind-of-evil jokes) · **The Sourdough Starter** (a bubbling thing: drains, gooey slow) | hex, advice (flavour) |
+
+Why this split: the first four companions are met in the slice and in act 2 before Emberreach, so their classes
+must exist by then. Cinder (barbarian) joins at Emberreach, so wave 2 lands just before it, in phase 3.
+
+**The golden mean in the class list:** barbarian is "too much caring" (smash it all), monk is Bork's too-little. Not a
+rule, just a joke the writers can lean on.
+
+## 5. Party and companions
+
+- **Pip plus up to two others** at a time, chosen from the roster. Those not in the party wait at the inn and catch up
+  in level slowly.
+- **The roster is Pip and the seven companions. No extra recruits** (the old Fennel, Brass, Pell, Mist, Tikka and Skipper Gull are cut). Seven is
+  enough to carry the theme, and each one has a purpose.
+- **Companion classes are fixed** by the story: Pip is the only one whose class you pick. If Pip is also a monk,
+  there are two monks. That is fine.
+- **Each companion's side story** is told in campfire chats at inns and one small quest, along the story circle in
+  `story-hatching.md`. Lessons come out in banter and their own quest, never in a speech.
+
+| companion | sin → virtue | class | joins | their quest (one small, not a battle) | the party feels |
+|---|---|---|---|---|---|
+| **Wizzle** | envy → kindness | sorcerer | Hearthspire (act 1) | rescued from the guards' draft camp at Frostwick; gets his first ember at the hatching | the kid you protect |
+| **Glint** | lust (infatuation) → discernment | bard | Hearthspire (act 1) | gets the honey-glass lens in Sunhaven; trades his sticker collection to get it back | the sucker for shiny things |
+| **Bork** | sloth → diligence | monk | the capital gate (act 1) | stays awake all night guarding the fort at Frostwick | the napper you fall for |
+| **Nugget** | greed → charity | rogue | Pebblebrook (act 2) | finds his grandad's duck nugget in Glitterbeak's hoard; gives it to Mallow's oven | the haggler |
+| **Saffi** | pride → humility | wizard | Sunhaven (act 2) | her clever plan loses to a builder's simple one; she says so | the know-it-all |
+| **Cinder** | wrath → patience | barbarian | Emberreach (act 2) | fixes Mallow's oven slowly, instead of smashing it | the temper |
+| **Crumb** | gluttony → temperance | cleric | Saltspray (act 3) | gives up her stay-home bun ration; cooks the hatching feast | the cook |
+
+- **Mid-story roster changes:** the party Pip takes is always his choice, but story moments pin people: Wizzle is gone
+  in the Ordeal and rescued at Frostwick; Cinder is thrown out at the Ordeal. A pinned companion simply isn't on the
+  roster for a stretch, and the story says why.
+- **Bib is never a companion.** The player can never recruit him.
+
+## 6. Towns, keepers and challenges
+
+Five towns, each a four-beat small story (introduction, development, **twist**, reconciliation, see the story) with
+a **keeper** who sets the town's own challenge. **The challenge is not a battle.** The rule from the story: *speeches
+move nobody; a kobold's own trouble does.* Every challenge is solved by finding out what each kobold actually needs.
+
+| town | keeper | challenge | what the player does | why it works as play |
+|---|---|---|---|---|
+| **Pebblebrook** | Miller Ruddle | get the miners to the shift circle | walk the mine and the mill road, find five miners, each with a small trouble of their own (a stuck cart, a lost lunch, a grudge); fix it, then they come | fetch-and-fix, easy to learn; the twist (Grubb is a local kobold) is a conversation, not a fight |
+| **Sunhaven** | the head scribe | find the drainer by reading the signs | every public choice is posted on two signs side by side; read both, find the mismatch, follow the water to the guards' barracks | a reading puzzle; no fail state, the player can ask Saffi for a hint |
+| **Emberreach** | the forge master | relight the ovens before Cinder smashes them | light the ovens in the right order using the igniter; an optional tempting shortcut (smash) | a short sequence puzzle with a "wrong" option that is funny, not punishing |
+| **Frostwick** | the fort captain | build the fort | pick a plan, build it in a small build mode; the plan loses to a simpler one; build the winner anyway | choice and consequence; teaches that losing and building anyway is how to be listened to |
+| **Saltspray** | two harbour masters | patch the leaking harbour | collect materials (reed, pearl); identify the bribed master from the ledgers; patch the leak | gathering plus a light deduction |
+
+All challenge steps are data in `src/core/rules.js` (choices carry `if` / `show`). Each town's guard boss comes **after**
+the challenge and is optional-feeling: the fight is how Snatchclaw's step is undone.
+
+## 7. The Dragon Smiler pieces
+
+- **Five pieces, one per town, and the sixth is the instructions** in Mallow's recipe book (from act 1).
+  Replacing the sparks; the save flag stays `seals` so old saves keep working.
+
+| piece | town | gameplay reward (my proposal, **Decide**) |
+|---|---|---|
+| the tube | Pebblebrook | the raptors (the stable opens) |
+| the sight | Sunhaven | hidden chests on routes show as "?" |
+| the igniter | Emberreach | a new campfire chat at every inn |
+| the cooling fins | Frostwick | swap the party at any fountain, not only at inns |
+| the ember chamber | Saltspray | (the boats come from patching the harbour, not from the piece) a bonus to the finale's loading scene |
+
+- **In the HUD:** a small Smiler diagram on the pause screen fills in piece by piece. The fully built tube is the RPG-7
+  reveal, so the diagram is a vague "something long" until the very end (the story joke).
+- **Fast travel** unlocks at the second piece. **The bun road toll** (R4) opens at the third.
+- Pieces are collected at the **end** of each keeper's challenge. They are not dropped by bosses.
+
+## 8. Party growth and gear
+
+- Levels give a talent pick (3 offered). At level 8 a subclass. The moon shrine resets talents for gold (Hearthspire).
+- Level range for the story: about 1 to 30.
 - Slots: weapon, head, armour, cloak, shield, boots, neck, two rings. Item sets give bonuses.
-- Monsters drop **materials** by land (moss, frost shards, spores, scrap, fangs...); Clink the smith crafts and later
-  reforges. Every material must have a home on the map.
-- Shops sell potions and basic gear; better gear comes from chests, bosses and crafting.
+- Monsters drop **materials** by land: moss, sand glass, gold scrap, frost shard, pearl, reed. Every material has a home
+  on the map. The smith crafts at Hearthspire and Pebblebrook, and reforges at Emberreach's forge.
+- Shops sell potions and basic gear; better gear comes from chests, bosses, crafting.
+- **Ember-buns:** three in the game, each heals everything. They are scarce on purpose: Mallow's hat, and two in the
+  Reward. (Bib's bun at the start is an extra, the last bun of the old days.)
 
-## 6. Economy
+## 9. Economy
 
 - Gold from fights, quests and bounties; spent on rest, potions, gear, crafting, shrine resets.
 - The **market** lets players trade gear with each other (online only).
 - No real money, ever.
 
-## 7. Playing together
+## 10. Playing together
 
-**Model: a shared world with personal stories** (a cozy MMO-lite, like Monster Hunter or Guild Wars), with a touch of
-async co-op. *Decided.*
+**Model: a shared world with personal stories**, plus a touch of async co-op. *Decided, and unchanged.*
 
 - **One shared world:** everyone online walks the same map at the same time; you see each other, chat and yip.
-- **Personal stories:** each player has their own save and story progress. The world shows *your* progress: your
-  tunnel can still be dark while a friend's is lit (barriers already work this way).
+- **Personal stories:** each player has their own save and story progress. Barriers are per player.
 - **Group fights count for everyone who is ready:** a boss beaten together counts for each player who has reached that
-  step of their own story (done the talking before it). Everyone else gets the normal rewards.
-- **Level sync:** when you help a lower-level friend, your party is brought down to their level for that fight (stats
-  worked out as if you were that level; gear and talents still work, scaled down). You still earn XP and loot suited to
-  your real level, plus **helper's spark dust** (for cosmetics), so helping is fun rather than a favour.
-- **Duels** for fun, **gifts** of items, the **market** for trading.
-- **Async touches** for when nobody else is on: notes left on signs for friends, small gifts left at fountains.
+  step of their own story (done the talking before it).
+- **Level sync:** when you help a lower-level friend, your party is brought down to their level for that fight. You
+  still earn XP and loot suited to your real level, plus a **helper's reward** for cosmetics.
+- **Duels** for fun, **gifts** of items, the **market** for trading, **notes left on signs** for friends.
 - Playing together never blocks anyone's story, and nobody has to play with others.
+- **Theme check:** the multiplayer is the theme made playable. A boss is beaten by whoever shows up; a friend who
+  doesn't, doesn't. The helper's reward means showing up is rewarded, and nothing is lost by staying home except the
+  fun. Keep it that way: never punish absence.
 
-## 8. Story and tone
+## 11. Onboarding and difficulty
 
-- The Hatching (`story-hatching.md`): 8 towns' troubles, a villain thread, Tikka the rival, the Old Guardian.
-- Cozy and funny; the lesson is shown, never preached; nothing political.
-
-## 9. Difficulty and onboarding
-
-- The first 10 minutes teach walking, talking, a first fight and a first level-up, with no walls of text.
+- The first 10 minutes (Hearthspire's morning): walk, talk, light a lamp from the tower fire (the setup for the
+  finale), meet Bib, get an ember at the hatching. No walls of text. The cellar door under the bakery is shown here, and
+  Mallow mentions the flour carts (the setup for the flour tunnel).
 - Normal difficulty should rarely lose a fight if you heal at fountains; bosses are the real tests.
 
-## 10. Decisions
+## 12. What is cut from the first design
+
+Burrowhome and its valley, sparks, bandits, Elder Mumble, Witch Yarrow, Tikka the rival, key items (lantern, flask, boots), the
+extra recruits (Fennel, Brass, Pell, Mist, Skipper Gull), eight of the fifteen routes, five of the ten towns, the old promotions that clash with the
+classes (Berserker now belongs to the barbarian, Paladin to its own class).
+
+## 13. Decisions
 
 1. **Losing a fight:** back to the last fountain, lose half your gold. *Decided.*
-2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready, with level sync for helpers (section 7). *Decided.*
-3. **Party:** recruit more kobolds into a roster, take three along. *Decided.*
-4. **Length:** long, 15+ hours. *Decided.* That means each town needs more than one step, every route needs something
-   off the path, there are optional areas and a post-game. The 8 sparks stay the spine; the length comes from
-   depth, not padding.
+2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready,
+   with level sync for helpers. *Decided.*
+3. **Party:** Pip plus up to two others from a roster. *Decided.* The roster is now Pip and the seven companions.
+4. **Length:** long, 15+ hours, depth not padding. *Decided.*
+5. **No story choices for the player.** *Decided 19 Oct.*
 
-### 10.2 Shared story moments: the options that were weighed (B was chosen)
+## 14. Decide (Joakim)
 
-Friends play at different times and get to different points, so whatever we pick must work when they are out of step.
-
-| option | how it works | good | bad |
-|---|---|---|---|
-| **A. Personal only** | helping a friend gives you XP, gold and loot, never story progress | simple; nobody skips their own story | helping feels like a chore; a friend ahead can't "carry" you through a hard boss |
-| **B. Credit when you're ready** | a boss fight counts for everyone in it **who has reached that step** of their own story (done the talking before it). Others get the normal rewards | beating a boss together means something; the talking and puzzles are still your own | a strong friend can make your boss easy |
-| **C. Shared save for a group** | a group of friends shares one story | true co-op adventure | breaks when someone plays alone; hard to build; saves get messy |
-| **D. Echoes** | helping someone through a boss gives you an "echo": later, your own fight is easier (an ally appears, or the boss starts hurt) | rewards helping without skipping | more to build; harder to explain |
-
-**Recommendation: B, plus a helper's reward.** Each player's story stays theirs (they still walk the routes, solve the
-towns and read the jokes), but the big fights can be won together and count for everyone who is ready for them. The
-friend who is further ahead and comes back to help gets a small reward for it (a "helper's spark dust" for cosmetics),
-so helping is fun rather than a favour. Bosses already scale up with more players, so a strong friend helps without
-making the fight trivial.
+1. **Wave split.** Wave 1 is eight classes (fighter, ranger, wizard, cleric, monk, sorcerer, bard, rogue) so every
+   companion in the slice and act 2 has a class, and wave 2 is four (barbarian, paladin, druid, warlock) before
+   Emberreach. Right, or should the slice have only the four we already have, with companions' classes added as they
+   join?
+2. **Roster of seven only.** No extra recruits beyond the seven companions. Cut Fennel, Brass, Pell, Mist, Skipper Gull and Tikka for good?
+3. **Subclass names.** Fighter's Berserker becomes **Battle master** (so the barbarian can have Berserker), and the
+   cleric's Paladin becomes **War cleric** (so the paladin can be its own class). OK?
+4. **Piece rewards.** The small gameplay reward I gave each Smiler piece (section 7) is my idea, not the story's. Keep,
+   change, or leave the pieces as story items only?
+5. **Challenge types.** Five different small challenge types (fetch-and-fix, reading puzzle, sequence puzzle, build,
+   gather-and-deduce). Each is new engine work; Pebblebrook's (fetch-and-fix) is the only one the slice needs. Keep
+   all five, or share two or three types between the towns to save work?

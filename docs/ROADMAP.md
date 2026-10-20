@@ -23,7 +23,7 @@ design document, and parts of the story bible.
 | # | role | deliverable | status |
 |---|---|---|---|
 | 1.1 | Creative director + game designer | **Vision** (`docs/vision.md`) | done; check against the new story |
-| 1.2 | Game designer | **Design document** (`docs/design.md`): the twelve classes (two waves), seven companions, keeper challenges, field moves (raptors, boats), Smiler pieces instead of sparks | **to update** (step 2) |
+| 1.2 | Game designer | **Design document** (`docs/design.md`): the twelve classes (two waves), seven companions, keeper challenges, field moves (raptors, boats), Smiler pieces instead of sparks | **v2 drafted 20 Oct**, five questions for Joakim at its end (step 2) |
 | 1.3 | Narrative writer | **Story** (`docs/story-hatching.md`, v6) and story bible | story done; bible to tidy |
 | 1.4 | Level designer | **World plan** (`docs/world-plan.md`): Hearthspire in the middle, five towns, the routes between them, where raptors and boats open the map, level ranges | **v2 done 20 Oct**, Joakim's three questions answered |
 | 1.5 | Art director (Joakim draws) | **Style guide** and templates | done; drawing under way (Pip, grass) |
