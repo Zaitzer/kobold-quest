@@ -34,6 +34,7 @@ design document, and parts of the story bible.
 **Next, in order:**
 1. ~~**World plan:** the new map.~~ *(done 20 Oct, v2 confirmed.)*
 2. ~~**Design document:** classes, companions, keeper challenges, field moves.~~ *(done 20 Oct.)*
+2b. **Number audit** (`docs/number-audit.md`): every number and equation in the balance, items and UI documents gets a reason and a check before Gate 1.
 3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist, four decisions at its end) and says go.
 4. **The new vertical slice** (phase 2 below).
 
