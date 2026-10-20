@@ -69,10 +69,23 @@ time; the player plays the battles, the exploring and the party, and makes no st
 - **Old Mallow** (mentor), the baker. She hands out the embers on hatching day, sings the rhyme, hides buns in her hat,
   and keeps her grandmother's recipe book, which has the Smiler's instructions in the back.
 - **Snatchclaw**, the guard captain, and his guards. They stand watch every night and think the hardest workers should
-  get the most buns: all of them. He never cheats; he only needs people to stay home while he takes one small step at
-  a time. "They didn't come when it was free. They won't come now."
-- **Glitterbeak**, the dragon hatched from four embers (three guards and Glint's): corrupt and greedy, guards only the hoard, grows with every
-  stolen bun.
+  get the most buns: all of them. Snatchclaw has stood on the wall for twenty winters while the city slept, and the old
+  guardian still made him share. He has watched every hatching half empty. His conclusion: "If nobody cares, somebody
+  has to decide. Might as well be the one who stays awake." He is what Bib's "why bother" turns into when someone
+  ambitious believes it. He never cheats; he only needs people to stay home while he takes one small step at a time.
+  "They didn't come when it was free. They won't come now."
+- **Glitterbeak**, the dragon hatched from four embers (three guards and Glint's). Hatched with too little warmth, he
+  is **always cold**, and that's his whole personality: a spoiled, shivering child-king who hoards warm buns because
+  they're warm, and it's never enough. He says "MINE" a lot, loves being admired, sulks when he isn't, and is
+  genuinely scary when he's angry. He grows with every stolen bun, and gets no warmer. His scenes:
+  - **Pebblebrook:** his shadow over the mill; he lands, sniffs the flour sacks, counts them ("mine, mine, mine"), and
+    leaves a frost print where he sat.
+  - **Emberreach:** asleep in the volcano, huge now, muttering "still cold" in his sleep. You tiptoe past.
+  - **The Ordeal:** on the castle roof, wrapped in stolen buns, shivering, while Pip sits on the bench below.
+  - **The road back:** he flies over the marching country and wheels away from all the glowing embers, scared of
+    so much warmth in one place.
+  - **The finale:** when the Smiler's embers hit him, his first real warmth. "Oh... warm," and he curls up into his egg
+    like a cat in the sun.
 - **At the nest:** Bramble (sprouty: "work never hurt a kobold"), Mallow (sleepy: her oven is old), Glint (shiny: he
   got a sticker from **Smudge**, Snatchclaw's friendly cousin).
 
@@ -164,9 +177,21 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
 
 ### Act 3: the road back
 
-10. **The road back.** Frostwick, where the guards' draft camp holds Wizzle, and Saltspray. Snatchclaw sends the draft and the stay-home buns; Pip's own story is
-    his argument: "I took the deal. Here's what it cost." The island boats come back, and the whole country sets out
-    for Hearthspire.
+10. **The road back.** Pip is no longer asking for help. He's going to tell people what it cost, starting with himself.
+    - **Frostwick.** The guards' draft camp sits outside the fort, and Wizzle is in it. Frostwick won't listen to a
+      kobold who only watches, so Pip builds: the fort, the snowball fight, his plan losing, building the winner
+      anyway. Now they listen, and when the guards come for draftees, the whole fort refuses at once; the camp folds
+      and Wizzle walks out. ("You came back." "Pockets were cold.") The fins. Bork stays awake all night.
+    - **Saltspray.** The stay-home buns arrive by the cartload, and Crumb is eating them. The island boats are tied
+      up at the guards' pier. Pip doesn't argue; he tells the harbour the truth: "I took the deal. Here's what it
+      cost." The bribed harbour master is found out, the leaky harbour gets patched, and the boats go back. The ember
+      chamber. Crumb gives up her ration and joins.
+    - **The march home.** By boat, by raptor and on foot, the bun chain sets out for Hearthspire: Pebblebrook's millers,
+      Sunhaven's scribes, Emberreach's bakers, Frostwick's builders, Saltspray's fishers and the islanders. Glitterbeak
+      flies over and wheels away from so many embers. Smudge watches from a roof, counting.
+    - **The capital.** The square that was empty at the midpoint fills, and this time it isn't Pip's speech that does
+      it: it's the rest of the country walking in. The capital comes because everyone else did. Bib stays on his
+      bench.
 11. **Resurrection.** The castle on the day of the last hatching, Snatchclaw reaching for the tower fire. Snatchclaw,
     then Glitterbeak. The Smiler clicks together: it's an **RPG-7**, and it's empty. The whole country loads it with
     their embers, Pip's last, and Smudge's. It fires the warmth of the whole country at once, and Glitterbeak curls back
