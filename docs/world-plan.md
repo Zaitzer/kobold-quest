@@ -121,8 +121,13 @@ bandits, spore critters, sea bandits.
 4. A town's first visit shows its trouble within 30 seconds of walking in.
 5. Routes that open late (R5, R6, R7) become shortcuts for the end and the post-game.
 
-## Questions for Joakim (the choices I'd like you to confirm)
+## Decisions (Joakim, 20 Oct 2026)
 
-1. **Frostwick north, Saltspray east.** Does that feel right, or should the cold town be the far end of the loop?
-2. **The shut gates and the flour tunnel** as the reason the map opens in act 3. Keep, or find a different reason?
-3. **Seven routes.** Is that still too many? The slice only needs R1 and Hearthspire; the rest can stay on paper.
+1. **Frostwick north, Saltspray east: confirmed.** Snow and sea read at a glance on a map, and act 3 stays on the side
+   of the map the player hasn't seen, so the road back feels new instead of like backtracking.
+2. **The flour tunnel: confirmed, with one condition.** It must be set up early. In act 1 Mallow says something like
+   "the flour carts used to come in under my bakery", so it pays off in the Ordeal instead of appearing from nowhere.
+   Theme fit: the mentor quietly opens the way while the guards shut the official gates. (Added to the Chekhov's guns
+   in `story-hatching.md`.)
+3. **Seven routes: keep.** Pokémon Ruby has over thirty; seven is lean for five towns and a capital. Don't cut
+   further; make each route memorable instead (every route needs its own landmark, joke and side quest).

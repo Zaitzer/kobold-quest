@@ -25,14 +25,14 @@ design document, and parts of the story bible.
 | 1.1 | Creative director + game designer | **Vision** (`docs/vision.md`) | done; check against the new story |
 | 1.2 | Game designer | **Design document** (`docs/design.md`): the twelve classes (two waves), seven companions, keeper challenges, field moves (raptors, boats), Smiler pieces instead of sparks | **to update** (step 2) |
 | 1.3 | Narrative writer | **Story** (`docs/story-hatching.md`, v6) and story bible | story done; bible to tidy |
-| 1.4 | Level designer | **World plan** (`docs/world-plan.md`): Hearthspire in the middle, five towns, the routes between them, where raptors and boats open the map, level ranges | **v2 drafted 20 Oct**, waiting for Joakim's answers (3 questions at the end) |
+| 1.4 | Level designer | **World plan** (`docs/world-plan.md`): Hearthspire in the middle, five towns, the routes between them, where raptors and boats open the map, level ranges | **v2 done 20 Oct**, Joakim's three questions answered |
 | 1.5 | Art director (Joakim draws) | **Style guide** and templates | done; drawing under way (Pip, grass) |
 | 1.6 | Sound designer | **Audio plan** | done; add tracks for Hearthspire and the castle |
 | 1.7 | Technical lead | **Tech plan** | done; add the rename list (warrior to fighter, sparks to pieces, bandits to guards, Mossbacks to Nettlenose) |
 | 1.8 | Producer | **Scope** (`docs/scope.md`) | to update with five towns, seven companions, two class waves |
 
 **Next, in order:**
-1. **World plan:** the new map. *(v2 drafted; confirm the three open questions.)*
+1. ~~**World plan:** the new map.~~ *(done 20 Oct, v2 confirmed.)*
 2. **Design document:** classes (wave 1 first), companions, keeper challenges, field moves.
 3. **Gate 1 again:** Joakim reads both and says go.
 4. **The new vertical slice** (phase 2 below).

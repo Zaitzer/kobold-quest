@@ -259,6 +259,7 @@ Introduction, development, **twist**, reconciliation. A small story per town, wi
 | Mallow's old oven that "likes things as they are" | breaks in the Ordeal; fixed with Nugget's nugget |
 | the raiders mentioned once at the nest | come over the hill at the new hatching |
 | the tutorial: Pip lights a lamp from the tower fire | Snatchclaw's bucket of water over that fire in the finale |
+| Mallow in act 1: "the flour carts used to come in under my bakery" (the cellar door is shown in the tutorial) | after the Ordeal it is the way out past the shut north and east gates |
 
 - **Ouroboros:** the story ends where it began, on Bib's bench.
 
