@@ -33,7 +33,8 @@ time; the player plays the battles, the exploring and the party, and makes no st
   that, hence the stay-home excuse: "a dragon is a dragon, what difference does it make?" The difference is who the
   buns go to. (Always raiders, never "strangers".)
 - **Why the hatching exists** (three layers):
-  1. A dragon egg needs more warmth than any kobold has. It hatches only from many embers; every kobold has exactly one.
+  1. A dragon egg needs more warmth than any kobold has, so it takes embers: every kobold has exactly one, lit from the
+     tower fire on hatching day. A few embers will hatch an egg; only many give it a warm heart.
   2. A dragon becomes like whatever warmed it. Warmed by everyone, it looks after everyone; warmed by a few, it hatches
      half-cold and corrupt.
   3. Long ago a **dragon king** ruled, with kobolds as his hoard-keepers, until every town carried fire to his mountain
@@ -60,7 +61,7 @@ time; the player plays the battles, the exploring and the party, and makes no st
 
 ## The cast
 
-- **Pip** (hero). Small, grumpy, big stick. Two of Mallow's buns every morning; life is good. He cares, but he's easily
+- **Pip** (hero). Small, grumpy, very proud of his stick. Two of Mallow's buns every morning; life is good. He cares, but he's easily
   talked out of it. Grumpy all game; what changes is what he does. The player picks his class.
 - **Bib** (antagonist), Pip's best friend, on his bench in Hearthspire. "Buns are fine. Nothing ever changes. Why
   bother?" He once asked everyone to help fix the old mill and nobody came, because everything was fine. **He never
@@ -70,7 +71,7 @@ time; the player plays the battles, the exploring and the party, and makes no st
 - **Snatchclaw**, the guard captain, and his guards. They stand watch every night and think the hardest workers should
   get the most buns: all of them. He never cheats; he only needs people to stay home while he takes one small step at
   a time. "They didn't come when it was free. They won't come now."
-- **Glitterbeak**, the dragon hatched from three embers: corrupt and greedy, guards only the hoard, grows with every
+- **Glitterbeak**, the dragon hatched from four embers (three guards and Glint's): corrupt and greedy, guards only the hoard, grows with every
   stolen bun.
 - **At the nest:** Bramble (sprouty: "work never hurt a kobold"), Mallow (sleepy: her oven is old), Glint (shiny: he
   got a sticker from **Smudge**, Snatchclaw's friendly cousin).
@@ -138,8 +139,8 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
    shiny egg for one of Smudge's stickers.
 3. **Refusal.** Pip walks to the nest to warm the sprouty egg. Bib: "Why bother? A dragon is a dragon. You've got your
    buns. Here, have mine too." He means it kindly; it's the last bun of the old days, and the first comfortable bribe
-   in the story (Snatchclaw offers two in the Ordeal). Pip pockets his ember and naps by the warm nest. Almost nobody comes. The three guards warm the shiny egg; with Glint's that makes four embers.
-   At dawn, CRACK: **Glitterbeak**, cold-eyed, eats Mallow's whole tray. A notice on the bakery: EVERY BATCH TO THE GUARDS FIRST.
+   in the story (Snatchclaw offers two in the Ordeal). Pip pockets his ember and naps by the warm nest. Almost nobody
+   comes. The three guards warm the shiny egg; with Glint's that makes four embers. At dawn, CRACK: **Glitterbeak**, cold-eyed, eats Mallow's whole tray. A notice on the bakery: EVERY BATCH TO THE GUARDS FIRST.
 4. **The mentor.** "But I didn't choose any of this." Mallow: "No, dear. Somebody did." The one bun hidden in her hat
    (one of three in the game), the rhyme, and the instructions in her grandmother's book. Wizzle comes along, and Glint,
    whose ember helped hatch it.
@@ -169,7 +170,8 @@ Plus, from Hearthspire: **the instructions**, in the back of Mallow's recipe boo
 11. **Resurrection.** The castle on the day of the last hatching, Snatchclaw reaching for the tower fire. Snatchclaw,
     then Glitterbeak. The Smiler clicks together: it's an **RPG-7**, and it's empty. The whole country loads it with
     their embers, Pip's last, and Smudge's. It fires the warmth of the whole country at once, and Glitterbeak curls back
-    into his egg (cartoon rules: nobody is hurt).
+    into his egg (cartoon rules: nobody is hurt). Every ember is spent, but the tower fire is still burning, because
+    Snatchclaw never got to tip his bucket. Mallow lights everyone a new ember from it.
 12. **Return.** The new hatching: three eggs, Glitterbeak's shiny one back among them. The raiders come over the hill,
     see the whole country in the yard with embers glowing, and go home. Everyone warms an egg; the companions each for
     their own reason. A good guardian hatches by **one ember**, and every kobold in the yard is sure it was theirs.
