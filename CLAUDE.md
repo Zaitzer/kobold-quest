@@ -1,6 +1,12 @@
 # Working on Kobold Quest
 
+**New session? Read `docs/HANDOFF.md` first.** It has the project, where we are, how Joakim works, the story in
+brief, the build/deploy steps and the gotchas. Then `docs/ROADMAP.md` and `docs/story-hatching.md`.
+
 - Owner: Joakim (GitHub Zaitzer). He plays on his phone; keep replies short and do the technical work yourself.
+- Joakim pushes drawings straight to `main` with GitHub Desktop: always `git pull --rebase origin main` before pushing,
+  and republish the Claude page after new art arrives.
+- The story source of truth is `docs/story-hatching.md` (v6). The game still plays the older story until the rebuild.
 - Read ARCHITECTURE.md before changing code. After moving code between modules run `node tools/imports.js`.
 - Before every push: `npm i && (cd server && npm i)`, then `node test/run.js` must pass (about 3 minutes; `node test/run.js quick`
   skips the browser scenarios and takes 20 seconds, fine for changes that don't touch screens or styles), then `node tools/package.js`.
