@@ -169,6 +169,7 @@ Fennel and Nugget as recruits.
 | `docs/story-bible.md` | tone rules, world notes | partly out of date; story-hatching wins |
 | `docs/world-plan.md` | towns, routes, levels | **v2 confirmed 20 Oct** (Frostwick north, Saltspray east, flour tunnel set up in act 1, seven routes) |
 | `docs/design.md` | core loop, systems, classes, companions, challenges, pieces | **v2 done 20 Oct**; open questions decided (section 14) |
+| `docs/balance.md`, `docs/items.md`, `docs/ui-design.md` | **the numbers and the screens (targets, 20 Oct)**: level/damage/gold curves, encounters per route, every item, taps per action | current |
 | `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes and four open decisions | current |
 | `docs/scope.md` | milestones M1 to M8 | **v2 done 20 Oct** |
 | `docs/vision.md`, `tech-plan.md`, `audio-plan.md`, `style-guide.md` | pre-production | mostly current; small additions listed in the roadmap |

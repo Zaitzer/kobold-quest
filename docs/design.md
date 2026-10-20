@@ -4,6 +4,19 @@
 (`world-plan.md`) and what the engine already does (`src/data/classes.js`). Sections marked **Decide** need the
 creative director. Numbers (stats, damage, mana) are NOT set here; they come from the balance simulator in the slice.*
 
+## 0. Where the numbers live
+
+This document says *what the game is*. The numbers and the screens are in three companions, built from one model so they
+agree with each other:
+
+| file | what it holds |
+|---|---|
+| **`balance.md`** | the feelings we want; time per stretch; the level table (damage, HP, XP, gold); the other eleven classes; the skill cost rule and every new skill; fights and bosses; encounter rates, route lengths and the fight budget; grind and optional content; gold; player progression |
+| **`items.md`** | the power-point rule; slot budgets; weapons for all eleven families; every slot by tier; prices; affixes; boss uniques; sets; consumables; materials and crafting; what the player finds |
+| **`ui-design.md`** | layout; taps per action; what is used most and least; what is highlighted; every screen; the battle in detail; accessibility; how we check |
+
+Where this file and those disagree, **those win** for numbers and screens; this file wins for rules and story.
+
 ## 1. Core loop
 
 - **Moment to moment (seconds):** walk, bump into things, talk, open, fight. Every tap does something.

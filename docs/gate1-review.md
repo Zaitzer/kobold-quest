@@ -66,6 +66,22 @@ Each finding has a fix. **Fixed** means it is already in the docs; **Decide** ne
 - **Beat 11, the Smiler.** The finale loading is a shared moment: every online player in the room can load an ember,
   and the fight counts for everyone ready (the existing shared-boss rule).
 
+## Numbers to confirm (added when `balance.md`, `items.md` and `ui-design.md` were written)
+
+These are choices in the numbers that change how the game feels. I made them; Joakim can overrule any of them.
+
+| choice | what I set | the alternative |
+|---|---|---|
+| fights | about 142 normal fights and 11 bosses in the story, one normal fight every 6.5 minutes | fewer, longer fights; or more, shorter |
+| level pace | a level every 10 to 40 minutes, slower late | faster late levels (fewer fights per level) |
+| encounter rate | 3.0–3.5% a step on routes, 6% in dungeons, safe first and last 10 steps | rarer, with visible foes only |
+| town areas | one small dungeon per town (new) | no dungeons, more patrols |
+| potions | heal a percentage of max HP; about a quarter of income | fixed amounts |
+| gold | shops cover 70–85% of the next tier; half is lost on a defeat | richer or poorer |
+| mana | casters about six casts a fight; mana restored 10% per win | free mana between fights |
+| classes | the power-budget split per class (`balance.md` §3) | other splits |
+| UI | three taps for anything frequent; a quick-skill button | a bigger menu |
+
 ## What is still not decided (Joakim at Gate 1)
 
 1. **A1:** build on a `v6` branch while `main` stays the old live game. (Recommended.)

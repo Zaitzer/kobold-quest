@@ -113,6 +113,24 @@ bandits, spore critters, sea bandits.
 | Frostpeak | optional post-game, later |
 | 8 routes more | cut (see above) |
 
+## Path lengths and town areas (added 20 Oct 2026, from `balance.md`)
+
+The routes are short in distance and long in content. **Path lengths (steps):** R1 120, R2 160, R3 170, R4 150, R5 160,
+R6 160, R7 90 (by boat). A route gives 3 to 5 fights one way and takes under a minute to walk.
+
+**Each town has one area, a small dungeon beside it** (3 floors of about 45 steps, with a free campfire half-way), where the
+rest of the stretch's fights happen:
+
+| town | area |
+|---|---|
+| Pebblebrook | **the mine** |
+| Sunhaven | **the honey cellars** |
+| Emberreach | **the crater** |
+| Frostwick | **the ice cellars** |
+| Saltspray | **the shipwreck** (2 floors) and **the island cave** (by boat) |
+
+Hearthspire has no area: its fights are scripted set-pieces.
+
 ## Rules for level design (kept)
 
 1. Every route has at least one thing off the path: a chest, a joke, a side quest.
