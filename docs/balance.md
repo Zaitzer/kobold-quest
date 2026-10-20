@@ -330,7 +330,7 @@ to "no hidden levels": its resistance is shown as "likely" / "unlikely" on the s
 - **Bosses' big, telegraphed attacks do not roll.** They are avoided by moving out of the shown area; if you are in it you
   are hit. The danger is a decision, not a die.
 - **Mercy rule (player only):** after **two misses in a row** by the same kobold, its next attack gets **+15%**. It is shown
-  in the breakdown ("mercy +15"). It evens out streaks of bad luck without changing the average much (about +1.5% overall).
+  in the breakdown ("mercy +15"). It evens out streaks of bad luck without changing the average much (about +0.5% overall; it triggers about once every three fights).
 
 ### Crits
 
@@ -579,6 +579,6 @@ Rewrite `test/sim` so one run prints these, against the targets above, for every
 6. Fights per hour and the time per stretch (the time table).
 7. Each class alone against the same foes: no class below 85% or above 115% of the fighter's clear time at the same level.
 8. Average hit rate per attack kind and overall (target 80–85%, melee 90, ranged about 66, spells 100), crit rate (about
-   10% overall), the number of misses per fight (about 2.5) and how often the mercy rule triggers (about once a fight).
+   10% overall), the number of misses per fight (about 2.5) and how often the mercy rule triggers (about once every three fights).
 
 **Open questions for Joakim are in `gate1-review.md`.**
