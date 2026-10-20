@@ -167,7 +167,7 @@ Fennel and Nugget as recruits.
 | `docs/ROADMAP.md` | phases, gates, where we are, next steps | current |
 | `docs/story-hatching.md` | **the story, v6** (source of truth), with its review and shaping tools | current |
 | `docs/story-bible.md` | tone rules, world notes | partly out of date; story-hatching wins |
-| `docs/world-plan.md` | towns, routes, levels | **out of date** (next step) |
+| `docs/world-plan.md` | towns, routes, levels | **v2 drafted 20 Oct**; Joakim to confirm 3 questions |
 | `docs/design.md` | core loop, systems | **out of date** for classes, companions, pieces |
 | `docs/vision.md`, `scope.md`, `tech-plan.md`, `audio-plan.md`, `style-guide.md` | pre-production | mostly current; small additions listed in the roadmap |
 | `ARCHITECTURE.md` | how the code is put together | current |
