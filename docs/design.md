@@ -198,17 +198,15 @@ classes (Berserker now belongs to the barbarian, Paladin to its own class).
 4. **Length:** long, 15+ hours, depth not padding. *Decided.*
 5. **No story choices for the player.** *Decided 19 Oct.*
 
-## 14. Decide (Joakim)
+## 14. Decided (Claude's calls, Joakim said "you decide", 20 Oct 2026)
 
-1. **Wave split.** Wave 1 is eight classes (fighter, ranger, wizard, cleric, monk, sorcerer, bard, rogue) so every
-   companion in the slice and act 2 has a class, and wave 2 is four (barbarian, paladin, druid, warlock) before
-   Emberreach. Right, or should the slice have only the four we already have, with companions' classes added as they
-   join?
-2. **Roster of seven only.** No extra recruits beyond the seven companions. Cut Fennel, Brass, Pell, Mist, Skipper Gull and Tikka for good?
-3. **Subclass names.** Fighter's Berserker becomes **Battle master** (so the barbarian can have Berserker), and the
-   cleric's Paladin becomes **War cleric** (so the paladin can be its own class). OK?
-4. **Piece rewards.** The small gameplay reward I gave each Smiler piece (section 7) is my idea, not the story's. Keep,
-   change, or leave the pieces as story items only?
-5. **Challenge types.** Five different small challenge types (fetch-and-fix, reading puzzle, sequence puzzle, build,
-   gather-and-deduce). Each is new engine work; Pebblebrook's (fetch-and-fix) is the only one the slice needs. Keep
-   all five, or share two or three types between the towns to save work?
+1. **Wave split: eight, then four.** Wave 1 is fighter, ranger, wizard, cleric, monk, sorcerer, bard, rogue, so every
+   companion in the slice and act 2 has a class. Wave 2 is barbarian, paladin, druid, warlock, built before Emberreach.
+2. **Roster: Pip and the seven companions only.** Fennel, Brass, Pell, Mist, Skipper Gull and Tikka are cut for good.
+3. **Subclass names:** Fighter's Berserker becomes **Battle master**, Cleric's Paladin becomes **War cleric**.
+4. **Piece rewards: keep them**, small, as listed in section 7. They give each piece a feel in play. Easy to drop later.
+5. **Challenge types: four, not five.** Sunhaven (reading the two signs) and Saltspray (reading the ledgers) share one
+   "compare two documents" mechanic. Pebblebrook (fetch-and-fix), Emberreach (sequence) and Frostwick (build) stay
+   their own. Only Pebblebrook's is built for the slice.
+
+Joakim can overrule any of these at Gate 1.
