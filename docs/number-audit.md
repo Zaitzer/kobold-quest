@@ -21,7 +21,7 @@ These are things I noticed while re-reading my own work. They are the first rows
 
 | # | problem | where | why it matters |
 |---|---|---|---|
-| P1 | **Boss HP multiples contradict the boss length.** `balance.md` §4 says bosses take 8–12 rounds, but the pack deals about 3.5 × a basic hit a round, so HP = 22× (the captains) gives about 6 rounds, 18× (Snipe) about 5 and 12× (Grubb) about 3.4. Only the 30×–42× bosses reach 8–12. | §4 boss table | the numbers and the promise disagree; either the multiples rise to 28–42× or the promise drops to 5–8 rounds |
+| P1 | ~~**Boss HP multiples contradict the boss length.** `balance.md` §4 says bosses take 8–12 rounds, but the pack deals about 3.5 × a basic hit a round, so HP = 22× (the captains) gives about 6 rounds, 18× (Snipe) about 5 and 12× (Grubb) about 3.4. Only the 30×–42× bosses reach 8–12. | §4 boss table | the numbers and the promise disagree; either the multiples rise to 28–42× or the promise drops to 5–8 rounds~~ **Resolved 20 Oct:** pack damage vs one target is 2.7×, so k = 2.7 × rounds (the old 22× captains were right); boss damage reshaped to 3 hits × 23% for fun. |
 | P2 | **"The pack deals about 3.5 × a basic hit a round" is asserted, not derived.** The foe HP (4× the basic hit), the fight length, the boss length and the damage taken all hang on it. | §4 | it is the keystone; a pack with a cleric and a bard deals much less than one with a wizard |
 | P3 | **Class multipliers are judgment, not derived** from the damage/durability/utility split. The split looks principled, the multipliers do not follow from it. | §3 class table | "no class below 85% or above 115%" is a promise the table does not yet keep on paper |
 | P4 | **The 0.8 share** (XP from random fights) and **the 4- and 3-fight values** of a boss and a challenge are chosen, not derived. | §3, §5 | they set how many random fights a stretch needs, and so the route and area design |
@@ -30,6 +30,9 @@ These are things I noticed while re-reading my own work. They are the first rows
 | P7 | **Minutes per fight (1), per boss (5), per challenge (25) and the 60% "everything else"** are guesses. | §2 | the whole 15.5-hour claim rests on them |
 | P8 | **Frequencies in `ui-design.md` §4** (taps an hour) are estimates built on the P7 guesses. | UI §4 | they set what sits on the main screen |
 | P9 | **World size vs route length:** the routes were set for a 600 × 340-tile world without checking each town's distance on the real map. | world plan | a route that does not fit the map must be moved or cut |
+| P11 | **Pack mix swings boss difficulty enormously:** at gap 0 the win rate runs from 34% (paladin + bard + sorcerer) to 91% (barbarian + rogue + druid). Bosses are the class-balance test; either the three-fragile pack is under-tuned or the sim's AI (casting order, targeting) is poor. | boss sim | a class set that is "fun to pick" must not lose a boss by design |
+| P12 | **Pure supports' attack multiplier is an artefact** (cleric 2.26×, druid 2.74×) from the solver compensating weak weapon attacks; heal value should carry the budget instead. | class derivation | would give healers absurd damage if used as written |
+| P13 | **Boss win-rate curve is not level-independent** at 3 hits × 23%: L8 86% / L18 77% / L30 47% at gap 0 (target 70%). Late game the pack is weaker than the model assumes (fixed mana, flat gear shares). Needs a per-level hit share (about 24% early, 19% at L30) or a stronger late-game pack. | boss sim | late bosses would feel unfairly hard |
 | P10 | **Late-game level gap (about 40 minutes)** is a consequence of the XP curve, not a decision. | §9 | it may feel too slow, or the exponent 1.6 may be wrong |
 
 ## The to-do list

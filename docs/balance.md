@@ -199,7 +199,7 @@ takes up 2 × 2 tiles).
 | normal, two levels under | 5 | 45% | the game says it's a hard one |
 | patrol or elite (a visible group) | 5 | 35% | worth more XP (×1.5), one tough foe |
 | a dungeon floor guardian | 6 | 40% | roughly a small boss; the end of a floor |
-| **boss** | 8–12 | 40–55% | one telegraphed big attack; add-ons arrive on round 4 |
+| **boss** | 6–12 | 40–55% | three attacks a round, no one-shots; one telegraphed big attack; add-ons on round 4 |
 
 **Pace of a normal fight:** the pack deals about 3.5 × a basic hit per round (skills and an area spell help), and foes have
 4 × the basic hit in HP each, so three foes die in about 3.4 rounds. The foes' damage then costs the pack about 0.5 of
@@ -211,22 +211,26 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 ### Bosses
 
-Boss HP is `k × the basic hit at its level`. Boss attack is set so a hit takes about 20% of the fighter's HP (before gear
-effects). Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
+**Derived rules** (model run 20 Oct: `node tools/balance-model.js bosses`):
 
-| boss | level | HP multiple | HP | hit on a fighter | fighter's HP | the trick |
-|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 12× | 290 | 33 | 118 | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 18× | 540 | 44 | 158 | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 22× | 1,060 | 65 | 224 | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 22× | 1,500 | 87 | 293 | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 30× | 2,160 | 94 | 319 | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 22× | 1,580 | 94 | 319 | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 22× | 2,000 | 116 | 388 | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 22× | 2,200 | 131 | 440 | fights from boats at range |
-| Castle commander | 28 | 26× | 2,990 | 146 | 483 | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 34× | 3,980 | 149 | 496 | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 42× | 5,000 | 153 | 509 | cold: heals when he eats buns, loses it when the pack's embers glow |
+- **Length (D):** against one target the pack deals about **2.7 × the basic hit per round** (the wizard's area spell is wasted, and healing and potions take turns), not the 3.5 of a normal fight. So `rounds ≈ k / 2.7` and **`k = 2.7 × target rounds`**. This replaces the first draft's 12–42× multiples, which did not give the promised length.
+- **Shape, chosen for fun (J, tested):** a boss makes **three attacks a round, each about 23% of the fighter's HP**, instead of one big blow. Same total damage, but nobody is knocked out from full HP (about 0.00 one-shots per fight, against 0.10 for a single 55% blow), the pack is under steady pressure it can answer (heal, guard, step away), and about 1 win in 5 ends with the pack under 40% HP: a close call that was earned. The telegraphed big attack (every third round, avoidable by moving) stays on top.
+- **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; 0.5–1.5 kobolds fall per boss; 10–20% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
+- Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
+
+| boss | level | rounds (target) | HP multiple | HP | each of 3 hits | fighter's HP | the trick |
+|---|---|---|---|---|---|---|---|
+| Grubb the toll boss | 5 | 6 | 16× | 388 | 27 | 116 | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 19× | 585 | 36 | 155 | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 22× | 1,062 | 51 | 220 | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 22× | 1,486 | 66 | 286 | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 27× | 1,941 | 72 | 313 | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 22× | 1,581 | 72 | 313 | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 22× | 2,005 | 87 | 380 | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 22× | 2,196 | 99 | 432 | fights from boats at range |
+| Castle commander | 28 | 10 | 27× | 3,098 | 109 | 473 | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 30× | 3,508 | 112 | 486 | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 32× | 3,811 | 115 | 499 | cold: heals when he eats buns, loses it when the pack's embers glow |
 
 **First-try win rate by level difference** (target; the sim must reproduce it):
 
