@@ -80,6 +80,7 @@ These are choices in the numbers that change how the game feels. I made them; Jo
 | gold | shops cover 70–85% of the next tier; half is lost on a defeat | richer or poorer |
 | mana | casters about six casts a fight; mana restored 10% per win | free mana between fights |
 | classes | the power-budget split per class (`balance.md` §3) | other splits |
+| hit chances | melee 90, ranged 75, spells never miss, clamped 15–95%, no accuracy by level, a mercy bonus after two misses, bosses' big attacks do not roll (`balance.md` §4a) | spells that can miss; level-based accuracy; no mercy rule |
 | UI | three taps for anything frequent; a quick-skill button | a bigger menu |
 
 ## What is still not decided (Joakim at Gate 1)

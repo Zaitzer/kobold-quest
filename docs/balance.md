@@ -24,6 +24,7 @@ Every number below exists to produce one of these. If a number makes the anti-fe
 | **Walking a route** | a stroll with interruptions | a fight about every 30 steps, never two in a row; something off the path | an endless corridor of fights |
 | **Arriving in a town** | relief, then curiosity | no fights in town; a fountain; the trouble visible in 30 seconds | another menu |
 | **The fountain** | "ahh" | heals everyone, free, every town | a toll |
+| **A miss** | "bad luck", never "unfair" | an average hit rate of 80–85%; the odds always on screen; a mercy bonus after two misses; big boss attacks do not roll | a 95% miss with no explanation |
 | **Losing** | "oops" | back to a fountain, half your gold, no lost items | punishment, lost progress |
 | **A keeper challenge** | clever, not hard | no fail state; a hint is always one tap away | a puzzle you can fail and redo for 10 minutes |
 | **A Smiler piece** | ceremony | a big sound, the diagram fills, the town cheers | a quest item in a bag |
@@ -237,6 +238,140 @@ Bosses can be retried at once with no loss beyond the potions used. After two lo
 the nearest keeper says which skill would help); after three, it offers to step the boss down one notch. Nobody is ever
 stuck.
 
+## 4a. Hit chances and crits
+
+**The rule in one line:** *positioning changes the odds, levels change the damage, and the number on the screen is the
+whole truth.* A player should be able to look at a foe, read "65%", and know exactly why.
+
+**What we want the player to feel:** a miss is *bad luck*, never *unfair*. About one attack in six misses (we aim for an
+average hit rate of **80–85%**); the misses that hurt most are the ones the player chose to risk (a shot from far away, at a
+foe in cover), not ones they could not see coming.
+
+### Base chance, by kind of attack
+
+| attack | base chance | why |
+|---|---|---|
+| melee (blades, axes, fists, daggers) | **90%** | you are next to the foe and risk the counter-attack, so it is reliable |
+| ranged (guns, bows, slings) | **75%** | safe from a distance, so less reliable; cover and range matter |
+| spells (wands, orbs, teapots, holy, nature, songs) | **100%, never miss** | casters pay in mana, fragility and fewer, costlier actions; they also have status resistance to fight against |
+| skills | the weapon's chance plus the skill's own modifier (below) | |
+
+### Class accuracy (added to the base)
+
+| class | modifier | reason |
+|---|---|---|
+| Fighter | +5 melee | the reliable one |
+| Barbarian | −5 melee | swings wild; makes up for it in damage |
+| Paladin | 0 | |
+| Ranger | +10 ranged | the marksman |
+| Rogue | +5 melee, +10 against a flanked or unaware foe | strikes where it counts |
+| Monk | +5 melee | trained |
+| Cleric, Druid, Bard | −10 on weapon attacks | weapons are an afterthought; spells never miss anyway |
+| Wizard, Sorcerer, Warlock | none (weapon attacks are spells) | |
+
+### Tactical modifiers (the same for both sides)
+
+Everything the player can change by moving or choosing:
+
+| situation | modifier | notes |
+|---|---|---|
+| target in **half cover** | **−20** | ranged only; melee ignores cover |
+| target in **full cover** | **−40** | ranged only |
+| target **flanked** (an ally on the opposite side) | cover is ignored; **+15 crit** | the reward for positioning |
+| beyond the weapon's best range | **−10 per tile** | each weapon has a best range (popgun 5 of 7, cannon 7 of 9) |
+| close range with a close-range weapon | +15 | blunderbuss and the like |
+| target in **tall grass**, not adjacent | −10 | |
+| target is **guarding** | −25, and −25% damage taken | a real defensive choice |
+| target is **stunned or rooted** | +20 | it cannot dodge |
+| target **unaware** (surprise) | +20, and +10 crit | the ambush bonus |
+| target's **dodge** (gear, skill) | −1 per 1% dodge, total dodge capped at 30% | |
+| attacker's **free hit** (leaving reach) | −10 | |
+| attacker on **watch** | −15 | |
+| attacker is **weakened** | −10 | |
+
+### Skill modifiers
+
+| skill | hit modifier | note |
+|---|---|---|
+| Power bonk, Clang, Shield bash, Palm strike | 0 | |
+| Aimed shot | +20 | the careful one |
+| Headshot | +15 | |
+| Arrow rain, Volley (area, ranged) | −10 *per target* | each foe rolls separately; coverage costs reliability |
+| Cleave, Whirlwind, Stomp (area, melee) | −10 per target | |
+| Flurry | three rolls, each −10 | on average 2.4 hits of 3 |
+| Reckless swing | +10 | the recklessness is in the drawback, not the aim |
+| Sneak attack | +20 if flanked, stunned or unaware | otherwise 0 |
+| Smite, spells, Teapot blast, Hex | never miss | |
+| Traps | no roll | they spring when stepped on |
+
+### Statuses (stun, slow, root, hex, weaken, confuse)
+
+A status applied *by a damaging skill* happens if the hit lands. A *pure* status skill (Lullaby, Vine snare, Hex, Rumour)
+rolls a **resist check**:
+
+**chance = 80% − 2 per level the target is above the caster (never under 40%)**, then
+**normal foe ×1.0, elite ×0.8, boss ×0.5**.
+
+| target | stun, root, confuse chance (same level) | duration |
+|---|---|---|
+| normal foe | 80% | 1–2 turns |
+| elite or patrol leader | 64% | 1 turn |
+| boss | 40% | 1 turn (never 2) |
+
+So a boss can be stunned but only as a gamble; a stun is never the plan, only a bonus. The stunned foe is the exception
+to "no hidden levels": its resistance is shown as "likely" / "unlikely" on the skill.
+
+### Limits
+
+- **Every chance is clamped between 15% and 95%.** Below 15% an attack is a trap for the player; at 100% it is a
+  guarantee that feels too safe. 95% leaves the thrill of a rare miss.
+- **No accuracy by level.** The level gap shows up in damage and HP (the level table in section 3), not in the odds.
+  This keeps the numbers readable.
+- **Bosses' big, telegraphed attacks do not roll.** They are avoided by moving out of the shown area; if you are in it you
+  are hit. The danger is a decision, not a die.
+- **Mercy rule (player only):** after **two misses in a row** by the same kobold, its next attack gets **+15%**. It is shown
+  in the breakdown ("mercy +15"). It evens out streaks of bad luck without changing the average much (about +1.5% overall).
+
+### Crits
+
+| | value |
+|---|---|
+| base crit chance | **8%** |
+| crit damage | **×1.5** |
+| flanked target | +15 |
+| unaware target | +10 |
+| gear and talents | 1 power point = +2% (a ring of crit is worth +6% at most) |
+| cap | **50%** |
+| spells | can crit at the same chance; a crit adds ×1.5 |
+
+On a normal fight a crit adds about 4% damage (8% × 0.5), which is small on purpose: crits are a pleasant flash, not a
+build. A crit-focused build (rogue with the right gear) can reach 35–40% and then adds about 18% damage.
+
+### What the average comes to (the check)
+
+For an average pack in an average fight, the attacks are about 40% melee, 40% ranged and 20% spells:
+
+| | share | average chance |
+|---|---|---|
+| melee (90 + class) | 40% | 90% |
+| ranged (75 + class − cover − range) | 40% | about 66% (the average foe is in half cover 30% of the time, and about 15% of shots are past best range) |
+| spells | 20% | 100% |
+| **overall** | | **40%×90 + 40%×66 + 20%×100 = 82%** |
+
+That is inside the 80–85% target, and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
+the average below 78%, fights run too long and the first fix is less cover on the boards, not a higher base chance.**
+In a 3–4 round fight a pack makes about 14 attacks, so the expected number of misses is **2.5**; roughly 6% of fights have
+no misses at all and about 9% have five or more.
+
+### How it is shown
+
+- Each foe shows its hit chance as a small badge when the active kobold could attack it: **white at 80% or more, yellow
+  50–79%, orange under 50%**, with a shape as well as a colour. It is the real number, never rounded for comfort.
+- **Press and hold** shows the breakdown in plain words: "75 base, half cover −20, past best range −10, mercy +15 =
+  60%", plus the crit chance and the damage range, and a skull badge when the hit would kill.
+- A pure status skill shows "likely" (65% or more), "maybe" (40–64%) or "unlikely" (under 40%) instead of a number.
+- Enemies' chance to hit *you* is shown on your kobold when you hover or hold it, the same way.
+
 ## 5. Encounters, routes and the distance walked
 
 **How encounters work:** each step on a route tile rolls for a fight. The number is the *chance per step*.
@@ -443,5 +578,7 @@ Rewrite `test/sim` so one run prints these, against the targets above, for every
 5. Potions used per stretch (about 25% of income).
 6. Fights per hour and the time per stretch (the time table).
 7. Each class alone against the same foes: no class below 85% or above 115% of the fighter's clear time at the same level.
+8. Average hit rate per attack kind and overall (target 80–85%, melee 90, ranged about 66, spells 100), crit rate (about
+   10% overall), the number of misses per fight (about 2.5) and how often the mercy rule triggers (about once a fight).
 
 **Open questions for Joakim are in `gate1-review.md`.**

@@ -158,7 +158,7 @@ hour goes behind ☰. The bottom-right corner is the best spot on the screen and
 **Always visible:** each pack member's HP, mana and a status icon (stunned, slowed, buffed, rooted, hexed); the foe's HP bar;
 the hit chance; the ember-bun count; the goal.
 **Never shown unless asked:** raw attack and defence numbers, the full hit-chance breakdown (it is one tap-hold away:
-"half cover −20, far −10"), foe stats (long-press a foe).
+"75 base, half cover −20, far −10"; see `balance.md` §4a), foe stats (long-press a foe).
 
 **Colour is never the only signal:** red tiles also carry a crosshair pattern, blue tiles a footprint pattern, rarity has a
 shape badge as well as a colour. The game works in a colourblind palette.
