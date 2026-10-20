@@ -18,6 +18,8 @@ creative director. Numbers (stats, damage, mana) are NOT set here; they come fro
 ## 2. Exploring
 
 - **The map:** Hearthspire in the middle, five towns, seven routes (see the world plan).
+- **The bun at the capital gate is flavour only:** the guards "take a bun" but it costs the player nothing. Ember-buns
+  stay at three in the whole game.
 - **Barriers are story, not keys:** the toll on the bun road (until three pieces), the shut north and east gates
   (until the flour tunnel, after the Ordeal), the island boats (until the harbour is patched). Each one is explained by
   a sign or a villager before you hit it. The old key items (lantern, flask, boots) are cut.
@@ -84,6 +86,8 @@ rule, just a joke the writers can lean on.
 
 ## 5. Party and companions
 
+- **Words:** the group is called the **pack** in everything the player reads (never "party", which reads as politics).
+  The internal name and the save key stay `party`.
 - **Pip plus up to two others** at a time, chosen from the roster. Those not in the party wait at the inn and catch up
   in level slowly.
 - **The roster is Pip and the seven companions. No extra recruits** (the old Fennel, Brass, Pell, Mist, Tikka and Skipper Gull are cut). Seven is
@@ -171,6 +175,9 @@ the challenge and is optional-feeling: the fight is how Snatchclaw's step is und
 - **Level sync:** when you help a lower-level friend, your party is brought down to their level for that fight. You
   still earn XP and loot suited to your real level, plus a **helper's reward** for cosmetics.
 - **Duels** for fun, **gifts** of items, the **market** for trading, **notes left on signs** for friends.
+- **Phasing for story scenes:** while you are in Hearthspire's story scenes (the empty square, the Ordeal), other players
+  are hidden from you, so "nobody comes" is true. In the finale the opposite: online players show up in the crowd and can
+  load their ember into the Smiler. (`gate1-review.md`, A3.)
 - Playing together never blocks anyone's story, and nobody has to play with others.
 - **Theme check:** the multiplayer is the theme made playable. A boss is beaten by whoever shows up; a friend who
   doesn't, doesn't. The helper's reward means showing up is rewarded, and nothing is lost by staying home except the

@@ -29,12 +29,12 @@ design document, and parts of the story bible.
 | 1.5 | Art director (Joakim draws) | **Style guide** and templates | done; drawing under way (Pip, grass) |
 | 1.6 | Sound designer | **Audio plan** | done; add tracks for Hearthspire and the castle |
 | 1.7 | Technical lead | **Tech plan** | done; add the rename list (warrior to fighter, sparks to pieces, bandits to guards, Mossbacks to Nettlenose) |
-| 1.8 | Producer | **Scope** (`docs/scope.md`) | to update with five towns, seven companions, two class waves |
+| 1.8 | Producer | **Scope** (`docs/scope.md`) | **v2 done 20 Oct** |
 
 **Next, in order:**
 1. ~~**World plan:** the new map.~~ *(done 20 Oct, v2 confirmed.)*
 2. ~~**Design document:** classes, companions, keeper challenges, field moves.~~ *(done 20 Oct.)*
-3. **Gate 1 again:** Joakim reads both and says go.
+3. **Gate 1 again:** Joakim reads the world plan, the design document and `docs/gate1-review.md` (the designer's checklist, four decisions at its end) and says go.
 4. **The new vertical slice** (phase 2 below).
 
 **Gate 1:** passed 17 Oct 2026 for the first story; **to pass again** with story v6.
