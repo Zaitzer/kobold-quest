@@ -157,6 +157,18 @@ Status costs: slow +1, **fall +1.5**, root +2, weaken or hex +2, stun +3, confus
 Healing: a single-target heal of 45% of max HP is 3 mana; a group heal is priced per effective target.
 Action points: 1 AP for cheap or utility skills, 2 AP for strong or area skills, "ends the turn" for heavy melee.
 
+**Hit chance and risk (J, 21 Oct).** The price above is at the skill type's base hit chance (melee 90%, ranged 75%, spells
+100%). A skill that hits less often is not only compensated, it is **paid for its risk**: equal expected damage would make a
+gamble no better than a sure thing, and nobody would take it. A hit-or-miss skill has a relative spread
+`CV = √((1 − h) ÷ h)` (0.33 at 90%, 0.65 at 70%, 1.0 at 50%), and the skill gets back 25% of its extra spread:
+
+**value = multiplier × (h ÷ base h) × (1 + 0.25 × (CV − CV at base))**, and the mana cost uses `value × targets` in place of `multiplier × targets`.
+
+Needed damage rise when the hit chance falls from 90%: 85% → +8%, 80% → +17%, 70% → +39%, 60% → +68%, 50% → +110%
+(equal expectation alone would be +6, +13, +29, +50, +80%). No skill is built under 50% effective hit chance; below that it is
+a coin flip, not a choice. The 0.25 is **U**: if playtests show the risky skills are never picked, it goes up. Spells never
+miss, so they pay no premium and get none.
+
 It reproduces the skills the engine already has (Power bonk 3, Clang 4, Ice bolt 3, Fireball 5, Headshot 5, Meteor 8).
 The new skills, by the same rule:
 
