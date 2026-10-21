@@ -65,7 +65,7 @@ Each item produces: the derivation written into the document, a mark (D / J / B 
 | 13 | **Progression and cadence (P10)** | the unlock times; the reward cadence; talents one per level, 3 offered, about 8 skills; the 10-minute rule against a 40-minute late level |
 | 14 | **UI numbers (P8)** | tap budgets; frequencies; the highlight limit of three; target size 44 px; text 14 / 18 px; contrast 4.5:1; hit-chance colours at 80 / 50 |
 | 15 | **Cross-check the documents** | every number appears in one place and nowhere else; no two files disagree; update `gate1-review.md`; fix `design.md` references |
-| ~~16~~ **done 21 Oct (combat side)** — see `balance.md` §11; pacing by arithmetic; gear-tier-behind, ranged hit and status resist still open | **Sensitivity runs** | move ten key numbers ±20% in the model (XP exponent, hit rates, foe HP, gold, encounter rate, gear share, boss k, mana, mercy, minutes per fight); list the ones that break a feeling; those get the first playtest questions |
+| 16 | ~~**Sensitivity runs**~~ **done 21 Oct** for combat (`balance.md` §11, `tools/balance-sensitivity.js`); pacing by arithmetic; still open: a skipped gear tier, ranged hit alone, status resist, the real map. | move ten key numbers ±20% in the model (XP exponent, hit rates, foe HP, gold, encounter rate, gear share, boss k, mana, mercy, minutes per fight); list the ones that break a feeling; those get the first playtest questions |
 
 ## When it is done
 
