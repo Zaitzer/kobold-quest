@@ -178,6 +178,58 @@ class's identity (like a hit die); the scores add to it.
 - *Open, not simulated:* the numbers above are a proposal. They are not yet reconciled with the class table or the talent
   line (audit tasks 3 and 7), and the yardstick fighter's stats must be re-derived to include its scores.
 
+#### Score-to-stat mapping (J, 21 Oct): every stat has one governing score
+
+Each stat is driven by exactly one score. Where a stat has two natural scores, the one that matches the weapon or spell family
+is used, so there is never a choice to make at the sheet.
+
+| stat | governing score | why |
+|---|---|---|
+| Attack (melee: blades, axes, fists) | STR | strength swings |
+| Attack (ranged and daggers) | DEX | aim and speed |
+| Special attack (wands, orbs, holy, nature) | WIS (holy, nature) or INT (wands, orbs) | learned or devout magic; the family sets which |
+| Special attack (teapots, instruments) | CHA | presence and performance |
+| Defence | CON | toughness |
+| Special defence (resistance to magic) | WIS | willpower |
+| Dodge | DEX | reflex |
+| Accuracy | DEX (ranged), STR (melee) | the same score as the attack it modifies |
+| Max HP, HP regen | CON | toughness |
+| Max mana | governing score of the caster's family | the mana pool scales with its magic |
+| Speed | DEX | footwork |
+| Initiative | DEX | reaction |
+| Crit chance | DEX | precision |
+| Threat | CHA | presence draws attention; WIS for the healer's watchfulness |
+| Morale | CHA | leadership in its small form |
+| Luck | none, no governing score | luck is luck (the score is not used; it is the one place where a roll is not explained) |
+| Corruption | none | it grows from choices, not from a score |
+| Fame | CHA | presence |
+| Resistance | WIS | the spell or status resist value |
+
+Modifiers go in as $m$ in every formula above. $m_{\text{gov}}$ means "the governing score's modifier", and a stat with no score
+uses 0.
+
+**Resistance feeds the spell formula (D).** The resist chance becomes
+
+$$r = \operatorname{clamp}\!\left(0.10 + 0.01\,\max(0,\,L_t - L_c) + 0.01\,(d-1) - 0.01\,\text{Res}_t,\; 0.05,\; 0.40\right)$$
+
+so each point of the target's resistance lowers the resist chance by one point, and the resistance stat is no longer decorative.
+
+**Reach (D).** A melee attack can hit every target within `reach` tiles, but the damage falls off with distance: the target at
+tile $j$ takes $\text{dmg} \cdot (1 - 0.25\,\max(0,\,j-1))$, so the extra tiles of a long weapon cost nothing at the front and hurt
+only at the edge. Reach is an integer, and the weapon sets its base. A reach of 2 hits the front tile in full and the next tile
+at 75%.
+
+**Fame (J).** Fame gains $+1$ per boss win and $+1$ per Smiler piece found, and loses nothing. Its effect is a single threshold
+table: at $\text{Fame} \ge 5, 10, 20$ a town greeting changes, and each threshold cuts shop prices by 2% (up to 6%). Fame never
+touches combat.
+
+**Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces:
+- $C \ge 10$: dark skills appear in the skill list.
+- $C \ge 25$: some keepers and companions react (one line of dialogue each); the shops of the two evil-leaning towns offer a dark discount.
+- $C \ge 50$: the ending branch "the shadowed hatchling" becomes available. It is never automatic.
+
+*Open, not simulated:* these mappings and steps are proposals. The numbers (5% per point, 2% per threshold, the steps of 10, 25 and 50) are J and need the playtest to settle them.
+
 - **Why the mana numbers:** a caster should be able to cast about six times per fight for two fights before an ether, a
   fountain or an inn. With an average skill cost of 5.5 that is 66 mana; the L30 figures are that. The engine's current
   mage mana growth (4.5 a level, 146 at level 30) is far too generous for fixed-cost skills and removes all mana tension.
