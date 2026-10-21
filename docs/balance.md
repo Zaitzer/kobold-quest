@@ -598,15 +598,63 @@ oil, hot oven tiles) applies a status when a creature *enters* the tile:
 | | value |
 |---|---|
 | base crit chance | **8%** |
-| crit damage | **×1.5** |
+| crit damage | **×1.5** base, no upper limit |
 | flanked target | +15 |
 | unaware target | +10 |
-| gear and talents | 1 power point = +2% (a ring of crit is worth +6% at most) |
-| cap | **50%** |
-| spells | can crit at the same chance; a crit adds ×1.5 |
+| gear and talents | priced by expected value: 1 power point = +1% expected damage, i.e. `100 × Δ[c × (D − 1)]` pp (so +2% crit chance at ×1.5 is 1 pp, as before) |
+| crit chance | a probability: never above 100% |
+| spells | can crit at the same chance and multiplier |
 
-On a normal fight a crit adds about 4% damage (8% × 0.5), which is small on purpose: crits are a pleasant flash, not a
-build. A crit-focused build (rogue with the right gear) can reach 35–40% and then adds about 18% damage.
+On a normal fight a crit adds about 4% damage (8% × 0.5): for most kobolds crits are a pleasant flash. But **crit builds
+are a real choice**, and they are paid for their risk.
+
+#### Crit builds: the risk is rewarded (J, Joakim's rule, 21 Oct)
+
+A crit build gives up steady damage for rare, huge hits. Equal average damage would make that gamble no better than a
+sure thing, so **a riskier crit is worth more than its plain average**, by the same idea as low-hit-chance skills
+(section 3, "Hit chance and risk").
+
+**The trade.** A normal hit deals `β` of the usual damage, a crit deals `D` times the usual damage, crit chance `c`:
+
+$$E = (1-c)\,\beta + c\,D, \qquad \sigma = (D-\beta)\sqrt{c\,(1-c)}, \qquad \text{CV} = \sigma / E$$
+
+**The premium** (saturating, so no build becomes free):
+
+$$\text{premium} = 1 + \lambda\cdot\frac{\text{CV}}{1 + \text{CV}/4}$$
+
+- **Trades that cost nothing** (an item or talent that cuts normal damage to raise crit damage): `λ = 0.15`, and the crit
+  multiplier must be the **rewarded D**, the one for which `E = premium`.
+- **Crit bought with power points** (gear that adds crit chance or crit damage without a drawback): cost in pp is
+  `100 × (E − 1) ÷ premium` with `λ = 0.5`, priced at a crit chance of at least 1% (an item with less is charged as if it had
+  1%), so a near-impossible lottery cannot buy a large average for nothing.
+
+**Rewarded crit multiplier for a free trade (λ = 0.15)**, with how often a kobold lands no crit at all in a 10-round boss fight:
+
+| crit chance | normal hit β | break-even D | **rewarded D** | average damage | no crit in 10 attacks |
+|---|---|---|---|---|---|
+| 50% | ×0.50 | ×1.5 | **×1.6** | ×1.07 | 0% |
+| 50% | ×0.10 | ×1.9 | **×2.1** | ×1.11 | 0% |
+| 30% | ×0.50 | ×2.2 | **×2.5** | ×1.10 | 3% |
+| 15% | ×0.50 | ×3.8 | **×4.8** | ×1.15 | 20% |
+| 15% | ×0.10 | ×6.1 | **×7.5** | ×1.21 | 20% |
+| 8% | ×0.50 | ×6.8 | **×9.2** | ×1.20 | 43% |
+| 8% | ×0.10 | ×11 | **×15** | ×1.26 | 43% |
+| 3% | ×0.50 | ×17 | **×26** | ×1.28 | 74% |
+| 3% | ×0.10 | ×30 | **×42** | ×1.34 | 74% |
+| 1% | ×0.50 | ×51 | **×87** | ×1.37 | 90% |
+| 1% | ×0.25 | ×75 | **×116** | ×1.40 | 90% |
+| 1% | ×0.10 | ×90 | **×132** | ×1.42 | 90% |
+
+(Break-even is `D = (1 − (1 − c) β) ÷ c`.) **The rule:** anything that lowers normal damage must raise crit damage to the
+rewarded `D` for the crit chance it is used with. Halving normal damage needs about ×2 only when crits come half the time;
+at 8% it needs ×9. A ×100 crit is a real build: about a 1% chance with normal hits cut to a quarter, +40% damage on
+average, and nine boss fights in ten without a single crit.
+
+**Open (proposed, not decided):** overkill carrying over to the nearest foe within 1 tile, so a jackpot can clear a group,
+and boss phase lines (75 / 50 / 25%) that one hit cannot cross more than one of, with a crit that crosses a line costing the
+boss its next turn. Both cut the realized value of the biggest crits a little below the table.
+
+*Arithmetic only, not simulated. λ (0.15 free, 0.5 bought), the 4 in the saturation and the 1% pricing floor are **U**.*
 
 ### What the average comes to (the check)
 

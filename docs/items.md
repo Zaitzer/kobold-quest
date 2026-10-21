@@ -12,7 +12,7 @@ not what the engine holds today. The current item tables in the code are replace
 | +1% attack | 1% of base attack |
 | +1% HP | 1% of base HP |
 | +2.5% defence | defence is worth less per point (each point removes only half a point of damage) |
-| +2% crit chance | crits do ×1.5 |
+| +2% crit chance | at ×1.5; in general crit is priced by expected value with a risk premium (`balance.md`, "Crit builds") |
 | +1% dodge | |
 | +1% accuracy | the same as dodge; it also adds `1 ÷ steadiness` tiles of reach |
 | +⅓ speed | 3 pp = 1 speed |
