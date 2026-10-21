@@ -251,7 +251,7 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.8–1.3 in the sim); 24–32% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
 
-**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
+**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Co-op bosses are covered in "Playing together" below.
 
 | boss | level | rounds R | HP multiple k | HP | each of 3 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels | the trick |
 |---|---|---|---|---|---|---|---|---|---|
@@ -271,6 +271,30 @@ The designed curve was 5 / 35 / 70 / 92 / 99% for −4 / −2 / 0 / +2 / +4 leve
 and 87–100% two over**. So the low side is steeper than designed: two levels under an early boss is almost a sure loss. That is
 why the hint after two losses matters, and why the goal bar shows a warning mark when the pack is two levels under (U: playtest
 whether this feels fair or whether the low side should be softened).
+
+#### Playing together: bosses and everything else (J, 21 Oct)
+
+*The game is multiplayer: a shared world, personal stories, level sync, and a rule that absence is never punished
+(`design.md` §10). Every boss is tuned for one player alone; co-op is help, never a requirement.*
+
+- **Boss scaling with the number of players n (D, arithmetic):** the boss gets **n sets of its three attacks a round** (each
+  hit the same size, so every kobold faces the same pressure as solo) and **HP × (1 + 0.9 × (n − 1))**. With 2, 3 and 4
+  players the fight lasts about 95%, 93% and 92% of the solo rounds: slightly easier, because teamwork brings more combos,
+  and the telegraph turns stay. The older rule (+25% HP and attack per extra player) made a two-player fight take 5 rounds
+  against 8 and was dropped.
+- **Level sync:** the helper's pack is brought down to the friend's level for the fight; gear counts as the synced level's.
+- **Buffs do not stack across players:** the same buff or hex from two bards or two warlocks does not add; the stronger one
+  applies (no "two bards = ×1.56").
+- **Downed kobolds can be revived by another player**, an easy and friendly verb for co-op.
+- **Credit and loot are personal:** everyone present gets their own XP and drops, so nobody can steal a kill and nobody rolls
+  for loot.
+- **Strength words on patrols** (Few / Several / Pack / Lots / Overwhelming) are shown **relative to the viewer's synced
+  level**, and one group fight counts the same for everyone in the group.
+- **Shared-world resources** (mines, dwellings, anything that produces something each day) are **personal instances**, so
+  there is no race and no griefing.
+- **Turns:** in a co-op fight all players act in the same phase, in any order, with a short timer. Nobody waits for a
+  friend's four-skill choice.
+- *Not simulated; arithmetic only. The sim has no co-op fights.*
 
 Bosses can be retried at once with no loss beyond the potions used. **Each defeat softens that boss's HP by 10%** (up to
 three defeats, a small visible "softened" mark, gone after a win). After two defeats the game also offers a hint (Mallow or
