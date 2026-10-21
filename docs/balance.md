@@ -140,6 +140,44 @@ nothing is "worse", only different. Stats are multipliers on the reference fight
 | Sorcerer | .60 | .12 | .28 | ×0.70 | ×1.10 | ×0.45 | ×1.0 | 14 → 64 | 5 |
 | Warlock | .50 | .22 | .28 | ×0.80 | ×0.95 | ×0.70 | ×1.0 | 12 → 52 | 5 |
 
+### Ability scores: the six (J, Joakim's request, 21 Oct)
+
+Every kobold has the six D&D scores. They are **a layer on top of the class table, not a second system**: each existing stat
+has exactly one governing score, so nothing is counted twice. The class table (HP, attack, defence, speed, mana) stays the
+class's identity (like a hit die); the scores add to it.
+
+| score | governs in combat | governs outside combat |
+|---|---|---|
+| **Strength (STR)** | attack with blades, axes and fists | pushing and breaking (field moves that need a shove) |
+| **Dexterity (DEX)** | dodge, accuracy, speed, and attack with daggers and guns | sneaking past patrols |
+| **Constitution (CON)** | HP and HP regeneration | stamina: how far a kobold walks before it complains (flavour) |
+| **Intelligence (INT)** | spell attack for the wizard; **foe detail**: shows weaknesses and resistances | crafting yield; reading signs and maps |
+| **Wisdom (WIS)** | resistance (spells and statuses landing on you), spotting the unseen; spell power for cleric, druid, ranger | finding hidden chests; noticing patrols |
+| **Charisma (CHA)** | chance your statuses land (foe resistance −2 per point); song and buff strength; spell power for bard, sorcerer, warlock, paladin | shop prices (−1% per point), companion mood |
+
+- **One point of modifier = 5 power points (J)**, split inside its score (CON: +5% HP; STR: +5% attack; DEX: +2.5 dodge points and +2.5 accuracy; INT/WIS/CHA: +5% of the casting or status effect they govern). It uses the same price as gear (`items.md`), so a ring that gives +1 to a score costs 5 pp.
+- **Modifier = (score − 10) ÷ 2, rounded down.** A score of 10 is average and adds nothing.
+- **Every class starts with the same six numbers, 15, 14, 13, 12, 10 and 8** (the D&D standard array), handed out in the class's own priority order, so every class has the same total (modifiers +2, +2, +1, +1, 0, −1: 5 modifier points, 25 power points) and the budget stays equal by construction:
+
+| class | priority order (15, 14, 13, 12, 10, 8) |
+|---|---|
+| Fighter, Barbarian | STR, CON, DEX, WIS, CHA, INT |
+| Paladin | STR, CHA, CON, WIS, DEX, INT |
+| Ranger | DEX, WIS, CON, STR, INT, CHA |
+| Rogue | DEX, INT, CON, CHA, WIS, STR |
+| Monk | DEX, WIS, CON, STR, CHA, INT |
+| Cleric | WIS, CON, STR, CHA, DEX, INT |
+| Druid | WIS, CON, DEX, INT, STR, CHA |
+| Bard | CHA, DEX, CON, WIS, INT, STR |
+| Wizard | INT, CON, DEX, WIS, CHA, STR |
+| Sorcerer, Warlock | CHA, CON, DEX, INT or WIS, WIS or INT, STR |
+
+- **Growth:** the stat picks among the talents (about 30% of the 30 picks, so about 9) each give **+1 to a score**, up to a
+  cap of 20. A cap makes the player spread points instead of stacking one. This replaces the old "+0.45 attack, +0.375
+  defence and +2.1 HP per level" line. **Gear** can give +1 or +2 to a score.
+- *Open, not simulated:* the numbers above are a proposal. They are not yet reconciled with the class table or the talent
+  line (audit tasks 3 and 7), and the yardstick fighter's stats must be re-derived to include its scores.
+
 - **Why the mana numbers:** a caster should be able to cast about six times per fight for two fights before an ether, a
   fountain or an inn. With an average skill cost of 5.5 that is 66 mana; the L30 figures are that. The engine's current
   mage mana growth (4.5 a level, 146 at level 30) is far too generous for fixed-cost skills and removes all mana tension.
