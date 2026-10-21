@@ -83,8 +83,8 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Gear** supplies about +80% of base attack (weapon 60%, the rest 20%), about +68% of base defence and +22% of base HP,
   at the level its tier arrives (see `items.md`; the level table below uses 70% and 25%, close enough to leave as is). Gear tiers arrive at levels **1, 5, 10, 16, 22, 28**.
 - **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
-- **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. Melee hits 90% of the time, ranged 75%,
-  spells never miss. Crit chance 8%, crit damage ×1.5.
+- **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. Melee hits 90% of the time, ranged 75%;
+  spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
 ### The level table (the reference fighter, on-level standard foes)
 
@@ -158,7 +158,7 @@ Healing: a single-target heal of 45% of max HP is 3 mana; a group heal is priced
 Action points: 1 AP for cheap or utility skills, 2 AP for strong or area skills, "ends the turn" for heavy melee.
 
 **Hit chance and risk (J, 21 Oct).** The price above is at the skill type's base hit chance (melee 90%, ranged 75%, spells
-100%). A skill that hits less often is not only compensated, it is **paid for its risk**: equal expected damage would make a
+100% listed, 95% after resists). A skill that hits less often is not only compensated, it is **paid for its risk**: equal expected damage would make a
 gamble no better than a sure thing, and nobody would take it. A hit-or-miss skill has a relative spread
 `CV = √((1 − h) ÷ h)` (0.33 at 90%, 0.65 at 70%, 1.0 at 50%), and the skill gets back 25% of its extra spread:
 
@@ -166,8 +166,10 @@ gamble no better than a sure thing, and nobody would take it. A hit-or-miss skil
 
 Needed damage rise when the hit chance falls from 90%: 85% → +8%, 80% → +17%, 70% → +39%, 60% → +68%, 50% → +110%
 (equal expectation alone would be +6, +13, +29, +50, +80%). No skill is built under 50% effective hit chance; below that it is
-a coin flip, not a choice. The 0.25 is **U**: if playtests show the risky skills are never picked, it goes up. Spells never
-miss, so they pay no premium and get none.
+a coin flip, not a choice. The 0.25 is **U**: if playtests show the risky skills are never picked, it goes up. Spells are resisted
+not missed (see "Resisted spells"): their base value is 95% of the listed damage and their spread is small
+(`CV` 0.16, against 0.33 for a melee attack at 90%), so they sit near the bottom of the premium scale and an
+unusually resistible spell is priced from its own base in the same way.
 
 It reproduces the skills the engine already has (Power bonk 3, Clang 4, Ice bolt 3, Fireball 5, Headshot 5, Meteor 8).
 The new skills, by the same rule:
@@ -294,7 +296,7 @@ foe in cover), not ones they could not see coming.
 |---|---|---|
 | melee (blades, axes, fists, daggers) | **90%** | you are next to the foe and risk the counter-attack, so it is reliable |
 | ranged (guns, bows, slings) | **75%** | safe from a distance, so less reliable; cover and range matter |
-| spells (wands, orbs, teapots, holy, nature, songs) | **100%, never miss** | casters pay in mana, fragility and fewer, costlier actions; they also have status resistance to fight against |
+| spells (wands, orbs, teapots, holy, nature, songs) | **never miss, but 10% are resisted for half damage (95% of the listed damage)** | a spell is never wasted entirely, so the worst feeling (mana and a turn for nothing) is softened; the resist chance rises against tougher foes and shifts with the element (see "Resisted spells") |
 | skills | the weapon's chance plus the skill's own modifier (below) | |
 
 ### Class accuracy (added to the base)
@@ -307,7 +309,7 @@ foe in cover), not ones they could not see coming.
 | Ranger | +10 ranged | the marksman |
 | Rogue | +5 melee, +10 against a flanked or unaware foe | strikes where it counts |
 | Monk | +5 melee | trained |
-| Cleric, Druid, Bard | −10 on weapon attacks | weapons are an afterthought; spells never miss anyway |
+| Cleric, Druid, Bard | −10 on weapon attacks | weapons are an afterthought; spells are only rarely resisted |
 | Wizard, Sorcerer, Warlock | none (weapon attacks are spells) | |
 
 ### Tactical modifiers (the same for both sides)
@@ -342,7 +344,7 @@ Everything the player can change by moving or choosing:
 | Flurry | three rolls, each −10 | on average 2.4 hits of 3 |
 | Reckless swing | +10 | the recklessness is in the drawback, not the aim |
 | Sneak attack | +20 if flanked, stunned or unaware | otherwise 0 |
-| Smite, spells, Teapot blast, Hex | never miss | |
+| Smite, spells, Teapot blast, Hex | never miss; resisted 10% of the time for half damage | see "Resisted spells" |
 | Traps | no roll | they spring when stepped on |
 
 ### Statuses (stun, fall, slow, root, hex, weaken, confuse)
@@ -361,6 +363,24 @@ rolls a **resist check**:
 
 So a boss can be stunned but only as a gamble; a stun is never the plan, only a bonus. The stunned foe is the exception
 to "no hidden levels": its resistance is shown as "likely" / "unlikely" on the skill.
+
+#### Resisted spells (J, Joakim's rule, 21 Oct)
+
+**Every attack rolls: a weapon rolls to hit; a spell rolls to land against the target's resistance. A spell that fails is
+*resisted*, not missed: it deals half damage and still costs its mana.** One resistance rule serves damage spells and
+status spells alike:
+
+- **Damage spell, chance to be resisted = 10% + 1 per level the target is above the caster** (never under 5%, never over 40%);
+  expected damage at equal level is 0.9 + 0.1 × 0.5 = **95%** of the listed number.
+- **Status spell, chance to be resisted** = the existing rule (20% + 2 per level above, times 1.0 / 0.8 / 0.5 for normal foe,
+  elite, boss), i.e. exactly twice the damage-spell figure. A resisted status simply fails.
+- **Element:** a foe weak to the spell's element resists it 10 points less often (never under 5%); a resistant foe 15
+  points more often (never over 40%). Every town's foes have one weakness and one resistance (Emberreach: weak to frost,
+  resistant to fire; Frostwick the reverse), so bringing the right caster is a real choice.
+- **Bosses resist damage spells no more than other foes** (only their statuses are harder to land), so the boss tables
+  stand. The resistance is shown as "likely / unlikely" on the skill, like a hit chance.
+- *Not simulated: arithmetic only. The model's spells still never miss, a 5% difference in caster damage; rerun the class
+  and boss checks when the rule reaches the engine.*
 
 #### One price list for statuses and terrain (J, by arithmetic, 21 Oct)
 
@@ -429,8 +449,8 @@ For an average pack in an average fight, the attacks are about 40% melee, 40% ra
 |---|---|---|
 | melee (90 + class) | 40% | 90% |
 | ranged (75 + class − cover − range) | 40% | about 66% (the average foe is in half cover 30% of the time, and about 15% of shots are past best range) |
-| spells | 20% | 100% |
-| **overall** | | **40%×90 + 40%×66 + 20%×100 = 82%** |
+| spells (10% resisted for half) | 20% | 95% of the damage |
+| **overall** | | **40%×90 + 40%×66 + 20%×95 = 81%** |
 
 That is inside the 80–85% target, and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
 the average below 78%, fights run too long and the first fix is less cover on the boards, not a higher base chance.**
@@ -652,8 +672,8 @@ Rewrite `test/sim` so one run prints these, against the targets above, for every
 5. Potions used per stretch (about 25% of income).
 6. Fights per hour and the time per stretch (the time table).
 7. Each class alone against the same foes: no class below 85% or above 115% of the fighter's clear time at the same level.
-8. Average hit rate per attack kind and overall (target 80–85%, melee 90, ranged about 66, spells 100), crit rate (about
-   10% overall), the number of misses per fight (about 2.5) and how often the mercy rule triggers (about once every three fights).
+8. Average hit rate per attack kind and overall (target 80–85%, melee 90, ranged about 66, spells 95 after resists), crit rate (about
+   10% overall), the number of misses and resists per fight (about 2.5) and how often the mercy rule triggers (about once every three fights).
 
 **Open questions for Joakim are in `gate1-review.md`.**
 
