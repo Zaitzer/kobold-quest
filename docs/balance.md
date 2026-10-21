@@ -157,8 +157,8 @@ Status costs: slow +1, **fall +1.5**, root +2, weaken or hex +2, stun +3, confus
 Healing: a single-target heal of 45% of max HP is 3 mana; a group heal is priced per effective target.
 Action points: 1 AP for cheap or utility skills, 2 AP for strong or area skills, "ends the turn" for heavy melee.
 
-**Hit chance and risk (J, 21 Oct).** The price above is at the skill type's base hit chance (melee 90%, ranged 75%, spells
-100% listed, 95% after resists). A skill that hits less often is not only compensated, it is **paid for its risk**: equal expected damage would make a
+**Hit chance and risk (J, 21 Oct).** The price above is at the skill type's *typical* hit chance against a normal foe (melee 90%, ranged about 66%, spells
+100% listed, 95% after resists; see "The one formula"). The base `h` in the rule below is that typical figure for the weapon. A skill that hits less often is not only compensated, it is **paid for its risk**: equal expected damage would make a
 gamble no better than a sure thing, and nobody would take it. A hit-or-miss skill has a relative spread
 `CV = √((1 − h) ÷ h)` (0.33 at 90%, 0.65 at 70%, 1.0 at 50%), and the skill gets back 25% of its extra spread:
 
