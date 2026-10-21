@@ -25,6 +25,7 @@ const P={
   potion:.35, potionsPerFight:3,                   // J  potions in the bag at a boss
   mercy:.15,                                       // J  after two misses
   etaUtility:1.0,                                  // J  1 point of utility share = 1 point of power
+  manaK:2.2,                                       // J  mana at L30 = manaK x (1.2 casts/round x 3.5 rounds) x cost: how many fights of full casting a pool lasts
   roundsRef:3.5,                                   // D  from the sim below (kept in sync by hand)
 };
 
@@ -76,7 +77,7 @@ function dprOf(cls,L,atkMult,M,R){const k=KIT[cls],r=ref(L),f=foe(L),atk=r.atk*a
   return(casts*skill+(R-casts)*basic)/R}
 /* mana pool: enough for 'sustain' fights of greedy casting at ~1.2 casts a round; shrinks to the skill's cost early on */
 function manaPool(cls,L){const k=KIT[cls];const c=k.atk?k.atk.mp:k.heal?k.heal.mp:3;const casts=1.2*P.roundsRef;
-  const m30=2.2*casts*c, m1=Math.max(3*c,6);return Math.round(m1+(m30-m1)*(L-1)/29)}
+  const m30=P.manaK*casts*c, m1=Math.max(3*c,6);return Math.round(m1+(m30-m1)*(L-1)/29)}
 function deriveClasses(L0){L0=L0||10;const [d0,h0,u0]=SPLIT.fighter,out={};
   const f0=ref(L0),fo=foe(L0);
   const dprF=dprOf('fighter',L0,1,manaPool('fighter',L0),P.roundsRef);
@@ -86,7 +87,7 @@ function deriveClasses(L0){L0=L0||10;const [d0,h0,u0]=SPLIT.fighter,out={};
     const x=g*Math.sqrt(rho), y=g/Math.sqrt(rho);                        // relative DPR and relative EHP
     // attack multiplier: bisection so that dprOf(...)/dprF = x
     let lo=.1,hi=4;for(let i=0;i<60;i++){const mid=(lo+hi)/2;(dprOf(c,L0,mid,manaPool(c,L0),P.roundsRef)/dprF<x)?lo=mid:hi=mid}
-    const atkM=(lo+hi)/2;
+    const atkM=KIT[c].weak?1:(lo+hi)/2;                                  // J: supports keep a plain weapon; their budget is the heal/buff
     const hpM=Math.pow(y,.6);                                            // J: durability is mostly HP, the rest defence
     // y = hpM * (foeAtk - fighterDef/2) / (foeAtk - classDef/2)  =>  classDef
     const dmgF=fo.atk-f0.def/2, dmgC=dmgF*hpM/y, defM=clamp((fo.atk-dmgC)*2/f0.def,.2,1.6);
