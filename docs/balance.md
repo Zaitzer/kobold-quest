@@ -307,7 +307,7 @@ chance comes from the *target*, so it can be read off the foe:
   distance at which the chance still holds: `tiles at 50% against a normal foe = 1 + (40 + accuracy) ÷ steadiness`. An
   accuracy bonus of +10 adds `10 ÷ steadiness` tiles (+2 at steadiness 5); Aimed shot (+20) adds 4.
 - **Spells follow the same rule, with the target's *resistance* in place of dodge.** The chance a spell *lands* is
-  `100% + focus − the target's resistance − steadiness × (tiles − 1)`; a spell that does
+  `100% + accuracy − the target's resistance − steadiness × (tiles − 1)`; a spell that does
   not land is *resisted* and deals half damage (see "Resisted spells"). So a far spell is resisted more often, but it is
   never worth less than half, and it reaches 0% and is not offered ("too far") only at extreme distance. Spells ignore
   cover (they fly over it) but not line of sight. **Healing and other spells on friends never roll and have no distance
