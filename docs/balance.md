@@ -8,6 +8,15 @@ simulators (`test/sim`) are rewritten to hit these targets. Items are in `items.
 can't, we change the content, not the target, unless the target itself turns out to feel wrong in play (then we change it
 here first, in writing). The tables were computed together (one model, one script), so they agree with each other.
 
+**The numbers I am least sure of** (full table in section 11; these get the first playtest questions):
+
+1. **The boss budget and boss HP** (`T = 4.3 + 0.04 × level`, `k = R × (3.5 + 0.03 × level)`): ±20% moves a boss from 75% to 45% (or 93%) first-try. Softening on defeat is the safety net. *Question: does the third boss feel fair or cheap?*
+2. **Hit chances** (pack hits and foes' hits): −20% on the pack's hit chance drops bosses to 41%. *Question: do misses feel like bad luck or like the game cheating?*
+3. **"Everything else" is 60% of the play time** (560 of 932 minutes: talking, menus, looking around) and is a guess. ±20% there is ±1.9 hours of the 15.5. *Question: time a real session.*
+4. **The encounter rate** decides whether the player is ahead of or behind the bosses by about a level, and a level is worth about 20 points of win rate.
+5. **Mana pools** (±20% moves bosses 62–81%).
+6. **The low side of the boss curve** (two levels under an early boss is nearly a sure loss) and the **14-pack caster and support corner** (8 packs under 30%).
+
 ## 1. The feelings we want
 
 Every number below exists to produce one of these. If a number makes the anti-feeling, the number is wrong.
@@ -249,9 +258,14 @@ and 87–100% two over**. So the low side is steeper than designed: two levels u
 why the hint after two losses matters, and why the goal bar shows a warning mark when the pack is two levels under (U: playtest
 whether this feels fair or whether the low side should be softened).
 
-Bosses can be retried at once with no loss beyond the potions used. After two losses the game offers a hint (Mallow or
+Bosses can be retried at once with no loss beyond the potions used. **Each defeat softens that boss's HP by 10%** (up to
+three defeats, a small visible "softened" mark, gone after a win). After two defeats the game also offers a hint (Mallow or
 the nearest keeper says which skill would help); after three, it offers to step the boss down one notch. Nobody is ever
-stuck.
+stuck. *Why this rule and not a more careful number (model, 21 Oct):* a boss is a race, so a 20% error in its HP moves the
+first-try win rate from 75% to 45% and **no change to the fight's shape can flatten that** (a half-HP breather was tested
+and made no difference at equal difficulty). What does help is correcting after the fact: with softening, a boss that turned
+out 20% too hard leaves **5%** of players still stuck after three tries (17% without), a 40% error 23% (61% without), and a
+boss tuned right is untouched (1.34 tries on average against 1.29).
 
 ## 4a. Hit chances and crits
 
@@ -597,3 +611,37 @@ Rewrite `test/sim` so one run prints these, against the targets above, for every
    10% overall), the number of misses per fight (about 2.5) and how often the mercy rule triggers (about once every three fights).
 
 **Open questions for Joakim are in `gate1-review.md`.**
+
+## 11. How sure are we? (sensitivity, 21 Oct)
+
+`node tools/balance-sensitivity.js` moves each number 20% either way and measures three things on the reference packs:
+rounds in a normal fight (band 2.5–4.5), pack HP lost in a normal fight (15–35%) and the first-try boss win rate (50–90%).
+Base: **3.54 rounds, 22% HP lost, 75% boss win.**
+
+| number | −20%: rounds / lost / boss | +20%: rounds / lost / boss | breaks a band? |
+|---|---|---|---|
+| foe HP (4 × basic hit) | 3.0 / 18% / 75% | 4.0 / 24% / 75% | no |
+| foe damage (share of fighter HP) | 3.5 / 19% / 77% | 3.6 / 25% / 71% | no |
+| pack hit chance | 4.2 / 25% / 41% | 3.4 / 20% / 80% | **−20%: boss too hard** |
+| foes' hit chance | 3.5 / 18% / 90% | 3.6 / 25% / 46% | **both ends: bosses** |
+| gear share, talents | unchanged | unchanged | no (see below) |
+| mana pools | 3.5 / 22% / 62% | 3.5 / 22% / 81% | no |
+| mercy bonus, crit chance | no change | no change | no |
+| potion strength | 3.5 / 22% / 69% | 3.5 / 22% / 77% | no |
+| foes per fight | 2.9 / 16% / 75% | 4.2 / 27% / 75% | no |
+| **boss damage budget T** | 3.5 / 22% / 95% | 3.5 / 22% / 44% | **both ends** |
+| **boss HP multiple k** | 3.5 / 22% / 93% | 3.5 / 22% / 43% | **both ends** |
+
+**What this says.**
+
+- **Normal fights are forgiving**: nothing moved them out of their bands. A wrong foe number costs half a round, not the game.
+- **Bosses are knife-edged by nature**: four numbers (T, k, the foes' hit chance, the pack's hit chance) swing a boss by 40–50 points of win rate. We do not try to make bosses insensitive (a phase break was tested and failed at equal difficulty); we **make mistakes cheap** with the softening rule in section 4.
+- **Gear share and talents show no change because the model normalises foes to the reference fighter**: their size cancels out. What gear really changes is the *gap* when the player is a tier behind (a skipped upgrade) or ahead. Check in the next pass: one gear tier behind should cost about one level of win rate (about 20 points), no more.
+- **Mercy and crit are cosmetic** for balance (they smooth the feeling of luck, not the odds), so they stay for the feeling.
+- **The XP exponent is cosmetic too**: ±20% on 1.6 changes the total XP from 30,597 to 11,812 or 80,456, but the *time* does not move, because the XP per foe is derived from the fights-per-level table (`need ÷ (0.8 × fights × foes)`). The table is the design; the exponent only sets how big the numbers on the screen are. 1.6 stays because it gives a gentle rise (level 29→30 needs 73× the XP of level 2→3), and the screen numbers stay readable.
+- **Pacing, by arithmetic (not simulated):**
+  - minutes per fight, boss or challenge ±20%: ±26, ±11, ±25 minutes of 932 (3% each at most);
+  - "everything else" ±20%: **±112 minutes**, the single largest uncertainty in the 15.5 hours;
+  - encounter rate −20%: fights supplied fall to 0.84–0.96 of those needed (4–16% short, about 6–20 fights, roughly 15 minutes of optional top-up); +20%: 26–44% too many, the player is about a level ahead of the bosses (bosses about 20 points easier) unless they skip fights, which they may;
+  - gold ±20%: coverage 68/72/84/46/66/84/83% becomes 54–101%: the weakest stretch (46%) is the one to watch.
+- **Not yet tested (still open):** a skipped gear tier; ranged hit chance on its own; the status resist formula; encounter rates against the real 600 × 340 map.
