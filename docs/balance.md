@@ -153,7 +153,7 @@ nothing is "worse", only different. Stats are multipliers on the reference fight
 Every skill is priced by one rule, so new skills can be added without guessing:
 
 **mana cost = 1 + 3 × (damage multiplier × average targets − 1) + status cost**, rounded.
-Status costs: slow +1, root +2, weaken or hex +2, stun +3, confuse +4. Average targets: single 1, line 2, area 2.2, chain 2.5.
+Status costs: slow +1, **fall +1.5**, root +2, weaken or hex +2, stun +3, confuse +4 (all from one rule: about 2 mana per action-equivalent, see the statuses section; rounded at the end). Average targets: single 1, line 2, area 2.2, chain 2.5.
 Healing: a single-target heal of 45% of max HP is 3 mana; a group heal is priced per effective target.
 Action points: 1 AP for cheap or utility skills, 2 AP for strong or area skills, "ends the turn" for heavy melee.
 
@@ -333,7 +333,7 @@ Everything the player can change by moving or choosing:
 | Smite, spells, Teapot blast, Hex | never miss | |
 | Traps | no roll | they spring when stepped on |
 
-### Statuses (stun, slow, root, hex, weaken, confuse)
+### Statuses (stun, fall, slow, root, hex, weaken, confuse)
 
 A status applied *by a damaging skill* happens if the hit lands. A *pure* status skill (Lullaby, Vine snare, Hex, Rumour)
 rolls a **resist check**:
@@ -349,6 +349,39 @@ rolls a **resist check**:
 
 So a boss can be stunned but only as a gamble; a stun is never the plan, only a bonus. The stunned foe is the exception
 to "no hidden levels": its resistance is shown as "likely" / "unlikely" on the skill.
+
+#### One price list for statuses and terrain (J, by arithmetic, 21 Oct)
+
+**The unit is the action-equivalent (AE): the share of one foe's turn a status removes, summed over its duration. A spell
+costs about 2 mana per AE, so a more crippling status is always dearer.**
+
+| status | what it takes away | AE | mana |
+|---|---|---|---|
+| slow | part of its movement, 2 turns | 0.5 | +1 |
+| **fall** (prone) | half its next turn to stand up, and it is easier to hit (+15) until it stands | 0.75 | +1.5 |
+| root | its movement for 2 turns (it can still attack) | 1 | +2 |
+| weaken, hex | a quarter of its attack, or a quarter more damage taken | 1 | +2 |
+| **stun** | its whole turn, for 1–2 turns | 1.5 | +3 |
+| confuse | its turn, and it hits its own friends | 2 | +4 |
+
+So **fall is always cheaper than stun**, and a new status must be placed on this ladder by what it takes away, not by feel.
+
+**Terrain uses the same ladder but is weaker than a spell, because no one pays mana for it.** A terrain hazard (ice, mud,
+oil, hot oven tiles) applies a status when a creature *enters* the tile:
+
+- **Ice → fall.** Chance = **40% − 1 per level the creature is above the terrain's level** (never under 15%), bosses ×0.5. This is
+  half of the same-level spell chance (80% − 2 per level). Stable footing is easy to keep: a hero a few levels above the
+  ice falls rarely, and the slope teaches the player to go round or take it slowly.
+- **One check per creature per turn**, so nobody falls twice in a turn.
+- **It works on both sides**, so the player can lure foes onto ice as well as avoid it.
+- **Value per tile entered** = chance × AE = 0.4 × 0.75 = **0.3 AE** at equal level, against 1.2 AE for a same-level stun
+  spell: terrain is about **a quarter** of the power of a spell of the same status. A route or dungeon may therefore carry
+  terrain hazards without moving the fight budget (section 5); a hazard that costs more than 0.3 AE per tile must be priced
+  as a skill.
+- Other terrain follows the ladder: mud = slow (chance 60%, 0.5 AE), a hot oven tile = damage instead of a status (priced as
+  a fraction of a hit; the Emberreach captain's "heat tiles" use this).
+
+*Not simulated: this is arithmetic only, and the engine has none of it yet (no prone state, no terrain statuses).*
 
 ### Limits
 
