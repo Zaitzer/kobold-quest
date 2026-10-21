@@ -228,7 +228,7 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.8–1.3 in the sim); 24–32% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
 
-**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win about 79%, 238 of 252 between 50 and 95%. Packs with a bard win 75%, packs without 81%. The game never needs a "must-have" class. Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
+**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
 
 | boss | level | rounds R | HP multiple k | HP | each of 3 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels | the trick |
 |---|---|---|---|---|---|---|---|---|---|
