@@ -83,7 +83,7 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Gear** supplies about +80% of base attack (weapon 60%, the rest 20%), about +68% of base defence and +22% of base HP,
   at the level its tier arrives (see `items.md`; the level table below uses 70% and 25%, close enough to leave as is). Gear tiers arrive at levels **1, 5, 10, 16, 22, 28**.
 - **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
-- **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. Melee hits 90% of the time, ranged 75%;
+- **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. A hit lands with `100% + accuracy − the target's dodge − cover − distance`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
   spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
 ### The level table (the reference fighter, on-level standard foes)
@@ -290,25 +290,61 @@ whole truth.* A player should be able to look at a foe, read "65%", and know exa
 average hit rate of **80–85%**); the misses that hurt most are the ones the player chose to risk (a shot from far away, at a
 foe in cover), not ones they could not see coming.
 
-### Base chance, by kind of attack
+### The one formula (J, Joakim's rule, 21 Oct)
 
-| attack | base chance | why |
+**chance = 100% + the attacker's accuracy − the target's dodge − cover − distance, clamped between 0% and 100%.**
+
+There is no "90% base for melee". 90% is simply what a blade does against the average foe, which has 10% dodge. The
+chance comes from the *target*, so it can be read off the foe:
+
+- **A target with no dodge is hit 100% of the time by melee.** A slow brute, a sleeping foe, a stunned or rooted foe
+  (its dodge counts as 0), a surprised foe: a swing from arm's length simply lands.
+- **Melee has no distance and ignores cover** (you are next to the foe).
+- **Ranged has no maximum range, only a falling chance.** Every tile of distance beyond the first costs the weapon's
+  *steadiness* (percentage points per tile), so a far shot is a gamble and a very far one reaches 0% and is not offered
+  ("too far"). Only **line of sight** limits a shot. Cover subtracts as before.
+- **Anything that raises accuracy also raises range**, because they are the same number. A weapon's reach is simply the
+  distance at which the chance still holds: `tiles at 50% against a normal foe = 1 + (40 + accuracy) ÷ steadiness`. An
+  accuracy bonus of +10 adds `10 ÷ steadiness` tiles (+2 at steadiness 5); Aimed shot (+20) adds 4.
+- **Spells have no hit roll** (they are *resisted*, see below). They keep a fixed reach for now (open question: should a
+  spell's resist chance also rise with distance?).
+
+**Steadiness, by weapon** (the guns family, `items.md`): the higher the tier, the farther it shoots with the same accuracy.
+
+| weapon | steadiness (points per tile) | reach at 50% vs a normal foe | feel |
+|---|---|---|---|
+| Popgun | 6 | 7 tiles | cheap, short |
+| Reed bow | 5 | 9 | the all-rounder |
+| Blunderbuss | 12, and +15 accuracy | 5 | scatter: deadly close, hopeless far |
+| Longbow | 4 | 11 | the sniper's start |
+| Frost musket | 3.5 | 12 | |
+| Ember cannon | 3 | 14 (the whole board) | |
+
+Example, Reed bow against a normal foe in the open: 90% at 1 tile, 70% at 5, 50% at 9, 30% at 13, 0% at 19 tiles.
+
+**Dodge** is what the target brings:
+
+| target | dodge | examples |
 |---|---|---|
-| melee (blades, axes, fists, daggers) | **90%** | you are next to the foe and risk the counter-attack, so it is reliable |
-| ranged (guns, bows, slings) | **75%** | safe from a distance, so less reliable; cover and range matter |
-| spells (wands, orbs, teapots, holy, nature, songs) | **never miss, but 10% are resisted for half damage (95% of the listed damage)** | a spell is never wasted entirely, so the worst feeling (mana and a turn for nothing) is softened; the resist chance rises against tougher foes and shifts with the element (see "Resisted spells") |
-| skills | the weapon's chance plus the skill's own modifier (below) | |
+| brute, slow, big | 0–5% | most bosses are big (5%), grubs, golems |
+| normal foe | **10%** | so a blade hits 90% on average |
+| quick or small | 20% | scouts, rats, imps |
+| elite or patrol leader | 25% | |
+| the kobolds | 10% base (small and quick) plus gear | boots, cloaks and rings add; by mid-game about 20%, so foes hit about 80% |
 
-### Class accuracy (added to the base)
+Total dodge from gear and skills is capped at 30% (before guarding). Dodge is a defence against *being hit*; defence
+(the stat) still takes damage off a hit, so a heavy foe is easy to hit and hard to hurt, a nimble one the other way round.
+
+### Class accuracy (added to accuracy; it also extends range)
 
 | class | modifier | reason |
 |---|---|---|
-| Fighter | +5 melee | the reliable one |
-| Barbarian | −5 melee | swings wild; makes up for it in damage |
+| Fighter | +5 | the reliable one |
+| Barbarian | −5 | swings wild; makes up for it in damage |
 | Paladin | 0 | |
-| Ranger | +10 ranged | the marksman |
-| Rogue | +5 melee, +10 against a flanked or unaware foe | strikes where it counts |
-| Monk | +5 melee | trained |
+| Ranger | +10 (ranged) | the marksman: about 2 extra tiles of reach |
+| Rogue | +5 | strikes where it counts (an unaware or stunned foe has no dodge, so the old "+10 against flanked or unaware" is no longer needed) |
+| Monk | +5 | trained |
 | Cleric, Druid, Bard | −10 on weapon attacks | weapons are an afterthought; spells are only rarely resisted |
 | Wizard, Sorcerer, Warlock | none (weapon attacks are spells) | |
 
@@ -321,18 +357,17 @@ Everything the player can change by moving or choosing:
 | target in **half cover** | **−20** | ranged only; melee ignores cover |
 | target in **full cover** | **−40** | ranged only |
 | target **flanked** (an ally on the opposite side) | cover is ignored; **+15 crit** | the reward for positioning |
-| beyond the weapon's best range | **−10 per tile** | each weapon has a best range (popgun 5 of 7, cannon 7 of 9) |
-| close range with a close-range weapon | +15 | blunderbuss and the like |
+| distance (ranged only) | **steadiness × (tiles − 1)** | see "The one formula"; blunderbuss has +15 accuracy |
 | target in **tall grass**, not adjacent | −10 | |
-| target is **guarding** | −25, and −25% damage taken | a real defensive choice |
-| target is **stunned or rooted** | +20 | it cannot dodge |
-| target **unaware** (surprise) | +20, and +10 crit | the ambush bonus |
-| target's **dodge** (gear, skill) | −1 per 1% dodge, total dodge capped at 30% | |
+| target is **guarding** | dodge +25 (so −25 to be hit), and −25% damage taken | a real defensive choice |
+| target is **stunned or rooted** | dodge counts as 0 | it cannot dodge; a foe with no other dodge is hit 100% |
+| target **unaware** (surprise) | dodge counts as 0, and +10 crit | the ambush bonus |
+| target's **dodge** (kind, gear, skill) | −1 per 1% dodge, gear and skill dodge capped at 30% | |
 | attacker's **free hit** (leaving reach) | −10 | |
 | attacker on **watch** | −15 | |
 | attacker is **weakened** | −10 | |
 
-### Skill modifiers
+### Skill modifiers (accuracy; each also extends the skill's reach)
 
 | skill | hit modifier | note |
 |---|---|---|
@@ -417,8 +452,11 @@ oil, hot oven tiles) applies a status when a creature *enters* the tile:
 
 ### Limits
 
-- **Every chance is clamped between 15% and 95%.** Below 15% an attack is a trap for the player; at 100% it is a
-  guarantee that feels too safe. 95% leaves the thrill of a rare miss.
+- **Chances run from 0% to 100%, with no soft ceiling or floor.** A hit is certain when the target cannot dodge, and that is
+  fine: the *risk* in the game comes from what the player chooses (a far shot, a foe in cover, a dodgy target), not from
+  a random 5% on every swing. A shot that would be under 15% is drawn in red with a "long shot" mark; one at 0% is not
+  offered ("too far"). At point blank the worst case is 100 − 30 (dodge cap) − 40 (full cover) = **30%**, so nothing nearby is a
+  trap. The mercy rule only matters below 100%.
 - **No accuracy by level.** The level gap shows up in damage and HP (the level table in section 3), not in the odds.
   This keeps the numbers readable.
 - **Bosses' big, telegraphed attacks do not roll.** They are avoided by moving out of the shown area; if you are in it you
@@ -447,8 +485,8 @@ For an average pack in an average fight, the attacks are about 40% melee, 40% ra
 
 | | share | average chance |
 |---|---|---|
-| melee (90 + class) | 40% | 90% |
-| ranged (75 + class − cover − range) | 40% | about 66% (the average foe is in half cover 30% of the time, and about 15% of shots are past best range) |
+| melee (100 − foe dodge 10 + class) | 40% | 90% |
+| ranged (100 − dodge 10 − cover − distance) | 40% | about 66% (average shot 4–5 tiles at steadiness about 5.5 costs about 19; the average foe is in half cover 30% of the time, about 6) |
 | spells (10% resisted for half) | 20% | 95% of the damage |
 | **overall** | | **40%×90 + 40%×66 + 20%×95 = 81%** |
 
@@ -461,7 +499,7 @@ no misses at all and about 9% have five or more.
 
 - Each foe shows its hit chance as a small badge when the active kobold could attack it: **white at 80% or more, yellow
   50–79%, orange under 50%**, with a shape as well as a colour. It is the real number, never rounded for comfort.
-- **Press and hold** shows the breakdown in plain words: "75 base, half cover −20, past best range −10, mercy +15 =
+- **Press and hold** shows the breakdown in plain words: "100, foe dodge −10, half cover −20, 6 tiles −25, mercy +15 =
   60%", plus the crit chance and the damage range, and a skull badge when the hit would kill.
 - A pure status skill shows "likely" (65% or more), "maybe" (40–64%) or "unlikely" (under 40%) instead of a number.
 - Enemies' chance to hit *you* is shown on your kobold when you hover or hold it, the same way.

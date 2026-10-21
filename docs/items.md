@@ -14,6 +14,7 @@ not what the engine holds today. The current item tables in the code are replace
 | +2.5% defence | defence is worth less per point (each point removes only half a point of damage) |
 | +2% crit chance | crits do ×1.5 |
 | +1% dodge | |
+| +1% accuracy | the same as dodge; it also adds `1 ÷ steadiness` tiles of reach |
 | +⅓ speed | 3 pp = 1 speed |
 | +0.25% HP regen per turn | |
 | +1% mana | of base mana |
@@ -47,7 +48,7 @@ attack (the number is the multiplier on the tier's weapon power: 3, 8, 15, 23, 3
 |---|---|---|---|---|---|---|---|---|---|
 | blades | fighter, paladin | 1.00 | melee 1, balanced | Stick | Bone | Copper sword | Iron sword | Frost-forged blade | Ember blade |
 | axes | barbarian | 1.15 | melee, heavy (ends the turn), −1.5 speed | Knobbly club | Spiked club | Stone axe | Basalt axe | Glacier axe | Magma maul |
-| guns | ranger | 0.95 | range 7, quick | Popgun | Reed bow | Blunderbuss | Longbow | Frost musket | Ember cannon |
+| guns | ranger | 0.95 | steadiness by tier (6, 5, 12 close-range, 4, 3.5, 3 points per tile), quick | Popgun | Reed bow | Blunderbuss | Longbow | Frost musket | Ember cannon |
 | daggers | rogue | 0.85 | melee 1, quick, +crit | Butter knife | Dagger | Hook-knife | Dart pipe | Frost stiletto | Shadow blade |
 | fists | monk | 0.80 | melee 1, quick, multi-hit skills | Wraps | Knuckle-wraps | Bell gloves | Iron wraps | Frost gauntlets | Ember fists |
 | wands | wizard | 1.00 | spell range 6, 10% resisted for half damage | Frost rod | Fire wand | Birch staff | Archstaff | Frost staff | Ember staff |
