@@ -162,7 +162,7 @@ The new skills, by the same rule:
 | Sorcerer | Ember burst | area fire | 1.0 × 2.2 | , | 2 | 5 |
 | Sorcerer | Dragon's breath | a line of fire | 1.1 × 2 | , | 2 | 5 |
 | Sorcerer | Wild surge | ×1.5 hit with a random effect (neutral on average) | 1.5 × 1 | random | 1 | 3 |
-| Bard | Rousing song | pack +50% attack for 3 turns | , | buff | 1 | 4 |
+| Bard | Rousing song | pack +25% attack **and** 25% less damage taken for 3 turns | , | buff | 1 | 4 |
 | Bard | Lullaby | slow every foe in the area | , | slow | 2 | 5 |
 | Bard | Vicious mockery | hit and weaken (−25% attack, 2 turns) | 0.8 × 1 | weaken | 1 | 2 |
 | Bard | Rumour | one foe attacks its friends for a turn | , | confuse | 2 | 5 |
@@ -219,40 +219,35 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 ### Bosses
 
-**Derived rules** (`node tools/balance-model.js bosses`; calibrated on the average of six varied packs, not one):
+**Two rules make every boss** (`node tools/balance-model.js bosses`; checked on the average of six varied packs). The designer picks only the level and the **target length R in rounds** (7–12); everything else follows:
 
-- **Length (D, fitted per boss):** against one 2 × 2 boss the pack deals **3.7–4.5 × the basic hit per round** (single targets cost the area casters, the big-foe rule gives it back, healing and potions take turns). So the HP multiple `k` is **fitted per boss** until the six-pack average takes the target rounds: 22× for the first boss up to 53× for Glitterbeak. The first draft's 12–42× did not give the promised lengths.
-- **Shape, chosen for fun (J, tested):** a boss makes **three attacks a round**, instead of one big blow. Same total damage, but nobody is knocked out from full HP (about 0.00 one-shots per fight, against 0.10 for a single 55% blow), the pack is under steady pressure it can answer (heal, guard, step away), and about 1 win in 4 ends with the pack under 40% HP: a close call that was earned. The telegraphed big attack (every third round, avoidable by moving) stays on top.
-- **Hit size (D, fitted per boss):** each of the three hits takes 14–24% of the fighter's HP, softer for the later, longer fights. Fitted so the six-pack average wins first try about 70% at equal level (60–76% in the sim).
-- **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.9–1.4 in the sim); 15–25% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
-- **Every pack gets a fair fight (checked on all 252 real packs, Pip in any class plus two of the seven companions, Bun-road captain, L18):** mean first-try win 69%; 214 of 252 packs between 50 and 95%; none over 95%; 14 under 30% (nearly all stack three of bard, wizard, sorcerer and cleric). Mean by Pip's class: fighter 76, barbarian 75, paladin 77, ranger 65, rogue 69, monk 71, cleric 68, druid 67, wizard 74, sorcerer 80, warlock 69, **bard 43 before the Rousing-song change** (+25% to +50%: bard packs 48% to 66%, others 81%).
-- Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
+1. **HP (D):** `k = R × (3.5 + 0.03 × level)` times the basic hit. The pack deals 3.5 basic hits a round against a single boss at level 1 and about 4.4 at level 30 (the big-foe rule lets area casters score, defence takes more off weak attacks as foes toughen). So the boss lasts R rounds.
+2. **Pressure (D/J):** a boss makes **three attacks a round**, and over the whole fight it deals a **damage budget of `T = 4.3 + 0.04 × level` fighter-HPs** (4.5 at level 5, 5.5 at level 30). Each attack is therefore `T / (3R)` of a fighter's HP. The pack has about 2.4 fighter-HPs of its own, so it must heal, guard, dodge the telegraphed attack or win quickly; the budget grows with level because the pack's toolbox (skills, mana, potions) grows. Constants fitted once to a 70–75% first-try win; the table below is **computed, not fitted boss by boss**.
 
-| boss | level | rounds (target) | HP multiple | HP | each of 3 hits | % of fighter HP | fighter's HP | the trick |
-|---|---|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 6 | 22× | 533 | 28 | 24% | 116 | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 7 | 26× | 800 | 34 | 22% | 155 | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 8 | 31× | 1,496 | 44 | 20% | 220 | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 8 | 33× | 2,228 | 57 | 20% | 286 | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 10 | 40× | 2,875 | 56 | 18% | 313 | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 8 | 32× | 2,300 | 63 | 20% | 313 | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 8 | 33× | 3,007 | 76 | 20% | 380 | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 8 | 34× | 3,394 | 86 | 20% | 432 | fights from boats at range |
-| Castle commander | 28 | 10 | 44× | 5,049 | 76 | 16% | 473 | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 11 | 49× | 5,729 | 78 | 16% | 486 | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 12 | 53× | 6,312 | 70 | 14% | 499 | cold: heals when he eats buns, loses it when the pack's embers glow |
+**Why three attacks and not one big one (J, tested):** the same damage as one 55% blow, but nobody is knocked out from full HP (about 0.00 one-shots per fight against 0.10), the pack is under steady pressure it can answer, and about 1 win in 4 is a close call that was earned. **The telegraphed big attack** (every third round, avoidable by moving) is a relief valve, not extra damage: in the sim, removing it dropped the first boss from 53% to 24%. That is why **no boss is shorter than 7 rounds**: the pack always sees at least two telegraphed turns.
 
-**First-try win rate by level difference**, measured in the sim (average of six packs; the design target was 5 / 35 / 70 / 92 / 99%):
+**Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.8–1.3 in the sim); 24–32% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
 
-| pack level vs the boss's level | −4 | −2 | 0 | +2 | +4 |
-|---|---|---|---|---|---|
-| target | 5% | 35% | **70%** | 92% | 99% |
-| sim, early and mid bosses (L5–22) | 0% | 0–45% | 60–73% | 88–100% | 99–100% |
-| sim, late bosses (L26–30) | 0–29% | 6–52% | 61–76% | 75–94% | 72–99% |
+**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win about 79%, 238 of 252 between 50 and 95%. Packs with a bard win 75%, packs without 81%. The game never needs a "must-have" class. Bosses are not scaled by the number of players, except in co-op where HP and attack scale by +25% per extra player.
 
-So the curve is **steeper than the target on the low side**: two levels under an early boss is almost a sure loss. That is
-why the hint after two losses matters, and why the goal bar shows a warning mark when the pack is two levels under (U:
-playtest whether this feels fair or whether the low side should be softened).
+| boss | level | rounds R | HP multiple k | HP | each of 3 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels | the trick |
+|---|---|---|---|---|---|---|---|---|---|
+| Grubb the toll boss | 5 | 7 | 26× | 630 | 25 | 21% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 26× | 800 | 34 | 22% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 31× | 1,496 | 44 | 20% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 32× | 2,161 | 59 | 21% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 40× | 2,875 | 52 | 17% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 32× | 2,300 | 65 | 21% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 33× | 3,007 | 82 | 22% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 34× | 3,394 | 96 | 22% | 432 | 43% / 69% / 94% | fights from boats at range |
+| Castle commander | 28 | 10 | 43× | 4,934 | 85 | 18% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 48× | 5,612 | 80 | 17% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 53× | 6,312 | 76 | 15% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+
+The designed curve was 5 / 35 / 70 / 92 / 99% for −4 / −2 / 0 / +2 / +4 levels. The model gives about **70–82% at equal level, 0–50% two levels under
+and 87–100% two over**. So the low side is steeper than designed: two levels under an early boss is almost a sure loss. That is
+why the hint after two losses matters, and why the goal bar shows a warning mark when the pack is two levels under (U: playtest
+whether this feels fair or whether the low side should be softened).
 
 Bosses can be retried at once with no loss beyond the potions used. After two losses the game offers a hint (Mallow or
 the nearest keeper says which skill would help); after three, it offers to step the boss down one notch. Nobody is ever

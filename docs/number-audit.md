@@ -4,6 +4,14 @@
 to-do list for getting there. Work through it in order; tick a row only when its five questions are answered **in the
 document next to the number**.*
 
+## The sixth rule: a rule before a number
+
+When something is off, **look for the structural cause first**; change a number only when the rule is right and the constant
+is not. Examples from this audit: area casters losing to bosses was not a caster-HP problem but a *rule* (a big foe is hit
+once per overlapped tile); 22 fitted boss values became **two formulas**; the bard was weak because the song was priced as
+an attack but had no defence side, so it gained a second modest effect instead of a bigger number; short bosses were hard
+because they had too few telegraphed (relief) turns, so the rule is a minimum length instead of a softer first boss.
+
 ## The five questions (asked of every number)
 
 1. **What is it for?** Which feeling or rule (from `balance.md` §1) does it serve?

@@ -26,7 +26,9 @@ const P={
   mercy:.15,                                       // J  after two misses
   etaUtility:1.0,                                  // J  1 point of utility share = 1 point of power
   bossTiles:4, bossOverlap:3,                      // J  a boss covers 2x2 tiles; an area attack overlaps on average 3 of the 4, and every overlapped tile is one hit
-  buffMul:1.5,                                     // J  Rousing song: the pack hits this much harder for 3 rounds
+  buffGuard:.25,                                    // J  Rousing song also cuts damage taken by this share
+  buffFree:false,                                  // J  true: singing costs mana but not the action
+  buffMul:1.25,                                    // J  Rousing song: the pack hits this much harder for 3 rounds
   spread:.5,                                       // J  how far archetypes diverge: 0 = all classes identical in damage and durability, .5 = full sqrt trade-off
   bossWeight:.30,                                  // D  share of combat time spent against a single boss (55 of 184 min, balance.md s2)
   manaK:2.2,                                       // J  mana at L30 = manaK x (1.2 casts/round x 3.5 rounds) x cost: how many fights of full casting a pool lasts
@@ -112,7 +114,7 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
   const all=()=>pack.concat(foes);
   pack.forEach(u=>u.front=false);const fr=pack.reduce((a,b)=>b.def*b.max>a.def*a.max?b:a);fr.front=true;
   const roll=(p)=>rand()<p;
-  const hurt=(t,d)=>{if(t.hp<=0)return;t.hp-=d;if(t.hp<=0){t.hp=0;if(t.side===0)falls++}};
+  const hurt=(t,d)=>{if(t.hp<=0)return;if(t.side===0&&buff>0)d*=(1-P.buffGuard);t.hp-=d;if(t.hp<=0){t.hp=0;if(t.side===0)falls++}};
   const dmg=(atk,mul,def)=>Math.max(1,atk*mul-def/2)*(1+P.dmgSpread*(2*rand()-1));
   let bigPhase=0;const stats=opt.stats||{oneshot:0,minhp:1};
   const pickT=()=>{const live=pack.filter(x=>x.hp>0),w=live.map(x=>x.front?P.frontWeight:1),tw=w.reduce((a,b)=>a+b,0);let rr=rand()*tw;for(let i=0;i<live.length;i++){rr-=w[i];if(rr<=0)return live[i]}return live[0]};
@@ -128,7 +130,7 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
       if(u.side===1){                                                    // a foe attacks
         const live=pack.filter(x=>x.hp>0),w=live.map(x=>x.front?P.frontWeight:1),tw=w.reduce((a,b)=>a+b,0);let rr=rand()*tw,t=live[0];for(let i=0;i<live.length;i++){rr-=w[i];if(rr<=0){t=live[i];break}}
         let atk=u.atk*(u.weak>0?.75:1);
-        if(u.boss&&rounds%3===0){                                        // telegraphed big attack on everyone; a competent pack steps out of half of it
+        if(u.boss&&!u.noBig&&rounds%3===0){                                        // telegraphed big attack on everyone; a competent pack steps out of half of it
           live.forEach(x=>{if(careless||rand()<.5){hurt(x,dmg(atk,.6,x.def))}});continue}
         for(let a=0;a<(u.acts||1);a++){const tt=a?pack.filter(x=>x.hp>0)[0]&&pickT():t;if(!tt)break;if(roll(P.foeHit)){let d=dmg(atk,1,tt.def);if(roll(P.crit))d*=P.critMul;if(d>=tt.max*.999&&tt.hp===tt.max)stats.oneshot++;hurt(tt,d)}}
         continue}
@@ -140,7 +142,7 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
       if(k.heal){const thr=careless?.25:k.heal.under,low=live.reduce((a,b)=>b.hp/b.max<a.hp/a.max?b:a);
         if(low.hp/low.max<thr&&u.mana>=k.heal.mp){u.mana-=k.heal.mp;if(k.heal.all)live.forEach(x=>{x.hp=Math.min(x.max,x.hp+k.heal.f*.6*x.max)});else low.hp=Math.min(low.max,low.hp+k.heal.f*low.max);continue}}
       // 3 buff / hex
-      if(k.buff&&buff===0&&u.mana>=k.buff.mp&&!careless){u.mana-=k.buff.mp;buff=3;continue}
+      if(k.buff&&buff===0&&u.mana>=k.buff.mp&&!careless){u.mana-=k.buff.mp;buff=3;if(!P.buffFree)continue}
       const lf=foes.filter(x=>x.hp>0);if(!lf.length)break;
       let t=careless?lf[(rand()*lf.length)|0]:lf.reduce((a,b)=>b.hp<a.hp?b:a);
       if(k.hex&&!careless&&t.hex===0&&u.mana>=k.hex.mp){u.mana-=k.hex.mp;t.hex=3;continue}
@@ -185,7 +187,7 @@ if(require.main===module){
 
 /* ---------------------------------------------------------------- bosses: HP multiple k vs rounds and win rate */
 function bossFight(names,L,k,rand,delta,opt){opt=opt||{};const f=foe(L),r=ref(L),D=f.D;
-  const b={cls:'boss',side:1,boss:true,hp:k*D*(opt.players||1),max:k*D*(opt.players||1),def:f.def,acts:opt.acts||1,tiles:P.bossTiles,overlap:P.bossOverlap,atk:(opt.hit||.20)*r.hp+r.def/2,spd:5+.5*(L-1),weak:0,hex:0};
+  const b={cls:'boss',side:1,boss:true,hp:k*D*(opt.players||1),max:k*D*(opt.players||1),def:f.def,noBig:!!opt.noBig,acts:opt.acts||1,tiles:P.bossTiles,overlap:P.bossOverlap,atk:(opt.hit||.20)*r.hp+r.def/2,spd:5+.5*(L-1),weak:0,hex:0};
   const Lp=L+delta;const pack=makePack(names,Lp);
   return fight(pack,[b],rand,opt.policy||'competent',{potions:P.potionsPerFight})}
 function bossRun(names,L,k,delta,N,opt){const rand=rng(11),s={win:0,rounds:0,falls:0,oneshot:0,close:0};
