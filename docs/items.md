@@ -51,12 +51,12 @@ attack (the number is the multiplier on the tier's weapon power: 3, 8, 15, 23, 3
 | guns | ranger | 0.95 | steadiness by tier (6, 5, 12 close-range, 4, 3.5, 3 points per tile), quick | Popgun | Reed bow | Blunderbuss | Longbow | Frost musket | Ember cannon |
 | daggers | rogue | 0.85 | melee 1, quick, +crit | Butter knife | Dagger | Hook-knife | Dart pipe | Frost stiletto | Shadow blade |
 | fists | monk | 0.80 | melee 1, quick, multi-hit skills | Wraps | Knuckle-wraps | Bell gloves | Iron wraps | Frost gauntlets | Ember fists |
-| wands | wizard | 1.00 | spell range 6, 10% resisted for half damage | Frost rod | Fire wand | Birch staff | Archstaff | Frost staff | Ember staff |
-| orbs | sorcerer | 1.05 | spell range 6, a little unstable | Spark stone | Ember stone | Cinder orb | Flame heart | Frost heart | Dragon heart |
-| teapots | warlock | 0.95 | spell range 6, steady | Chipped teapot | Brass teapot | Copper kettle | Silver pot | Frost samovar | Dragon-glaze urn |
-| holy | cleric | 0.60 | spell range 5, **+15% healing** | Healing wand | Oak crook | Sun-bell | Ember censer | Frost chime | Hearthspire lantern |
-| nature | druid | 0.85 | spell range 5, +10% plant skills | Twig | Root staff | Moss staff | Bramble crook | Frost-bark staff | Ember-wood staff |
-| instruments | bard | 0.60 | spell range 5, **+15% song strength** | Whistle | Fiddle | Lute | Drum | Frost horn | Golden harp |
+| wands | wizard | 1.00 | steadiness 3 (reach 14), 10% resisted for half damage | Frost rod | Fire wand | Birch staff | Archstaff | Frost staff | Ember staff |
+| orbs | sorcerer | 1.05 | steadiness 4 (reach 11), a little unstable | Spark stone | Ember stone | Cinder orb | Flame heart | Frost heart | Dragon heart |
+| teapots | warlock | 0.95 | steadiness 2.5 (reach 17), steady | Chipped teapot | Brass teapot | Copper kettle | Silver pot | Frost samovar | Dragon-glaze urn |
+| holy | cleric | 0.60 | steadiness 5 (reach 9), **+15% healing**; healing never rolls | Healing wand | Oak crook | Sun-bell | Ember censer | Frost chime | Hearthspire lantern |
+| nature | druid | 0.85 | steadiness 4 (reach 11), +10% plant skills | Twig | Root staff | Moss staff | Bramble crook | Frost-bark staff | Ember-wood staff |
+| instruments | bard | 0.60 | steadiness 5 (reach 9), **+15% song strength** | Whistle | Fiddle | Lute | Drum | Frost horn | Golden harp |
 
 **Why the multipliers:** the healer, the bard and the druid win by their skills, not their weapons, so their weapons carry
 less raw attack and more of the budget goes to the skill bonus (the 15% on top). The barbarian trades speed for damage.

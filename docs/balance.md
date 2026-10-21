@@ -306,8 +306,20 @@ chance comes from the *target*, so it can be read off the foe:
 - **Anything that raises accuracy also raises range**, because they are the same number. A weapon's reach is simply the
   distance at which the chance still holds: `tiles at 50% against a normal foe = 1 + (40 + accuracy) ÷ steadiness`. An
   accuracy bonus of +10 adds `10 ÷ steadiness` tiles (+2 at steadiness 5); Aimed shot (+20) adds 4.
-- **Spells have no hit roll** (they are *resisted*, see below). They keep a fixed reach for now (open question: should a
-  spell's resist chance also rise with distance?).
+- **Spells follow the same rule, with the target's *resistance* in place of dodge.** The chance a spell *lands* is
+  `100% + focus − the target's resistance − steadiness × (tiles − 1)`; a spell that does
+  not land is *resisted* and deals half damage (see "Resisted spells"). So a far spell is resisted more often, but it is
+  never worth less than half, and it reaches 0% and is not offered ("too far") only at extreme distance. Spells ignore
+  cover (they fly over it) but not line of sight. **Healing and other spells on friends never roll and have no distance
+  penalty**: they reach anyone in sight.
+- **Magic steadiness, by family** (`items.md`): wands 3, orbs 4 (a little unstable), teapots 2.5 (steady), holy 5, nature 4,
+  instruments 5 points per tile. Reach at 50% landed against a normal foe is `1 + 40 ÷ steadiness`: wands 14 tiles, orbs 11,
+  teapots 17, holy 9, nature 11, instruments 9. A wand's expected damage is 95% of the listed number at 1 tile, 87% at 5,
+  79% at 9, 71% at 13 (`0.5 × (1 + chance landed)`). Area spells measure the distance to their centre and each target
+  rolls its own resistance.
+- **Unseen attackers are easier to hit.** If the target cannot see the attacker, **its dodge (or resistance) counts as half**
+  and the attacker gets +10 crit. A foe with no dodge gains nothing from not seeing, and gains nothing it did not already
+  have from being unaware (see below).
 
 **Steadiness, by weapon** (the guns family, `items.md`): the higher the tier, the farther it shoots with the same accuracy.
 
@@ -362,6 +374,7 @@ Everything the player can change by moving or choosing:
 | target is **guarding** | dodge +25 (so −25 to be hit), and −25% damage taken | a real defensive choice |
 | target is **stunned or rooted** | dodge counts as 0 | it cannot dodge; a foe with no other dodge is hit 100% |
 | target **unaware** (surprise) | dodge counts as 0, and +10 crit | the ambush bonus |
+| attacker **unseen** by the target (hidden in tall grass or a bush, in darkness or fog, invisible, or out of the foe's sight range) | target's dodge or resistance counts as **half**, and +10 crit; the attack reveals the attacker | "you cannot dodge what you cannot see"; the same for both sides |
 | target's **dodge** (kind, gear, skill) | −1 per 1% dodge, gear and skill dodge capped at 30% | |
 | attacker's **free hit** (leaving reach) | −10 | |
 | attacker on **watch** | −15 | |
@@ -378,7 +391,7 @@ Everything the player can change by moving or choosing:
 | Cleave, Whirlwind, Stomp (area, melee) | −10 per target | |
 | Flurry | three rolls, each −10 | on average 2.4 hits of 3 |
 | Reckless swing | +10 | the recklessness is in the drawback, not the aim |
-| Sneak attack | +20 if flanked, stunned or unaware | otherwise 0 |
+| Sneak attack | ×2.4 on a stunned, flanked, **unseen** or unaware foe (a foe with no dodge needs no accuracy bonus) | otherwise 0 |
 | Smite, spells, Teapot blast, Hex | never miss; resisted 10% of the time for half damage | see "Resisted spells" |
 | Traps | no roll | they spring when stepped on |
 
@@ -405,8 +418,9 @@ to "no hidden levels": its resistance is shown as "likely" / "unlikely" on the s
 *resisted*, not missed: it deals half damage and still costs its mana.** One resistance rule serves damage spells and
 status spells alike:
 
-- **Damage spell, chance to be resisted = 10% + 1 per level the target is above the caster** (never under 5%, never over 40%);
-  expected damage at equal level is 0.9 + 0.1 × 0.5 = **95%** of the listed number.
+- **Damage spell, chance to be resisted = 10% + 1 per level the target is above the caster, plus the distance penalty** (the
+  resistance part never under 5% or over 40%). At equal level and point blank the expected damage is 0.9 + 0.1 × 0.5 = **95%**
+  of the listed number; at the average spell distance (3–4 tiles) about **89%**.
 - **Status spell, chance to be resisted** = the existing rule (20% + 2 per level above, times 1.0 / 0.8 / 0.5 for normal foe,
   elite, boss), i.e. exactly twice the damage-spell figure. A resisted status simply fails.
 - **Element:** a foe weak to the spell's element resists it 10 points less often (never under 5%); a resistant foe 15
@@ -414,8 +428,9 @@ status spells alike:
   resistant to fire; Frostwick the reverse), so bringing the right caster is a real choice.
 - **Bosses resist damage spells no more than other foes** (only their statuses are harder to land), so the boss tables
   stand. The resistance is shown as "likely / unlikely" on the skill, like a hit chance.
-- *Not simulated: arithmetic only. The model's spells still never miss, a 5% difference in caster damage; rerun the class
-  and boss checks when the rule reaches the engine.*
+- *Not simulated: arithmetic only. The model's spells still never miss, about an 11% difference in caster damage at the
+  average distance; rerun the class and boss checks when the rule reaches the engine (casters may need slightly more
+  power, or shorter average distances on the boards).*
 
 #### One price list for statuses and terrain (J, by arithmetic, 21 Oct)
 
@@ -487,10 +502,10 @@ For an average pack in an average fight, the attacks are about 40% melee, 40% ra
 |---|---|---|
 | melee (100 − foe dodge 10 + class) | 40% | 90% |
 | ranged (100 − dodge 10 − cover − distance) | 40% | about 66% (average shot 4–5 tiles at steadiness about 5.5 costs about 19; the average foe is in half cover 30% of the time, about 6) |
-| spells (10% resisted for half) | 20% | 95% of the damage |
-| **overall** | | **40%×90 + 40%×66 + 20%×95 = 81%** |
+| spells (resisted for half, more often far away) | 20% | about 89% of the damage at 3–4 tiles |
+| **overall** | | **40%×90 + 40%×66 + 20%×89 = 80%** |
 
-That is inside the 80–85% target, and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
+That is at the bottom of the 80–85% target (it was 82% before spells followed distance), and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
 the average below 78%, fights run too long and the first fix is less cover on the boards, not a higher base chance.**
 In a 3–4 round fight a pack makes about 14 attacks, so the expected number of misses is **2.5**; roughly 6% of fights have
 no misses at all and about 9% have five or more.
