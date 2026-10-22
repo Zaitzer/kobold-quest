@@ -74,6 +74,10 @@ const TILES={hearthspire:[['marble','marble street',1],['cobble','cobbles',1],['
 for(const [b,list] of Object.entries(TILES))for(const [f,w,s] of list)add('tiles/'+b,f,'tile',w,s);
 [['hearthspire','fountain','the fountain',1],['hearthspire','tower-fire','the tower fire',1],['hearthspire','lamp','a lamp',1],['grass','tall-grass','tall grass (rustles)',1],['grass','water','water',1],['desert','oasis-water','oasis water'],['honey-cellars','honey-pool','a honey pool'],['mountain','lava','lava'],['mountain','hot-tile','a hot tile (burns)'],['snow','ice-slick','slick ice (fall)'],['shore','sea','sea'],['shore','cave-water','cave water']]
   .forEach(([b,f,w,s])=>add('tiles/'+b,f,'tileanim',w,s));
+// battle boards (systems.md §2): the cover pieces each theme scatters, and what skills put on a tile (added 22 Oct with build steps 4 and 9)
+[['bush','a bush: half cover, hides a kobold beyond 3 tiles (meadow, woods)',1],['rock','a boulder: full cover, blocks sight (meadow, cave)',1],['mushroom','a giant mushroom: half cover (cave, the mine)',1],
+ ['pillar','a stone pillar: full cover (town, castle)',1],['crate','a crate: half cover (town)',1],['stone-cover','the monk\'s Raise cover: half cover for 3 turns',1],['plant-cover','the druid\'s Plant cover']]
+  .forEach(([f,w,s])=>add('tiles/battle',f,'tile',w,s));
 // buildings
 [['hearthspire','bakery','Mallow\'s bakery (the cellar door shows)',1],['hearthspire','castle-gate','the capital gate',1],['hearthspire','castle','the castle',1],['hearthspire','inn-hs','the inn',1],['hearthspire','shop-hs','the shop',1],['hearthspire','smithy-hs','the smithy',1],['hearthspire','moon-shrine','the moon shrine'],['hearthspire','tower','the tower',1],['hearthspire','house-hs','a house',1],
  ['pebblebrook','inn-pb','the inn',1],['pebblebrook','shop-pb','the shop',1],['pebblebrook','house-pb','a house',1],['pebblebrook','stable','the raptor stable',1],['pebblebrook','mine-entrance','the mine\'s mouth',1],
@@ -88,6 +92,7 @@ for(const [b,list] of Object.entries(TILES))for(const [f,w,s] of list)add('tiles
 [['hit','a hit',1],['crit','a crit',1],['miss','a miss (a puff)',1],['heal','a heal',1],['fire','fire',1],['frost','frost',1],['storm','storm'],['earth','earth',1],['nature','nature',1],['holy','holy',1],['burn','burning'],['poison','poison'],['stun','stun (stars)',1],['slow','slow',1],['root','root (vines)',1],['fall','fall (dust)'],['buff','a buff (up)',1],['debuff','a weaken or hex (down)',1],['ward','a ward (shield)'],['unseen','unseen (shimmer)'],['level-up','level up',1],['ember','an ember glowing',1]]
   .forEach(([f,w,s])=>add('fx',f,'fx',w,s));
 [['explosion','an area spell landing',1],['telegraph','a boss\'s telegraphed area',1],['smiler-blast','the Smiler firing (the finale)'],['hatching','an egg hatching',1]].forEach(([f,w,s])=>add('fx/big',f,'fxbig',w,s));
+[['together','Together: two kobolds strike one foe at once (a pair\'s first time)',1]].forEach(([f,w,s])=>add('fx/big',f,'fxbig',w,s));
 // portraits
 ['pip','wizzle','glint','bork','nugget','saffi','cinder','crumb','mallow','bib','smudge','snatchclaw','ruddle','head-scribe','forge-master','fort-captain','master-leaky','master-dear']
   .forEach(n=>add('portraits',n,'portrait','portrait of '+n,['pip','wizzle','glint','bork','nugget','mallow','bib','smudge','ruddle'].includes(n)));
@@ -95,6 +100,7 @@ add('portraits','glitterbeak','portrait','portrait of Glitterbeak',1);
 // story objects
 [['egg-sprouty','the sprouty egg',1],['egg-sleepy','the sleepy egg',1],['egg-shiny','the shiny egg',1],['ember-bun','an ember-bun',1],['recipe-book','Mallow\'s recipe book',1],['smiler-tube','Smiler piece: the tube',1],['smiler-sight','Smiler piece: the sight'],['smiler-igniter','Smiler piece: the igniter'],['smiler-fins','Smiler piece: the cooling fins'],['smiler-chamber','Smiler piece: the ember chamber'],['smiler','the Smiler, assembled'],['toll-box','Grubb\'s toll box',1],['vote-bag','the vote bag with a hole',1],['duck-nugget','the duck-shaped nugget'],['honey-lens','the honey-glass lens']]
   .forEach(([f,w,s])=>add('objects',f,'object',w,s));
+[['trap','a set trap (only its owner sees it)',1],['snare','the ranger\'s hidden snare']].forEach(([f,w,s])=>add('objects',f,'object',w,s));
 // icons: items
 const FAM={blades:['stick','bone','copper-sword','iron-sword','frost-forged-blade','ember-blade'],axes:['knobbly-club','spiked-club','stone-axe','basalt-axe','glacier-axe','magma-maul'],guns:['popgun','reed-bow','blunderbuss','longbow','frost-musket','ember-cannon'],daggers:['butter-knife','dagger','hook-knife','dart-pipe','frost-stiletto','shadow-blade'],fists:['wraps','knuckle-wraps','bell-gloves','iron-wraps','frost-gauntlets','ember-fists'],wands:['frost-rod','fire-wand','birch-staff','archstaff','frost-staff','ember-staff'],orbs:['spark-stone','ember-stone','cinder-orb','flame-heart','frost-heart','dragon-heart'],teapots:['chipped-teapot','brass-teapot','copper-kettle','silver-pot','frost-samovar','dragon-glaze-urn'],holy:['healing-wand','oak-crook','sun-bell','ember-censer','frost-chime','hearthspire-lantern'],nature:['twig','root-staff','moss-staff','bramble-crook','frost-bark-staff','ember-wood-staff'],instruments:['whistle','fiddle','lute','drum','frost-horn','golden-harp']};
 for(const [f,list] of Object.entries(FAM))list.forEach((n,i)=>add('icons/items/weapons/'+f,n,'icon',`${n.replace(/-/g,' ')} (T${i+1})`,i<2));
@@ -110,6 +116,9 @@ for(const [s,list] of Object.entries(SLOTS))list.forEach((n,i)=>add('icons/items
 // icons: statuses, elements and marks
 ['stun','fall','slow','root','weaken','hex','confuse','burn','poison','unseen','guard','morale-up','morale-down','luck','fire','frost','storm','earth','nature','threat','resisted','mercy']
   .forEach(n=>add('icons/status',n,'icon16',n,true));
+// marks on the sheet and the battle menu (build step 7): a skill's dark version, Pip's three leader stats, a talent pick waiting
+[['dark','a dark version (on a skill button)'],['might','Might (leader point)'],['wits','Wits (leader point)'],['leadership','Leadership (leader point)'],['pick','a talent pick waiting']]
+  .forEach(([f,w])=>add('icons/status',f,'icon16',w,true));
 
 /* ------------------------------------------------------------------ write templates, placeholders and the list */
 const C_FRAME=[255,0,255,255],C_FEET=[255,40,40,255],C_SAFE=[40,200,90,255],C_ROW=[60,140,255,255];

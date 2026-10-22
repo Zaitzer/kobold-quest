@@ -35,7 +35,7 @@ transparent placeholder**, in its folder. The live game reads only `art/sprites/
 Characters face **right**; the game flips them for left. Walk cycles are three frames (standing, left foot, right foot), like
 Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.
 
-## The list (469 assets; **202 are needed for the slice**, marked ★)
+## The list (484 assets; **215 are needed for the slice**, marked ★)
 
 ### characters/heroes
 
@@ -304,6 +304,18 @@ Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, fr
 | · | `tiles/shore/sea.png` | sea | tileanim |
 | · | `tiles/shore/cave-water.png` | cave water | tileanim |
 
+### tiles/battle
+
+| | file | what | sheet |
+|---|---|---|---|
+| ★ | `tiles/battle/bush.png` | a bush: half cover, hides a kobold beyond 3 tiles (meadow, woods) | tile |
+| ★ | `tiles/battle/rock.png` | a boulder: full cover, blocks sight (meadow, cave) | tile |
+| ★ | `tiles/battle/mushroom.png` | a giant mushroom: half cover (cave, the mine) | tile |
+| ★ | `tiles/battle/pillar.png` | a stone pillar: full cover (town, castle) | tile |
+| ★ | `tiles/battle/crate.png` | a crate: half cover (town) | tile |
+| ★ | `tiles/battle/stone-cover.png` | the monk's Raise cover: half cover for 3 turns | tile |
+| · | `tiles/battle/plant-cover.png` | the druid's Plant cover | tile |
+
 ### buildings/hearthspire
 
 | | file | what | sheet |
@@ -404,6 +416,7 @@ Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, fr
 | ★ | `fx/big/telegraph.png` | a boss's telegraphed area | fxbig |
 | · | `fx/big/smiler-blast.png` | the Smiler firing (the finale) | fxbig |
 | ★ | `fx/big/hatching.png` | an egg hatching | fxbig |
+| ★ | `fx/big/together.png` | Together: two kobolds strike one foe at once (a pair's first time) | fxbig |
 
 ### portraits
 
@@ -448,6 +461,8 @@ Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, fr
 | ★ | `objects/vote-bag.png` | the vote bag with a hole | object |
 | · | `objects/duck-nugget.png` | the duck-shaped nugget | object |
 | · | `objects/honey-lens.png` | the honey-glass lens | object |
+| ★ | `objects/trap.png` | a set trap (only its owner sees it) | object |
+| · | `objects/snare.png` | the ranger's hidden snare | object |
 
 ### icons/items
 
@@ -670,6 +685,11 @@ Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, fr
 | ★ | `icons/status/threat.png` | threat | icon16 |
 | ★ | `icons/status/resisted.png` | resisted | icon16 |
 | ★ | `icons/status/mercy.png` | mercy | icon16 |
+| ★ | `icons/status/dark.png` | a dark version (on a skill button) | icon16 |
+| ★ | `icons/status/might.png` | Might (leader point) | icon16 |
+| ★ | `icons/status/wits.png` | Wits (leader point) | icon16 |
+| ★ | `icons/status/leadership.png` | Leadership (leader point) | icon16 |
+| ★ | `icons/status/pick.png` | a talent pick waiting | icon16 |
 
 ## Not drawn as assets
 
