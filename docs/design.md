@@ -219,7 +219,7 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | tempo | Initiative | ℝ, (−∞, +∞) | turn order | §3, the new stats |
 | | Threat | ℝ, [0, +∞] | how likely foes are to attack this kobold | §3, the new stats |
 | | HP regen | ℝ, [0, +∞], a share of max HP per turn | healing over time | `items.md` |
-| world | Luck | ℤ, (−∞, +∞) | multiplies the odds of the kobold's own hits | §3, the new stats |
+| world | Luck | ℤ, (−∞, +∞) | tilts every random outcome in the kobold's favour (hits, crits, damage rolls, being hit, spells, statuses, initiative, morale, loot) | §3, the new stats |
 | | Fame | ℝ, [0, +∞] | greetings and shop prices; never combat | §3 |
 | progress | Level | ℕ, [1, +∞] | | §3 |
 | | XP | ℕ, [0, +∞] | | §3 |

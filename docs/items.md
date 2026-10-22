@@ -25,7 +25,7 @@ not what the engine holds today. The current item tables in the code are replace
 | +2.4% armour piercing | 10% piercing is +4.2% damage, weighted over normal and heavy foes |
 | +5 resistance | one point of resistance cuts spell damage taken by about 0.12% and statuses landing by 1 point |
 | −1 steadiness (a point per tile) | about +5% ranged damage at the average distance; **5 pp per point** |
-| +0.5 luck | +1 luck ≈ +1.5 to +2.4 points of hit chance |
+| +0.2 luck (+1 luck = **5 pp**) | luck tilts every roll in the wearer's favour: about +2.7% output and −2% damage taken per point |
 | +1 to an ability score = **2.5 pp** | +2 to a score is +1 modifier (5 pp) |
 | +1 morale on one kobold = **7 pp** | the first point; the morale curve saturates |
 | threat ±any | **0 pp**: it only moves the foes' attacks between kobolds |

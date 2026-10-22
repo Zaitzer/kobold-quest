@@ -355,9 +355,25 @@ Each turn each kobold gains 1 AP with chance `p` if morale is positive, or loses
 2 AP that is +7% actions at morale 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12: it keeps growing but never runs away.
 **+1 morale on one kobold ≈ 7 pp** (the first point; later points are worth less).
 
-**Luck.** A kobold's luck (from gear and rare finds) multiplies the odds of its own hits: `h' = h·q ÷ (h·q + 1 − h)`, `q = 1.1^luck`.
-+1 luck turns 80% into 81.5% and 50% into 52.4%; +5 turns 50% into 61.7%. It never touches crit chance, so jackpots stay rare,
-and the mercy rule stays as it is. **+1 luck ≈ 2 pp.**
+**Luck touches everything (Joakim, 22 Oct).** One rule: **every random outcome is tilted in the lucky kobold's favour.** For a
+yes/no event whose good outcome (for that kobold) has chance `p`, the odds are multiplied by `q = 1.1^luck`:
+
+$$p' = \frac{p\,q}{p\,q + 1 - p}$$
+
+For a range roll (the ±15% damage spread, the initiative d6, loot amounts) the roll `u ∈ [0, 1]` becomes `u^{1/q}`, tilted toward
+the good end. When two sides with luck meet (a duel, a lucky foe), `q = 1.1^{(\text{luck}_{\text{self}} - \text{luck}_{\text{other}})}`. So luck reaches its hits,
+its crits, its damage rolls, the foes' hits on it (it is missed more), spells and statuses both ways, its initiative, its
+morale AP rolls, and the pack's loot (the pack's mean luck). The mercy rule stays.
+
+What one point does: hit 82% → 83.4%, crit 8% → 8.7%, damage roll +0.7%, so **own output +2.7%**; foes' hits on it 80% →
+78.4%, **damage taken −2%**; its spells resisted 10% → 9.2%; its statuses land 80% → 81.5%. **+1 luck ≈ 5 pp.** It never caps,
+it only bends the odds: luck 10 makes an 82% hit 92% and a foe's 80% hit 61%; luck 20 makes them 97% and 37%.
+
+**The gambler synergy (U, watch it).** Because luck now reaches crit chance, it is worth far more to a jackpot build: at a 1% crit
+for ×100, +1 luck lifts the crit to 1.1% and the average damage by about +10%, against +2.7% for an ordinary kobold, and it also
+makes the jackpot less risky. Luck plus a jackpot is therefore a real build ("the lucky gambler"), in the spirit of rewarding
+commitment, but its price of 5 pp is set for an ordinary kobold. If playtests show gamblers stacking luck past everything else,
+the structural fix is to price luck on gear by what it does to the wearer's own crit budget, not to cap it.
 
 **Pip's leader stats (Might, Wits, Leadership).** Pip gains **one leader point every second level** (15 by level 30) to put in:
 - **Might:** the whole pack's attack and defence × (1 + 0.01 × Might): **5.6 pp per point** across four kobolds.
@@ -777,7 +793,7 @@ Check against the level table (fighter against an on-level foe): L1 `0.39 × 9 �
 | flanked target | +15 |
 | unaware target | +10 |
 | gear and talents | priced by expected value: 1 power point = +1% expected damage, i.e. `100 × Δ[c × (D − 1)]` pp (so +2% crit chance at ×1.5 is 1 pp, as before) |
-| crit chance | a probability: never above 100% |
+| crit chance | a probability: never above 100%; luck tilts it like every other roll |
 | spells | can crit at the same chance and multiplier |
 
 On a normal fight a crit adds about 4% damage (8% × 0.5): for most kobolds crits are a pleasant flash. But **crit builds
