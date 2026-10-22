@@ -435,46 +435,8 @@ not missed (see "Resisted spells"): their base value is 95% of the listed damage
 unusually resistible spell is priced from its own base in the same way.
 
 It reproduces the skills the engine already has (Power bonk 3, Clang 4, Ice bolt 3, Fireball 5, Headshot 5, Meteor 8).
-The new skills, by the same rule:
-
-| class | skill | effect | multiplier × targets | status | AP | mana |
-|---|---|---|---|---|---|---|
-| Ranger | Mark | the foe takes +30% from the whole pack for 3 hits | , | utility | 1 | 3 |
-| Monk | Flurry | three hits of ×0.5 (defence applies to each) | 1.5 × 1 | , | 2 | 3 |
-| Monk | Ki strike | a hit in the element the monk chooses (×0.8, × (0.5 + Balance): ×1.2 at 100%) | 1.2 × 1 | , | 1 | 2 |
-| Monk | Ki mend | heal 15% of max HP, × (0.5 + Balance): 22% at 100% (half a cleric's heal) | heal | , | 1 | 2 |
-| Monk | Ki ward | an ally gains resistance +10, × (0.5 + Balance), for 2 turns | , | utility | 1 | 2 |
-| Monk | Ki step | move twice this turn | , | utility | 1 | 2 |
-| Monk | Adapt | swap one of the four equipped skills mid-fight (once per fight; twice at Balance 90%) | , | utility | 1 | 0 |
-| Monk (Way of the Hand) | Palm strike | hit and stun | 1.0 × 1 | stun | end | 4 |
-| Monk (Way of the Hearth) | Raise cover | build half cover on an empty tile next to the monk for 3 turns | , | terrain | 1 | 3 |
-| Sorcerer | Spark | cheap fire | 1.2 × 1 | , | 1 | 2 |
-| Sorcerer | Ember burst | area fire | 1.0 × 2.2 | , | 2 | 5 |
-| Sorcerer | Dragon's breath | a line of fire | 1.1 × 2 | , | 2 | 5 |
-| Sorcerer | Wild surge | ×1.5 hit with a random effect (neutral on average) | 1.5 × 1 | random | 1 | 3 |
-| Bard | Rousing song | pack +25% attack **and** 25% less damage taken for 3 turns | , | buff | 1 | 4 |
-| Bard | Lullaby | slow every foe in the area | , | slow | 2 | 5 |
-| Bard | Vicious mockery | hit and weaken (−25% attack, 2 turns) | 0.8 × 1 | weaken | 1 | 2 |
-| Bard | Rumour | one foe attacks its friends for a turn | , | confuse | 2 | 5 |
-| Rogue | Sneak attack | ×2.4 on a stunned, flanked, unseen or unaware foe, else ×1.2 | 1.8 × 1 | , | end | 4 |
-| Rogue | Trap | a hidden square: ×1.2 and stun to whoever steps on it | 1.2 × 1 | stun | 1 | 5 |
-| Rogue | Slip past | move through foes with no free hits | , | utility | 1 | 2 |
-| Rogue | Pickpocket | ×0.6 and steal a material | 0.6 × 1 | steal | end | 3 |
-| Barbarian | Rage | +30% attack, −20% damage taken, 3 turns | , | buff | 1 | 3 |
-| Barbarian | Reckless swing | ×2.4, you take +25% damage next turn | 2.4 × 1 | drawback | end | 4 |
-| Barbarian | Stomp | hit everything nearby | 0.9 × 2.2 | , | end | 5 |
-| Barbarian | Shrug it off | heal 30% of your HP | , | heal | 1 | 3 |
-| Paladin | Lay on hands | heal an ally 60% | , | heal | 1 | 5 |
-| Paladin | Guard | take the next hit for an adjacent friend | , | utility | 1 | 2 |
-| Paladin | Oath | allies within 1 tile take −20% for 3 turns | , | buff | 1 | 5 |
-| Druid | Vine snare | root a foe for 2 turns (it can still attack) | 0.5 × 1 | root | 1 | 3 |
-| Druid | Plant cover | a bush gives half cover for 3 turns | , | terrain | 1 | 3 |
-| Druid | Thorns | allies reflect 20% of melee damage, 3 turns | , | buff | 1 | 5 |
-| Druid | Rain | allies in the area regain 15% a turn for 3 turns | , | heal | 2 | 6 |
-| Warlock | Hex | the foe takes +25% from everything for 3 turns | , | hex | 1 | 3 |
-| Warlock | Teapot blast | steady ranged fire | 1.3 × 1 | , | 1 | 2 |
-| Warlock | Whisper | an ally gets +20% attack and +10% dodge, 3 turns | , | buff | 1 | 3 |
-| Warlock | Pact boon | ×2.5 once a fight; you lose 10% of your HP | 2.5 × 1 | drawback | end | 4 |
+**Every class's skills, with their costs by this rule, are in `skills.md`** (the one list; heals and buffs have their own pricing
+rules there).
 
 **A skill that costs less than 2 mana is too cheap; one that costs more than 8 should end the fight.**
 

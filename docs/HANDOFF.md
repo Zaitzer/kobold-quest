@@ -184,6 +184,7 @@ Fennel and Nugget as recruits.
 | `docs/balance.md`, `docs/items.md`, `docs/ui-design.md` | **the numbers and the screens (targets, 20 Oct)**: level/damage/gold curves, encounters per route, every item, taps per action | current |
 | `docs/number-audit.md` | **to-do list for making every number deliberate**: the working rules, problems P1–P18 (several resolved), 16 tasks with status | current (22 Oct) |
 | `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes, the numbers to confirm and **ten open decisions** | current (22 Oct) |
+| `docs/skills.md` | **every class's skills, subclasses and talents**, costs by rule (`tools/skills-table.js`) | new 22 Oct |
 | `docs/bestiary.md` | **every opponent**: roles, stats, weights, XP, elements by town, groups per place, bosses | new 22 Oct |
 | `tools/content-tables.js` | prints the bestiary and the new item tables from the balance rules (arithmetic, no fights) | 22 Oct |
 | `tools/balance-model.js`, `tools/balance-sensitivity.js` | the design's own maths: class derivation, an abstract fight sim, boss rules, ±20% sensitivity | lags the 21–22 Oct rules (`number-audit.md` P17); run only when Joakim asks |
