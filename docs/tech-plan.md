@@ -1,4 +1,4 @@
-# Kobaldia: tech plan (draft)
+# Kobaldia: tech plan (draft, maintained 22 Oct 2026)
 
 *Step 1.7 of the roadmap. What the code must handle to carry the design, and what has to change before we build it.*
 
@@ -37,13 +37,28 @@
 |---|---|---|
 | Encounter tables per route | each route kind gets its own monsters and material; levels by distance | no |
 | Respawn at fountains | losing a fight: back to the last fountain drunk from, half gold | yes (last fountain) |
-| Fast travel | warp between fountains you've drunk from, after spark 2 | yes (fountains visited) |
-| Roster and recruits | more than 3 kobolds; the rest wait at inns; catch-up levels | yes (roster) → save version 3 with a migration |
-| Level sync in co-op | helpers' parties computed at the host's level for the fight | no |
-| Shared boss credit + helper reward | boss counts for every player in the fight who is at that step; helpers get spark dust | yes (spark dust) |
+| Fast travel | warp between fountains you've drunk from, after the second Smiler piece | yes (fountains visited) |
+| Roster | Pip and the seven companions; those not in the pack wait at inns; catch-up levels | yes (roster) → save version 3 with a migration |
+| Level sync in co-op | helpers' packs computed at the host's level for the fight | no |
+| Shared boss credit + helper reward | boss counts for every player in the fight who is at that step; helpers get a cosmetic reward (bun crumbs) | yes (crumbs) |
 | Async notes and gifts | notes on signs, gifts at fountains, stored on the server | server only |
-| New areas | Frostpeak, Thistledown sewers, the crater, the hideout | no |
-| Bigger rooms and dungeons | the hideout and sewers need multi-room places | no |
+| New areas | Hearthspire and the castle; one area per town (the mine, the honey cellars, the crater, the ice cellars, the shipwreck and the island cave); the flour tunnel (`world-plan.md`) | no |
+| Bigger rooms and dungeons | the town areas and the castle need multi-room places | no |
+
+## Engine work the 21–22 Oct rules need (`balance.md`, `design.md` §3 and §8)
+
+| system | what it needs | save change |
+|---|---|---|
+| The character sheet | the six ability scores, special attack and defence, initiative, threat, armour piercing, morale, luck, fame, corruption; Pip's leader stats; the monk's Balance | yes (scores, morale, corruption, fame) |
+| One hit formula | accuracy, dodge, cover, distance with weapon steadiness, line of sight; no maximum range; 0–100% | no |
+| Visibility | who can see whom (tall grass, darkness, fog, sight range), for the unseen rule | no |
+| Resisted spells | spells roll against resistance (half damage on a resist), distance raises it | no |
+| Tile-targeting and big foes | target a tile (trap, cover, mark); an area attack hits a 2 × 2 foe once per overlapped tile | no |
+| Statuses and terrain | fall (prone), slow, root, weaken, hex, stun, confuse; ice and mud tiles that apply them on entry | no |
+| Crits | no cap on crit damage; items that trade normal damage for crit damage | no |
+| Bosses | three attacks a round, a telegraphed area every third round, phase lines (proposed), softening after each defeat, co-op scaling | yes (defeats per boss) |
+| Monk | Balance, ki, any weapon, element choice, Adapt (swap a skill mid-fight), buildable cover | no |
+| Co-op turns | all players act in one phase with a short timer; revive by another player; personal loot | no |
 
 ## Before going public (not needed for friends)
 

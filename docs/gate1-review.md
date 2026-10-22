@@ -1,4 +1,4 @@
-# Gate 1 review: what to check before we write code (20 Oct 2026)
+# Gate 1 review: what to check before we write code (20 Oct 2026, maintained 22 Oct)
 
 *A game designer's pass over the story (v6), the world plan (v2) and the design document (v2), checked against the repo.
 Each finding has a fix. **Fixed** means it is already in the docs; **Decide** needs Joakim at Gate 1.*
@@ -80,7 +80,12 @@ These are choices in the numbers that change how the game feels. I made them; Jo
 | gold | shops cover 70–85% of the next tier; half is lost on a defeat | richer or poorer |
 | mana | casters about six casts a fight; mana restored 10% per win | free mana between fights |
 | classes | the power-budget split per class (`balance.md` §3) | other splits |
-| hit chances | one formula (100% + accuracy − dodge − cover − distance, 0–100%, no maximum range, only line of sight; melee averages 90, ranged 66), spells never miss but 10% are resisted for half damage, no accuracy by level, a mercy bonus after two misses, bosses' big attacks do not roll (`balance.md` §4a) | spells that can miss; level-based accuracy; no mercy rule |
+| hit chances | one formula (100% + accuracy − dodge − cover − distance, 0–100%, no maximum range, only line of sight; melee averages 90, ranged 66); spells are resisted for half damage, more often far away; an unseen attacker halves the target's dodge; no accuracy by level; a mercy bonus after two misses; bosses' big attacks do not roll (`balance.md` §4a) | level-based accuracy; no mercy rule |
+| bosses | two rules (length and a damage budget), three attacks a round, a telegraph every third round, at least 7 rounds, 10% softer after each defeat; co-op adds a set of attacks and 90% HP per extra player | one big attack a round; fixed HP per boss |
+| crits | no cap on crit damage; crit priced by expected value; risky crit builds get a premium (λ 0.15 for free trades, 0.5 when bought) | a crit cap; no premium |
+| statuses and terrain | one ladder priced in action-equivalents (slow 1, fall 1.5, root 2, weaken/hex 2, stun 3, confuse 4); terrain at a quarter of a spell | separate prices per status |
+| the monk | the generalist: any weapon, ki magic, knowledge, crafting; everything scales on Balance (how even its scores are) | the old fast multi-hit monk |
+| ability scores | the D&D six on top of the class table; standard array 15/14/13/12/10/8 (the monk 12 ×6); +1 per stat pick; one governing score per stat | no scores; or point-buy |
 | UI | three taps for anything frequent; a quick-skill button | a bigger menu |
 
 ## What is still not decided (Joakim at Gate 1)
@@ -89,3 +94,16 @@ These are choices in the numbers that change how the game feels. I made them; Jo
 2. **A7:** build tile-targeting first, as a spike, before the new classes.
 3. **A5:** Cinder rebuilds the oven in act 3 (a visit to the bakery cellar between towns), Nugget's copper finishes it.
 4. **B4:** the sprouty egg is imperfect and Pip warms it anyway. (Touches the story file.)
+5. **Corruption:** keep it as a combat temptation only (dark magic stronger, some reactions), or give it the ending branch
+   that was proposed? The branch breaks "no story choices" and the cozy tone. (Recommended: combat only, and add Ember,
+   which grows when you show up to help, as its light counterpart.)
+6. **Largest co-op group:** 2, 3 or 4 players in one fight? The boss arithmetic assumes 2–4; the board and the tap budget
+   argue for 3 at most.
+7. **Pip's leader stats:** names for the physical and mental boosts (working names Might and Wits).
+8. **The sheet in three layers** (battle shows HP, mana, AP, morale and statuses; the sheet shows everything; press and hold
+   explains any number).
+9. **The 8 hard packs** (three of bard, wizard, sorcerer, cleric) winning under 30% of first boss tries: acceptable as a
+   hard mode, or soften?
+10. **Borrowed rules waiting for a yes:** HoMM3's proportional defence factor instead of subtraction, Pathfinder's
+    multiple-attack penalty (−5 / −10) for Flurry and other multi-attacks, Pokémon-style burn and poison (1/16 and 1/8 of max
+    HP a turn).

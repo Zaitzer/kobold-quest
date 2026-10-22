@@ -158,7 +158,7 @@ hour goes behind ☰. The bottom-right corner is the best spot on the screen and
 **Always visible:** each pack member's HP, mana and a status icon (stunned, slowed, buffed, rooted, hexed); the foe's HP bar;
 the hit chance; the ember-bun count; the goal.
 **Never shown unless asked:** raw attack and defence numbers, the full hit-chance breakdown (it is one tap-hold away:
-"75 base, half cover −20, far −10"; see `balance.md` §4a), foe stats (long-press a foe).
+"100, foe dodge −10, half cover −20, 6 tiles −25 = 45%"; see `balance.md` §4a), foe stats (long-press a foe).
 
 **Colour is never the only signal:** red tiles also carry a crosshair pattern, blue tiles a footprint pattern, rarity has a
 shape badge as well as a colour. The game works in a colourblind palette.
@@ -173,7 +173,7 @@ shape badge as well as a colour. The game works in a colourblind palette.
 | **Dialogue** | portrait, name, up to 3 short lines, the answers as buttons | the line is never more than 140 characters; choices only where the story has them |
 | **Battle** | as in section 2 | the board is the centre; the action bar is one row |
 | **Pack** | up to three portraits with HP, mana, level, "!" badges | tap one to open its sheet |
-| **Kobold sheet** | the doll (9 slots), the stats, talents, skills, subclass | stats are grouped: attack, defence, speed, health, mana, crit, move, sight |
+| **Kobold sheet** | the doll (9 slots), the stats, talents, skills, subclass | the full sheet (`design.md` §8) in groups: core, the six scores, hit and avoid, weapon, tempo, world, progress; Pip's sheet adds the leader group, the monk's adds Balance with its next threshold. Read in **three layers**: the battle shows only HP, mana, AP, morale and statuses; the sheet shows everything; press and hold any number for where it comes from. *(Layers proposed 21 Oct, to confirm.)* |
 | **Equip list** | all items for a slot, the best first, the stat difference beside each | rarity colour; unique items have a gold border |
 | **Talent pick** | three cards, one tap each, a confirm | the skill cards show the mana cost and a one-line effect |
 | **Shop** | the stock on the left, the pack's gear on the right, the difference on tap | stackables have + and − |

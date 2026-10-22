@@ -83,6 +83,8 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Gear** supplies about +80% of base attack (weapon 60%, the rest 20%), about +68% of base defence and +22% of base HP,
   at the level its tier arrives (see `items.md`; the level table below uses 70% and 25%, close enough to leave as is). Gear tiers arrive at levels **1, 5, 10, 16, 22, 28**.
 - **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
+  *This line is what the level table still uses; it is being replaced by "+1 to an ability score per stat pick" (below), and
+  the table must be re-derived when that lands (`number-audit.md` P14).*
 - **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. A hit lands with `100% + accuracy − the target's dodge − cover − distance`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
   spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
@@ -148,12 +150,15 @@ class's identity (like a hit die); the scores add to it.
 
 | score | governs in combat | governs outside combat |
 |---|---|---|
-| **Strength (STR)** | attack with blades, axes and fists | pushing and breaking (field moves that need a shove) |
-| **Dexterity (DEX)** | dodge, accuracy, speed, and attack with daggers and guns | sneaking past patrols |
-| **Constitution (CON)** | HP and HP regeneration | stamina: how far a kobold walks before it complains (flavour) |
-| **Intelligence (INT)** | spell attack for the wizard; **foe detail**: shows weaknesses and resistances | crafting yield; reading signs and maps |
-| **Wisdom (WIS)** | resistance (spells and statuses landing on you), spotting the unseen; spell power for cleric, druid, ranger | finding hidden chests; noticing patrols |
-| **Charisma (CHA)** | chance your statuses land (foe resistance −2 per point); song and buff strength; spell power for bard, sorcerer, warlock, paladin | shop prices (−1% per point), companion mood |
+| **Strength (STR)** | melee attack and melee accuracy (blades, axes, fists) | pushing and breaking (field moves that need a shove) |
+| **Dexterity (DEX)** | ranged and dagger attack, ranged accuracy, dodge, speed, initiative, crit chance | sneaking past patrols |
+| **Constitution (CON)** | HP, HP regeneration, defence | stamina: how far a kobold walks before it complains (flavour) |
+| **Intelligence (INT)** | spell power for the wizard; **foe detail**: shows weaknesses and resistances | crafting yield; reading signs and maps |
+| **Wisdom (WIS)** | resistance and special defence (spells and statuses landing on you), spotting the unseen; spell power for cleric, druid, ranger | finding hidden chests; noticing patrols |
+| **Charisma (CHA)** | chance your statuses land (foe resistance −2 per point); song and buff strength; threat; morale; spell power for bard, sorcerer, warlock, paladin | shop prices (−1% per point), fame, companion mood |
+
+This table is the summary of the score-to-stat mapping below; if they ever disagree, the mapping wins. What each stat *is* is
+in `design.md` §8 (the character sheet).
 
 - **One point of modifier = 5 power points (J)**, split inside its score (CON: +5% HP; STR: +5% attack; DEX: +2.5 dodge points and +2.5 accuracy; INT/WIS/CHA: +5% of the casting or status effect they govern). It uses the same price as gear (`items.md`), so a ring that gives +1 to a score costs 5 pp.
 - **Modifier = (score − 10) ÷ 2, rounded down.** A score of 10 is average and adds nothing.
@@ -231,8 +236,7 @@ is used, so there is never a choice to make at the sheet.
 |---|---|---|
 | Attack (melee: blades, axes, fists) | STR | strength swings |
 | Attack (ranged and daggers) | DEX | aim and speed |
-| Special attack (wands, orbs, holy, nature) | WIS (holy, nature) or INT (wands, orbs) | learned or devout magic; the family sets which |
-| Special attack (teapots, instruments) | CHA | presence and performance |
+| Special attack (spell power) | the class's casting score: INT (wizard); WIS (cleric, druid, ranger); CHA (bard, sorcerer, warlock, paladin); the monk uses `m̄` | the class decides, not the weapon, so a sorcerer holding a wand still casts with CHA |
 | Defence | CON | toughness |
 | Special defence (resistance to magic) | WIS | willpower |
 | Dodge | DEX | reflex |
@@ -242,7 +246,7 @@ is used, so there is never a choice to make at the sheet.
 | Speed | DEX | footwork |
 | Initiative | DEX | reaction |
 | Crit chance | DEX | precision |
-| Threat | CHA | presence draws attention; WIS for the healer's watchfulness |
+| Threat | CHA | presence draws attention |
 | Morale | CHA | leadership in its small form |
 | Luck | none, no governing score | luck is luck (the score is not used; it is the one place where a roll is not explained) |
 | Corruption | none | it grows from choices, not from a score |
@@ -270,7 +274,9 @@ touches combat.
 **Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces:
 - $C \ge 10$: dark skills appear in the skill list.
 - $C \ge 25$: some keepers and companions react (one line of dialogue each); the shops of the two evil-leaning towns offer a dark discount.
-- $C \ge 50$: the ending branch "the shadowed hatchling" becomes available. It is never automatic.
+- $C \ge 50$: **open, not decided.** An ending branch ("the shadowed hatchling") was proposed, but it conflicts with the
+  decided rule "no story choices" (`design.md` §1 and §13) and with the cozy tone. Until Joakim decides at Gate 1, corruption
+  has no story effect beyond the reactions at 25.
 
 *Open, not simulated:* these mappings and steps are proposals. The numbers (5% per point, 2% per threshold, the steps of 10, 25 and 50) are J and need the playtest to settle them.
 
@@ -327,7 +333,7 @@ The new skills, by the same rule:
 | Bard | Lullaby | slow every foe in the area | , | slow | 2 | 5 |
 | Bard | Vicious mockery | hit and weaken (−25% attack, 2 turns) | 0.8 × 1 | weaken | 1 | 2 |
 | Bard | Rumour | one foe attacks its friends for a turn | , | confuse | 2 | 5 |
-| Rogue | Sneak attack | ×2.4 on a stunned, flanked or unaware foe, else ×1.2 | 1.8 × 1 | , | end | 4 |
+| Rogue | Sneak attack | ×2.4 on a stunned, flanked, unseen or unaware foe, else ×1.2 | 1.8 × 1 | , | end | 4 |
 | Rogue | Trap | a hidden square: ×1.2 and stun to whoever steps on it | 1.2 × 1 | stun | 1 | 5 |
 | Rogue | Slip past | move through foes with no free hits | , | utility | 1 | 2 |
 | Rogue | Pickpocket | ×0.6 and steal a material | 0.6 × 1 | steal | end | 3 |

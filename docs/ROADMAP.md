@@ -4,7 +4,7 @@ We have a **prototype**: the systems work (map, battles, story, multiplayer, ser
 are placeholders. A studio would now go through these phases in order, and each phase has its roles in order. A phase
 ends at its **gate**: Joakim (creative director / producer) says it's good enough to move on.
 
-## Where we are (20 Oct 2026)
+## Where we are (22 Oct 2026)
 
 The story was rebuilt from the ground up (v6, `docs/story-hatching.md`, also as the doc "Kobold Quest: The Hatching"):
 Hearthspire in the middle of the map, buns, Bib, Snatchclaw's guards, the Dragon Smiler, seven companions (one per
@@ -23,19 +23,19 @@ design document, and parts of the story bible.
 | # | role | deliverable | status |
 |---|---|---|---|
 | 1.1 | Creative director + game designer | **Vision** (`docs/vision.md`) | done; check against the new story |
-| 1.2 | Game designer | **Design document** (`docs/design.md`): the twelve classes (two waves), seven companions, keeper challenges, field moves (raptors, boats), Smiler pieces instead of sparks | **v2 done 20 Oct**, open questions decided by Claude at Joakim's word (section 14); can be overruled at Gate 1 |
+| 1.2 | Game designer | **Design document** (`docs/design.md`): the twelve classes (two waves), seven companions, keeper challenges, field moves (raptors, boats), Smiler pieces instead of sparks, the character sheet | **v2 done 20 Oct, maintained 22 Oct** (combat rules, the sheet, the monk as generalist); decisions in §13–15; can be overruled at Gate 1 |
 | 1.3 | Narrative writer | **Story** (`docs/story-hatching.md`, v6) and story bible | story done; bible to tidy |
 | 1.4 | Level designer | **World plan** (`docs/world-plan.md`): Hearthspire in the middle, five towns, the routes between them, where raptors and boats open the map, level ranges | **v2 done 20 Oct**, Joakim's three questions answered |
 | 1.5 | Art director (Joakim draws) | **Style guide** and templates | done; drawing under way (Pip, grass) |
 | 1.6 | Sound designer | **Audio plan** | done; add tracks for Hearthspire and the castle |
-| 1.7 | Technical lead | **Tech plan** | done; add the rename list (warrior to fighter, sparks to pieces, bandits to guards, Mossbacks to Nettlenose) |
+| 1.7 | Technical lead | **Tech plan** | engine work for the 21–22 Oct rules listed (22 Oct); still to add: the rename list (warrior to fighter, sparks to pieces, bandits to guards, Mossbacks to Nettlenose) |
 | 1.8 | Producer | **Scope** (`docs/scope.md`) | **v2 done 20 Oct** |
 
 **Next, in order:**
 1. ~~**World plan:** the new map.~~ *(done 20 Oct, v2 confirmed.)*
 2. ~~**Design document:** classes, companions, keeper challenges, field moves.~~ *(done 20 Oct.)*
-2b. **Number audit** (`docs/number-audit.md`): every number and equation in the balance, items and UI documents gets a reason and a check before Gate 1.
-3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist, four decisions at its end) and says go.
+2b. **Number audit** (`docs/number-audit.md`): every number and equation in the balance, items and UI documents gets a reason and a check before Gate 1. *(Mostly done 22 Oct: combat rules, bosses, crits, statuses, sensitivity, the character sheet and the monk. Open: P14 re-derive the tables with the ability scores, P15 rules for the new stats, P18 item budgets.)*
+3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist, ten decisions at its end) and says go.
 4. **The new vertical slice** (phase 2 below).
 
 **Gate 1:** passed 17 Oct 2026 for the first story; **to pass again** with story v6.

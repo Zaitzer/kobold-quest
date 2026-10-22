@@ -1,4 +1,4 @@
-# Handoff: start here (written 20 Oct 2026)
+# Handoff: start here (written 20 Oct 2026, maintained 22 Oct)
 
 Everything a fresh Claude session needs to pick up Kobold Quest without the old conversation. Read this, then
 `docs/ROADMAP.md` (where we are), then `docs/story-hatching.md` (the story), then `ARCHITECTURE.md` before touching code.
@@ -39,7 +39,14 @@ The cloud sandbox **cannot reach joakimskar.no**, so Joakim checks `/status` him
   to `main`. So before every push, `git pull --rebase origin main`. After his drawings arrive, rebuild and republish
   the Claude page (the website picks them up by itself).
 - He sometimes stops a long tool run (tests). Don't push until he says go.
-- Recent mode (19–20 Oct): **story first, no game changes** until the plan is updated and Gate 1 is passed again.
+- Recent mode (19–22 Oct): **story and design first, no game changes** until Gate 1 is passed again.
+- **Design and balance (21–22 Oct):** he thinks mathematically (a mathematics master's). Look for **a rule before a number**:
+  when something is off, find the structural cause instead of tuning a constant. Mark every number D / J / B / U.
+- **No simulations unless he asks.** Use arithmetic; the model and sims are for when he requests them.
+- **"Only in chat" means nothing goes into the repo.** Check a commit's state before reporting it.
+- When he asks to **list**, give the list and nothing else; formulas in chat go in **LaTeX**.
+- He wants **more stats, not fewer** (a deep sheet), and **risk rewarded** (crit builds, low-hit skills); the monk is the
+  generalist, rewarded for balance.
 
 ## 4. Where we are
 
@@ -51,13 +58,15 @@ See `docs/ROADMAP.md`, "Where we are". In short:
 - **The game still plays the OLD story** (the first slice): the Burrowhome valley, the egg hatching with "sparks",
   bandits, Pebblebrook and Copperhollow. None of the v6 story is in the game yet.
 
+**Done since 20 Oct:** the world plan (v2), the design document (v2, maintained 22 Oct), the numbers (`balance.md`,
+`items.md`, `ui-design.md`), the Gate 1 review, and most of the number audit (combat rules rewritten as rules, bosses,
+sensitivity, the character sheet, the monk).
+
 **Next, in order:**
-1. **World plan** (`docs/world-plan.md`): the new map, with Hearthspire in the middle, five towns, routes, where raptors
-   and boats open the map, and level ranges.
-2. **Design document** (`docs/design.md`): the twelve classes (in two waves), seven companions, keeper challenges,
-   field moves, and Smiler pieces in place of sparks.
-3. **Gate 1 again:** Joakim reads both and says go.
-4. **The new vertical slice:** Hearthspire (act 1), the capital gate, a route, and Pebblebrook with the mine.
+1. **Finish the number audit** (`docs/number-audit.md`): P14 (re-derive the level and class tables with the ability scores),
+   P15 (rules for the new stats), P17 (bring the model up to the rules, only if Joakim asks for runs), P18 (item budgets).
+2. **Gate 1 again:** Joakim reads `design.md`, the three number docs and `gate1-review.md` (ten open decisions) and says go.
+3. **The new vertical slice:** Hearthspire (act 1), the capital gate, a route, and Pebblebrook with the mine.
 
 ## 5. The story, in brief (details in `docs/story-hatching.md`)
 
@@ -168,10 +177,11 @@ Fennel and Nugget as recruits.
 | `docs/story-hatching.md` | **the story, v6** (source of truth), with its review and shaping tools | current |
 | `docs/story-bible.md` | tone rules, world notes | partly out of date; story-hatching wins |
 | `docs/world-plan.md` | towns, routes, levels | **v2 confirmed 20 Oct** (Frostwick north, Saltspray east, flour tunnel set up in act 1, seven routes) |
-| `docs/design.md` | core loop, systems, classes, companions, challenges, pieces | **v2 done 20 Oct**; open questions decided (section 14) |
+| `docs/design.md` | core loop, systems, classes, companions, challenges, pieces, **the character sheet** (§8) | **v2, maintained 22 Oct**; decisions in §13–15 |
 | `docs/balance.md`, `docs/items.md`, `docs/ui-design.md` | **the numbers and the screens (targets, 20 Oct)**: level/damage/gold curves, encounters per route, every item, taps per action | current |
-| `docs/number-audit.md` | **to-do list for making every number deliberate**: 5 questions per number, 10 known problems, 16 tasks | current |
-| `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes and four open decisions | current |
+| `docs/number-audit.md` | **to-do list for making every number deliberate**: the working rules, problems P1–P18 (several resolved), 16 tasks with status | current (22 Oct) |
+| `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes, the numbers to confirm and **ten open decisions** | current (22 Oct) |
+| `tools/balance-model.js`, `tools/balance-sensitivity.js` | the design's own maths: class derivation, an abstract fight sim, boss rules, ±20% sensitivity | lags the 21–22 Oct rules (`number-audit.md` P17); run only when Joakim asks |
 | `docs/scope.md` | milestones M1 to M8 | **v2 done 20 Oct** |
 | `docs/vision.md`, `tech-plan.md`, `audio-plan.md`, `style-guide.md` | pre-production | mostly current; small additions listed in the roadmap |
 | `ARCHITECTURE.md` | how the code is put together | current |
@@ -186,3 +196,6 @@ Fennel and Nugget as recruits.
 | 18 Oct | Pip keeps his ember (his own character, not the player's choice). Buns as the motivation; ember-buns, three in the game. Fake loading screen removed. Placeholder art files. Tests cut from 8 to 3 minutes. Desktop layout |
 | 19 Oct | Story rebuilt around buns as society's goods. Hearthspire capital in the middle. Bib (indifference, never learns). The guards win with few embers; Glitterbeak hatched corrupt. No story choices for the player. The Dragon Smiler (an RPG-7 firing embers). Big cuts down to five towns. Classic D&D classes. Seven companions, one per deadly sin |
 | 20 Oct | Glitterbeak always cold; Snatchclaw's reason; act 3 in full; story doc published; roadmap reset to pre-production second pass |
+| 20 Oct | World plan v2 (Frostwick north, Saltspray east, the flour tunnel); design v2; numbers written as targets, not measurements |
+| 21 Oct | A rule before a number. One hit formula with distance and no maximum range; magic follows distance; unseen attackers; spells resisted for half; a big foe hit per overlapped tile; one status ladder, fall cheaper than stun, terrain at a quarter; bosses from two rules with softening; co-op bosses scale with players; crit builds rewarded for risk, no crit-damage cap; more stats, Pip as leader, the six D&D scores |
+| 22 Oct | The monk is the generalist and scales on Balance; documents cross-checked; no simulations unless asked |

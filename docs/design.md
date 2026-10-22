@@ -1,8 +1,8 @@
 # Kobold Quest: design document (v2 draft, 20 Oct 2026, for story v6)
 
-*Step 1.2 of the roadmap. Built from the vision (`vision.md`), the story (`story-hatching.md`), the world plan
-(`world-plan.md`) and what the engine already does (`src/data/classes.js`). Sections marked **Decide** need the
-creative director. Numbers (stats, damage, mana) are NOT set here; they come from the balance simulator in the slice.*
+*Step 1.2 of the roadmap; last maintained 22 Oct 2026. Built from the vision (`vision.md`), the story (`story-hatching.md`),
+the world plan (`world-plan.md`) and what the engine already does (`src/data/classes.js`). Sections marked **Decide** need
+the creative director. Numbers are NOT set here: they live in `balance.md` and `items.md` (section 0).*
 
 ## 0. Where the numbers live
 
@@ -11,7 +11,7 @@ agree with each other:
 
 | file | what it holds |
 |---|---|
-| **`balance.md`** | the feelings we want; time per stretch; the level table (damage, HP, XP, gold); the other eleven classes; the skill cost rule and every new skill; fights and bosses; encounter rates, route lengths and the fight budget; grind and optional content; gold; player progression |
+| **`balance.md`** | the feelings we want; time per stretch; the level table (damage, HP, XP, gold); the other eleven classes; the six ability scores and the monk's Balance; the skill cost rule and every new skill; fights, bosses and co-op scaling; hit chances, spells, statuses, terrain and crits; encounter rates, route lengths and the fight budget; grind and optional content; gold; player progression; sensitivity |
 | **`items.md`** | the power-point rule; slot budgets; weapons for all eleven families; every slot by tier; prices; affixes; boss uniques; sets; consumables; materials and crafting; what the player finds |
 | **`ui-design.md`** | layout; taps per action; what is used most and least; what is highlighted; every screen; the battle in detail; accessibility; how we check |
 
@@ -25,7 +25,7 @@ Where this file and those disagree, **those win** for numbers and screens; this 
   stop.
 - **Long term:** five **Smiler pieces** (plus the sixth from Mallow's book) → the Smiler → the new hatching.
   Alongside: levels, subclasses, gear sets, seven companions and their quests, side quests.
-- **No story choices.** It's Pip's story, told the same way every time. The player chooses Pip's class, the party, the
+- **No story choices.** It's Pip's story, told the same way every time. The player chooses Pip's class, the pack, the
   gear and how to fight; never what the story says.
 
 ## 2. Exploring
@@ -51,6 +51,18 @@ Where this file and those disagree, **those win** for numbers and screens; this 
 ## 3. Battles
 
 - Small turn-based grid battles (already built): position, range, line of sight, skills that cost mana.
+- **The rules, in short** (details and numbers in `balance.md` §4 and §4a):
+  - **One hit formula:** chance = 100% + accuracy − the target's dodge − cover − distance. A foe with no dodge is hit 100% in
+    melee; ranged and magic lose a little per tile and have no maximum range, only line of sight.
+  - **Spells are resisted, not missed:** a resisted spell deals half damage; resistance rises with distance.
+  - **Unseen attackers** halve the target's dodge or resistance; stunned, rooted and surprised foes have none.
+  - **A big foe is hit once per tile** an area attack overlaps.
+  - **Statuses are priced on one ladder** (slow, fall, root, weaken and hex, stun, confuse), and terrain (ice) applies them at
+    a quarter of a spell's power.
+  - **Crit builds are rewarded for their risk**: no cap on crit damage; anything that lowers normal damage must raise crit
+    damage to the rewarded value.
+  - **Bosses** come from two rules (length and a damage budget), attack three times a round, telegraph every third round,
+    and soften 10% after each defeat.
 - **Foes by place:** Nettlenose scouts and slingers (Snatchclaw's, spreading along the roads as the story goes on),
   Snatchclaw's guards (a strong version later), and the land's own creatures (beetles, sand skinks, rock goats, stokers,
   snow beasts, crabs, smugglers).
@@ -79,8 +91,8 @@ The four we have, plus the four that the first companions play (Bork, Wizzle, Gl
 | **Cleric** | temple healer | heals and protects | Heal, Group heal, Blessing, Revive | **Saint** (stronger heals, Sanctuary) · **War cleric** (Holy strike; was Paladin) | none |
 | **Monk** | fort-builder (Bork) | **the generalist**: any weapon, ki magic of every kind, reads foes, crafts and builds; everything scales on **Balance** (how even its six scores are, `balance.md` §3) | **Ki strike** (any element), **Ki mend** (small heal), **Ki ward** (resistance), **Ki step** (move twice), **Adapt** (swap a skill mid-fight), **Flurry** (3 weak hits) | **Way of the Hand** (martial: Flurry, Palm strike stun, a free weapon swap each turn) · **Way of the Hearth** (the builder: cover, traps and repairs in battle, the best crafting outside) | multi-hit, Balance stat, element choice, buildable cover, mid-fight skill swap |
 | **Sorcerer** | ember-blooded (Wizzle) | raw fire, unstable | **Spark** (cheap fire), **Ember burst** (big area), **Dragon's breath** (line), **Wild surge** (random extra effect) | **Dragonblood** (tougher, fire) · **Wild** (more surges, more risk) | surge table, line attack |
-| **Bard** | town crier (Glint) | buffs and confuses | **Rousing song** (party hits harder), **Lullaby** (slows a group), **Vicious mockery** (hit and weaken), **Rumour** (a foe attacks its friends) | **Lore** (more debuffs) · **Valor** (armour and a sword) | confuse, weaken |
-| **Rogue** | sapper and pickpocket (Nugget) | sneak attacks, traps, slips past lines | **Sneak attack** (big hit on a stunned or flanked foe), **Trap** (a hidden square), **Slip past** (move through foes), **Pickpocket** (steal a material from a foe) | **Thief** (steals more, finds more) · **Trapper** (more traps, bigger) | sneak bonus, traps, steal |
+| **Bard** | town crier (Glint) | buffs and confuses | **Rousing song** (the pack hits harder and takes less), **Lullaby** (slows a group), **Vicious mockery** (hit and weaken), **Rumour** (a foe attacks its friends) | **Lore** (more debuffs) · **Valor** (armour and a sword) | confuse, weaken |
+| **Rogue** | sapper and pickpocket (Nugget) | sneak attacks, traps, slips past lines | **Sneak attack** (big hit on a stunned, flanked, unseen or unaware foe), **Trap** (a hidden square), **Slip past** (move through foes), **Pickpocket** (steal a material from a foe) | **Thief** (steals more, finds more) · **Trapper** (more traps, bigger) | sneak bonus, traps, steal |
 
 ### Wave 2: before Emberreach (4)
 
@@ -94,14 +106,14 @@ The four we have, plus the four that the first companions play (Bork, Wizzle, Gl
 Why this split: the first four companions are met in the slice and in act 2 before Emberreach, so their classes
 must exist by then. Cinder (barbarian) joins at Emberreach, so wave 2 lands just before it, in phase 3.
 
-**The golden mean in the class list:** barbarian is "too much caring" (smash it all), monk is Bork's too-little. Not a
-rule, just a joke the writers can lean on.
+**The golden mean in the class list:** barbarian is "too much caring" (smash it all); the monk is the mean itself, the
+kobold whose power is how *balanced* it is (Bork's diligence). Not a rule, just a joke the writers can lean on.
 
-## 5. Party and companions
+## 5. The pack and companions
 
 - **Words:** the group is called the **pack** in everything the player reads (never "party", which reads as politics).
   The internal name and the save key stay `party`.
-- **Pip plus up to two others** at a time, chosen from the roster. Those not in the party wait at the inn and catch up
+- **Pip plus up to two others** at a time, chosen from the roster. Those not in the pack wait at the inn and catch up
   in level slowly.
 - **The roster is Pip and the seven companions. No extra recruits** (the old Fennel, Brass, Pell, Mist, Tikka and Skipper Gull are cut). Seven is
   enough to carry the theme, and each one has a purpose.
@@ -110,7 +122,7 @@ rule, just a joke the writers can lean on.
 - **Each companion's side story** is told in campfire chats at inns and one small quest, along the story circle in
   `story-hatching.md`. Lessons come out in banter and their own quest, never in a speech.
 
-| companion | sin → virtue | class | joins | their quest (one small, not a battle) | the party feels |
+| companion | sin → virtue | class | joins | their quest (one small, not a battle) | the pack feels |
 |---|---|---|---|---|---|
 | **Wizzle** | envy → kindness | sorcerer | Hearthspire (act 1) | rescued from the guards' draft camp at Frostwick; gets his first ember at the hatching | the kid you protect |
 | **Glint** | lust (infatuation) → discernment | bard | Hearthspire (act 1) | gets the honey-glass lens in Sunhaven; trades his sticker collection to get it back | the sucker for shiny things |
@@ -120,7 +132,7 @@ rule, just a joke the writers can lean on.
 | **Cinder** | wrath → patience | barbarian | Emberreach (act 2) | fixes Mallow's oven slowly, instead of smashing it | the temper |
 | **Crumb** | gluttony → temperance | cleric | Saltspray (act 3) | gives up her stay-home bun ration; cooks the hatching feast | the cook |
 
-- **Mid-story roster changes:** the party Pip takes is always his choice, but story moments pin people: Wizzle is gone
+- **Mid-story roster changes:** the pack Pip takes is always his choice, but story moments pin people: Wizzle is gone
   in the Ordeal and rescued at Frostwick; Cinder is thrown out at the Ordeal. A pinned companion simply isn't on the
   roster for a stretch, and the story says why.
 - **Bib is never a companion.** The player can never recruit him.
@@ -152,7 +164,7 @@ the challenge and is optional-feeling: the fight is how Snatchclaw's step is und
 | the tube | Pebblebrook | the raptors (the stable opens) |
 | the sight | Sunhaven | hidden chests on routes show as "?" |
 | the igniter | Emberreach | a new campfire chat at every inn |
-| the cooling fins | Frostwick | swap the party at any fountain, not only at inns |
+| the cooling fins | Frostwick | swap the pack at any fountain, not only at inns |
 | the ember chamber | Saltspray | (the boats come from patching the harbour, not from the piece) a bonus to the finale's loading scene |
 
 - **In the HUD:** a small Smiler diagram on the pause screen fills in piece by piece. The fully built tube is the RPG-7
@@ -160,7 +172,7 @@ the challenge and is optional-feeling: the fight is how Snatchclaw's step is und
 - **Fast travel** unlocks at the second piece. **The bun road toll** (R4) opens at the third.
 - Pieces are collected at the **end** of each keeper's challenge. They are not dropped by bosses.
 
-## 8. Party growth and gear
+## 8. Growth, the character sheet and gear
 
 - Levels give a talent pick (3 offered). At level 8 a subclass. The moon shrine resets talents for gold (Hearthspire).
 - Level range for the story: about 1 to 30.
@@ -170,6 +182,51 @@ the challenge and is optional-feeling: the fight is how Snatchclaw's step is und
 - Shops sell potions and basic gear; better gear comes from chests, bosses, crafting.
 - **Ember-buns:** three in the game, each heals everything. They are scarce on purpose: Mallow's hat, and two in the
   Reward. (Bib's bun at the start is an extra, the last bun of the old days.)
+
+### The character sheet (Joakim, 21–22 Oct: more stats is better)
+
+Every kobold has the stats below; **\*** marks Pip only (he is always the pack's leader and cannot be swapped out), and
+**†** the monk only. The domain and range are design rules: a stat is only limited where the limit is natural (a share,
+a probability, a count). How each one feeds the fight is in `balance.md`; what is still unwritten is marked *open*.
+
+| group | stat | domain, range | what it does | rule |
+|---|---|---|---|---|
+| core | HP | ℝ, [0, +∞] | how much a kobold can take | `balance.md` §3 |
+| | Mana (the monk's is **ki**) | ℝ, [0, +∞] | pays for skills | §3 |
+| | Attack | ℝ, [0, +∞] | weapon damage | §3 |
+| | Defence | ℝ, [0, +∞] | reduces weapon damage | §3 |
+| | Special attack | ℝ, [0, +∞] | spell damage and healing | *open: the spell damage rule still uses attack* |
+| | Special defence | ℝ, [0, +∞] | reduces spell damage | *open* |
+| | Speed | ℝ, [0, +∞] | movement and part of turn order | §3 |
+| | Action points (AP) | ℕ, [0, +∞] | actions per turn | §3 (skill AP costs) |
+| | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP | *open (formula proposed in chat)* |
+| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself | §3 (thresholds; the ending branch is an open Gate 1 decision) |
+| scores | STR, DEX, CON, INT, WIS, CHA | ℤ, [1, +∞] | each governs a fixed set of stats | §3, ability scores and the score-to-stat mapping |
+| | Balance † | ℝ, [0, 1] | how even the six scores are; all monk abilities scale on it | §3, the monk |
+| hit and avoid | Accuracy | ℝ, (−∞, +∞), in points | raises hit chance and reach | §4a |
+| | Dodge | ℝ, [0, +∞], in points | lowers the chance to be hit | §4a |
+| | Resistance | ℝ, [0, +∞] | lowers the chance spells and statuses land | §3, §4a |
+| | Crit chance | ℝ, [0, 1] | a probability | §4a, crits |
+| | Crit damage | ℝ, [1, +∞] | the crit multiplier; no upper limit | §4a, crit builds |
+| | Armour piercing | ℝ, [0, 1] | the share of the target's defence a hit ignores | *open* |
+| weapon | Damage multiplier | ℝ, [0, +∞] | the weapon family's power | `items.md` |
+| | Steadiness | ℝ, [0, +∞], points per tile | how fast hit chance falls with distance | §4a |
+| | Reach | ℕ, [0, +∞], tiles | how far a melee attack reaches | §3 |
+| tempo | Initiative | ℝ, (−∞, +∞) | turn order, apart from speed | *open* |
+| | Threat | ℝ, [0, +∞] | how likely foes are to attack this kobold | *open* |
+| | HP regen | ℝ, [0, +∞], a share of max HP per turn | healing over time | `items.md` |
+| world | Luck | ℤ, (−∞, +∞) | streaks of fortune for the pack | *open (may replace the mercy rule)* |
+| | Fame | ℝ, [0, +∞] | greetings and shop prices; never combat | §3 |
+| progress | Level | ℕ, [1, +∞] | | §3 |
+| | XP | ℕ, [0, +∞] | | §3 |
+| leader \* | Might \* (working name) | ℝ, [0, +∞] | the whole pack's attack and defence | *open; name pending* |
+| | Wits \* (working name) | ℝ, [0, +∞] | the whole pack's special attack and special defence | *open; name pending* |
+| | Leadership \* | ℝ, [0, +∞] | raises the pack's morale | *open* |
+| | Pack morale \* | ℤ, (−∞, +∞) | the companions' morale plus Leadership | *open* |
+| status | turns left on each condition | ℕ, [0, +∞] | | §4a, statuses |
+
+On screen the sheet is long, so it is read in layers (`ui-design.md`, the kobold sheet): the battle shows only HP, mana,
+AP, morale and statuses; the sheet shows everything, grouped; press and hold any number to see where it comes from.
 
 ## 9. Economy
 
@@ -185,12 +242,16 @@ the challenge and is optional-feeling: the fight is how Snatchclaw's step is und
 - **Personal stories:** each player has their own save and story progress. Barriers are per player.
 - **Group fights count for everyone who is ready:** a boss beaten together counts for each player who has reached that
   step of their own story (done the talking before it).
-- **Level sync:** when you help a lower-level friend, your party is brought down to their level for that fight. You
+- **Level sync:** when you help a lower-level friend, your pack is brought down to their level for that fight. You
   still earn XP and loot suited to your real level, plus a **helper's reward** for cosmetics.
 - **Duels** for fun, **gifts** of items, the **market** for trading, **notes left on signs** for friends.
 - **Phasing for story scenes:** while you are in Hearthspire's story scenes (the empty square, the Ordeal), other players
   are hidden from you, so "nobody comes" is true. In the finale the opposite: online players show up in the crowd and can
   load their ember into the Smiler. (`gate1-review.md`, A3.)
+- **Fights together** (`balance.md` §4, "Playing together"): a boss adds a full set of its attacks and 90% more HP per extra
+  player, so each kobold faces the same pressure as solo; buffs from two players do not stack; a downed kobold can be revived
+  by another player; XP and loot are personal; shared-world resources are personal instances; all players act in the same
+  phase with a short timer. *Open: the largest group size (the arithmetic assumes 2–4).*
 - Playing together never blocks anyone's story, and nobody has to play with others.
 - **Theme check:** the multiplayer is the theme made playable. A boss is beaten by whoever shows up; a friend who
   doesn't, doesn't. The helper's reward means showing up is rewarded, and nothing is lost by staying home except the
@@ -214,7 +275,7 @@ classes (Berserker now belongs to the barbarian, Paladin to its own class).
 1. **Losing a fight:** back to the last fountain, lose half your gold. *Decided.*
 2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready,
    with level sync for helpers. *Decided.*
-3. **Party:** Pip plus up to two others from a roster. *Decided.* The roster is now Pip and the seven companions.
+3. **Pack:** Pip plus up to two others from a roster. *Decided.* The roster is now Pip and the seven companions.
 4. **Length:** long, 15+ hours, depth not padding. *Decided.*
 5. **No story choices for the player.** *Decided 19 Oct.*
 
@@ -230,3 +291,17 @@ classes (Berserker now belongs to the barbarian, Paladin to its own class).
    their own. Only Pebblebrook's is built for the slice.
 
 Joakim can overrule any of these at Gate 1.
+
+## 15. Decided 21–22 Oct (Joakim, in the number audit)
+
+1. **A rule before a number:** when something is off, look for the structural cause first.
+2. **One hit formula** (accuracy − dodge − cover − distance), no maximum range, only line of sight; magic follows distance too;
+   an unseen attacker halves the target's dodge.
+3. **Spells are resisted, not missed** (half damage).
+4. **A big foe is hit once per overlapped tile** by area attacks.
+5. **Statuses priced on one ladder**; fall is cheaper than stun; terrain at a quarter of a spell.
+6. **Crit builds are rewarded for their risk**; no cap on crit damage.
+7. **More stats is better**: the character sheet in §8, with Pip as the pack's leader and the six D&D scores.
+8. **The monk is the generalist**, scaling on Balance.
+9. **Co-op bosses scale with the players.**
+10. **No more simulations unless asked;** arithmetic and playtests instead.
