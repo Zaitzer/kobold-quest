@@ -3,6 +3,7 @@ import {RP_ADV,RP_CLS,RP_TAL} from '../data/classes.js';
 import {RP_IT,RP_W} from '../data/items.js';
 import {WEAPONS} from '../engine/art.js';
 import {rpSetsOn} from './gear.js';
+import {v6Stats} from './v6sheet.js';
 function rpSkills(w){const W=WEAPONS[w],R=RP_W[w]||{};let s=[];
   if(w==='healwand')s=['heal'];else if(w==='frostrod')s=['ice'];else if(w==='firewand')s=['fireball'];else if(w==='archstaff')s=['fireball','meteor'];
   else if(W.ranged)s=['volley'];else s=['bonk'];
@@ -10,6 +11,7 @@ function rpSkills(w){const W=WEAPONS[w],R=RP_W[w]||{};let s=[];
 /* stats */
 function rpClsOfWeapon(w){const W=WEAPONS[w];return w==='healwand'?'cleric':W.magic?'mage':W.ranged?'ranger':'warrior'}
 function rpStats(m){
+  if(m&&m.v6)return v6Stats(m);   // a v6 kobold: the new character sheet (game/v6sheet.js)
   const C=RP_CLS[m.cls]||RP_CLS.warrior,l=m.lvl-1,R=RP_W[m.w]||{pow:4};
   const st={hp:C.base.hp+C.gr.hp*l,mp:C.base.mp+C.gr.mp*l,atk:C.base.atk+C.gr.atk*l+R.pow,def:C.base.def+C.gr.def*l,spd:C.base.spd+C.gr.spd*l+(R.spd||0),crit:.08,dodge:0,regen:0,mpregen:0,rage:0};
   const add=o=>{if(!o)return;for(const k in o)st[k]=(st[k]||0)+o[k]};

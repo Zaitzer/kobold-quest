@@ -114,38 +114,43 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Base stats (before gear and talents):** attack 5 + 2.2 per level, defence 3 + 1.8 per level, HP 44 + 11 per level.
 - **Gear** supplies about +80% of base attack (weapon 60%, the rest 20%), about +68% of base defence and +22% of base HP,
   at the level its tier arrives (see `items.md`; the level table below uses 70% and 25%, close enough to leave as is). Gear tiers arrive at levels **1, 5, 10, 16, 22, 28**.
-- **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
-  *Retired 22 Oct: replaced by "+1 to an ability score per stat pick" (below), which gives the same growth, so the level table stands (P14).*
+- **Talents** (one pick a level from level 2, `skills.md` §2): about 9 score cards, 4 talent skills and 16 passives by level 30. **The level
+  table counts all of them** (P27, 22 Oct): the old "+0.45 attack, +0.375 defence, +2.1 HP a level" line counted only the score cards, and
+  the 16 passives (3 pp each) were power the foes never expected.
 - **Damage:** a hit does `0.39 × attack × skill multiplier × F`, ±15%, where F is HoMM3's attack-versus-defence factor (§4a,
   "Damage"; decided 22 Oct). It replaces `attack × multiplier − defence × 0.5`, which the level table was built on; the 0.39 keeps
   the table's basic hit within 1% at levels 1, 10 and 30, and the foe attack column must be re-derived (`number-audit.md` P20).
   A hit lands with `100% + accuracy − the target's dodge − cover − distance − the multiple-attack penalty`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
   spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
-### The level table (the reference fighter, on-level standard foes; a pack of four, re-derived 22 Oct)
+### The level table (the reference fighter with its expected picks, on-level standard foes; a pack of four, re-derived 22 Oct)
+
+*Printed by `node tools/balance-model.js levels`. The reference fighter makes its picks like a player (P27, 22 Oct): about 9 score
+cards (STR and CON in turn), its talent skills at 2, 5, 11 and 14, and a passive with every other pick (Tough, Weapon focus, Iron skin in
+turn). Foe HP includes the bond factor g(L).*
 
 | L | gear tier | XP to next | total XP | HP | attack | defence | basic hit | foe HP | foe attack | foe defence | XP per foe | gold per foe | gold per fight | fights to next level |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | T1 | 12 | 12 | 55 | 9 | 5.1 | 9 | 34 | 12 | 1 | 2.3 | 3 | 11 | 2 |
-| 2 | T1 | 36 | 48 | 68 | 12 | 7.3 | 11 | 43 | 16 | 2 | 4.8 | 4 | 15 | 3 |
-| 3 | T1 | 70 | 118 | 81 | 14 | 9.5 | 13 | 51 | 20 | 3 | 5.5 | 5 | 18 | 5 |
-| 5 | T2 | 158 | 386 | 118 | 26 | 18.8 | 24 | 96 | 32 | 5 | 13 | 7 | 25 | 5 |
-| 8 | T2 | 334 | 1,201 | 158 | 34 | 25.4 | 30 | 122 | 40 | 8 | 18 | 11 | 42 | 6 |
-| 10 | T3 | 478 | 2,083 | 198 | 49 | 36 | 44 | 176 | 52 | 10 | 27 | 13 | 51 | 6 |
-| 13 | T3 | 727 | 4,006 | 237 | 57 | 42.5 | 51 | 202 | 62 | 12 | 33 | 16 | 67 | 7 |
-| 15 | T4 | 914 | 5,738 | 280 | 73 | 54.5 | 66 | 262 | 76 | 14 | 41 | 18 | 76 | 7 |
-| 18 | T4 | 1,224 | 9,092 | 319 | 81 | 61 | 72 | 288 | 86 | 17 | 54 | 21 | 89 | 7 |
-| 20 | T4 | 1,448 | 11,874 | 345 | 86 | 65.3 | 76 | 306 | 92 | 19 | 65 | 23 | 98 | 7 |
-| 23 | T5 | 1,811 | 16,938 | 401 | 105 | 79.4 | 94 | 374 | 100 | 22 | 70 | 26 | 111 | 8 |
-| 25 | T5 | 2,070 | 20,947 | 427 | 110 | 83.8 | 98 | 392 | 106 | 24 | 81 | 28 | 120 | 8 |
-| 27 | T6 | 2,341 | 25,492 | 470 | 126 | 95.7 | 113 | 452 | 119 | 26 | 92 | 30 | 129 | 8 |
-| 30 | T6 | 2,771 | 30,597 | 509 | 134 | 102.2 | 119 | 478 | 128 | 29 | , | 33 | 142 | , |
+| 1 | T1 | 12 | 12 | 54 | 9 | 5 | 9 | 37 | 12 | 1 | 2.3 | 3 | 11 | 2 |
+| 2 | T1 | 36 | 48 | 65 | 11 | 6.8 | 11 | 43 | 15 | 2 | 4.8 | 4 | 15 | 3 |
+| 3 | T1 | 70 | 118 | 78 | 13 | 8.6 | 12 | 49 | 19 | 3 | 5.5 | 5 | 18 | 5 |
+| 5 | T2 | 158 | 386 | 111 | 26 | 17.1 | 24 | 101 | 31 | 5 | 13 | 7 | 25 | 5 |
+| 8 | T2 | 334 | 1,201 | 145 | 34 | 24.2 | 30 | 130 | 39 | 8 | 18 | 11 | 42 | 6 |
+| 10 | T3 | 478 | 2,083 | 185 | 49 | 34.7 | 45 | 200 | 52 | 10 | 27 | 13 | 51 | 6 |
+| 13 | T3 | 727 | 4,006 | 220 | 57 | 43.3 | 51 | 228 | 64 | 12 | 33 | 16 | 67 | 7 |
+| 15 | T4 | 914 | 5,738 | 270 | 73 | 58.4 | 67 | 307 | 83 | 14 | 41 | 18 | 76 | 7 |
+| 18 | T4 | 1,224 | 9,092 | 316 | 87 | 64.9 | 79 | 368 | 95 | 17 | 54 | 21 | 89 | 7 |
+| 20 | T4 | 1,448 | 11,874 | 350 | 92 | 73.8 | 83 | 390 | 108 | 19 | 65 | 23 | 98 | 7 |
+| 23 | T5 | 1,811 | 16,938 | 406 | 115 | 95.6 | 106 | 507 | 121 | 22 | 70 | 26 | 111 | 8 |
+| 25 | T5 | 2,070 | 20,947 | 443 | 121 | 100.5 | 110 | 531 | 130 | 24 | 81 | 28 | 120 | 8 |
+| 27 | T6 | 2,341 | 25,492 | 508 | 143 | 120.4 | 133 | 645 | 153 | 26 | 92 | 30 | 129 | 8 |
+| 30 | T6 | 2,771 | 30,597 | 564 | 157 | 135.4 | 146 | 718 | 172 | 29 | , | 33 | 142 | , |
 
 **The XP formula** is `12 × level^1.6` (30,597 XP in total to reach level 30). Every pack member gets the full XP of a fight.
 
 **How the table is built (so it can be tuned):**
-- *Basic hit* = the fighter's attack minus half the foe's defence. It rises from 9 to 119 (×13) while HP rises from 55 to
-  509 (×9), because skills, crits and area spells push damage further and a longer fight is more fun than a shorter one.
+- *Basic hit* = the fighter's hit by the damage factor (§4a). It rises from 9 to 146 (×16) while HP rises from 54 to
+  564 (×10), because skills, crits and area spells push damage further and a longer fight is more fun than a shorter one.
 - *Foe HP* = 4 × the basic hit. So a standard foe takes about 4 basic hits, i.e. two rounds of focused fire.
 - *Foe attack* is set so one hit takes **16% of the fighter's HP at levels 1–5, 14% at 6–20, 12% at 21–30**. Early hits are
   scary, late hits are survivable; this is the "cozy but threatening" curve. **Re-derived 22 Oct for the HoMM3 factor (D):**
@@ -552,17 +557,17 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 | boss | level | rounds R | HP multiple k | HP (× g(L)) | each of 4 hits (× g) | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels (sim, pack of three) | the trick |
 |---|---|---|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 7 | 34× | 866 | 26 | 22% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 7 | 35× | 1,167 | 37 | 24% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 8 | 41× | 2,217 | 49 | 22% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 8 | 42× | 3,263 | 68 | 24% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 10 | 54× | 4,518 | 61 | 20% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 8 | 43× | 3,598 | 76 | 24% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 8 | 44× | 4,765 | 97 | 26% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 8 | 46× | 5,552 | 116 | 27% | 432 | 43% / 69% / 94% | fights from boats at range |
-| Castle commander | 28 | 10 | 58× | 8,109 | 104 | 22% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 11 | 64× | 9,151 | 98 | 21% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 12 | 70× | 10,232 | 93 | 18% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+| Grubb the toll boss | 5 | 7 | 34× | 860 | 26 | 22% | 111 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 35× | 1,133 | 37 | 24% | 145 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 41× | 2,242 | 49 | 22% | 208 | 25% / 78% / 98% | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 42× | 3,329 | 68 | 24% | 291 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 54× | 4,963 | 61 | 20% | 316 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 43× | 3,952 | 76 | 24% | 316 | 45% / 78% / 95% | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 44× | 5,447 | 97 | 26% | 393 | 18% / 72% / 89% | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 46× | 6,445 | 116 | 27% | 456 | 43% / 69% / 94% | fights from boats at range |
+| Castle commander | 28 | 10 | 58× | 9,541 | 104 | 22% | 522 | 24% / 74% / 89% | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 64× | 10,729 | 98 | 21% | 550 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 70× | 12,566 | 93 | 18% | 564 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
 
 *HP and hits carry the bond factor g(L) (P24, 22 Oct); the win rates were measured before it, against a pack without its bond, so they
 still describe a pack that has heard its chats.*

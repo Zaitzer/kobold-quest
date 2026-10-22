@@ -6,7 +6,7 @@ const near=(a,b,eps,what)=>{checks++;if(Math.abs(a-b)>eps)bad(what+': '+a+' vs '
 const M=require('../../tools/balance-model.js');
 (async()=>{const V=await import(path.join(__dirname,'../../src/battle/v6rules.js'));
   // 1 the level table's basic hit (9, 44, 119)
-  for(const [L,want] of [[1,9],[10,44],[30,119]]){const r=M.ref(L);near(V.damage(r.atk,1,M.foeDef(L),0,0.5),want,1,'basic hit at L'+L)}
+  for(const L of [1,10,30]){const r=M.ref(L);near(V.damage(r.atk,1,M.foeDef(L),0,0.5),M.foe(L).D,1e-6,'basic hit at L'+L)}
   near(V.HF(10,10),1,1e-9,'equal attack and defence');near(V.HF(100,1),1+0.05*40*99/101,1e-9,'factor high');near(V.HF(1,100),0.3,1e-9,'factor floor');
   // 2 the hit formula equals the model's odds() on sampled situations
   for(const c of ['fighter','barbarian','rogue','ranger','wizard','cleric'])for(const sit of [{tiles:1},{tiles:4,cover:1},{tiles:6,unseen:1},{tiles:2,flank:1}]){

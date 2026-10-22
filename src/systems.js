@@ -20,6 +20,7 @@ import './core/options.js';
 import './core/layout.js';
 import './core/input.js';
 import './game/stats.js';
+import './game/v6sheet.js';
 import './game/items.js';
 import './game/gear.js';
 import './game/world.js';

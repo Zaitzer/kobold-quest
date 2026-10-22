@@ -12,7 +12,10 @@ const P={
   base:{atk:[5,2.2], def:[3,1.8], hp:[44,11]},     // B  base stat = a + b*(L-1)
   tiers:[1,5,10,16,22,28],                         // J  gear tiers arrive at these levels (gaps 4,5,6,6,6)
   gear:{atk:.80, def:.68, hp:.22},                 // J  full-kit share of base stat (items.md)
-  talents:{atk:.45, def:.375, hp:2.1},             // J  per level from talent picks (30% stat picks)
+  /* the talent picks the reference fighter makes, like a player (skills.md §2; P27, 22 Oct): one pick a level from level 2;
+     about 9 of 29 are score cards (STR and CON in turn), the class's talent skills come at 2, 5, 11 and 14, every other pick is a
+     passive worth 3 pp (Tough +3% HP, Weapon focus +3% attack, Iron skin +7.5% defence, in turn). It replaces the old talent line. */
+  picks:{scoreShare:9/29, skillLevels:[2,5,11,14], passives:[{hp:.03},{atk:.03},{def:.075}]},
   foeDefSlope:.95,                                 // J  foe defence 1 + slope*(L-1)
   foeHpMult:4,                                     // J  standard foe HP = foeHpMult * (fighter basic hit)
   foeHitShare:l=>l<=5?.16:l<=20?.14:.12,           // J  share of fighter HP one foe hit takes
@@ -51,8 +54,12 @@ const tierAt=l=>{let t=0;P.tiers.forEach((x,i)=>{if(x<=l+1)t=i});return t};
 const bAtk=l=>P.base.atk[0]+P.base.atk[1]*(l-1), bDef=l=>P.base.def[0]+P.base.def[1]*(l-1), bHp=l=>P.base.hp[0]+P.base.hp[1]*(l-1);
 const foeDef=l=>1+P.foeDefSlope*(l-1);
 /* the reference fighter (every other class is a multiple of this) */
-function ref(l){const t=P.tiers[tierAt(l)];
-  return{atk:bAtk(l)+P.gear.atk*bAtk(t)+P.talents.atk*(l-1), def:bDef(l)+P.gear.def*bDef(t)+P.talents.def*(l-1), hp:bHp(l)+P.gear.hp*bHp(t)+P.talents.hp*(l-1)}}
+function picksAt(l){const n=Math.max(0,l-1),sc=Math.floor(n*P.picks.scoreShare),sk=P.picks.skillLevels.filter(x=>x<=l).length;
+  const STR=15+Math.ceil(sc/2),CON=14+Math.floor(sc/2),mod=v=>Math.floor((v-10)/2);const pas={hp:0,atk:0,def:0};
+  for(let i=0;i<Math.max(0,n-sc-sk);i++){const p=P.picks.passives[i%3];for(const k in p)pas[k]+=p[k]}
+  return{scores:sc,skills:sk,passives:Math.max(0,n-sc-sk),fA:(1+.05*mod(STR))/1.10,fC:(1+.05*mod(CON))/1.10,pas}}
+function ref(l){const t=P.tiers[tierAt(l)],k=picksAt(l);
+  return{atk:(bAtk(l)+P.gear.atk*bAtk(t))*k.fA*(1+k.pas.atk), def:(bDef(l)+P.gear.def*bDef(t))*k.fC*(1+k.pas.def), hp:(bHp(l)+P.gear.hp*bHp(t))*k.fC*(1+k.pas.hp)}}
 /* HoMM3 attack-versus-defence factor (balance.md 4a, decided 22 Oct) */
 function HF(A,D){const d=40*(A-D)/Math.max(1e-9,A+D);return d>=0?1+0.05*d:Math.max(0.3,1+0.025*d)}
 function hitDmg(A,M,D){return Math.max(1,P.dmgC*A*M*HF(A,D))}
@@ -256,8 +263,12 @@ function runFights(names,Lp,Lf,N,policy,seed,opt){const rand=rng(seed||1),res={w
     res.win+=r.win;res.rounds+=r.rounds;res.lost+=r.lost;res.falls+=r.falls;res.dealt+=r.dealt;res.clean+=(r.win&&r.falls===0)}
   Object.keys(res).forEach(k=>res[k]/=N);return res}
 const f2=x=>x.toFixed(2),pc=x=>(x*100).toFixed(0)+'%';
-module.exports={foeScale,odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
+module.exports={picksAt,foeScale,odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
 
+if(require.main===module&&(process.argv[2]==='levels'||process.argv[2]==='all')){
+  console.log('THE LEVEL TABLE (the reference fighter with its expected picks, on-level standard foes; balance.md §3)');
+  console.log('| L | gear tier | picks (scores, skills, passives) | HP | attack | defence | basic hit | foe HP (×g) | foe attack | foe defence |');console.log('|---|---|---|---|---|---|---|---|---|---|');
+  [1,2,3,5,8,10,13,15,18,20,23,25,27,30].forEach(L=>{const r=ref(L),f=foe(L),k=picksAt(L);console.log(`| ${L} | T${tierAt(L)+1} | ${k.scores}, ${k.skills}, ${k.passives} | ${Math.round(r.hp)} | ${Math.round(r.atk)} | ${r.def.toFixed(1)} | ${Math.round(f.D)} | ${Math.round(f.hp)} | ${Math.round(f.atk)} | ${Math.round(f.def)} |`)})}
 if(require.main===module){
   const what=process.argv[2]||'all';
   if(what==='classes'||what==='all'){
@@ -296,7 +307,7 @@ if(require.main===module&&(process.argv[2]==='bosses'||process.argv[2]==='all'))
 if(require.main===module&&(process.argv[2]==='rules'||process.argv[2]==='all')){
   const M=module.exports,pc1=x=>(x*100).toFixed(1)+'%';
   console.log('RULES CHECK (arithmetic on the average board, no simulation)\n');
-  console.log('1. The level table: the fighter\'s basic hit on an on-level foe (table: 9, 44, 119)');
+  console.log('1. The level table: the fighter\'s basic hit on an on-level foe (balance.md: 9, 45, 146)');
   console.log('   '+[1,10,30].map(L=>`L${L} ${foe(L).D.toFixed(1)}`).join(', '));
   console.log('\n2. Average chance to hit, by class (one formula with class accuracy, starting scores included, MAP 0; spells: chance to land)');
   console.log('| class | kind | landed | expected damage factor (hit, resist, crit) |');

@@ -32,7 +32,19 @@ for(const [Cls,C] of Object.entries(CLASSES)){const cls=Cls.toLowerCase();KITS[c
   for(const [sub,list] of Object.entries(C.sub||{}))list.forEach(x=>{if(typeof x==='string'){const [nm,eff]=x.split(/:\s*/);
       (KITS[cls].subs[sub]=KITS[cls].subs[sub]||{skills:[],cap:null}).cap={n:nm,d:eff,dark:DARK_CAP[nm]||null};if(!DARK_CAP[nm])problems.push('no dark capstone: '+nm)}
     else add(x,x.learn,sub)})}
-const PAS={};for(const [Cls,list] of Object.entries(PASSIVES))PAS[Cls.toLowerCase()]=list.map(t=>{const [n,d]=t.split(/:\s*/);return{n,d}});
+/* each passive's effect as fields the sheet applies (P = a share; the rest are points); hooks for what is not a stat */
+const PFX=[[/^\+([\d.]+)% HP$/,v=>({hpP:v/100})],[/^\+([\d.]+)% attack$/,v=>({atkP:v/100})],[/^\+([\d.]+)% defence$/,v=>({defP:v/100})],
+  [/^\+([\d.]+)% mana$/,v=>({mpP:v/100})],[/^\+([\d.]+)% ki$/,v=>({mpP:v/100})],[/^\+([\d.]+)% special attack$/,v=>({spaP:v/100})],[/^\+([\d.]+) accuracy$/,v=>({acc:v})],
+  [/^−([\d.]+) steadiness$/,v=>({steady:-v})],[/^−([\d.]+) steadiness for spells$/,v=>({steadySpell:-v})],[/^\+([\d.]+) speed$/,v=>({spd:v})],
+  [/^\+([\d.]+) initiative$/,v=>({init:v})],[/^\+([\d.]+) resistance$/,v=>({res:v})],[/^\+([\d.]+) dodge$/,v=>({dodge:v})],[/^\+([\d.]+)% crit chance$/,v=>({crit:v/100})],
+  [/^crit damage \+([\d.]+)$/,v=>({critD:v})],[/^heals \+([\d.]+)%$/,v=>({healP:v/100})],[/^songs \+([\d.]+)% stronger$/,v=>({songP:v/100})],
+  [/^plant skills \+([\d.]+)% stronger$/,v=>({plantP:v/100})],[/^hexes \+([\d.]+)% stronger$/,v=>({hexP:v/100})],[/^\+([\d.]+) morale for the pack$/,v=>({packMorale:v})],
+  [/^guarding gives \+([\d.]+) more dodge$/,v=>({guardDodge:v})],[/^\+([\d.]+)% materials from fights$/,v=>({matP:v/100})],[/^\+([\d.]+)% damage to flanked foes$/,v=>({flankP:v/100})],
+  [/^heal ([\d.]+)% when you fell a foe$/,v=>({killHeal:v/100})],[/^Lay on hands \+([\d.]+)%$/,v=>({layP:v/100})],[/^fire spells burn ([\d.]+)% of the time$/,v=>({fireBurn:v/100})],
+  [/^your resisted spells deal ([\d.]+)% instead of 50%$/,v=>({resisted:v/100})],[/^\+1 to your lowest score/,()=>({lowest:1})],
+  [/^\+([\d.]+)% attack and special attack while Balance is 90% or more$/,v=>({atkP90:v/100})]];
+const PAS={};for(const [Cls,list] of Object.entries(PASSIVES))PAS[Cls.toLowerCase()]=list.map(t=>{const [n,d]=t.split(/:\s*/);const r=PFX.find(([re])=>re.test(d));
+  if(!r)problems.push('passive with no effect rule: '+n+': '+d);return{n,d,fx:r?r[1](+(d.match(r[0])[1]||0)):{}}});
 fs.writeFileSync(path.join(OUT,'skills.js'),head('tools/skills-table.js, tools/v6/engine-skills.js, tools/corruption-table.js')+
   `export const SKILLS6=${J(SK)};\nexport const KITS6=${J(KITS)};\nexport const PASSIVES6=${J(PAS)};\n`);
 
@@ -58,7 +70,7 @@ const strip=c=>c.replace(/\*\*/g,'').trim();
 const STATK={def:'def',atk:'atk',HP:'hp',spd:'spd',mana:'mana'};
 const piece=c=>{const [name,rest]=strip(c).split(' · ');const st={};(rest||'').split(',').forEach(x=>{const m=x.trim().match(/^\+([\d.]+) (\w+)/);if(m&&STATK[m[2]])st[STATK[m[2]]]=+m[1]});return{n:name,st}};
 const GEAR={};   // slot -> variant -> [T1..T6]
-for(const r of tableAfter(l=>l.startsWith('## 3. The other slots'))){const slot=strip(r[0]).toLowerCase();(GEAR[slot]=GEAR[slot]||{}).plain=r.slice(1,7).map(piece)}
+for(const r of tableAfter(l=>l.startsWith('## 3. The other slots'))){const slot=strip(r[0]).toLowerCase().split(' ')[0];(GEAR[slot]=GEAR[slot]||{}).plain=r.slice(1,7).map(piece)}
 for(const r of tableAfter(l=>l.startsWith('| slot · variant'),ITXT.findIndex(l=>l.startsWith('**Variants')))){const [slot,variant]=strip(r[0]).split(' · ');
   const v=variant.split(' ')[0].toLowerCase();(GEAR[slot.toLowerCase()]=GEAR[slot.toLowerCase()]||{})[v]=r.slice(1,7).map(piece)}
 const PRICES={};for(const r of tableAfter(l=>l.startsWith('**Prices**'))){const t=+r[0].slice(1);PRICES[t]={F0:+r[1],weapon:+r[2],armour:+r[3],shield:+r[4],neck:+r[4],helm:+r[5],boots:+r[5],cloak:+r[5],ring:+r[5]}}
