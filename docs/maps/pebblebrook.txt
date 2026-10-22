@@ -1,0 +1,47 @@
+# Pebblebrook  (32 × 24 tiles)
+# legend: T tree, ~ water, . grass, r rock, G gate or exit, , path, B building, D door, c chest, W mill wheel, o board or sign, O circle stones, F fountain, " tall grass (encounters)
+
+TTTTTT~~TTTTTTTTTTTTTTTTTTTTTTTT
+T.....~~..........rrGrr........T
+T.T~~~~~....T.....rr,rr...BBBB.T
+T..~~~~~............,.....BBBBTT
+T..~~~~~........T...,.....BBBB.T
+T..rrrrrr...........,......D...T
+T.....~~BBBBB.......,..........T
+T.....~~BBBBB.......,...BBBBB..T
+T.....~~BBBBB.......,...BBBBB..T
+T.....~~BBDBB.......,...BBBBB..T
+T....c..WW,.........,...BBBBB..T
+T.........,..o......,.....D....T
+T..,,,,,,,,,,,,,,,,,,,,,,,,,,o,,
+T.............,................T
+T...BBDBB.....,...O....FF......T
+T...BBBBB.....,.O...O..FF......T
+T...BBBBB.....,................T
+T........BDBB.,.O...O...BBDBB..T
+T........BBBB.,...O.....BBBBB..T
+T."""""""""BB.,.........BBBBB..T
+T."""""""""...,................T
+T."""""""""...,.......T......T.T
+T.............,................T
+TTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTT
+
+# marks (x, y: what)
+31, 12: ← R1 (the mill road)
+14, 23: → R2 (Sunhaven)
+20, 1: the mine's mouth
+10, 9: the mill (Ruddle; the loft)
+8, 10: the mill wheel
+4, 5: the dam
+18, 16: the circle stones
+23, 14: fountain
+26, 11: inn
+26, 17: shop (tier 2 from level 5) and smith
+6, 14: Tansy's house
+10, 17: the brothers' house
+27, 5: Old Marl's house
+6, 20: the Mossback farms (seed swap)
+5, 10: chest by the dam
+29, 12: welcome sign
+
+# Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain.
