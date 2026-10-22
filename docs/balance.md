@@ -312,9 +312,13 @@ The new skills, by the same rule:
 |---|---|---|---|---|---|---|
 | Ranger | Mark | the foe takes +30% from the whole pack for 3 hits | , | utility | 1 | 3 |
 | Monk | Flurry | three hits of ×0.5 (defence applies to each) | 1.5 × 1 | , | 2 | 3 |
-| Monk | Palm strike | hit and stun | 1.0 × 1 | stun | end | 4 |
-| Monk | Step | move twice this turn | , | utility | 1 | 2 |
-| Monk | Still mind | +25% dodge for 2 turns | , | utility | 1 | 3 |
+| Monk | Ki strike | a hit in the element the monk chooses (×0.8, × (0.5 + Balance): ×1.2 at 100%) | 1.2 × 1 | , | 1 | 2 |
+| Monk | Ki mend | heal 15% of max HP, × (0.5 + Balance): 22% at 100% (half a cleric's heal) | heal | , | 1 | 2 |
+| Monk | Ki ward | an ally gains resistance +10, × (0.5 + Balance), for 2 turns | , | utility | 1 | 2 |
+| Monk | Ki step | move twice this turn | , | utility | 1 | 2 |
+| Monk | Adapt | swap one of the four equipped skills mid-fight (once per fight; twice at Balance 90%) | , | utility | 1 | 0 |
+| Monk (Way of the Hand) | Palm strike | hit and stun | 1.0 × 1 | stun | end | 4 |
+| Monk (Way of the Hearth) | Raise cover | build half cover on an empty tile next to the monk for 3 turns | , | terrain | 1 | 3 |
 | Sorcerer | Spark | cheap fire | 1.2 × 1 | , | 1 | 2 |
 | Sorcerer | Ember burst | area fire | 1.0 × 2.2 | , | 2 | 5 |
 | Sorcerer | Dragon's breath | a line of fire | 1.1 × 2 | , | 2 | 5 |
@@ -542,7 +546,7 @@ Everything the player can change by moving or choosing:
 
 | skill | hit modifier | note |
 |---|---|---|
-| Power bonk, Clang, Shield bash, Palm strike | 0 | |
+| Power bonk, Clang, Shield bash, Palm strike, Ki strike | 0 | |
 | Aimed shot | +20 | the careful one |
 | Headshot | +15 | |
 | Arrow rain, Volley (area, ranged) | −10 *per target* | each foe rolls separately; coverage costs reliability |
