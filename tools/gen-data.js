@@ -56,7 +56,26 @@ for(const f of CT.FOES){const [name,role,levels,home,where,zone,uses,how,drop]=f
   FOES[slug(name)]={n:name,role,lv:[a,b||a],home,where,zone,uses,how,drop,by}}
 const PLACES=CT.PLACES.map(([place,L,pool])=>({place,L,target:+M.P.foesPerFight(L).toFixed(3),pool:pool.map(slug)}));
 for(const p of PLACES)for(const id of p.pool)if(!FOES[id])problems.push('place '+p.place+' names an unknown foe '+id);
-fs.writeFileSync(path.join(OUT,'foes.js'),head('tools/content-tables.js; bestiary.md')+`export const ROLES6=${J(CT.ROLE)};\nexport const FOES6=${J(FOES)};\nexport const PLACES6=${J(PLACES)};\n`);
+
+
+/* ---------------------------------------------------------------- bosses: the balance table (level, length R, HP multiple k) and the
+   bestiary's row (trick, adds, drops); HP = k × the basic hit × g(L); each of the four attacks a turn takes T/(4R) of the fighter's HP */
+const BTXT=fs.readFileSync(path.join(__dirname,'..','docs','balance.md'),'utf8').split('\n'),XTXT=fs.readFileSync(path.join(__dirname,'..','docs','bestiary.md'),'utf8').split('\n');
+const mdRows=(T,pred)=>{let i=T.findIndex(pred);if(i<0)return[];i+=2;const out=[];while(i<T.length&&T[i].startsWith('|')){out.push(T[i].split('|').slice(1,-1).map(c=>c.trim()));i++}return out};
+const bRows=mdRows(BTXT,l=>l.startsWith('| boss | level | rounds R |')),xRows=mdRows(XTXT,l=>l.startsWith('| boss | level | where |'));
+const BOSSES={};
+bRows.forEach((r,i)=>{const L=+r[1],R=+r[2],k=+r[3].replace('×',''),x=xRows[i]||[],f=M.foe(L),rf=M.ref(L),g=M.foeScale(L);
+  const T=M.P.bossT[0]+M.P.bossT[1]*L,hit=T/(M.P.packSize*R);
+  const id=slug(r[0].replace(/\(.*?\)/g,m=>m.replace(/[()]/g,'')).replace(/the toll boss|the copper snatcher/,''));
+  BOSSES[id]={id,n:(x[0]||r[0]).replace(/\*\*/g,'').trim().replace(/ the toll boss| the copper snatcher/,''),L,R,k,hp:Math.round(k*f.D*g),atk:+M.atkFor(g*hit*rf.hp,rf.def).toFixed(1),def:+f.def.toFixed(1),sd:+f.def.toFixed(1),
+    dodge:5,init:10,move:3,res:10,where:x[2]||'',trick:x[4]||r[9]||'',adds:x[5]||'none',drop:x[6]||'',xp:Math.round(k*CT.roleStats('normal',L).xp/4),gold:Math.round(6*1.15*(2+0.9*L))}});
+if(Object.keys(BOSSES).length!==11)problems.push('bosses parsed: '+Object.keys(BOSSES).length);
+/* hidden trials (bestiary.md §5b): the elite version of the area's signature foe, × 1.5 HP, with its trick */
+const TRIALS={};for(const r of mdRows(XTXT,l=>l.startsWith('| trial | base foe |'))){const n=r[0].replace(/\*\*/g,'').trim(),base=slug(r[1]),L=+r[2];
+  const el=CT.roleStats('elite',L);if(!FOES[base]){problems.push('trial '+n+' names an unknown foe '+base);continue}
+  TRIALS[slug(n)]={id:slug(n),n,base,L,area:r[3],trick:r[4],drop:r[5],hp:Math.round(el.hp*1.5),atk:+el.atk.toFixed(1),def:+el.def.toFixed(1),sd:+el.sd.toFixed(1),dodge:el.dodge,init:el.init,move:el.move,res:el.res,xp:Math.round(el.xp*1.5),gold:Math.round(el.gold*1.5)}}
+if(Object.keys(TRIALS).length!==5)problems.push('trials parsed: '+Object.keys(TRIALS).length);
+fs.writeFileSync(path.join(OUT,'foes.js'),head('tools/content-tables.js; bestiary.md; balance.md §4')+`export const ROLES6=${J(CT.ROLE)};\nexport const FOES6=${J(FOES)};\nexport const PLACES6=${J(PLACES)};\nexport const BOSSES6=${J(BOSSES)};\nexport const TRIALS6=${J(TRIALS)};\n`);
 
 /* ---------------------------------------------------------------- the slice's maps and rooms */
 const slice=JSON.parse(fs.readFileSync(path.join(__dirname,'..','docs','maps','slice.json'),'utf8'));

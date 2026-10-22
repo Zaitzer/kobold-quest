@@ -112,6 +112,20 @@ up to them. Their XP is higher because their leader is worth more, not by a sepa
 
 Every boss has 5 dodge, 11 initiative and 10 resistance, attacks once per kobold slot each round (four), and softens 10% after each defeat.
 
+## 5b. Hidden trials (one optional mini-boss in each town's area, `town-kit.md` item 10)
+
+**Rule (D, 22 Oct):** a hidden trial is **the elite version of its area's signature foe**: the base foe's stats at the area's last floor
+level with the elite role's multipliers, **× 1.5 HP**, plus one trick. It is fought alone, gives elite XP × 1.5, and drops its set's
+second piece. Its trick is the town kit's.
+
+| trial | base foe | level | area | trick | drops |
+|---|---|---|---|---|---|
+| **Old Shellback** | copper beetle | 8 | the mine, floor 3 (the flooded gallery) | curls up every second turn: it does not attack, and takes half damage until it uncurls | flour-dusted apron (Millers' set) |
+| **The queen bee's comb** | cellar bee | 13 | the honey cellars, floor 3 | calls two cellar bees every third turn | honey-silk cloak (Honey-glass set) |
+| **The magma slug's mother** | magma slug | 18 | the crater, floor 3 | leaves burning tiles where it moves | ember apron (Bakers' set) |
+| **The ice wyrm statue** | snow beast | 23 | the ice cellars, floor 3 | stands still until struck; then every hit on it slows the striker | ice slab (Fort set) |
+| **The ghost ship's captain** | sea guard | 27 | the island cave | unseen every other turn (dodge halved does not apply: it is simply not there) | net cloak (Harbour set) |
+
 ## 6. What is cut
 
 The first slice's foes (Gorb, Vexx, the hoard guards, bog frogs, fog wisps, owls, dune bandits, spore critters, sea bandits) are

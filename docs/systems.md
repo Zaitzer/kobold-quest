@@ -64,7 +64,8 @@ Modular arithmetic instead of dice (the charge-time system of *Final Fantasy Tac
 The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules written down and given goals:
 
 - **Size:** normal fights 9 × 12 (one or two foes), 10 × 13 (three), 11 × 14 (four or more); bosses 12 × 14. The 2 × 2 boss has room
-  cleared around its start.
+  cleared around its start, and **every floor tile a kobold can stand on is reachable by the 2 × 2 boss** (no one-tile gaps between
+  rocks walling it in: the build's lab found a boss boxed in by rocks, which stalls the fight). Board goal, counted in step 9.
 - **Theme** from where the fight starts: *meadow* (grass routes, the farms), *woods*, *cave* (the mine, cellars), *town* (set pieces:
   the bakery cellar uses *cave*, the castle yard *town*), *dark* (unlit tiles, new: *cave* with sight 3), *flooded* (new: *cave* with
   difficult water tiles).

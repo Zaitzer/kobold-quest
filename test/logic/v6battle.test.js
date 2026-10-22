@@ -30,4 +30,19 @@ seeded(7,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['rogue',null,
   f.stun=1;const H=X.v6Hit(b,r,f,{});checks++;if(!H.parts.includes('cannot dodge'))bad('a stunned foe cannot dodge: '+H.parts.join(', '));f.stun=0});
 // every v6 skill is in the engine's tables with a cost and a target
 for(const id of Object.keys(X.SKILLS6)){checks++;if(!X.RP_SK[id]||!X.RP_ST[id])bad('skill not registered: '+id);else if(!X.RP_SK[id].t)bad('no target type: '+id)}
+// bosses (step 8): stats from the boss table, four attacks a turn, the telegraphed swing, adds on round 4, softening; trials
+{const key=X.v6BossKey('grubb'),E=X.RP_E[key],B=X.BOSSES6.grubb;checks++;if(E.hp!==B.hp||E.atk!==B.atk||E.acts!==4)bad('Grubb should carry the boss table\'s stats and four attacks');
+ X.rp.s=X.rpNewState();X.rp.s.bossDefeats={grubb:2};checks++;if(X.RP_E[X.v6BossKey('grubb')].hp!==Math.round(B.hp*0.8))bad('two defeats soften Grubb by 20%');
+ X.rp.s.bossDefeats={grubb:9};checks++;if(X.RP_E[X.v6BossKey('grubb')].hp!==Math.round(B.hp*0.7))bad('softening stops at 70%')}
+{let wins=0,losses=0,swings=0,adds=0;for(let k=0;k<6;k++){const b=seeded(100+k,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=5;X.v6Lab.place='b:grubb';X.v6LabStart();
+   const b=X.rp.bt;let s=0,last='';while(b&&!b.over&&s<80000){X.rpBattleStep(1/30);s++;if(b.chans.some(c=>c.sk==='v6_bigswing')&&b.msg!==last){last=b.msg;swings++}}return b});
+   if(b.over==='win')wins++;else losses++;if(b.units.some(u=>u.side===1&&u.E&&u.E.id==='nettlenose_scout'))adds++}
+ checks++;if(!wins||!losses)bad('Grubb should be both won and lost by a level-5 pack: '+wins+' wins, '+losses+' losses');
+ checks++;if(!swings)bad('Grubb never telegraphed his big swing');checks++;if(adds<3)bad('Grubb\'s scouts should join on round 4 in most fights: '+adds+'/6')}
+{const b=lab(['fighter','cleric','wizard','rogue'],8,'b:snipe',5);checks++;if(!b.over)bad('the Snipe fight did not end');
+ const sn=b.units.find(u=>u.E&&u.E.trick==='snipe'),r=b.units.find(u=>u.side===0);sn.hp=sn.max;r.hp=r.max;
+ const H=X.v6Hit(b,{...r,m:X.v6Kobold('T','ranger',8)},sn,{});checks++;if(!/cover/.test(H.parts.join(' ')))bad('Snipe\'s cart should give cover against shots: '+H.parts.join(', '))}
+{const b=lab(['fighter','cleric','wizard','rogue'],8,'t:old_shellback',9);checks++;if(b.over!=='win'&&b.over!=='lose')bad('the Old Shellback trial did not end');
+ const sh=b.units.find(u=>u.E&&u.E.trick==='old_shellback'),f=b.units.find(u=>u.side===0);sh.hp=sh.max;sh.curled=false;const a=X.v6DmgRange(b,f,sh,1,{})[1];sh.curled=true;const c=X.v6DmgRange(b,f,sh,1,{})[1];
+ checks++;if(Math.abs(c/a-0.5)>0.05)bad('a curled Shellback takes half damage: '+c+' vs '+a)}
 console.log(fails?fails+' failures':'v6 battles: '+checks+' checks');process.exitCode=fails?1:0;

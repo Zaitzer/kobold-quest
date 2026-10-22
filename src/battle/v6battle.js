@@ -2,17 +2,18 @@
    v6 kobolds (m.v6) and v6 foes (E.v6) fight by the v6 rules (battle/v6rules.js); the old units keep the old rules until the world
    is rebuilt, so the v37 parity test still guards them. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
-import {rpBattle,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
-import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcNear,tcSees,tcStat,tcUnitAt} from './rules.js';
-import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,spellLand,statusLand,tick} from './v6rules.js';
+import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
+import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
+import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
 import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
-import {FOES6,PLACES6} from '../data/v6/foes.js';
+import {BOSSES6,FOES6,PLACES6,TRIALS6} from '../data/v6/foes.js';
 import {SKILLS6} from '../data/v6/skills.js';
+import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {set_shake,shake} from '../engine/fx.js';
 import {v6Kobold} from '../game/v6sheet.js';
@@ -45,7 +46,8 @@ function v6Has(u,k){return!!(u.vs&&u.vs[k]>0)}
 
 /* ---------------------------------------------------------------- hit, spells, damage, crits (balance.md §4a) */
 function v6Hit(b,a,t,o){o=o||{};const as=tcStat(a),ts=tcStat(t),kind=v6Kind(a,o),parts=[];
-  const [ax,ay]=tcNear(a,t),cv=kind==='ranged'?tcCover(b,t,ax,ay):{c:0,fl:tcCover(b,t,ax,ay).fl};
+  const [ax,ay]=tcNear(a,t);let cv=kind==='ranged'?tcCover(b,t,ax,ay):{c:0,fl:tcCover(b,t,ax,ay).fl};
+  if(kind==='ranged'&&t.E&&t.E.trick==='snipe')cv={c:2,fl:false};   // Snipe rides his copper cart: full cover against shots
   const tiles=Math.max(1,Math.round(tcEuc(a,t))),unseen=!tcSees(b,t,a),noDodge=v6Has(t,'stun')||v6Has(t,'root')||!!t.stun||(t.side===1&&!t.aware);
   let acc=as.acc||0;if(a.m&&V6_WEAK.has(a.m.cls)&&!o.spell)acc+=0;   // the class table's −10 is already in acc
   if(o.aim){acc+=o.aim;parts.push((o.aim>0?'skill +':'skill ')+o.aim)}if(o.aoo){acc-=10;parts.push('free hit −10')}if(o.watch){acc-=15;parts.push('watch −15')}
@@ -64,7 +66,7 @@ function v6DmgRange(b,a,t,mul,o){o=o||{};const as=tcStat(a),ts=tcStat(t),spell=v
   const A=(spell?as.spa:as.atk)*(1+v6Buff(a,'atk')+v6Buff(a,'atkguard')+v6Buff(a,'rage')+v6Buff(a,'atkdodge'))*(v6Has(a,'weaken')||v6Has(a,'burn')?0.75:1);
   const D=spell?ts.sd:ts.def*(1+v6Buff(t,'def')+v6Buff(t,'defsd'));
   let M=(mul||1)*(o.quick?QUICK_MUL:1)*(o.dark?darkMul(a.m?a.m.corr:0):1);
-  M*=(1+v6Buff(t,'dmgtaken')-v6Buff(t,'atkguard'))*(v6Has(t,'hex')?1.25:1)*(t.mark&&a.side===0?1.3:1)*(t.guard?0.75:1);
+  M*=(1+v6Buff(t,'dmgtaken')-v6Buff(t,'atkguard'))*(v6Has(t,'hex')?1.25:1)*(t.mark&&a.side===0?1.3:1)*(t.guard?0.75:1)*(t.curled?0.5:1);
   if(t.sz>1&&o.area)M*=1;   // a big foe is hit once per overlapped tile: the area code strikes it per tile
   return[Math.max(1,Math.round(damage(A,M,D,as.ap||0,0))),Math.max(1,Math.round(damage(A,M,D,as.ap||0,1)))]}
 function v6Crit(b,a,t,fl,unseen){const as=tcStat(a),ts=tcStat(t);return critChance({base:as.crit,D:as.critD,beta:as.beta,flank:fl,unseen,unaware:t.side===1&&!t.aware,luck:(as.luck||0)-(ts.luck||0)})}
@@ -76,6 +78,7 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
   if(pure){const p=statusLand({lvlGap:v6Lvl(t)-v6Lvl(a),res:tcStat(t).res,cha:tcStat(a).cha||0,kind:t.E&&t.E.boss?'boss':t.E&&t.E.role==='elite'?'elite':'normal',luck:(tcStat(a).luck||0)-(tcStat(t).luck||0)});
     if(Math.random()<p)v6Status(t,sh.st);else tcFloatU(t,'resisted','#d7c9e3');tcWake(b,t);return}
   if(kind==='spell'){landed=Math.random()<v6Land(b,a,t,o)}
+  else if(sh.sure){}                                        // a telegraphed boss attack does not roll (balance.md §4a)
   else{const H=v6Hit(b,a,t,o);fl=H.fl;unseen=H.unseen;a.atkN=(a.atkN||0)+1;
     if(Math.random()>=H.p){a.misses=(a.misses||0)+1;tcFloatU(t,'miss','#d7c9e3');if(!rp.headless)sfx('pop');tcWake(b,t);return}a.misses=0}
   const [lo,hi]=v6DmgRange(b,a,t,o.mul||1,o);let d=lo+Math.random()*(hi-lo);
@@ -124,7 +127,8 @@ function v6InReach(b,a,t,rng){const s=tcStat(a);if(rng!=null&&rng!=='w')return t
 function v6AtkCost(u){const s=tcStat(u);return s.quick?1:s.heavy?2:'end'}
 
 /* ---------------------------------------------------------------- v6 skills, translated into the engine's tables */
-function v6RegisterSkills(){for(const [id,s] of Object.entries(SKILLS6)){
+function v6RegisterSkills(){RP_SK.v6_bigswing={n:'Big swing',mp:0,t:'foes',mul:0.6,d:'the telegraphed attack'};RP_ST.v6_bigswing={ap:'end',area:1.5,chan:1,v6:{sure:1}};
+  for(const [id,s] of Object.entries(SKILLS6)){
   const sk={n:s.n,mp:s.mp,d:s.d,mul:s.mul?s.mul*(s.hits||1):0},st={ap:s.ap,rng:s.rng==null?'w':s.rng,v6:s};
   if(s.kind==='spell')st.spell=1;if(s.hit)st.aim=s.hit;
   switch(s.t){
@@ -160,20 +164,64 @@ function v6TileSkill(b,u,act,s){const x=act.cx,y=act.cy;b.tiles6=b.tiles6||[];
 function v6OnTile(b,u){if(!b.tiles6)return;const tr=b.tiles6.find(t=>t.k==='trap'&&t.side!==u.side&&t.x===u.x&&t.y===u.y);if(!tr)return;
   b.tiles6=b.tiles6.filter(t=>t!==tr);tcFloatU(u,'trap!','#ffb347');v6Strike(tr.by,u,{mul:tr.s.mul||1,v6:tr.s})}
 
+/* ---------------------------------------------------------------- bosses and hidden trials (balance.md §4, bestiary.md §5, §5b) */
+const v6Soft=id=>Math.max(0.7,1-0.1*(((rp.s&&rp.s.bossDefeats)||{})[id]||0));   // 10% softer after each defeat, never under 70%
+function v6BossKey(id){const B=BOSSES6[id];if(!B)return null;const key='v6b:'+id;
+  RP_E[key]={v6:1,v6boss:1,boss:1,id,n:B.n,L:B.L,w:id==='snipe'?'popgun':'club',team:3,hp:Math.round(B.hp*v6Soft(id)),atk:B.atk,def:B.def,sd:B.sd,
+    spd:5+.5*(B.L-1),dodge:B.dodge,init:B.init,move:B.move,res:B.res,xp:B.xp,gold:B.gold,adds:B.adds,ranged:id==='snipe',trick:id,acts:4};return key}
+function v6TrialKey(id){const T=TRIALS6[id];if(!T)return null;const key='v6t:'+id;
+  RP_E[key]={v6:1,v6trial:1,id,n:T.n,L:T.L,role:'elite',w:'club',team:3,hp:T.hp,atk:T.atk,def:T.def,sd:T.sd,spd:5+.5*(T.L-1),dodge:T.dodge,init:T.init,move:T.move,res:T.res,xp:T.xp,gold:T.gold,trick:id,size:1.4};return key}
+/* the foes' turn, where it differs from the engine's AI: fleeing, confusion, bosses, trials; otherwise it draws a focus by threat */
+function v6AiTurn(b,u){const E=u.E;
+  if(v6Has(u,'confuse')){const own=b.units.filter(v=>v!==u&&v.side===u.side&&tcLive(v)&&tcCheb(u,v)<=1);if(own.length)tcQ({k:'atk',a:u,tg:own[0],o:{mul:1,name:'Confused swing'}});else tcFloatU(u,'confused','#e0c3ff');u.ap=0;b.phase='ai';return true}
+  if(E.v6trial&&E.trick==='old_shellback'){u.tt=(u.tt||0)+1;u.curled=u.tt%2===0;if(u.curled){tcFloatU(u,'curls up','#e0c3ff');u.ap=0;b.phase='ai';return true}}
+  if(E.v6boss)return v6BossTurn(b,u);
+  const pod=b.units.filter(v=>v.side===1&&v.pod===u.pod),lost=pod.filter(v=>!tcLive(v)).length/Math.max(1,pod.length);
+  if(!E.boss&&u.hp<u.max*0.25&&lost>=0.5)u.fleeing=true;
+  if(u.fleeing){if(u.y===0){u.fled=true;tcFloatU(u,'runs off','#d7c9e3');b.msg=u.name+' runs off!';u.ap=0;b.phase='ai';return true}
+    const R=tcReach(b,u,tcMov(u));let best=null,by=1e9;R.dist.forEach((d,k)=>{const y=(k/b.W)|0;if(y<by){by=y;best=k}});
+    if(best!=null){const p=tcPath(R,best%b.W,(best/b.W)|0);if(p&&p.length)tcDo(u,{k:'move',path:p,cost:1})}u.ap=0;b.phase='ai';return true}
+  u.focus=v6Focus(b,u,b.units.filter(v=>v.side===0&&tcLive(v)&&tcSideSees(b,1,v)));return false}
+function v6Focus(b,u,list){if(!list.length)return null;const w=list.map(v=>Object.assign({},v,{threat:(tcStat(v).threat||1)*(v.guard?2:1)*(tcSees(b,u,v)?1:0.5)}));
+  const pickd=pickByThreat(w,Math.random());return list[w.indexOf(pickd)]}
+function v6BossTurn(b,u){const E=u.E;u.bt=(u.bt||0)+1;
+  const m=/(\d+) (.+?) on round (\d+)/.exec(E.adds||'');if(m&&u.bt===+m[3])v6Spawn(b,u,+m[1],m[2]);
+  if(u.bt%3===0){b.msg=u.name+' brings down the big swing!';u.ap=0;b.phase='ai';return true}   // the telegraphed turn: the swing lands from the chan, nothing else
+  const kob=()=>b.units.filter(v=>v.side===0&&tcLive(v));
+  const reach=v=>E.ranged?tcEuc(u,v)<=9&&tcLos(b,u,v):tcCheb(u,v)<=1;
+  if(!kob().some(reach)){const focus=v6Focus(b,u,kob());if(focus){const R=tcReach(b,u,tcMov(u));let best=null,bd=1e9;
+    R.dist.forEach((d,k)=>{const x=k%b.W,y=(k/b.W)|0,dd=Math.hypot(x-focus.x,y-focus.y);if(dd<bd){bd=dd;best=[x,y]}});
+    if(best){const p=tcPath(R,best[0],best[1]);if(p&&p.length)tcDo(u,{k:'move',path:p,cost:1})}}}
+  tcQ({k:'fn',fn:()=>{if(!tcLive(u))return;for(let i=0;i<(E.acts||4);i++){const tg=v6Focus(b,u,kob().filter(reach));if(tg)tcQ({k:'atk',a:u,tg,o:{mul:1,name:E.ranged?'Copper toss':'Swing'}})}
+    if(u.bt%3===2){const ks=kob();if(ks.length){const c=v6Focus(b,u,ks);const ch={u,sk:'v6_bigswing',cx:c.x,cy:c.y,area:1.5,side:1};u.chan=ch;b.chans.push(ch);b.msg=u.name+' winds up a big swing: get out of the circle!';tcFloatU(u,'winds up!','#ffb347')}}}});
+  u.ap=0;b.phase='ai';return true}
+function v6Spawn(b,u,n,what){const id=Object.keys(FOES6).find(k=>what.toLowerCase().includes(FOES6[k].n.toLowerCase().split(' ').slice(-1)[0].replace(/s$/,'')))||'nettlenose_scout';
+  for(let i=0;i<n;i++){const key=v6FoeKey(id,u.E.L),E=RP_E[key];let spot=null;for(let r=1;r<4&&!spot;r++)for(let y=Math.max(0,u.y-r);y<=Math.min(b.H-1,u.y+r)&&!spot;y++)for(let x=Math.max(0,u.x-r);x<=Math.min(b.W-1,u.x+r)&&!spot;x++){const t={sz:1};if(tcFits(b,t,x,y)&&!b.units.some(o=>tcLive(o)&&x>=o.x&&x<o.x+(o.sz||1)&&y>=o.y&&y<o.y+(o.sz||1)))spot=[x,y]}
+    if(!spot)return;const v={side:1,E,key,name:E.n,x:spot[0],y:spot[1],sz:1,hp:E.hp,max:E.hp,atk:E.atk,def:E.def,spd:E.spd,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,pod:u.pod,turns:0,fled:false,own:'e',ctl:'ai'};
+    v.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:'none',pers:'brave',speed:1,hp:E.hp,size:.62},0,0,!rp.headless);v.k.face=-1;const h=tcHome(v);v.k.x=h.x;v.k.y=h.y;b.units.push(v);tcFloatU(v,'joins!','#ffb347')}}
+/* the lab's boss fights stand on an open arena until the board generator has boss arenas (build step 9): a 2 × 2 boss must be able to
+   reach every kobold, or a fight can stall with the boss boxed in by rocks */
+function v6OpenArena(b){if(!b)return;const cnt={};b.g.forEach(r=>r.forEach(c=>{if(!tcT(c).solid)cnt[c]=(cnt[c]||0)+1}));const floor=Object.keys(cnt).sort((x,y)=>cnt[y]-cnt[x])[0];
+  b.g.forEach(r=>{for(let x=0;x<r.length;x++)if(tcT(r[x]).solid)r[x]=floor})}
+function v6BossLost(b){if(!b||!b.v6)return;const boss=b.units.find(u=>u.E&&u.E.v6boss);if(!boss||!rp.s)return;rp.s.bossDefeats=rp.s.bossDefeats||{};rp.s.bossDefeats[boss.E.id]=(rp.s.bossDefeats[boss.E.id]||0)+1}
+
 /* ---------------------------------------------------------------- the fight lab (checkpoint A): any classes and level against any place or foe */
 const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,msg:''};
 function v6LabStart(){const s=rp.s;if(!s)return;const L=v6Lab.lvl,members=v6Lab.pack.filter(Boolean).map((c,i)=>({m:v6Kobold(['Pip','Wizzle','Glint','Bork'][i],c,L,{hero:i===0}),ctl:'me',own:'h'}));
-  const P=PLACES6[v6Lab.place],keys=v6Mix(Object.assign({},P,{L:Math.max(1,L)}));rp.mode='map';rpBattle(keys,{members,zone:',',v6:1});rp.bt.v6=1}
+  const sel=String(v6Lab.place);rp.mode='map';
+  if(sel.startsWith('b:')){const key=v6BossKey(sel.slice(2));rpBattle([key],{members,boss:key,v6:1});v6OpenArena(rp.bt)}
+  else if(sel.startsWith('t:')){const key=v6TrialKey(sel.slice(2));rpBattle([key],{members,zone:',',v6:1})}
+  else{const P=PLACES6[+sel],keys=v6Mix(Object.assign({},P,{L:Math.max(1,L)}));rpBattle(keys,{members,zone:',',v6:1})}rp.bt.v6=1}
 function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+(String(x[0])===String(v)?' selected':'')+'>'+x[1]+'</option>').join('');
   const cls=[['','—']].concat(Object.entries(CLASSES6).map(([k,c])=>[k,c.n]));
   return'<div class="rpdlg"><div class="who">Fight lab (test)</div><p>Pick a pack, a level and a place; the fight uses the v6 rules.</p>'+
     v6Lab.pack.map((c,i)=>'<label>Kobold '+(i+1)+' <select id="lab-p'+i+'">'+opt(c||'',cls)+'</select></label> ').join('')+
     '<label>Level <select id="lab-l">'+opt(v6Lab.lvl,Array.from({length:30},(_,i)=>[i+1,i+1]))+'</select></label> '+
-    '<label>Place <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']))+'</select></label>'+
+    '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label>'+
     '</div><div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
-feature({id:'fightlab',init(){v6RegisterSkills()},
+feature({id:'fightlab',init(){v6RegisterSkills()},on:{'battle:lost':b=>v6BossLost(b)},
   panels:{lab:{sig:()=>JSON.stringify(v6Lab),html:v6LabHtml}},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
-    for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl');if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=+p;v6LabStart()}}});
-export {V6_ROLE_LOOK,V6_WEAK,v6AtkCost,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6FoeKey,v6FoeStat,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6Queue,v6RegisterSkills,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TurnStart,v6u};
+    for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl');if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
+export {V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeKey,v6FoeStat,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6OpenArena,v6PackMorale,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};
