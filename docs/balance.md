@@ -26,7 +26,7 @@ Every number below exists to produce one of these. If a number makes the anti-fe
 | **First fight** (minute 6–8) | "I can do this" | foes die in 2 rounds; a foe hit takes 16% of Pip's HP; nobody can die | confusion, a wall of rules |
 | **A normal fight** | a small puzzle solved in about a minute | 3–4 rounds; the pack loses about 25% of its HP; position matters more than numbers | a chore, a damage race |
 | **A boss** | an event | 8–12 rounds; the pack loses 40–55% of its HP; one telegraphed danger turn; 70% to win first try at the right level | an HP sponge; a coin flip |
-| **A level-up** | a small present | a level every 10 to 40 minutes (see section 9); always a pick to make | a number going up with nothing to do |
+| **A level-up** | a small present | a level about every 30 minutes after the first two (see section 9); always a pick to make | a number going up with nothing to do |
 | **A gear tier arrives** | "I look different, I hit harder" | +20–25% power in one step; the hat changes | gear as a spreadsheet |
 | **Gold** | "almost enough" | shops cover 70–85% of the next tier; drops and crafting fill the rest | broke on potions, or rich with nothing to buy |
 | **Potions** | a safety net | about a quarter of income; 1 to 2 used per 3 fights | a tax that stops you fighting |
@@ -95,19 +95,19 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 
 | L | gear tier | XP to next | total XP | HP | attack | defence | basic hit | foe HP | foe attack | foe defence | XP per foe | gold per foe | gold per fight | fights to next level |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | T1 | 12 | 12 | 55 | 9 | 5.1 | 9 | 34 | 12 | 1 | 2.2 | 3 | 11 | 2 |
-| 2 | T1 | 36 | 48 | 68 | 12 | 7.3 | 11 | 43 | 16 | 2 | 4.5 | 4 | 15 | 3 |
-| 3 | T1 | 70 | 118 | 81 | 14 | 9.5 | 13 | 51 | 20 | 3 | 5.2 | 5 | 18 | 5 |
-| 5 | T2 | 158 | 386 | 118 | 26 | 18.8 | 24 | 96 | 32 | 5 | 12 | 7 | 25 | 5 |
-| 8 | T2 | 334 | 1,201 | 158 | 34 | 25.4 | 30 | 122 | 40 | 8 | 17 | 11 | 42 | 6 |
-| 10 | T3 | 478 | 2,083 | 198 | 49 | 36 | 44 | 176 | 52 | 10 | 25 | 13 | 51 | 6 |
-| 13 | T3 | 727 | 4,006 | 237 | 57 | 42.5 | 51 | 202 | 62 | 12 | 31 | 16 | 67 | 7 |
-| 15 | T4 | 914 | 5,738 | 280 | 73 | 54.5 | 66 | 262 | 76 | 14 | 38 | 18 | 76 | 7 |
-| 18 | T4 | 1,224 | 9,092 | 319 | 81 | 61 | 72 | 288 | 86 | 17 | 51 | 21 | 89 | 7 |
-| 20 | T4 | 1,448 | 11,874 | 345 | 86 | 65.3 | 76 | 306 | 92 | 19 | 61 | 23 | 98 | 7 |
-| 23 | T5 | 1,811 | 16,938 | 401 | 105 | 79.4 | 94 | 374 | 100 | 22 | 66 | 26 | 111 | 8 |
-| 25 | T5 | 2,070 | 20,947 | 427 | 110 | 83.8 | 98 | 392 | 106 | 24 | 76 | 28 | 120 | 8 |
-| 27 | T6 | 2,341 | 25,492 | 470 | 126 | 95.7 | 113 | 452 | 119 | 26 | 86 | 30 | 129 | 8 |
+| 1 | T1 | 12 | 12 | 55 | 9 | 5.1 | 9 | 34 | 12 | 1 | 2.3 | 3 | 11 | 2 |
+| 2 | T1 | 36 | 48 | 68 | 12 | 7.3 | 11 | 43 | 16 | 2 | 4.8 | 4 | 15 | 3 |
+| 3 | T1 | 70 | 118 | 81 | 14 | 9.5 | 13 | 51 | 20 | 3 | 5.5 | 5 | 18 | 5 |
+| 5 | T2 | 158 | 386 | 118 | 26 | 18.8 | 24 | 96 | 32 | 5 | 13 | 7 | 25 | 5 |
+| 8 | T2 | 334 | 1,201 | 158 | 34 | 25.4 | 30 | 122 | 40 | 8 | 18 | 11 | 42 | 6 |
+| 10 | T3 | 478 | 2,083 | 198 | 49 | 36 | 44 | 176 | 52 | 10 | 27 | 13 | 51 | 6 |
+| 13 | T3 | 727 | 4,006 | 237 | 57 | 42.5 | 51 | 202 | 62 | 12 | 33 | 16 | 67 | 7 |
+| 15 | T4 | 914 | 5,738 | 280 | 73 | 54.5 | 66 | 262 | 76 | 14 | 41 | 18 | 76 | 7 |
+| 18 | T4 | 1,224 | 9,092 | 319 | 81 | 61 | 72 | 288 | 86 | 17 | 54 | 21 | 89 | 7 |
+| 20 | T4 | 1,448 | 11,874 | 345 | 86 | 65.3 | 76 | 306 | 92 | 19 | 65 | 23 | 98 | 7 |
+| 23 | T5 | 1,811 | 16,938 | 401 | 105 | 79.4 | 94 | 374 | 100 | 22 | 70 | 26 | 111 | 8 |
+| 25 | T5 | 2,070 | 20,947 | 427 | 110 | 83.8 | 98 | 392 | 106 | 24 | 81 | 28 | 120 | 8 |
+| 27 | T6 | 2,341 | 25,492 | 470 | 126 | 95.7 | 113 | 452 | 119 | 26 | 92 | 30 | 129 | 8 |
 | 30 | T6 | 2,771 | 30,597 | 509 | 134 | 102.2 | 119 | 478 | 128 | 29 | , | 33 | 142 | , |
 
 **The XP formula** is `12 × level^1.6` (30,597 XP in total to reach level 30). Every pack member gets the full XP of a fight.
@@ -121,7 +121,7 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
   solving `0.39 × A × F(A, fighter's defence) = share × fighter's HP` gives about **1.14 × the old subtraction values** at every
   level. A side effect worth knowing: the factor widens the gap between sturdy and fragile kobolds (at L10 a foe hit on the
   wizard is 1.56× a hit on the fighter, against 1.39× under subtraction), so defence matters a little more than before.
-- *XP per foe* = XP to next level ÷ (0.8 × fights to next level × foes per fight); with a pack of four it is ¾ of the old value, since
+- *XP per foe* = XP to next level ÷ (0.75 × fights to next level × foes per fight); with a pack of four it is ¾ of the old value, since
   there are 4/3 as many foes. The 0.8 is the share of XP that
   comes from random fights; the other 20% comes from bosses, challenges and quests.
 - *Foes per fight* (a pack of four, D): **3.33 at levels 1–5, 4 at 6–12, 4.27 after**, i.e. the pack-of-three figures × 4/3.
@@ -134,6 +134,13 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - *Fights to next level*: **2, 3, then 5 (levels 3–7), 6 (8–12), 7 (13–17 and 18–22), 8 (23–29)**. The first two levels
   come fast on purpose.
 
+**Tier jumps (P5, arithmetic, 22 Oct).** With gear at 80% of the tier level's base attack, a new tier lifts attack by **+40%
+(T2 at level 5), +25% (T3), +18% (T4), +13% (T5), +10% (T6)**, and damage against an on-level foe by +53%, +32%, +24%, +17%, +13%
+(the HoMM3 factor turns 1% of attack into about 1.24% of damage). The old claim "+20–25% a tier" was only true around T3 and is
+withdrawn. **Kept as it is (J):** early tiers are dramatic, late tiers modest; late progress comes from uniques, sets and
+Pip's leader points (section 9). Foes are defined from the reference fighter, so the shares set how a jump *feels*, not how
+hard the game is.
+
 ### The other eleven classes
 
 Each class has a **power budget of 1.0**, split between damage, durability and utility. The split is the class's identity;
@@ -142,17 +149,26 @@ nothing is "worse", only different. Stats are multipliers on the reference fight
 | class | damage | durability | utility | HP | attack | defence | speed | mana L1 → L30 | skill casts per fight |
 |---|---|---|---|---|---|---|---|---|---|
 | Fighter | .30 | .50 | .20 | ×1.00 | ×1.00 | ×1.00 | ×1.0 | 8 → 30 | 3 |
-| Barbarian | .50 | .35 | .15 | ×1.10 | ×1.15 | ×0.80 | ×1.0 | 6 → 24 | 2 |
-| Paladin | .30 | .40 | .30 | ×0.95 | ×0.90 | ×1.10 | ×0.9 | 8 → 36 | 3 |
-| Ranger | .45 | .20 | .35 | ×0.80 | ×1.05 | ×0.60 | ×1.3 | 10 → 40 | 4 |
-| Rogue | .45 | .20 | .35 | ×0.75 | ×1.05 | ×0.60 | ×1.4 | 8 → 36 | 4 |
-| Monk | .33 | .33 | .34 | ×0.90 | ×0.90 | ×0.90 | ×1.1 | 10 → 46 (ki) | 5 (cheap skills); ki power and pool × (0.5 + Balance) |
-| Cleric | .15 | .30 | .55 | ×0.85 | ×0.70 | ×0.70 | ×0.9 | 14 → 62 | 6 |
-| Druid | .25 | .25 | .50 | ×0.85 | ×0.75 | ×0.70 | ×1.0 | 14 → 62 | 6 |
-| Bard | .20 | .20 | .60 | ×0.75 | ×0.70 | ×0.60 | ×1.1 | 12 → 58 | 6 |
-| Wizard | .55 | .10 | .35 | ×0.65 | ×1.00 | ×0.40 | ×0.95 | 16 → 70 | 6 |
-| Sorcerer | .60 | .12 | .28 | ×0.70 | ×1.10 | ×0.45 | ×1.0 | 14 → 64 | 5 |
-| Warlock | .50 | .22 | .28 | ×0.80 | ×0.95 | ×0.70 | ×1.0 | 12 → 52 | 5 |
+| Barbarian | .50 | .35 | .15 | ×1.10 | ×1.15 | ×0.63 | ×1.0 | 6 → 24 | 2 |
+| Paladin | .30 | .40 | .30 | ×0.95 | ×0.90 | ×0.88 | ×0.9 | 8 → 36 | 3 |
+| Ranger | .45 | .20 | .35 | ×0.80 | ×1.05 | ×0.69 | ×1.3 | 10 → 40 | 4 |
+| Rogue | .45 | .20 | .35 | ×0.75 | ×1.05 | ×0.78 | ×1.4 | 8 → 36 | 4 |
+| Monk | .33 | .33 | .34 | ×0.90 | ×0.90 | ×0.82 | ×1.1 | 10 → 46 (ki) | 5 (cheap skills); ki power and pool × (0.5 + Balance) |
+| Cleric | .15 | .30 | .55 | ×0.85 | ×0.70 | ×0.93 | ×0.9 | 14 → 62 | 6 |
+| Druid | .25 | .25 | .50 | ×0.85 | ×0.75 | ×0.74 | ×1.0 | 14 → 62 | 6 |
+| Bard | .20 | .20 | .60 | ×0.75 | ×0.70 | ×0.82 | ×1.1 | 12 → 58 | 6 |
+| Wizard | .55 | .10 | .35 | ×0.65 | ×1.00 | ×0.67 | ×0.95 | 16 → 70 | 6 |
+| Sorcerer | .60 | .12 | .28 | ×0.70 | ×1.10 | ×0.67 | ×1.0 | 14 → 64 | 5 |
+| Warlock | .50 | .22 | .28 | ×0.80 | ×0.95 | ×0.76 | ×1.0 | 12 → 52 | 5 |
+
+**Defence re-derived for the HoMM3 factor (P3, arithmetic, 22 Oct).** The damage factor punishes low defence harder than
+subtraction did (a foe hit on the wizard went from 1.39× to 1.56× a hit on the fighter), which pushed the documented table to
+73–83% of the fighter's power for the casters, against the promise of 85–115%. **Rule: each class's defence multiplier is solved
+so its effective HP equals the durability its power split implies** (`y = g/√ρ`, the same derivation as the threat table).
+HP stays; only the defence column moves (barbarian 0.80 → 0.63, paladin 1.10 → 0.88, rogue 0.60 → 0.78, cleric 0.70 → 0.93,
+bard 0.60 → 0.82, wizard 0.40 → 0.67, sorcerer 0.45 → 0.67, …). With casters acting with a skill every turn (+30% per action, J),
+every class then lands at **86–100% of the fighter** (druid 87%, bard 86%, the rest 92–100%). The threat table and special
+defence follow from the new defence. *Arithmetic at level 10; **U** until playtested.*
 
 ### Ability scores: the six (J, Joakim's request, 21 Oct)
 
@@ -309,17 +325,17 @@ foes deal is magical (J), so the ward factor moves durability only a little; it 
 | class | attack | special attack | defence | special defence |
 |---|---|---|---|---|
 | Fighter | ×1.00 | ×0.50 | ×1.00 | ×0.80 |
-| Barbarian | ×1.15 | ×0.50 | ×0.80 | ×0.64 |
-| Rogue | ×1.05 | ×0.50 | ×0.60 | ×0.48 |
-| Paladin | ×0.90 | ×0.70 | ×1.10 | ×1.10 |
-| Ranger | ×1.05 | ×0.60 | ×0.60 | ×0.60 |
-| Monk | ×0.90 | ×0.90 | ×0.90 | ×0.90 |
-| Cleric | ×0.60 | ×0.70 | ×0.70 | ×1.12 |
-| Druid | ×0.60 | ×0.75 | ×0.70 | ×1.12 |
-| Bard | ×0.60 | ×0.70 | ×0.60 | ×0.96 |
-| Wizard | ×0.60 | ×1.00 | ×0.40 | ×0.64 |
-| Sorcerer | ×0.60 | ×1.10 | ×0.45 | ×0.72 |
-| Warlock | ×0.60 | ×0.95 | ×0.70 | ×1.12 |
+| Barbarian | ×1.15 | ×0.50 | ×0.63 | ×0.50 |
+| Rogue | ×1.05 | ×0.50 | ×0.78 | ×0.62 |
+| Paladin | ×0.90 | ×0.70 | ×0.88 | ×0.88 |
+| Ranger | ×1.05 | ×0.60 | ×0.69 | ×0.69 |
+| Monk | ×0.90 | ×0.90 | ×0.82 | ×0.82 |
+| Cleric | ×0.60 | ×0.70 | ×0.93 | ×1.49 |
+| Druid | ×0.60 | ×0.75 | ×0.74 | ×1.18 |
+| Bard | ×0.60 | ×0.70 | ×0.82 | ×1.31 |
+| Wizard | ×0.60 | ×1.00 | ×0.67 | ×1.07 |
+| Sorcerer | ×0.60 | ×1.10 | ×0.67 | ×1.07 |
+| Warlock | ×0.60 | ×0.95 | ×0.76 | ×1.22 |
 
 The casters' special attack is their old attack multiplier, so their damage is unchanged; their weapon attack is ×0.6 (the
 weapon is an afterthought, as `items.md` already prices holy and instruments). Foes: special defence = defence, and caster
@@ -336,7 +352,7 @@ pack last longest (everyone runs out at the same time):
 
 | fighter | barbarian | paladin | ranger | rogue | monk | cleric | druid | bard | wizard | sorcerer | warlock |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1.00 | 0.95 | 1.02 | 0.60 | 0.56 | 0.84 | 0.68 | 0.68 | 0.56 | 0.42 | 0.47 | 0.64 |
+| 1.00 | 0.84 | 0.87 | 0.64 | 0.64 | 0.79 | 0.81 | 0.70 | 0.66 | 0.51 | 0.55 | 0.67 |
 
 Then `× (1 + 0.1 × CHA modifier)`, ×2 while guarding or taunting, ×0.5 while unseen. Threat only moves damage between kobolds
 (the total is the same), so **threat on gear costs 0 pp**: it is a choice about who takes the hits, not power.
@@ -769,6 +785,8 @@ oil, hot oven tiles) applies a status when a creature *enters* the tile:
   are hit. The danger is a decision, not a die.
 - **Mercy rule (player only):** after **two misses in a row** by the same kobold, its next attack gets **+15%**. It is shown
   in the breakdown ("mercy +15"). It evens out streaks of bad luck without changing the average much (about +0.5% overall; it triggers about once every three fights).
+  *(P6, 22 Oct: kept as a feel rule. With luck now tilting every roll and chances running 0–100%, mercy is the only
+  streak protection; it adds about +0.5% on average and is shown in the breakdown. A chance pushed past 100% stays at 100%.)*
 
 ### Damage: the attack-versus-defence factor (HoMM3, decided 22 Oct)
 
@@ -929,21 +947,24 @@ Hearthspire has no area; its fights are scripted set-pieces.
 ### The fight budget (the main path)
 
 This is the check that the levels, the XP and the places add up. *Needed* = the fights the pack must win to reach the
-stretch's end level, after bosses (4 fights' worth of XP each) and challenges (3 each) are counted. *Planned* = what the
+stretch's end level, after bosses and challenges are counted. **XP is paid per basic hit of foe HP defeated (P4, D, 22 Oct)**, one rule for every foe,
+so a boss is worth its HP: 2.2 to 4.1 fights' XP (Snipe 2.2 … Glitterbeak 4.1; 32 in all, against the old flat 4 each = 44).
+Challenges stay at 3 fights' XP (J). The share of XP from random fights becomes **0.75** (was 0.8), and the XP per foe formula
+uses it. *Planned* = what the
 places supply. **Planned ÷ needed should be 1.05–1.20**: a player who fights 85% of what they meet keeps pace; someone who
 runs from more falls behind, someone who does the optional content is ahead.
 
 | stretch | levels | fights to level | from bosses and challenges | fights needed | fights planned | planned ÷ needed | planned fights come from |
 |---|---|---|---|---|---|---|---|
 | 1 Hearthspire act 1 | 1→3 | 5 | 0 | 5 | 5.9 | 1.18 | 5 set-pieces (cellar, yard drill, gate) and R1 start (0.9) |
-| 2 R1 + Pebblebrook | 3→8 | 25 | 11 (Grubb, Snipe, 1 challenge) | 14 | 16.3 | 1.16 | R1 ×2 passes 6.0, mill road 2.4, the mine 6.9, 1 lookout |
-| 3 R2 + Sunhaven | 8→13 | 30 | 7 (1 boss, 1 challenge) | 23 | 25.2 | 1.09 | R2 ×2 9.8, the cellars 8.3, the oasis 2.1, 5 patrols |
-| 4 R3 + Emberreach | 13→18 | 35 | 11 (2 bosses, 1 challenge) | 24 | 26.9 | 1.12 | R3 ×2 10.5, the crater 8.3, the fields 2.1, 6 patrols |
-| 5 R4 + home + Ordeal | 18→19 | 7 | 4 (1 boss) | 3 | 3.9 | 1.30 | R4 once 3.9 (a deliberately thin stretch) |
-| 6 R5 + Frostwick | 19→23 | 28 | 7 (1 boss, 1 challenge) | 21 | 23.2 | 1.10 | R5 ×2 9.8, the ice cellars 8.3, the draft outpost 3, the snow 2.1 |
-| 7 R6, R7 + Saltspray | 23→27 | 32 | 7 (1 boss, 1 challenge) | 25 | 28.3 | 1.13 | R6 ×2 8.4, the shipwreck 5.0, the island cave 4.8, R7 2.1, 8 patrols |
-| 8 The march + finale | 27→30 | 24 | 12 (3 bosses) | 12 | 11.8 | 0.98 | the march 2.8, 9 set-piece fights in the castle (mandatory, so 1.0 is right) |
-| **total** | 1→30 | **186** | 59 | 127 | **141.5** + 11 bosses | | |
+| 2 R1 + Pebblebrook | 3→8 | 25 | 7.7 (Grubb, Snipe, 1 challenge) | 17.3 | 19.3 | 1.12 | R1 ×2 passes 6.0, mill road 2.4, the mine 6.9, 1 lookout, **+2 patrols** |
+| 3 R2 + Sunhaven | 8→13 | 30 | 5.6 (1 boss, 1 challenge) | 24.4 | 26.7 | 1.09 | R2 ×2 9.8, the cellars 8.3, the oasis 2.1, 6 patrols |
+| 4 R3 + Emberreach | 13→18 | 35 | 8.6 (2 bosses, 1 challenge) | 26.4 | 28.4 | 1.08 | R3 ×2 10.5, the crater 8.3, the fields 2.1, 7 patrols |
+| 5 R4 + home + Ordeal | 18→19 | 7 | 2.5 (1 boss) | 4.5 | 5.4 | 1.21 | R4 once 3.9, **+1 patrol** (a deliberately thin stretch) |
+| 6 R5 + Frostwick | 19→23 | 28 | 5.6 (1 boss, 1 challenge) | 22.4 | 24.7 | 1.10 | R5 ×2 9.8, the ice cellars 8.3, the draft outpost 3, the snow 2.1, **+1 patrol** |
+| 7 R6, R7 + Saltspray | 23→27 | 32 | 5.7 (1 boss, 1 challenge) | 26.3 | 28.3 | 1.08 | R6 ×2 8.4, the shipwreck 5.0, the island cave 4.8, R7 2.1, 8 patrols |
+| 8 The march + finale | 27→30 | 24 | 11.3 (3 bosses) | 12.8 | 14.8 | 1.16 | the march 2.8, 9 set-piece fights in the castle (mandatory), **+2 patrols** on the march |
+| **total** | 1→30 | **186** | 47 | 139 | **153.5** + 11 bosses | | |
 
 So the whole main story is about **142 normal fights and 11 boss fights**: one normal fight every 6.5 minutes of play.
 
@@ -1057,16 +1078,20 @@ include a skill. By level 30 a character has about **8 skills** (class, weapon, 
 
 | something new every… | what |
 |---|---|
-| 10 minutes (levels 1–2), 25 (3–7), 30–35 (8–22), 40 (late) | a level-up and a talent pick |
+| about 15 minutes (levels 1–2), then **30 minutes, flat** | a level-up and a talent pick |
 | ~12 minutes | a gear piece, found or bought |
 | ~8 minutes | a story beat or a joke worth reading |
 | per route | a new foe type, a new landmark |
 | per stretch (about 2.5 hours) | a new town, a new companion or a piece, a gear tier |
 | ~40 minutes | a new skill |
 
-Late levels are 40 minutes apart, so late progress must be *felt* through gear tiers, subclass skills, companion arcs and
-the Smiler, not through the level number. This is deliberate, and is why the XP curve is steeper than the 15-hour story
-alone would need.
+**Level pace (P10, derived 22 Oct from the stretch plan):** every stretch gives 5 levels in 2.5 hours or 4 in 2 hours, so a
+level takes **30 minutes, flat**, from level 3 to 30 (only the Ordeal stretch is slower: one level in 1.5 hours, on purpose). The
+"40 minutes late" figure came from an inconsistent average and is withdrawn. What rises is **combat density**: the fights a
+level needs go from 5 to 8, so needed random fights per hour rise from about 6 (Pebblebrook) to about 12 (Saltspray). That is
+kept (J): the early game leaves room for story and learning, the late game is for a pack that has its tools. Late progress is
+felt through Pip's leader points (every second level), subclass skills, uniques and sets, since each level adds a smaller share
+of power late (stats grow roughly linearly, so the relative gain per level falls like 1/level).
 
 ## 10. What the simulator must report (the check list)
 

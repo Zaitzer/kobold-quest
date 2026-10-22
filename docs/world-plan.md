@@ -28,6 +28,11 @@ The towns follow the bun chain, and Hearthspire sits in the middle of it like a 
   Raptors later turn the whole loop into quick travel.
 - **Size:** it all fits inside today's 60 × 34 block grid (600 × 340 tiles). The outer ring stays forest, cliffs and sea.
   If it feels empty we shrink the grid later; we don't pad it with routes.
+- **Check (P9, arithmetic, 22 Oct):** with routes winding about 1.3× their straight distance, the towns sit roughly at
+  Hearthspire (300, 170), Pebblebrook (208, 170), Frostwick (300, 47), Saltspray (423, 170), Emberreach (300, 285), Sunhaven
+  (169, 287) and the islands (492, 170). Every route fits, with the north and south edges about 45 tiles from the map's edge,
+  but the towns use only x 169–492 of 600: **about 110 tiles of empty ring on the west and east**. Shrink the grid to about
+  420 × 340 when the slice rebuilds `REGION` (or shift the layout), rather than lengthening routes.
 
 ## Shape of a playthrough
 
