@@ -91,24 +91,24 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
   A hit lands with `100% + accuracy − the target's dodge − cover − distance − the multiple-attack penalty`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
   spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
-### The level table (the reference fighter, on-level standard foes)
+### The level table (the reference fighter, on-level standard foes; a pack of four, re-derived 22 Oct)
 
 | L | gear tier | XP to next | total XP | HP | attack | defence | basic hit | foe HP | foe attack | foe defence | XP per foe | gold per foe | gold per fight | fights to next level |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | T1 | 12 | 12 | 55 | 9 | 5.1 | 9 | 34 | 11 | 1 | 3 | 3 | 8 | 2 |
-| 2 | T1 | 36 | 48 | 68 | 12 | 7.3 | 11 | 43 | 15 | 2 | 6 | 4 | 10 | 3 |
-| 3 | T1 | 70 | 118 | 81 | 14 | 9.5 | 13 | 51 | 18 | 3 | 7 | 5 | 13 | 5 |
-| 5 | T2 | 158 | 386 | 118 | 26 | 18.8 | 24 | 96 | 28 | 5 | 16 | 7 | 18 | 5 |
-| 8 | T2 | 334 | 1,201 | 158 | 34 | 25.4 | 30 | 122 | 35 | 8 | 23 | 11 | 33 | 6 |
-| 10 | T3 | 478 | 2,083 | 198 | 49 | 36 | 44 | 176 | 46 | 10 | 33 | 13 | 39 | 6 |
-| 13 | T3 | 727 | 4,006 | 237 | 57 | 42.5 | 51 | 202 | 54 | 12 | 41 | 16 | 51 | 7 |
-| 15 | T4 | 914 | 5,738 | 280 | 73 | 54.5 | 66 | 262 | 66 | 14 | 51 | 18 | 58 | 7 |
-| 18 | T4 | 1,224 | 9,092 | 319 | 81 | 61 | 72 | 288 | 75 | 17 | 68 | 21 | 67 | 7 |
-| 20 | T4 | 1,448 | 11,874 | 345 | 86 | 65.3 | 76 | 306 | 81 | 19 | 81 | 23 | 74 | 7 |
-| 23 | T5 | 1,811 | 16,938 | 401 | 105 | 79.4 | 94 | 374 | 88 | 22 | 88 | 26 | 83 | 8 |
-| 25 | T5 | 2,070 | 20,947 | 427 | 110 | 83.8 | 98 | 392 | 93 | 24 | 101 | 28 | 90 | 8 |
-| 27 | T6 | 2,341 | 25,492 | 470 | 126 | 95.7 | 113 | 452 | 104 | 26 | 114 | 30 | 96 | 8 |
-| 30 | T6 | 2,771 | 30,597 | 509 | 134 | 102.2 | 119 | 478 | 112 | 29 | , | 33 | 106 | , |
+| 1 | T1 | 12 | 12 | 55 | 9 | 5.1 | 9 | 34 | 12 | 1 | 2.2 | 3 | 11 | 2 |
+| 2 | T1 | 36 | 48 | 68 | 12 | 7.3 | 11 | 43 | 16 | 2 | 4.5 | 4 | 15 | 3 |
+| 3 | T1 | 70 | 118 | 81 | 14 | 9.5 | 13 | 51 | 20 | 3 | 5.2 | 5 | 18 | 5 |
+| 5 | T2 | 158 | 386 | 118 | 26 | 18.8 | 24 | 96 | 32 | 5 | 12 | 7 | 25 | 5 |
+| 8 | T2 | 334 | 1,201 | 158 | 34 | 25.4 | 30 | 122 | 40 | 8 | 17 | 11 | 42 | 6 |
+| 10 | T3 | 478 | 2,083 | 198 | 49 | 36 | 44 | 176 | 52 | 10 | 25 | 13 | 51 | 6 |
+| 13 | T3 | 727 | 4,006 | 237 | 57 | 42.5 | 51 | 202 | 62 | 12 | 31 | 16 | 67 | 7 |
+| 15 | T4 | 914 | 5,738 | 280 | 73 | 54.5 | 66 | 262 | 76 | 14 | 38 | 18 | 76 | 7 |
+| 18 | T4 | 1,224 | 9,092 | 319 | 81 | 61 | 72 | 288 | 86 | 17 | 51 | 21 | 89 | 7 |
+| 20 | T4 | 1,448 | 11,874 | 345 | 86 | 65.3 | 76 | 306 | 92 | 19 | 61 | 23 | 98 | 7 |
+| 23 | T5 | 1,811 | 16,938 | 401 | 105 | 79.4 | 94 | 374 | 100 | 22 | 66 | 26 | 111 | 8 |
+| 25 | T5 | 2,070 | 20,947 | 427 | 110 | 83.8 | 98 | 392 | 106 | 24 | 76 | 28 | 120 | 8 |
+| 27 | T6 | 2,341 | 25,492 | 470 | 126 | 95.7 | 113 | 452 | 119 | 26 | 86 | 30 | 129 | 8 |
+| 30 | T6 | 2,771 | 30,597 | 509 | 134 | 102.2 | 119 | 478 | 128 | 29 | , | 33 | 142 | , |
 
 **The XP formula** is `12 × level^1.6` (30,597 XP in total to reach level 30). Every pack member gets the full XP of a fight.
 
@@ -117,11 +117,20 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
   509 (×9), because skills, crits and area spells push damage further and a longer fight is more fun than a shorter one.
 - *Foe HP* = 4 × the basic hit. So a standard foe takes about 4 basic hits, i.e. two rounds of focused fire.
 - *Foe attack* is set so one hit takes **16% of the fighter's HP at levels 1–5, 14% at 6–20, 12% at 21–30**. Early hits are
-  scary, late hits are survivable; this is the "cozy but threatening" curve.
-- *XP per foe* = XP to next level ÷ (0.8 × fights to next level × foes per fight). The 0.8 is the share of XP that
+  scary, late hits are survivable; this is the "cozy but threatening" curve. **Re-derived 22 Oct for the HoMM3 factor (D):**
+  solving `0.39 × A × F(A, fighter's defence) = share × fighter's HP` gives about **1.14 × the old subtraction values** at every
+  level. A side effect worth knowing: the factor widens the gap between sturdy and fragile kobolds (at L10 a foe hit on the
+  wizard is 1.56× a hit on the fighter, against 1.39× under subtraction), so defence matters a little more than before.
+- *XP per foe* = XP to next level ÷ (0.8 × fights to next level × foes per fight); with a pack of four it is ¾ of the old value, since
+  there are 4/3 as many foes. The 0.8 is the share of XP that
   comes from random fights; the other 20% comes from bosses, challenges and quests.
-- *Foes per fight*: 2.5 at levels 1–5, 3 at 6–12, 3.2 after (the pack is three, so three or four foes is the norm).
-- *Gold per foe* = 1.15 × (2 + 0.9 × level).
+- *Foes per fight* (a pack of four, D): **3.33 at levels 1–5, 4 at 6–12, 4.27 after**, i.e. the pack-of-three figures × 4/3.
+  **The rule: foes scale with the pack**, so the fight length (the pack's damage grows by 4/3 too) and the share of HP each
+  kobold loses stay exactly as designed. In play: three or four foes early, four or five later.
+- *Gold per foe* = 1.15 × (2 + 0.9 × level), unchanged. **Gold per fight (income) F** = gold per foe × foes per fight, so it is
+  4/3 of the pack-of-three value. **Prices are set in a separate unit, F₀ = the pack-of-three gold per fight** (the old F),
+  so income and the cost of kitting four kobolds both grow by 4/3 and **the shop coverage stays 66–84%**. Rewards (bosses
+  6F, chests 1.5F, main quests 4F) use the income F.
 - *Fights to next level*: **2, 3, then 5 (levels 3–7), 6 (8–12), 7 (13–17 and 18–22), 8 (23–29)**. The first two levels
   come fast on purpose.
 
@@ -183,8 +192,11 @@ in `design.md` §8 (the character sheet).
 - **Growth:** the stat picks among the talents (about 30% of the 30 picks, so about 9) each give **+1 to a score**, up to a
   cap of 20. A cap makes the player spread points instead of stacking one. This replaces the old "+0.45 attack, +0.375
   defence and +2.1 HP per level" line. **Gear** can give +1 or +2 to a score.
-- *Open, not simulated:* the numbers above are a proposal. They are not yet reconciled with the class table or the talent
-  line (audit tasks 3 and 7), and the yardstick fighter's stats must be re-derived to include its scores.
+- **Reconciled 22 Oct (D, arithmetic):** the level table is read as the reference fighter **including its scores** (STR 15,
+  CON 14: attack, defence and HP ×1.10 at the start), so its base stat lines are the table's values ÷ 1.10 and nothing else moves.
+  The growth matches the old talent line: a fighter that spends its 9 stat picks as 4 on STR (15 → 19) and 5 on CON (14 → 19)
+  gains +10% attack, +10% defence and +10% HP by level 30, against +9.7%, +10.6% and +12.0% from the old "+0.45 / +0.375 / +2.1
+  per level". So the level table stands, and the talent line is retired.
 
 #### The monk: the generalist, scaling on Balance (J, Joakim's design, 22 Oct)
 
@@ -380,7 +392,8 @@ holds for line and cone skills. Each overlapped tile rolls its own hit and crit,
 | **boss** | 6–12 | 40–55% | three attacks a round, no one-shots; one telegraphed big attack; add-ons on round 4 |
 
 **Pace of a normal fight:** the pack deals about 3.5 × a basic hit per round (skills and an area spell help), and foes have
-4 × the basic hit in HP each, so three foes die in about 3.4 rounds. The foes' damage then costs the pack about 0.5 of
+4 × the basic hit in HP each, so three foes die in about 3.4 rounds (with a pack of four, 4/3 the damage against 4/3 the foes:
+the same length). The foes' damage then costs the pack about 0.5 of
 one member's HP in total across the fight, spread over the pack: about 16%, and about 25% once skills, crits and misses
 are counted. This is what the table of foe attack numbers is built for.
 
@@ -391,28 +404,28 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 **Two rules make every boss** (`node tools/balance-model.js bosses`; checked on the average of six varied packs). The designer picks only the level and the **target length R in rounds** (7–12); everything else follows:
 
-1. **HP (D):** `k = R × (3.5 + 0.03 × level)` times the basic hit. The pack deals 3.5 basic hits a round against a single boss at level 1 and about 4.4 at level 30 (the big-foe rule lets area casters score, defence takes more off weak attacks as foes toughen). So the boss lasts R rounds.
-2. **Pressure (D/J):** a boss makes **three attacks a round**, and over the whole fight it deals a **damage budget of `T = 4.3 + 0.04 × level` fighter-HPs** (4.5 at level 5, 5.5 at level 30). Each attack is therefore `T / (3R)` of a fighter's HP. The pack has about 2.4 fighter-HPs of its own, so it must heal, guard, dodge the telegraphed attack or win quickly; the budget grows with level because the pack's toolbox (skills, mana, potions) grows. Constants fitted once to a 70–75% first-try win; the table below is **computed, not fitted boss by boss**.
+1. **HP (D):** `k = R × (4.67 + 0.04 × level)` times the basic hit (a pack of four: the pack-of-three rule `R × (3.5 + 0.03 × level)` × 4/3). The pack deals 3.5 basic hits a round against a single boss at level 1 and about 4.4 at level 30 (the big-foe rule lets area casters score, defence takes more off weak attacks as foes toughen). So the boss lasts R rounds.
+2. **Pressure (D/J):** a boss makes **one attack per kobold slot each round (four)**, and over the whole fight it deals a **damage budget of `T = 5.73 + 0.053 × level` fighter-HPs** (6.0 at level 5, 7.3 at level 30; the pack-of-three budget × 4/3). Each attack is therefore `T / (4R)` of a fighter's HP, the same size as before. The pack has about 3.2 fighter-HPs of its own, so it must heal, guard, dodge the telegraphed attack or win quickly; the budget grows with level because the pack's toolbox (skills, mana, potions) grows. Constants fitted once to a 70–75% first-try win; the table below is **computed, not fitted boss by boss**.
 
-**Why three attacks and not one big one (J, tested):** the same damage as one 55% blow, but nobody is knocked out from full HP (about 0.00 one-shots per fight against 0.10), the pack is under steady pressure it can answer, and about 1 win in 4 is a close call that was earned. **The telegraphed big attack** (every third round, avoidable by moving) is a relief valve, not extra damage: in the sim, removing it dropped the first boss from 53% to 24%. That is why **no boss is shorter than 7 rounds**: the pack always sees at least two telegraphed turns.
+**Why several attacks and not one big one (J, tested with three; with a pack of four it is four, one per kobold):** the same damage as one 55% blow, but nobody is knocked out from full HP (about 0.00 one-shots per fight against 0.10), the pack is under steady pressure it can answer, and about 1 win in 4 is a close call that was earned. **The telegraphed big attack** (every third round, avoidable by moving) is a relief valve, not extra damage: in the sim, removing it dropped the first boss from 53% to 24%. That is why **no boss is shorter than 7 rounds**: the pack always sees at least two telegraphed turns.
 
 **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.8–1.3 in the sim); 24–32% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
 
 **Every pack gets a fair fight** (measured 21 Oct with packs of three, before the pack of four, P19; all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Co-op bosses are covered in "Playing together" below.
 
-| boss | level | rounds R | HP multiple k | HP | each of 3 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels | the trick |
+| boss | level | rounds R | HP multiple k | HP | each of 4 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels (sim, pack of three) | the trick |
 |---|---|---|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 7 | 26× | 630 | 25 | 21% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 7 | 26× | 800 | 34 | 22% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 8 | 31× | 1,496 | 44 | 20% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 8 | 32× | 2,161 | 59 | 21% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 10 | 40× | 2,875 | 52 | 17% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 8 | 32× | 2,300 | 65 | 21% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 8 | 33× | 3,007 | 82 | 22% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 8 | 34× | 3,394 | 96 | 22% | 432 | 43% / 69% / 94% | fights from boats at range |
-| Castle commander | 28 | 10 | 43× | 4,934 | 85 | 18% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 11 | 48× | 5,612 | 80 | 17% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 12 | 53× | 6,312 | 76 | 15% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+| Grubb the toll boss | 5 | 7 | 34× | 824 | 25 | 21% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 35× | 1,077 | 34 | 22% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 41× | 1,979 | 44 | 20% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 42× | 2,836 | 59 | 21% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 54× | 3,881 | 52 | 17% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 43× | 3,091 | 65 | 21% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 44× | 4,010 | 82 | 22% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 46× | 4,592 | 96 | 22% | 432 | 43% / 69% / 94% | fights from boats at range |
+| Castle commander | 28 | 10 | 58× | 6,655 | 85 | 18% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 64× | 7,483 | 80 | 17% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 70× | 8,337 | 76 | 15% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
 
 The designed curve was 5 / 35 / 70 / 92 / 99% for −4 / −2 / 0 / +2 / +4 levels. The model gives about **70–82% at equal level, 0–50% two levels under
 and 87–100% two over**. So the low side is steeper than designed: two levels under an early boss is almost a sure loss. That is
@@ -893,8 +906,8 @@ be softlocked by gold: potions are cheap, and half the gold is kept after losing
   **Gold should always feel slightly short and never hopeless.**
 - **Prices are multiples of F at the tier's entry level** (`items.md` has the full table): weapon 4F, armour 2.5F,
   shield 1.8F, neck 1.8F, helm, boots, cloak and rings 1.5F each, a potion 0.4F, an ether 0.5F, a Phoenix feather 2.5F,
-  an inn bed 0.5F (never under 10). One kobold's full set of one tier is about 17.6F; a pack of four is 70F (the coverage
-  figures in this section were computed for three, P19).
+  an inn bed 0.5F (never under 10). One kobold's full set of one tier is about 17.6F; a pack of four is 70 F₀. Prices are in F₀, the
+  pack-of-three unit, while income F grows by 4/3 with the extra foes, so the coverage figures here hold for a pack of four.
 - **Income per hour (net of potions):** about 390 gold an hour in stretch 2 and about 1,830 an hour in stretch 7.
 - **Sinks:** potions and ethers (25%), gear (about 55%), the smith's crafting fee (40% of the shop price, plus materials),
   reforging (30 gold at tier 1, scaled by F), the moon shrine (reset talents: 4F), the inn (0.5F).
