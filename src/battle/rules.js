@@ -51,7 +51,7 @@ function tcW(u){return u.m?u.m.w:u.E.w}
 function tcStat(u){if(u.m)return rpStats(u.m);if(u.E&&u.E.v6)return v6FoeStat(u);return{atk:u.atk,def:u.def,spd:u.spd,hp:u.max,mp:0,crit:.08,dodge:0,sight:u.E.sight||0,stealth:0}}
 function rpMoveOf(m){const st=rpStats(m);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)}
 function tcMov(u){if(v6u(u))return v6Move(u);const st=tcStat(u);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)-(u.sz>1?1:0)}
-function tcSight(b,u){return(b.theme==='cave'?5:7)+(tcStat(u).sight||0)}
+function tcSight(b,u){return(b.dark?3:b.theme==='cave'?5:7)+(tcStat(u).sight||0)}
 function tcGrass(b,u){return u.sz===1&&!!tcT(tcAt(b,u.x,u.y)).grass}
 function tcSees(b,a,c){
   if(!tcLive(a)||!tcLive(c)||a.side===c.side)return false;

@@ -3,7 +3,7 @@
    is rebuilt, so the v37 parity test still guards them. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
-import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
+import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcSideSees,tcStat,tcUnitAt} from './rules.js';
 import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -79,7 +79,7 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
     if(Math.random()<p)v6Status(t,sh.st);else tcFloatU(t,'resisted','#d7c9e3');tcWake(b,t);return}
   if(kind==='spell'){landed=Math.random()<v6Land(b,a,t,o)}
   else if(sh.sure){}                                        // a telegraphed boss attack does not roll (balance.md §4a)
-  else{const H=v6Hit(b,a,t,o);fl=H.fl;unseen=H.unseen;a.atkN=(a.atkN||0)+1;
+  else{const H=v6Hit(b,a,t,o);fl=H.fl;if(rp.count)rp.count.push({side:a.side,kind,tiles:Math.max(1,Math.round(tcEuc(a,t))),cover:H.cv||0,p:H.p});   // the counting sims (build steps 9, 20)unseen=H.unseen;a.atkN=(a.atkN||0)+1;
     if(Math.random()>=H.p){a.misses=(a.misses||0)+1;tcFloatU(t,'miss','#d7c9e3');if(!rp.headless)sfx('pop');tcWake(b,t);return}a.misses=0}
   const [lo,hi]=v6DmgRange(b,a,t,o.mul||1,o);let d=lo+Math.random()*(hi-lo);
   if(!landed){d*=0.5;tcFloatU(t,'resisted','#d7c9e3')}
@@ -230,29 +230,29 @@ function v6Spawn(b,u,n,what){const id=Object.keys(FOES6).find(k=>what.toLowerCas
   for(let i=0;i<n;i++){const key=v6FoeKey(id,u.E.L),E=RP_E[key];let spot=null;for(let r=1;r<4&&!spot;r++)for(let y=Math.max(0,u.y-r);y<=Math.min(b.H-1,u.y+r)&&!spot;y++)for(let x=Math.max(0,u.x-r);x<=Math.min(b.W-1,u.x+r)&&!spot;x++){const t={sz:1};if(tcFits(b,t,x,y)&&!b.units.some(o=>tcLive(o)&&x>=o.x&&x<o.x+(o.sz||1)&&y>=o.y&&y<o.y+(o.sz||1)))spot=[x,y]}
     if(!spot)return;const v={side:1,E,key,name:E.n,x:spot[0],y:spot[1],sz:1,hp:E.hp,max:E.hp,atk:E.atk,def:E.def,spd:E.spd,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,pod:u.pod,turns:0,fled:false,own:'e',ctl:'ai'};
     v.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:'none',pers:'brave',speed:1,hp:E.hp,size:.62},0,0,!rp.headless);v.k.face=-1;const h=tcHome(v);v.k.x=h.x;v.k.y=h.y;b.units.push(v);tcFloatU(v,'joins!','#ffb347')}}
-/* the lab's boss fights stand on an open arena until the board generator has boss arenas (build step 9): a 2 × 2 boss must be able to
-   reach every kobold, or a fight can stall with the boss boxed in by rocks */
-function v6OpenArena(b){if(!b)return;const cnt={};b.g.forEach(r=>r.forEach(c=>{if(!tcT(c).solid)cnt[c]=(cnt[c]||0)+1}));const floor=Object.keys(cnt).sort((x,y)=>cnt[y]-cnt[x])[0];
-  b.g.forEach(r=>{for(let x=0;x<r.length;x++)if(tcT(r[x]).solid)r[x]=floor})}
 function v6BossLost(b){if(!b||!b.v6)return;const boss=b.units.find(u=>u.E&&u.E.v6boss);if(!boss||!rp.s)return;rp.s.bossDefeats=rp.s.bossDefeats||{};rp.s.bossDefeats[boss.E.id]=(rp.s.bossDefeats[boss.E.id]||0)+1}
 
 /* ---------------------------------------------------------------- the fight lab (checkpoint A): any classes and level against any place or foe */
-const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,msg:''};
+const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,theme:'',msg:''};
+/* the board theme from where a fight happens (systems.md §2) */
+function v6PlaceTheme(where){where=String(where||'').toLowerCase();if(/flooded/.test(where))return'flooded';if(/dark|deep/.test(where))return'dark';
+  if(/mine|cellar|cave|crater|wreck|tunnel/.test(where))return'cave';if(/castle|yard|town|hall|throne|pier|roof|oasis|oven|square|harbour|barracks/.test(where))return'town';if(/wood|forest/.test(where))return'woods';return'meadow'}
 function v6LabStart(){const s=rp.s;if(!s)return;const L=v6Lab.lvl,members=v6Lab.pack.filter(Boolean).map((c,i)=>({m:v6Kobold(['Pip','Wizzle','Glint','Bork'][i],c,L,{hero:i===0}),ctl:'me',own:'h'}));
-  const sel=String(v6Lab.place);rp.mode='map';
-  if(sel.startsWith('b:')){const key=v6BossKey(sel.slice(2));rpBattle([key],{members,boss:key,v6:1});v6OpenArena(rp.bt)}
-  else if(sel.startsWith('t:')){const key=v6TrialKey(sel.slice(2));rpBattle([key],{members,zone:',',v6:1})}
-  else{const P=PLACES6[+sel],keys=v6Mix(Object.assign({},P,{L:Math.max(1,L)}));rpBattle(keys,{members,zone:',',v6:1})}rp.bt.v6=1}
+  const sel=String(v6Lab.place);rp.mode='map';const th=t=>v6Lab.theme||v6PlaceTheme(t);
+  if(sel.startsWith('b:')){const key=v6BossKey(sel.slice(2));rpBattle([key],{members,boss:key,v6:1,theme:th(BOSSES6[sel.slice(2)].where)})}
+  else if(sel.startsWith('t:')){const key=v6TrialKey(sel.slice(2));rpBattle([key],{members,zone:',',v6:1,theme:th(TRIALS6[sel.slice(2)].where)})}
+  else{const P=PLACES6[+sel],keys=v6Mix(Object.assign({},P,{L:Math.max(1,L)}));rpBattle(keys,{members,zone:',',v6:1,theme:th(P.place)})}rp.bt.v6=1}
 function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+(String(x[0])===String(v)?' selected':'')+'>'+x[1]+'</option>').join('');
   const cls=[['','—']].concat(Object.entries(CLASSES6).map(([k,c])=>[k,c.n]));
   return'<div class="rpdlg"><div class="who">Fight lab (test)</div><p>Pick a pack, a level and a place; the fight uses the v6 rules.</p>'+
     v6Lab.pack.map((c,i)=>'<label>Kobold '+(i+1)+' <select id="lab-p'+i+'">'+opt(c||'',cls)+'</select></label> ').join('')+
     '<label>Level <select id="lab-l">'+opt(v6Lab.lvl,Array.from({length:30},(_,i)=>[i+1,i+1]))+'</select></label> '+
-    '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label>'+
+    '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label> '+
+    '<label>Board <select id="lab-th">'+opt(v6Lab.theme,[['','by place'],['meadow','meadow'],['woods','woods'],['cave','cave'],['town','town'],['dark','dark'],['flooded','flooded']])+'</select></label>'+
     '</div><div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
 feature({id:'fightlab',init(){v6RegisterSkills()},on:{'battle:lost':b=>v6BossLost(b)},
   panels:{lab:{sig:()=>JSON.stringify(v6Lab),html:v6LabHtml}},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
-    for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl');if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6OpenArena,v6PackMorale,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};
+    for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};

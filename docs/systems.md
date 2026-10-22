@@ -72,9 +72,12 @@ The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules wr
 - **Terrain by theme** (the generator's densities): meadow: paths, bushes 5% (half cover, hide), rocks 3.5% (full cover), trees 2.5%;
   woods: trees 13%, bushes 4%; cave: water pools, rocks 11%, mushrooms 6% (half cover). The kobolds' three starting rows are kept open.
   Every open tile is reachable.
-- **Goals the generator is checked against** (counted over generated boards by a test, not measured in play): a foe's tile has half
-  or full cover next to it about **30% of the time**, and the average distance from the pack's start to the foes is **4 to 5 tiles**
-  (the model's average board, `balance.md` §4a). If the count misses, the densities change, not the hit formula.
+- **Goals the generator is checked against** (counted over 500 generated boards per theme by a test, build step 9): every open tile
+  reachable from the pack's start; on boss boards every open tile within a step of where the 2 × 2 boss can stand; the starting rows
+  free of full cover and water; foes start in the far 42%; dark boards give sight 3; flooded boards are about a quarter difficult water.
+  **The shot goals** (the model's average shot of 4–5 tiles, the target in cover 30% of the time) are about fights, not boards: they are
+  counted by the slice simulator in step 20 (`number-audit.md` P28 has the lab's first count). If they miss, the densities and the foes'
+  cover habits change, not the hit formula.
 - **Starts:** the pack places its kobolds in the bottom three rows (the placement phase). Foes stand in one or two hidden groups
   (pods) in the far 42% of the board, and **start unaware** unless it is a boss or a patrol that saw the pack first (§6): an unaware
   foe has no dodge and is crit at +10 until its pod is alerted.

@@ -2,6 +2,7 @@ import {rpAiTurn,tcPosScore} from './ai.js';
 import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
 import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6TurnStart,v6u} from './v6battle.js';
+import {v6Gen,v6Theme} from './v6board.js';
 import {TT} from './view.js';
 import {emit} from '../core/bus.js';
 import {rpInputReset} from '../core/input.js';
@@ -37,10 +38,10 @@ function rpEncounter(c){
   rpFight(ks,{zone:c});
 }
 function rpBattle(keys,opt){
-  opt=opt||{};const s=rp.s,boss=opt.boss||null,duel=!!opt.duel,theme=duel?'meadow':tcTheme(opt.zone,boss);
+  opt=opt||{};const s=rp.s,boss=opt.boss||null,duel=!!opt.duel,T6=opt.v6&&opt.theme?v6Theme(opt.theme):null,theme=duel?'meadow':T6?T6.base:tcTheme(opt.zone,boss);
   const members=opt.members||s.party.map(m=>({m,ctl:'me',own:'h'})),foes=opt.foes||[];
   const n=duel?3:keys.length,W=boss?12:n<=2?9:n===3?10:11,H=boss?(boss==='vexx'?15:14):n<=2?12:n===3?13:14;
-  const b={win:opt.win||null,W,H,g:tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
+  const b={win:opt.win||null,W,H,g:T6?v6Gen(opt.theme,W,H,boss,Math.random()*1e9|0):tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,dark:!!(T6&&T6.dark),theme6:T6?opt.theme:null,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
     seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel,v6:!!opt.v6};
   if(opt.net)b.net={role:'host',id:opt.nid,peer:opt.net,gParty:opt.gParty||[]};
   rp.bt=b;

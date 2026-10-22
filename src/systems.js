@@ -50,6 +50,7 @@ import './battle/draw.js';
 import './battle/input.js';
 import './battle/v6rules.js';
 import './battle/v6battle.js';
+import './battle/v6board.js';
 import './net/core.js';
 import './net/draw.js';
 import './net/ui.js';
