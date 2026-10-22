@@ -26,7 +26,7 @@ Each step lists what it builds, where, the design it follows, and when it is don
 
 | # | step | builds | follows | done when |
 |---|---|---|---|---|
-| 1 | **Data pipeline** | the tools write `src/data/v6/*.js`: classes and kits (12 classes, wave 1 playable), dark versions, items (families, slots, variants, affixes, sets, uniques, consumables, recipes), the bestiary (roles × levels × g(L)), encounter mixes, the slice's maps and rooms, the script's dialogue rules | the tools above | the generated files load; a test compares a sample of each against the document's table |
+| 1 ✅ | **Data pipeline** (done 22 Oct: `tools/gen-data.js`, `src/data/v6/`, `test/logic/v6data.test.js`) | the tools write `src/data/v6/*.js`: classes and kits (12 classes, wave 1 playable), dark versions, items (families, slots, variants, affixes, sets, uniques, consumables, recipes), the bestiary (roles × levels × g(L)), encounter mixes, the slice's maps and rooms, the script's dialogue rules | the tools above | the generated files load; a test compares a sample of each against the document's table |
 | 2 | **The rename pass** | warrior → fighter, mage → wizard (save keys kept), sparks → Smiler pieces (`seals` kept), bandits → guards, Mossback foes → Nettlenose, the old cast and towns removed; the old story's tests replaced by stubs | `tech-plan.md`, the rename list | no old names in player-facing text (a test greps); the game boots |
 | 3 | **The save, v6** | the v6 save's fields, `SAVE_EPOCH` bumped, the migration's legacy copy | `systems.md` §11, §16 | a new game saves and loads every field; an old save becomes a legacy hero |
 

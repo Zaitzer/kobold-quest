@@ -174,7 +174,8 @@ hard the game is.
 
 ### The other eleven classes
 
-Each class has a **power budget of 1.0**, split between damage, durability and utility. The split is the class's identity;
+Each class has a **power budget of 1.0**, split between damage, durability and utility. *For the casters (cleric, druid, bard, wizard, sorcerer, warlock) the
+**attack** column is their spell power, i.e. their special attack; their weapon attack is ×0.6 (the special-attack table below).* The split is the class's identity;
 nothing is "worse", only different. Stats are multipliers on the reference fighter at the same level.
 
 | class | damage | durability | utility | HP | attack | defence | speed | mana L1 → L30 | skill casts per fight |

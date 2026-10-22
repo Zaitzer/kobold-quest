@@ -150,5 +150,5 @@ function md(){
       out.push(`| *${arr[2].split(':')[0]}* | ${sn}, L24 | ${arr[2].split(':').slice(1).join(':').trim()} (passive) | — | — | the capstone |`)}
     out.push(`\n**${c} talent passives** (each about 3 pp, can be taken more than once): ${PASSIVES[c].join('; ')}.\n`)}
   return out.join('\n')}
-module.exports={CLASSES,PASSIVES,price,md};
+module.exports={CLASSES,PASSIVES,price,md,ap};
 if(require.main===module)console.log(md());

@@ -62,6 +62,6 @@ for(const [cls,C] of Object.entries(CLASSES)){
   for(const [sub,list] of Object.entries(C.sub||{}))list.forEach(x=>{if(typeof x==='string'){const nm=x.split(':')[0];const d=DARK_CAP[nm];if(!d){missing.push(nm);return}n++;out.push(`| *${nm}* (${sub} capstone) | **${d}** | the same passive, ×1.25 (×1.4 from 50) | corruption 50 |`)}
     else row(x,`corruption 25 (${sub})`)});
   out.push('')}
-console.log(out.join('\n'));
-console.log(`\n${n} dark versions.`+(missing.length?` MISSING: ${missing.join(', ')}`:' Every skill and capstone has one.'));
+if(require.main===module){console.log(out.join('\n'));
+console.log(`\n${n} dark versions.`+(missing.length?` MISSING: ${missing.join(', ')}`:' Every skill and capstone has one.'))}
 module.exports={DARK,DARK_CAP};

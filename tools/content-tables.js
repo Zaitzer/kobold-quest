@@ -179,5 +179,5 @@ function mixes(){
     const txt=pick.map(f=>f.cnt.map((c,i)=>c?`${c} ${pool[i].toLowerCase()}`:null).filter(Boolean).join(' + ')+` (${f.sum.toFixed(2)})`).join('; ');
     out.push(`| ${place} | ${L} | ${T.toFixed(2)} | ${txt} |`)}
   return out.join('\n')}
-module.exports.mixes=mixes;
+module.exports.mixes=mixes;module.exports.PLACES=PLACES;
 if(require.main===module&&(process.argv[2]==='mixes'||process.argv[2]==='all'))console.log('\n'+mixes());
