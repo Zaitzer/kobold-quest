@@ -12,7 +12,7 @@ and help a village that didn't bother to choose.
 - **Platform:** the phone's browser, held sideways (joakimskar.no), with a desktop and Claude-page version from the same code.
 - **Genre:** an overworld adventure in the shape of Pokémon Ruby (towns, routes, key items, a rival, a villain team),
   with small turn-based grid battles instead of monster catching.
-- **Pack:** Pip and up to two of the seven companions, each with a class, talents, a subclass and gear.
+- **Pack:** Pip and up to three of the seven companions (a pack of four), each with a class, talents, a subclass and gear.
 - **Together:** one shared world for everyone: see each other, chat, yip, fight side by side, duel, trade at the market.
 
 ## Pillars (proposed)

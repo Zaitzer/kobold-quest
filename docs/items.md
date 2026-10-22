@@ -107,7 +107,7 @@ The variants are sold in the same shops at the same prices. They exist so a wiza
 | T5 | 83 | 332 | 208 | 149 | 125 |
 | T6 | 102 | 408 | 255 | 184 | 153 |
 
-A full kit for one kobold costs 17.6 F (T2: about 475 gold); a pack of three costs 53 F (T2: about 1,430 gold). Spare gear
+A full kit for one kobold costs 17.6 F (T2: about 475 gold); a pack of four costs 70 F (T2: about 1,900 gold; budgets below were set for a pack of three, `number-audit.md` P19). Spare gear
 sells for 35% of the shop price.
 
 ## 4. Random bonuses (affixes)

@@ -52,12 +52,15 @@ Where this file and those disagree, **those win** for numbers and screens; this 
 
 - Small turn-based grid battles (already built): position, range, line of sight, skills that cost mana.
 - **The rules, in short** (details and numbers in `balance.md` §4 and §4a):
-  - **One hit formula:** chance = 100% + accuracy − the target's dodge − cover − distance. A foe with no dodge is hit 100% in
+  - **Damage** uses HoMM3's attack-versus-defence factor (never zero, at most ×3, at least ×0.3), not subtraction.
+  - **One hit formula:** chance = 100% + accuracy − the target's dodge − cover − distance − the multiple-attack penalty
+    (Pathfinder: the second attack in a turn −5, the third −10). A foe with no dodge is hit 100% in
     melee; ranged and magic lose a little per tile and have no maximum range, only line of sight.
   - **Spells are resisted, not missed:** a resisted spell deals half damage; resistance rises with distance.
   - **Unseen attackers** halve the target's dodge or resistance; stunned, rooted and surprised foes have none.
   - **A big foe is hit once per tile** an area attack overlaps.
-  - **Statuses are priced on one ladder** (slow, fall, root, weaken and hex, stun, confuse), and terrain (ice) applies them at
+  - **Statuses are priced on one ladder** (slow, fall, root, weaken and hex, stun, confuse, and burn and poison, which deal
+    damage each turn, Pokémon-style), and terrain (ice) applies them at
     a quarter of a spell's power.
   - **Crit builds are rewarded for their risk**: no cap on crit damage; anything that lowers normal damage must raise crit
     damage to the rewarded value.
@@ -113,7 +116,8 @@ kobold whose power is how *balanced* it is (Bork's diligence). Not a rule, just 
 
 - **Words:** the group is called the **pack** in everything the player reads (never "party", which reads as politics).
   The internal name and the save key stay `party`.
-- **Pip plus up to two others** at a time, chosen from the roster. Those not in the pack wait at the inn and catch up
+- **Pip plus up to three others** at a time (a **pack of four**), chosen from the roster. Every fight is tuned for four
+  kobolds; bringing fewer is the player's own handicap. Those not in the pack wait at the inn and catch up
   in level slowly.
 - **The roster is Pip and the seven companions. No extra recruits** (the old Fennel, Brass, Pell, Mist, Tikka and Skipper Gull are cut). Seven is
   enough to carry the theme, and each one has a purpose.
@@ -200,7 +204,7 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Speed | ℝ, [0, +∞] | movement and part of turn order | §3 |
 | | Action points (AP) | ℕ, [0, +∞] | actions per turn | §3 (skill AP costs) |
 | | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP | *open (formula proposed in chat)* |
-| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself | §3 (thresholds; the ending branch is an open Gate 1 decision) |
+| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct) | §3 (thresholds) |
 | scores | STR, DEX, CON, INT, WIS, CHA | ℤ, [1, +∞] | each governs a fixed set of stats | §3, ability scores and the score-to-stat mapping |
 | | Balance † | ℝ, [0, 1] | how even the six scores are; all monk abilities scale on it | §3, the monk |
 | hit and avoid | Accuracy | ℝ, (−∞, +∞), in points | raises hit chance and reach | §4a |
@@ -219,14 +223,14 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Fame | ℝ, [0, +∞] | greetings and shop prices; never combat | §3 |
 | progress | Level | ℕ, [1, +∞] | | §3 |
 | | XP | ℕ, [0, +∞] | | §3 |
-| leader \* | Might \* (working name) | ℝ, [0, +∞] | the whole pack's attack and defence | *open; name pending* |
-| | Wits \* (working name) | ℝ, [0, +∞] | the whole pack's special attack and special defence | *open; name pending* |
+| leader \* | Might \* | ℝ, [0, +∞] | the whole pack's attack and defence | *open (rule); name decided 22 Oct* |
+| | Wits \* | ℝ, [0, +∞] | the whole pack's special attack and special defence | *open (rule); name decided 22 Oct* |
 | | Leadership \* | ℝ, [0, +∞] | raises the pack's morale | *open* |
 | | Pack morale \* | ℤ, (−∞, +∞) | the companions' morale plus Leadership | *open* |
 | status | turns left on each condition | ℕ, [0, +∞] | | §4a, statuses |
 
-On screen the sheet is long, so it is read in layers (`ui-design.md`, the kobold sheet): the battle shows only HP, mana,
-AP, morale and statuses; the sheet shows everything, grouped; press and hold any number to see where it comes from.
+On screen, **everything is on the sheet** (decided 22 Oct): every stat, grouped, with its total, and no press-and-hold
+breakdown on the sheet (`ui-design.md`, the kobold sheet). In battle the hit chance keeps its own breakdown (`balance.md` §4a).
 
 ## 9. Economy
 
@@ -248,10 +252,11 @@ AP, morale and statuses; the sheet shows everything, grouped; press and hold any
 - **Phasing for story scenes:** while you are in Hearthspire's story scenes (the empty square, the Ordeal), other players
   are hidden from you, so "nobody comes" is true. In the finale the opposite: online players show up in the crowd and can
   load their ember into the Smiler. (`gate1-review.md`, A3.)
-- **Fights together** (`balance.md` §4, "Playing together"): a boss adds a full set of its attacks and 90% more HP per extra
-  player, so each kobold faces the same pressure as solo; buffs from two players do not stack; a downed kobold can be revived
-  by another player; XP and loot are personal; shared-world resources are personal instances; all players act in the same
-  phase with a short timer. *Open: the largest group size (the arithmetic assumes 2–4).*
+- **Fights together** (`balance.md` §4, "Playing together"): **a fight holds at most four kobolds and four players**, who
+  share the four places (one player brings up to four, two bring two each, four bring one each). Nothing scales with the
+  number of players: every fight is tuned for four kobolds. Buffs from two players do not stack; a downed kobold can be
+  revived by another player; XP and loot are personal; shared-world resources are personal instances; all players act in
+  the same phase with a short timer.
 - Playing together never blocks anyone's story, and nobody has to play with others.
 - **Theme check:** the multiplayer is the theme made playable. A boss is beaten by whoever shows up; a friend who
   doesn't, doesn't. The helper's reward means showing up is rewarded, and nothing is lost by staying home except the
@@ -275,7 +280,7 @@ classes (Berserker now belongs to the barbarian, Paladin to its own class).
 1. **Losing a fight:** back to the last fountain, lose half your gold. *Decided.*
 2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready,
    with level sync for helpers. *Decided.*
-3. **Pack:** Pip plus up to two others from a roster. *Decided.* The roster is now Pip and the seven companions.
+3. **Pack:** Pip plus up to three others from a roster (a pack of four, decided 22 Oct). The roster is Pip and the seven companions.
 4. **Length:** long, 15+ hours, depth not padding. *Decided.*
 5. **No story choices for the player.** *Decided 19 Oct.*
 
@@ -305,3 +310,19 @@ Joakim can overrule any of these at Gate 1.
 8. **The monk is the generalist**, scaling on Balance.
 9. **Co-op bosses scale with the players.**
 10. **No more simulations unless asked;** arithmetic and playtests instead.
+
+## 16. Gate 1 decisions (Joakim, 22 Oct)
+
+1. **Build on `main`.** Safe as long as `release/` and the Claude page are not rebuilt from the new work until the slice is
+   ready: the live server serves `release/`.
+2. **Tile-targeting first**, as a spike, before the new classes; every tile skill reuses it.
+3. **Cinder rebuilds the oven** in act 3 (the bakery cellar, through the flour tunnel); Nugget's copper finishes it.
+4. **The eggs stay as they are** (the imperfect-eggs idea is dropped).
+5. **Corruption is combat only**: dark magic is stronger and some shops and kobolds react; no story effect, no ending branch.
+6. **A pack of four; at most four kobolds and four players in a fight.** Everything is tuned for four kobolds; bringing
+   fewer is the player's handicap. Nothing scales with the number of players.
+7. **Pip's leader stats are Might, Wits and Leadership.**
+8. **Everything on the sheet**, no press-and-hold layer on it.
+9. **The hard packs stay hard** (no front line is a choice with a cost).
+10. **Adopted:** HoMM3's attack-versus-defence damage factor, Pathfinder's multiple-attack penalty, Pokémon-style burn and poison.
+

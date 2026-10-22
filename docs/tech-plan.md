@@ -56,9 +56,10 @@
 | Tile-targeting and big foes | target a tile (trap, cover, mark); an area attack hits a 2 × 2 foe once per overlapped tile | no |
 | Statuses and terrain | fall (prone), slow, root, weaken, hex, stun, confuse; ice and mud tiles that apply them on entry | no |
 | Crits | no cap on crit damage; items that trade normal damage for crit damage | no |
-| Bosses | three attacks a round, a telegraphed area every third round, phase lines (proposed), softening after each defeat, co-op scaling | yes (defeats per boss) |
+| Bosses | three attacks a round, a telegraphed area every third round, phase lines (proposed), softening after each defeat | yes (defeats per boss) |
+| Damage | HoMM3's attack-versus-defence factor; Pathfinder's multiple-attack penalty; burn and poison (damage over time) | no |
 | Monk | Balance, ki, any weapon, element choice, Adapt (swap a skill mid-fight), buildable cover | no |
-| Co-op turns | all players act in one phase with a short timer; revive by another player; personal loot | no |
+| Packs and co-op | a pack of four; at most four kobolds and four players in a fight, sharing the places; all players act in one phase with a short timer; revive by another player; personal loot | yes (pack of four) |
 
 ## Before going public (not needed for friends)
 

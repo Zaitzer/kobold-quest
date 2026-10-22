@@ -40,6 +40,8 @@ The cloud sandbox **cannot reach joakimskar.no**, so Joakim checks `/status` him
   the Claude page (the website picks them up by itself).
 - He sometimes stops a long tool run (tests). Don't push until he says go.
 - Recent mode (19–22 Oct): **story and design first, no game changes** until Gate 1 is passed again.
+- **Building on `main` (decided 22 Oct):** the live server serves `release/`, so new work can land on `main`, but do not run
+  `tools/package.js` into `release/` or republish the Claude page from the new work until the slice is ready.
 - **Design and balance (21–22 Oct):** he thinks mathematically (a mathematics master's). Look for **a rule before a number**:
   when something is off, find the structural cause instead of tuning a constant. Mark every number D / J / B / U.
 - **No simulations unless he asks.** Use arithmetic; the model and sims are for when he requests them.
@@ -63,9 +65,10 @@ See `docs/ROADMAP.md`, "Where we are". In short:
 sensitivity, the character sheet, the monk).
 
 **Next, in order:**
-1. **Finish the number audit** (`docs/number-audit.md`): P14 (re-derive the level and class tables with the ability scores),
-   P15 (rules for the new stats), P17 (bring the model up to the rules, only if Joakim asks for runs), P18 (item budgets).
-2. **Gate 1 again:** Joakim reads `design.md`, the three number docs and `gate1-review.md` (ten open decisions) and says go.
+1. **Finish the number audit** (`docs/number-audit.md`): P19 (re-derive everything for a pack of four), P20 (re-derive foe
+   attack for the HoMM3 damage factor), P14 (the tables with the ability scores), P15 (rules for the new stats), P18 (item
+   budgets), P17 (the model, only if Joakim asks for runs).
+2. **Gate 1 again:** the ten decisions were taken on 22 Oct (`design.md` §16); Gate 1 passes when Joakim says go.
 3. **The new vertical slice:** Hearthspire (act 1), the capital gate, a route, and Pebblebrook with the mine.
 
 ## 5. The story, in brief (details in `docs/story-hatching.md`)
@@ -199,3 +202,4 @@ Fennel and Nugget as recruits.
 | 20 Oct | World plan v2 (Frostwick north, Saltspray east, the flour tunnel); design v2; numbers written as targets, not measurements |
 | 21 Oct | A rule before a number. One hit formula with distance and no maximum range; magic follows distance; unseen attackers; spells resisted for half; a big foe hit per overlapped tile; one status ladder, fall cheaper than stun, terrain at a quarter; bosses from two rules with softening; co-op bosses scale with players; crit builds rewarded for risk, no crit-damage cap; more stats, Pip as leader, the six D&D scores |
 | 22 Oct | The monk is the generalist and scales on Balance; documents cross-checked; no simulations unless asked |
+| 22 Oct | Gate 1 decisions: build on `main` (keep `release/` and the Claude page on the old game until the slice is ready); tile-targeting first; Cinder rebuilds the oven in act 3; eggs unchanged; corruption combat only; **a pack of four**, at most four kobolds and four players per fight, tuned for four, no player scaling; Might, Wits, Leadership; everything on the sheet; hard packs stay; HoMM3 defence factor, Pathfinder multiple-attack penalty, Pokémon burn and poison |

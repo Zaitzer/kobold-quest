@@ -35,7 +35,7 @@ design document, and parts of the story bible.
 1. ~~**World plan:** the new map.~~ *(done 20 Oct, v2 confirmed.)*
 2. ~~**Design document:** classes, companions, keeper challenges, field moves.~~ *(done 20 Oct.)*
 2b. **Number audit** (`docs/number-audit.md`): every number and equation in the balance, items and UI documents gets a reason and a check before Gate 1. *(Mostly done 22 Oct: combat rules, bosses, crits, statuses, sensitivity, the character sheet and the monk. Open: P14 re-derive the tables with the ability scores, P15 rules for the new stats, P18 item budgets.)*
-3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist, ten decisions at its end) and says go.
+3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist; its ten decisions were taken on 22 Oct, `design.md` §16) and says go.
 4. **The new vertical slice** (phase 2 below).
 
 **Gate 1:** passed 17 Oct 2026 for the first story; **to pass again** with story v6.

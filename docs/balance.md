@@ -85,7 +85,10 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
   *This line is what the level table still uses; it is being replaced by "+1 to an ability score per stat pick" (below), and
   the table must be re-derived when that lands (`number-audit.md` P14).*
-- **Damage:** a hit does `attack × skill multiplier − enemy defence × 0.5`, ±15%. A hit lands with `100% + accuracy − the target's dodge − cover − distance`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
+- **Damage:** a hit does `0.39 × attack × skill multiplier × F`, ±15%, where F is HoMM3's attack-versus-defence factor (§4a,
+  "Damage"; decided 22 Oct). It replaces `attack × multiplier − defence × 0.5`, which the level table was built on; the 0.39 keeps
+  the table's basic hit within 1% at levels 1, 10 and 30, and the foe attack column must be re-derived (`number-audit.md` P20).
+  A hit lands with `100% + accuracy − the target's dodge − cover − distance − the multiple-attack penalty`: melee averages 90% (the average foe's dodge is 10%), ranged about 66%;
   spells never miss but can be **resisted** (half damage, about 10% of the time). Crit chance 8%, crit damage ×1.5.
 
 ### The level table (the reference fighter, on-level standard foes)
@@ -274,9 +277,8 @@ touches combat.
 **Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces:
 - $C \ge 10$: dark skills appear in the skill list.
 - $C \ge 25$: some keepers and companions react (one line of dialogue each); the shops of the two evil-leaning towns offer a dark discount.
-- $C \ge 50$: **open, not decided.** An ending branch ("the shadowed hatchling") was proposed, but it conflicts with the
-  decided rule "no story choices" (`design.md` §1 and §13) and with the cozy tone. Until Joakim decides at Gate 1, corruption
-  has no story effect beyond the reactions at 25.
+- $C \ge 50$: dark skills reach their strongest tier. **Corruption is combat only** (decided 22 Oct): no ending branch and no
+  story effect beyond the reactions at 25.
 
 *Open, not simulated:* these mappings and steps are proposals. The numbers (5% per point, 2% per threshold, the steps of 10, 25 and 50) are J and need the playtest to settle them.
 
@@ -285,7 +287,7 @@ touches combat.
   mage mana growth (4.5 a level, 146 at level 30) is far too generous for fixed-cost skills and removes all mana tension.
   Mana grows steadily, by the amounts in the table.
 - **Each victory restores 10% of max mana**, so a dungeon is sustainable without ethers, but a caster still has to choose.
-- **Mixed packs are the point.** A pack of three should be best with one front-liner or healer, one damage dealer and one
+- **Mixed packs are the point.** A pack of four should be best with one front-liner or healer, one damage dealer and one
   utility. Two of the same class works but loses about 10% effectiveness.
 
 ### Skills: the cost rule
@@ -293,7 +295,7 @@ touches combat.
 Every skill is priced by one rule, so new skills can be added without guessing:
 
 **mana cost = 1 + 3 × (damage multiplier × average targets − 1) + status cost**, rounded.
-Status costs: slow +1, **fall +1.5**, root +2, weaken or hex +2, stun +3, confuse +4 (all from one rule: about 2 mana per action-equivalent, see the statuses section; rounded at the end). Average targets: single 1, line 2, area 2.2, chain 2.5.
+Status costs: slow +1, **fall +1.5**, root +2, weaken or hex +2, stun +3, confuse +4, **burn +4, poison +4** (all from one rule: about 2 mana per action-equivalent, see the statuses section; rounded at the end). Average targets: single 1, line 2, area 2.2, chain 2.5.
 Healing: a single-target heal of 45% of max HP is 3 mana; a group heal is priced per effective target.
 Action points: 1 AP for cheap or utility skills, 2 AP for strong or area skills, "ends the turn" for heavy melee.
 
@@ -357,7 +359,8 @@ The new skills, by the same rule:
 
 ## 4. Fights: the shape
 
-A fight is *three kobolds against two to four foes* on a board of about 10 × 13 tiles (bosses 12 × 14, with a boss that
+A fight is *four kobolds against foes* (a pack of four, decided 22 Oct; **the foe counts and every fight and boss number in this
+file were derived for three kobolds and must be re-derived for four**, `number-audit.md` P19) on a board of about 10 × 13 tiles (bosses 12 × 14, with a boss that
 takes up 2 × 2 tiles).
 
 **Big foes and area attacks (J, Joakim's rule, 21 Oct):** a foe that covers several tiles is **hit once for every one of its
@@ -395,7 +398,7 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 **Fun checks (U, must hold in the sim and in play):** one-shot kills from full HP ≈ 0; about 1 kobold falls per boss (0.8–1.3 in the sim); 24–32% of wins end under 40% pack HP; no round where the pack has nothing useful to do.
 
-**Every pack gets a fair fight** (all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Co-op bosses are covered in "Playing together" below.
+**Every pack gets a fair fight** (measured 21 Oct with packs of three, before the pack of four, P19; all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Co-op bosses are covered in "Playing together" below.
 
 | boss | level | rounds R | HP multiple k | HP | each of 3 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels | the trick |
 |---|---|---|---|---|---|---|---|---|---|
@@ -421,11 +424,11 @@ whether this feels fair or whether the low side should be softened).
 *The game is multiplayer: a shared world, personal stories, level sync, and a rule that absence is never punished
 (`design.md` §10). Every boss is tuned for one player alone; co-op is help, never a requirement.*
 
-- **Boss scaling with the number of players n (D, arithmetic):** the boss gets **n sets of its three attacks a round** (each
-  hit the same size, so every kobold faces the same pressure as solo) and **HP × (1 + 0.9 × (n − 1))**. With 2, 3 and 4
-  players the fight lasts about 95%, 93% and 92% of the solo rounds: slightly easier, because teamwork brings more combos,
-  and the telegraph turns stay. The older rule (+25% HP and attack per extra player) made a two-player fight take 5 rounds
-  against 8 and was dropped.
+- **No scaling with the number of players (decided 22 Oct):** a fight holds **at most four kobolds and four players**, who
+  share the four places (one player brings up to four, two bring two each, four bring one each). Every fight, boss and
+  encounter is tuned for four kobolds, so a group plays exactly the fight a solo player does, and **bringing fewer kobolds is
+  the player's own handicap**. The earlier rules (+25% per extra player; a set of attacks and 90% HP per extra player) are
+  dropped.
 - **Level sync:** the helper's pack is brought down to the friend's level for the fight; gear counts as the synced level's.
 - **Buffs do not stack across players:** the same buff or hex from two bards or two warlocks does not add; the stronger one
   applies (no "two bards = ×1.56").
@@ -460,7 +463,12 @@ foe in cover), not ones they could not see coming.
 
 ### The one formula (J, Joakim's rule, 21 Oct)
 
-**chance = 100% + the attacker's accuracy − the target's dodge − cover − distance, clamped between 0% and 100%.**
+**chance = 100% + the attacker's accuracy − the target's dodge − cover − distance − the multiple-attack penalty, clamped
+between 0% and 100%.**
+
+- **The multiple-attack penalty (Pathfinder, decided 22 Oct):** the first attack a kobold makes in a turn takes 0, the second
+  −5, the third and later −10. Light weapons (daggers, fists) take 0, −4, −8. It counts every separate attack roll in the
+  turn, including the hits of a multi-hit skill; an area skill's targets are one attack and keep their own −10 per target.
 
 There is no "90% base for melee". 90% is simply what a blade does against the average foe, which has 10% dodge. The
 chance comes from the *target*, so it can be read off the foe:
@@ -557,13 +565,13 @@ Everything the player can change by moving or choosing:
 | Headshot | +15 | |
 | Arrow rain, Volley (area, ranged) | −10 *per target* | each foe rolls separately; coverage costs reliability |
 | Cleave, Whirlwind, Stomp (area, melee) | −10 per target | |
-| Flurry | three rolls, each −10 | on average 2.4 hits of 3 |
+| Flurry | three rolls at 0 / −4 / −8 (the multiple-attack penalty for fists) | on average about 2.6 hits of 3 against a normal foe |
 | Reckless swing | +10 | the recklessness is in the drawback, not the aim |
 | Sneak attack | ×2.4 on a stunned, flanked, **unseen** or unaware foe (a foe with no dodge needs no accuracy bonus) | otherwise 0 |
 | Smite, spells, Teapot blast, Hex | never miss; resisted 10% of the time for half damage | see "Resisted spells" |
 | Traps | no roll | they spring when stepped on |
 
-### Statuses (stun, fall, slow, root, hex, weaken, confuse)
+### Statuses (stun, fall, slow, root, hex, weaken, confuse, burn, poison)
 
 A status applied *by a damaging skill* happens if the hit lands. A *pure* status skill (Lullaby, Vine snare, Hex, Rumour)
 rolls a **resist check**:
@@ -613,6 +621,14 @@ costs about 2 mana per AE, so a more crippling status is always dearer.**
 | weaken, hex | a quarter of its attack, or a quarter more damage taken | 1 | +2 |
 | **stun** | its whole turn, for 1–2 turns | 1.5 | +3 |
 | confuse | its turn, and it hits its own friends | 2 | +4 |
+| **burn** (Pokémon-style) | 1/16 of the target's HP each turn for 3 turns (0.75 basic hits in all) and weaken (−25% attack) | 0.75 hits + 1 | +4 |
+| **poison** (Pokémon-style) | 1/8 of the target's HP each turn for 3 turns (1.5 basic hits in all) | 1.5 hits | +4 |
+
+**Burn and poison (decided 22 Oct).** Damage over time is a share of the target's max HP, **but never more than that share of a
+standard foe's HP at the target's level** (4 basic hits), so a boss with 50 basic hits of HP takes the same burn as a normal
+foe, not twelve times more. The same status does not stack: a new burn on a burning foe refreshes the 3 turns. A resisted
+burn or poison (see "Resisted spells") does half. Fire skills and hot oven tiles burn; Sourdough-starter drains and some
+foes' bites poison. Their price is the cost rule's 3 mana per basic hit of damage, plus 2 for burn's weaken.
 
 So **fall is always cheaper than stun**, and a new status must be placed on this ladder by what it takes away, not by feel.
 
@@ -646,6 +662,20 @@ oil, hot oven tiles) applies a status when a creature *enters* the tile:
   are hit. The danger is a decision, not a die.
 - **Mercy rule (player only):** after **two misses in a row** by the same kobold, its next attack gets **+15%**. It is shown
   in the breakdown ("mercy +15"). It evens out streaks of bad luck without changing the average much (about +0.5% overall; it triggers about once every three fights).
+
+### Damage: the attack-versus-defence factor (HoMM3, decided 22 Oct)
+
+$$\Delta = 40\cdot\frac{A - D'}{A + D'}, \qquad F = \begin{cases} 1 + 0.05\,\Delta, & \Delta \ge 0 \\ \max(0.3,\; 1 + 0.025\,\Delta), & \Delta < 0 \end{cases}, \qquad \text{dmg} = \max\bigl(1,\; 0.39\cdot A\cdot M\cdot F\bigr)\cdot U(0.85,\,1.15)$$
+
+`A` is the attacker's attack (special attack for spells), `D' = D × (1 − armour piercing)` the target's defence (special
+defence for spells), `M` the skill multiplier. HoMM3 adds 5% per point of attack above defence and takes 2.5% per point below;
+because our stats grow with level, the gap is measured **relative to the two stats** (Δ runs from −40 to +40), so the factor
+behaves the same at level 1 and level 30. It runs from **×0.3** (a hopeless attack still scratches) to **×3** (no defence at
+all), never reaches zero, and every point of defence or piercing matters a little instead of a flat wall.
+
+Check against the level table (fighter against an on-level foe): L1 `0.39 × 9 × 2.60 = 9.1` (table 9), L10 `0.39 × 49 × 2.32 = 44.4`
+(44), L30 `0.39 × 134 × 2.29 = 119.6` (119). The foes' attacks against kobolds come out about 20% lower than the table's
+16 / 14 / 12% targets and must be re-derived (P20). *The 40, 0.05, 0.025, 0.3 are HoMM3's shape; 0.39 is fitted.*
 
 ### Crits
 
@@ -863,7 +893,8 @@ be softlocked by gold: potions are cheap, and half the gold is kept after losing
   **Gold should always feel slightly short and never hopeless.**
 - **Prices are multiples of F at the tier's entry level** (`items.md` has the full table): weapon 4F, armour 2.5F,
   shield 1.8F, neck 1.8F, helm, boots, cloak and rings 1.5F each, a potion 0.4F, an ether 0.5F, a Phoenix feather 2.5F,
-  an inn bed 0.5F (never under 10). One kobold's full set of one tier is about 17.6F; a pack of three is 53F.
+  an inn bed 0.5F (never under 10). One kobold's full set of one tier is about 17.6F; a pack of four is 70F (the coverage
+  figures in this section were computed for three, P19).
 - **Income per hour (net of potions):** about 390 gold an hour in stretch 2 and about 1,830 an hour in stretch 7.
 - **Sinks:** potions and ethers (25%), gear (about 55%), the smith's crafting fee (40% of the shop price, plus materials),
   reforging (30 gold at tier 1, scaled by F), the moon shrine (reset talents: 4F), the inn (0.5F).

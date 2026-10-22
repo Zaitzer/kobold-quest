@@ -219,7 +219,7 @@ return, changed.** Where they end up is the virtue opposite their sin.
 | Bork | sloth → diligence | naps; wants never to nap through anything again | nods off at every big moment (running gag); in Frostwick he finds that work is nice when it's shared | stays awake all night guarding the fort against the draft | first one awake on hatching day, and he wakes the others |
 | Nugget | greed → charity | nuggets; wants his grandad's duck-shaped nugget | haggles over every piece; finds the duck nugget in Glitterbeak's hoard in the castle | the nugget is copper, exactly what Mallow's broken oven needs | he gives it to the oven; the buns that come out are for everyone |
 | Saffi | pride → humility | books; wants to finish one | lectures everyone; in Frostwick a "dim" builder's simple fort plan beats her clever one, and works | says so, out loud, in front of the whole fort | finishes her book (it was called *Why Only the Clever Should Choose*) and writes it a new ending |
-| Cinder | wrath → patience | rage at anything imperfect; wants to make something nobody laughs at | wants to blow things up, and the Smiler tempts him; finds that fixing Mallow's oven is slow and good | in the Ordeal he storms the castle gate alone and nearly ruins everything | at the castle he holds the Smiler and waits until the whole country has loaded it |
+| Cinder | wrath → patience | rage at anything imperfect; wants to make something nobody laughs at | wants to blow things up, and the Smiler tempts him; finds that fixing Mallow's oven is slow and good (act 3: back in through the flour tunnel, he rebuilds the oven's frame in the bakery cellar, bit by bit between towns) | in the Ordeal he storms the castle gate alone and nearly ruins everything | at the castle he holds the Smiler and waits until the whole country has loaded it |
 | Crumb | gluttony → temperance | a full belly from stay-home buns; wants to cook for everyone, not just the guards | defends the deal; finds the islands cut off and hungry while she eats | gives up her bun ration | cooks the hatching feast from shared buns |
 
 **The golden mean.** Cinder is too much caring (smash it all); Bib is too little (why bother). The virtue sits in
@@ -256,7 +256,7 @@ Introduction, development, **twist**, reconciliation. A small story per town, wi
 | Pip's cold ember, carried all game | glows in the Reward; the last ember into the Smiler |
 | Mallow's recipe book | the Smiler's instructions in the back |
 | a faded mural in the castle hall of "the dragon smiler", which looks like a tube on a shoulder | it's an RPG-7 |
-| Mallow's old oven that "likes things as they are" | breaks in the Ordeal; fixed with Nugget's nugget |
+| Mallow's old oven that "likes things as they are" | breaks in the Ordeal; Cinder rebuilds its frame in act 3; Nugget's copper nugget finishes it after the finale |
 | the raiders mentioned once at the nest | come over the hill at the new hatching |
 | the tutorial: Pip lights a lamp from the tower fire | Snatchclaw's bucket of water over that fire in the finale |
 | Mallow in act 1: "the flour carts used to come in under my bakery" (the cellar door is shown in the tutorial) | after the Ordeal it is the way out past the shut north and east gates |

@@ -172,8 +172,8 @@ shape badge as well as a colour. The game works in a colourblind palette.
 | **Overworld** | as in section 2 | no menu clutter |
 | **Dialogue** | portrait, name, up to 3 short lines, the answers as buttons | the line is never more than 140 characters; choices only where the story has them |
 | **Battle** | as in section 2 | the board is the centre; the action bar is one row |
-| **Pack** | up to three portraits with HP, mana, level, "!" badges | tap one to open its sheet |
-| **Kobold sheet** | the doll (9 slots), the stats, talents, skills, subclass | the full sheet (`design.md` §8) in groups: core, the six scores, hit and avoid, weapon, tempo, world, progress; Pip's sheet adds the leader group, the monk's adds Balance with its next threshold. Read in **three layers**: the battle shows only HP, mana, AP, morale and statuses; the sheet shows everything; press and hold any number for where it comes from. *(Layers proposed 21 Oct, to confirm.)* |
+| **Pack** | up to four portraits with HP, mana, level, "!" badges | tap one to open its sheet |
+| **Kobold sheet** | the doll (9 slots), the stats, talents, skills, subclass | the full sheet (`design.md` §8) in groups: core, the six scores, hit and avoid, weapon, tempo, world, progress; Pip's sheet adds the leader group, the monk's adds Balance with its next threshold. **Everything is on the sheet** (decided 22 Oct): every stat with its total, grouped; no press-and-hold breakdown on the sheet. |
 | **Equip list** | all items for a slot, the best first, the stat difference beside each | rarity colour; unique items have a gold border |
 | **Talent pick** | three cards, one tap each, a confirm | the skill cards show the mana cost and a one-line effect |
 | **Shop** | the stock on the left, the pack's gear on the right, the difference on tap | stackables have + and − |
