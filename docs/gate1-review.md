@@ -96,13 +96,8 @@ the boss rules in `balance.md`'s "least sure" list; the retired talent line and 
 `seals` save flag kept in the rename list; UI principle 8 against "everything on the sheet"; act 1's set-pieces tuned for the pack
 the story gives.
 
-Open (each one a question for Joakim):
-1. **Morale is unpriced** (P24): +26% actions by the finale, +34% with a streak. Price the bond into the curve and cap the streak at +3?
-2. **The monk's start** (P25): 13, 12, 12, 12, 12, 11 instead of 12 ×6?
-3. **Fight length** (P7): about 90 s with four kobolds, +70 minutes of play. Foes move at once, and an Auto button for easy fights?
-4. **Corruption has no cost.** It unlocks stronger dark skills and a discount and takes nothing away, so it is free power for whoever
-   chases it. A cost that fits the theme: **each 10 corruption is −1 morale for the whole pack** (the companions don't like it), so
-   dark power trades against the pack's bond, one system feeding another.
+Decided the same day (Joakim): **morale priced into the curve** and the streak capped at +3 (P24); **the monk keeps 12 ×6** (P25);
+**fights of about 90 s accepted** (P7); **corruption costs morale**, −1 pack morale per 10.
 
 ## Decided at Gate 1 (Joakim, 22 Oct; full list in `design.md` §16)
 

@@ -74,6 +74,11 @@ The main story is **15.5 hours**; everything optional adds about **6 hours**; th
 So in a typical hour: about 9 normal fights, 0.7 of a boss, 8 minutes of a challenge, 4 minutes of walking, and 36
 minutes of everything else. **Battle is about a fifth of the time**, in line with the four equal pillars of the vision.
 
+**Fight length with a pack of four (accepted 22 Oct, P7):** a normal fight is about **90 s**, not 60 (16 kobold turns at about 4.5 s,
+foes about 1.2 s each, 10 s in and out). Over 142 fights that adds about **70 minutes**: the main story is about **16.7 hours**, a
+level takes about 32 minutes, and battle is about a quarter of the time. Accepted as it is: the battles are a pillar, not a cost.
+The table above keeps the 60-second figure until a real session is timed (P7).
+
 ## 3. Player power: the model
 
 A single yardstick, the **reference fighter**, with the other classes scaled from it. Everything else (foes, bosses,
@@ -206,7 +211,7 @@ in `design.md` §8 (the character sheet).
 | Paladin | STR, CHA, CON, WIS, DEX, INT |
 | Ranger | DEX, WIS, CON, STR, INT, CHA |
 | Rogue | DEX, INT, CON, CHA, WIS, STR |
-| Monk | none: the even array 12, 12, 12, 12, 12, 12 (same total, Balance 100%) |
+| Monk | none: the even array 12, 12, 12, 12, 12, 12 (same score total, Balance 100%; one modifier point more than the others, about 5 pp, accepted 22 Oct, P25) |
 | Cleric | WIS, CON, STR, CHA, DEX, INT |
 | Druid | WIS, CON, DEX, INT, STR, CHA |
 | Bard | CHA, DEX, CON, WIS, INT, STR |
@@ -317,7 +322,8 @@ at 75%.
 table: at $\text{Fame} \ge 5, 10, 20$ a town greeting changes, and each threshold cuts shop prices by 2% (up to 6%). Fame never
 touches combat.
 
-**Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces:
+**Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces. **Its price (decided
+22 Oct):** every 10 of the pack's total corruption is −1 pack morale (above), so dark power is paid for with the pack's bond:
 - $C \ge 10$: dark skills appear in the skill list.
 - $C \ge 25$: some keepers and companions react (one line of dialogue each); the shops of the two evil-leaning towns offer a dark discount.
 - $C \ge 50$: dark skills reach their strongest tier. **Corruption is combat only** (decided 22 Oct): no ending branch and no
@@ -376,9 +382,10 @@ so **1 pp = 2.4% piercing**. It is a stat that rewards picking your target.
 
 **Morale and AP.** Each kobold has a morale score (an integer): **+1 for its companion quest done and +1 per campfire chat with
 it** (its bond, kept), **+1 for each fight won with nobody falling and −1 each time it falls** (its streak, back to zero at an
-inn). Pack morale is the mean plus Pip's Leadership:
+inn, **never above +3**: decided 22 Oct, P24, so a clean run is rewarded without a dungeon getting easier as it goes). Pack morale is the
+mean plus Pip's Leadership, minus one for every 10 of the pack's total corruption (decided 22 Oct: the companions don't like dark magic):
 
-$$M_{\text{pack}} = \overline{M} + \frac{\text{Leadership}}{5}, \qquad p = \frac{|M_{\text{pack}}|}{|M_{\text{pack}}| + 6}$$
+$$M_{\text{pack}} = \overline{M} + \frac{\text{Leadership}}{5} - \left\lfloor \frac{\sum C}{10} \right\rfloor, \qquad p = \frac{|M_{\text{pack}}|}{|M_{\text{pack}}| + 6}$$
 
 Each turn each kobold gains 1 AP with chance `p` if morale is positive, or loses 1 with chance `p` if it is negative. On a base of
 2 AP that is +7% actions at morale 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12: it keeps growing but never runs away.
@@ -413,6 +420,16 @@ the structural fix is to price luck on gear by what it does to the wearer's own 
 
 Fifteen points are worth about +7% to the pack whatever the split, so **foe HP and foe attack carry × (1 + 0.0025 × (L − 1))**
 (+7% at level 30): the curve expects Pip to lead.
+
+**The curve also expects the bond (D, decided 22 Oct, P24).** Chats and quests are spread over the story, so the expected bond grows
+about evenly, `b(L) = 5 (L − 1) / 29` (a companion with every chat and its quest has about 5), and a pack at that bond has `p(b)/2` more
+actions. **Every foe's and boss's HP and attack carry a second factor**
+
+$$g(L) = 1 + \frac{1}{2}\cdot\frac{b(L)}{b(L) + 6}$$
+
+×1.05 at level 5, ×1.10 at 10, ×1.14 at 15, ×1.18 at 20, ×1.20 at 25, ×1.23 at 30. XP and gold per foe stay as the tables give them
+(they pay for the fight, not for the HP). So a pack that has heard its chats is exactly on the curve, one that skipped them is a little
+weaker, and the streak (at most +3) is the reward for clean play on top. *In the model: `P.bond`, `foeScale`.*
 
 *All of this is arithmetic, not simulated; the 25% magical share, the ward factors, the class initiative bonuses and the morale
 sources are **J**, and the prices are **U** until playtested.*
@@ -497,19 +514,22 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 **Every pack gets a fair fight** (measured 21 Oct with packs of three, before the pack of four, P19; all 252 real packs: Pip in any class plus two of the seven companions): mean first-try win 73%, 238 of 252 between 50 and 95%, none over 95%, 8 under 30% (all stacking casters and supports). Packs with a bard win 70%, packs without 75%. The game never needs a "must-have" class. Co-op bosses are covered in "Playing together" below.
 
-| boss | level | rounds R | HP multiple k | HP | each of 4 hits | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels (sim, pack of three) | the trick |
+| boss | level | rounds R | HP multiple k | HP (× g(L)) | each of 4 hits (× g) | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels (sim, pack of three) | the trick |
 |---|---|---|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 7 | 34× | 824 | 25 | 21% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 7 | 35× | 1,077 | 34 | 22% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 8 | 41× | 1,979 | 44 | 20% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 8 | 42× | 2,836 | 59 | 21% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 10 | 54× | 3,881 | 52 | 17% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 8 | 43× | 3,091 | 65 | 21% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 8 | 44× | 4,010 | 82 | 22% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 8 | 46× | 4,592 | 96 | 22% | 432 | 43% / 69% / 94% | fights from boats at range |
-| Castle commander | 28 | 10 | 58× | 6,655 | 85 | 18% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 11 | 64× | 7,483 | 80 | 17% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 12 | 70× | 8,337 | 76 | 15% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+| Grubb the toll boss | 5 | 7 | 34× | 866 | 26 | 22% | 116 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 35× | 1,167 | 37 | 24% | 155 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 41× | 2,217 | 49 | 22% | 220 | 25% / 78% / 98% | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 42× | 3,263 | 68 | 24% | 286 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 54× | 4,518 | 61 | 20% | 313 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 43× | 3,598 | 76 | 24% | 313 | 45% / 78% / 95% | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 44× | 4,765 | 97 | 26% | 380 | 18% / 72% / 89% | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 46× | 5,552 | 116 | 27% | 432 | 43% / 69% / 94% | fights from boats at range |
+| Castle commander | 28 | 10 | 58× | 8,109 | 104 | 22% | 473 | 24% / 74% / 89% | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 64× | 9,151 | 98 | 21% | 486 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 70× | 10,232 | 93 | 18% | 499 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+
+*HP and hits carry the bond factor g(L) (P24, 22 Oct); the win rates were measured before it, against a pack without its bond, so they
+still describe a pack that has heard its chats.*
 
 The designed curve was 5 / 35 / 70 / 92 / 99% for −4 / −2 / 0 / +2 / +4 levels. The model gives about **70–82% at equal level, 0–50% two levels under
 and 87–100% two over**. So the low side is steeper than designed: two levels under an early boss is almost a sure loss. That is

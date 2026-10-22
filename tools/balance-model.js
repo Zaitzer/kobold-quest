@@ -25,7 +25,8 @@ const P={
   koboldDodge:l=>.10+.10*Math.min(1,(l-1)/14),     // J  10% base, about 20% by mid-game from gear (4a)
   crit:.08, critMul:1.5,                           // B/J  flanked +15, unseen +10 (4a)
   critRule:'value',                                // J  decided 22 Oct (P22): crit bonuses paid by value; 'add' is the old rule
-  luck:0, morale:0, leadership:0,                  // J  defaults: an ordinary pack (balance.md 3, the new stats)
+  bond:l=>5*(l-1)/29,                             // D  the expected bond a pack has at level l (P24, decided 22 Oct)
+  luck:0, morale:null, leadership:0,                // morale null = the expected bond at the pack's level                  // J  defaults: an ordinary pack (balance.md 3, the new stats)
   dmgSpread:.15,                                   // B  +-15%
   potion:.35, potionsPerFight:3,                   // J  potions in the bag at a boss
   mercy:.15,                                       // J  after two misses
@@ -56,8 +57,10 @@ function ref(l){const t=P.tiers[tierAt(l)];
 function HF(A,D){const d=40*(A-D)/Math.max(1e-9,A+D);return d>=0?1+0.05*d:Math.max(0.3,1+0.025*d)}
 function hitDmg(A,M,D){return Math.max(1,P.dmgC*A*M*HF(A,D))}
 function atkFor(target,D){let lo=0,hi=1e6;for(let i=0;i<100;i++){const m=(lo+hi)/2;hitDmg(m,1,D)<target?lo=m:hi=m}return hi}   // the attack that lands `target` on defence D
-function foe(l){const r=ref(l),D=hitDmg(r.atk,1,foeDef(l));                // D = the fighter's basic hit on an on-level foe
-  return{D,hp:P.foeHpMult*D,def:foeDef(l),atk:atkFor(P.foeHitShare(l)*r.hp,r.def)}}
+/* the curve expects the bond (P24): foes' HP and damage carry g(L) = 1 + p(b)/2 */
+const foeScale=l=>{const b=P.bond(l);return 1+.5*b/(b+6)};
+function foe(l){const r=ref(l),D=hitDmg(r.atk,1,foeDef(l)),g=foeScale(l);                // D = the fighter's basic hit on an on-level foe
+  return{D,g,hp:P.foeHpMult*D*g,def:foeDef(l),atk:atkFor(g*P.foeHitShare(l)*r.hp,r.def)}}
 
 /* ---------------------------------------------------------------- the 21-22 Oct rules (P17): scores, Balance, hit, crit, luck,
    initiative, threat, morale, burn and poison. Every number here is the documents' (balance.md 3 and 4a, skills.md). */
@@ -176,7 +179,7 @@ let CLS=null;const classes=()=>CLS||(CLS=deriveClasses(10));
 /* ---------------------------------------------------------------- the fight simulator (abstract, one main action a round) */
 function makePack(names,L){const C=classes(),r=ref(L);
   return names.map((c,i)=>{const k=KIT[c],m=C[c],sf=scoreFactor(c);return{cls:c,side:0,hp:r.hp*m.hp*sf.hp,max:r.hp*m.hp*sf.hp,def:r.def*m.def*sf.def,atk:r.atk*m.atk*sf.atk,
-    spd:(5+.5*(L-1))*m.spd,mana:manaPool(c,L),k,misses:0,bank:0,luck:P.luck,init:initOf(c),threat:threatOf(c),
+    spd:(5+.5*(L-1))*m.spd,mana:manaPool(c,L),k,misses:0,bank:0,L,luck:P.luck,init:initOf(c),threat:threatOf(c),
     dodge:Math.min(.30,P.koboldDodge(L)+.025*govMod(c,'DEX'))}})}
 function makeFoes(Lf,rand,opt){opt=opt||{};const f=foe(Lf),n=opt.n!=null?opt.n:Math.floor(P.foesPerFight(Lf))+(rand()<P.foesPerFight(Lf)%1?1:0);
   const out=[];for(let i=0;i<n;i++)out.push({cls:'foe',side:1,hp:f.hp,max:f.hp,def:f.def,atk:f.atk,spd:5+.5*(Lf-1),weak:0,hex:0,dodge:P.board.foeDodge,init:10,std:f.hp});
@@ -184,7 +187,7 @@ function makeFoes(Lf,rand,opt){opt=opt||{};const f=foe(Lf),n=opt.n!=null?opt.n:M
 function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='careless';
   let potions=careless?0:(opt.potions!=null?opt.potions:0),rounds=0,falls=0,dealt=0,buff=0,boss=opt.boss||null;
   const all=()=>pack.concat(foes);
-  const M=(opt.morale!=null?opt.morale:P.morale)+(opt.leadership!=null?opt.leadership:P.leadership)/5,pM=moraleP(M);
+  const M=(opt.morale!=null?opt.morale:P.morale!=null?P.morale:P.bond(pack[0].L||1))+(opt.leadership!=null?opt.leadership:P.leadership)/5,pM=moraleP(M);
   const roll=(p)=>rand()<p;
   const hurt=(t,d)=>{if(t.hp<=0)return;if(t.side===0&&buff>0)d*=(1-P.buffGuard);t.hp-=d;if(t.hp<=0){t.hp=0;if(t.side===0)falls++}};
   const dmg=(atk,mul,def,luck)=>hitDmg(atk,mul,def)*(1+P.dmgSpread*(2*tiltU(rand(),luck||0)-1));
@@ -249,7 +252,7 @@ function runFights(names,Lp,Lf,N,policy,seed,opt){const rand=rng(seed||1),res={w
     res.win+=r.win;res.rounds+=r.rounds;res.lost+=r.lost;res.falls+=r.falls;res.dealt+=r.dealt;res.clean+=(r.win&&r.falls===0)}
   Object.keys(res).forEach(k=>res[k]/=N);return res}
 const f2=x=>x.toFixed(2),pc=x=>(x*100).toFixed(0)+'%';
-module.exports={odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
+module.exports={foeScale,odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
 
 if(require.main===module){
   const what=process.argv[2]||'all';
@@ -266,7 +269,7 @@ if(require.main===module){
 
 /* ---------------------------------------------------------------- bosses: HP multiple k vs rounds and win rate */
 function bossFight(names,L,k,rand,delta,opt){opt=opt||{};const f=foe(L),r=ref(L),D=f.D;
-  const b={cls:'boss',side:1,boss:true,hp:k*D*(opt.players||1),max:k*D*(opt.players||1),def:f.def,noBig:!!opt.noBig,acts:opt.acts||P.packSize,tiles:P.bossTiles,overlap:P.bossOverlap,atk:atkFor((opt.hit||.20)*r.hp,r.def),spd:5+.5*(L-1),weak:0,hex:0,dodge:.05,init:10,std:f.hp};
+  const b={cls:'boss',side:1,boss:true,hp:k*D*f.g,max:k*D*f.g,def:f.def,noBig:!!opt.noBig,acts:opt.acts||P.packSize,tiles:P.bossTiles,overlap:P.bossOverlap,atk:atkFor(f.g*(opt.hit||.20)*r.hp,r.def),spd:5+.5*(L-1),weak:0,hex:0,dodge:.05,init:10,std:f.hp};
   const Lp=L+delta;const pack=makePack(names,Lp);
   return fight(pack,[b],rand,opt.policy||'competent',{potions:P.potionsPerFight})}
 function bossRun(names,L,k,delta,N,opt){const rand=rng(11),s={win:0,rounds:0,falls:0,oneshot:0,close:0};
@@ -312,6 +315,7 @@ if(require.main===module&&(process.argv[2]==='rules'||process.argv[2]==='all')){
   console.log(`   hit 82% -> ${pc1(tilt(.82,1))}, crit 8% -> ${pc1(tilt(.08,1))}, damage roll ${pc1(((1+P.dmgSpread*(2*(1/(1/1.1+1))-1)))-1)} on average, fighter hit-and-crit factor ${pc1(l1/base-1)}; foes' 80% -> ${pc1(tilt(.8,-1))}`);
   console.log('\n5. Morale: extra actions a turn (balance.md: +7% at 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12)');
   console.log('   '+[1,2,3,6,12].map(m=>`${m}: +${(moraleP(m)/2*100).toFixed(1)}%`).join(', '));
+  console.log('   the curve expects the bond (P24): foes x g(L) = '+[1,5,10,15,20,25,30].map(L=>`L${L} x${foeScale(L).toFixed(2)}`).join(', '));
   console.log('\n6. Initiative: chance a +g gap acts first, I + d6 each (balance.md: +1 65%, +2 78%, +3 88%, +5 99%)');
   console.log('   '+[1,2,3,5].map(g=>{let w=0;for(let a=1;a<=6;a++)for(let b=1;b<=6;b++)w+=(a+g>b?1:a+g===b?.5:0);return`+${g}: ${pc(w/36)}`}).join(', '));
   console.log('\n7. Crit builds on the board, against a plain fighter on the same board (balance.md 4a table)');

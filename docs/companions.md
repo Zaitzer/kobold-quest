@@ -11,7 +11,8 @@ scene, which quest step, and what it does to the kobold's morale. Nothing in the
   about 30 in all**, each unlocked by a story step, never by grinding. A chat between two companions counts for both.
 - **Morale** (`balance.md` §3): each chat a kobold is in gives **+1 to its bond**, and finishing its quest gives **+1** more, kept
   for the rest of the game. A companion who has heard all its chats and done its quest has about **+5 bond**, so morale about 5
-  before streaks: a chance of +1 AP of about 45% a turn. Getting to know your pack is literally worth something in a fight.
+  before streaks: a chance of +1 AP of about 45% a turn. Getting to know your pack is literally worth something in a fight. The foe
+  curve expects this bond (`balance.md` §3, P24), so the chats keep a pack on the curve rather than above it; skipping them makes it weaker.
 - **One small quest each, never a battle** (the story's rule; fights may happen on the way).
 - **Pinned absences:** Wizzle is away from the Ordeal to Frostwick; Cinder from the Ordeal until his second cellar visit. The
   roster says why ("Wizzle: caught by the guards").

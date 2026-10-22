@@ -207,8 +207,8 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Special defence | ℝ, [0, +∞] | reduces spell damage | §3, the new stats |
 | | Speed | ℝ, [0, +∞] | movement (turn order is initiative) | §3 |
 | | Action points (AP) | ℕ, [0, +∞] | actions per turn | §3 (skill AP costs) |
-| | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP | §3, the new stats |
-| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct) | §3 (thresholds) |
+| | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP (bond from chats and quests, a streak of at most +3, Leadership, minus corruption) | §3, the new stats |
+| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct); every 10 in the pack is −1 pack morale | §3 (thresholds) |
 | scores | STR, DEX, CON, INT, WIS, CHA | ℤ, [1, +∞] | each governs a fixed set of stats | §3, ability scores and the score-to-stat mapping |
 | | Balance † | ℝ, [0, 1] | how even the six scores are; all monk abilities scale on it | §3, the monk |
 | hit and avoid | Accuracy | ℝ, (−∞, +∞), in points | raises hit chance and reach | §4a |
@@ -318,6 +318,10 @@ Joakim can overrule any of these at Gate 1.
     build as to anyone (P22).
 12. **A change to the hit rules never rebalances the classes:** class attack is re-solved to keep each class's damage against the
     fighter (P23).
+13. **Morale is priced into the curve** (foes × g(L) for the expected bond); the clean-fight streak counts at most +3 (P24).
+14. **The monk keeps 12 ×6**, one modifier point ahead of the standard array, accepted (P25).
+15. **Fights with four kobolds take about 90 s**, accepted; the story is about 16.7 hours (P7).
+16. **Corruption costs morale:** every 10 of the pack's total is −1 pack morale.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

@@ -6,6 +6,8 @@
 
 ## 1. The rules every foe follows
 
+- **The bond factor (decided 22 Oct, `balance.md` §3, P24):** every foe's HP and damage carry `g(L) = 1 + ½ b/(b + 6)`, the pack's
+  expected bond at that level (×1.05 at level 5, ×1.10 at 10, ×1.18 at 20, ×1.23 at 30). The tables below include it; XP and gold do not.
 - **Stats = role × the level foe at the place's level.** The level foe is the one in the level table: HP 4 basic hits, attack set so a
   hit takes 16 / 14 / 12% of the fighter's HP, defence 1 + 0.95 × (level − 1). A foe met in a higher place uses that place's level.
 - **Weight** is how much of a fight a foe counts as: `√(effective HP × damage)`, relative to a normal foe (D). **A fight's foes add
@@ -32,41 +34,41 @@
 
 | role | HP | attack | defence | sp.def | dodge | init | move | res | weight (D) | XP × (D) | foe hit on the fighter at L18 | note |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| normal | ×1.00 | ×1.00 | ×1.00 | ×1.0 | 10 | 10 | 4 | 0 | 1.00 | ×1.00 | 14% of HP | the yardstick |
-| brute | ×1.60 | ×1.20 | ×1.60 | ×1.0 | 3 | 8 | 3 | 0 | 1.53 | ×1.72 | 19% of HP | slow, hard to hurt, hits hard |
-| quick | ×0.70 | ×0.85 | ×0.70 | ×0.8 | 22 | 12 | 6 | 0 | 0.75 | ×0.75 | 10% of HP | hard to hit, falls fast |
-| ranged | ×0.80 | ×0.90 | ×0.80 | ×0.8 | 10 | 10 | 4 | 0 | 0.79 | ×0.76 | 12% of HP | shoots from afar (steadiness 6) |
-| caster | ×0.75 | ×1.10 | ×0.60 | ×1.6 | 10 | 10 | 4 | 10 | 0.89 | ×0.68 | 16% of HP | uses special attack; resists magic |
-| elite | ×2.00 | ×1.25 | ×1.30 | ×1.2 | 25 | 11 | 4 | 10 | 1.94 | ×2.59 | 20% of HP | a patrol leader: worth more |
-| swarm | ×0.40 | ×0.60 | ×0.50 | ×0.5 | 15 | 11 | 5 | 0 | 0.39 | ×0.37 | 6% of HP | comes in numbers |
+| normal | ×1.00 | ×1.00 | ×1.00 | ×1.0 | 10 | 10 | 4 | 0 | 1.00 | ×1.00 | 16% of HP | the yardstick |
+| brute | ×1.60 | ×1.20 | ×1.60 | ×1.0 | 3 | 8 | 3 | 0 | 1.52 | ×1.72 | 22% of HP | slow, hard to hurt, hits hard |
+| quick | ×0.70 | ×0.85 | ×0.70 | ×0.8 | 22 | 12 | 6 | 0 | 0.75 | ×0.75 | 12% of HP | hard to hit, falls fast |
+| ranged | ×0.80 | ×0.90 | ×0.80 | ×0.8 | 10 | 10 | 4 | 0 | 0.80 | ×0.76 | 14% of HP | shoots from afar (steadiness 6) |
+| caster | ×0.75 | ×1.10 | ×0.60 | ×1.6 | 10 | 10 | 4 | 10 | 0.89 | ×0.68 | 19% of HP | uses special attack; resists magic |
+| elite | ×2.00 | ×1.25 | ×1.30 | ×1.2 | 25 | 11 | 4 | 10 | 1.93 | ×2.59 | 23% of HP | a patrol leader: worth more |
+| swarm | ×0.40 | ×0.60 | ×0.50 | ×0.5 | 15 | 11 | 5 | 0 | 0.39 | ×0.37 | 7% of HP | comes in numbers |
 
 ## 3. Every opponent
 
 | foe | role | levels | where | weak / resists | stats at level (L) | weight | XP | gold | uses | how it fights | drops |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | **Cellar rat** | swarm | 1–2 | Mallow's cellar (set-piece) | — / — | L1: HP 15, atk 7, def 1, sp.def 1, dodge 15, init 11, move 5, res 0 | 0.42 | 1 | 1 | — | runs at the nearest kobold in twos and threes; flees at low HP | — |
-| **Guard recruit** | normal | 2–3 | the castle yard drill (set-piece) | — / — | L2: HP 44, atk 16, def 2, sp.def 2, dodge 10, init 10, move 4, res 0 | 1.00 | 5 | 4 | — | guards (dodge +25) when hurt; a tutorial in cover | — |
-| **Nettlenose scout** | quick | 3–30 | every road as the story goes on | — / — | L5: HP 70, atk 27, def 3, sp.def 4, dodge 22, init 12, move 6, res 0 | 0.76 | 10 | 6 | unseen in tall grass | ambushes from grass, hits the most hurt kobold, slips away | moss or the zone's material |
-| **Nettlenose slinger** | ranged | 3–30 | every road | — / — | L5: HP 79, atk 28, def 4, sp.def 4, dodge 10, init 10, move 4, res 0 | 0.80 | 10 | 6 | — | keeps 5–6 tiles away behind cover; retreats when a kobold comes close | the zone's material |
-| **Snatchclaw's guard** | normal | 8–30 | roads, toll gates, barracks, castle | — / — | L12: HP 194, atk 58, def 11, sp.def 11, dodge 10, init 10, move 4, res 0 | 1.00 | 36 | 15 | — | shield wall: guards an ally beside it; taunts (threat ×2) | gold scrap |
-| **Guard sergeant** | elite | 16–30 | R4, the castle, patrols | — / — | L20: HP 608, atk 114, def 25, sp.def 23, dodge 25, init 11, move 4, res 10 | 1.94 | 168 | 45 | weaken (shout) | leads a patrol; shouts weaken at the pack; calls a guard if alone | boss fang (10%) |
-| **Copper beetle** | brute | 3–8 | R1, the mine | earth / storm | L5: HP 159, atk 38, def 8, sp.def 5, dodge 3, init 8, move 3, res 0 | 1.50 | 21 | 11 | — | charges in a line; curls up (defence ×2) for a turn when hurt | moss, gold scrap |
-| **Glow grub** | caster | 5–8 | the mine | earth / storm | L7: HP 86, sp.atk 39 (atk 20), def 4, sp.def 11, dodge 10, init 10, move 4, res 10 | 0.89 | 12 | 8 | slow (sticky spit) | spits from range at the kobold with the lowest defence; lights the dark tiles | gold scrap |
-| **Sand skink** | quick | 8–13 | R2, the oasis | nature / earth | L10: HP 125, atk 43, def 7, sp.def 8, dodge 22, init 12, move 6, res 0 | 0.75 | 20 | 10 | poison (bite) | darts in, bites, darts out; hides under sand (unseen) on sand tiles | sand glass |
-| **Cellar bee** | swarm | 10–13 | the honey cellars | nature / earth | L11: HP 74, atk 33, def 5, sp.def 5, dodge 15, init 11, move 5, res 0 | 0.39 | 12 | 5 | poison (sting) | flies over terrain in a cloud of three; goes for the healer | sand glass, reed |
-| **Wax golem** | brute | 11–13 | the honey cellars | nature / earth | L12: HP 310, atk 69, def 18, sp.def 11, dodge 3, init 8, move 3, res 0 | 1.52 | 61 | 22 | slow (wax) | plods, leaves wax tiles (slow) behind it; melts (defence ×0.5) when burned | sand glass |
-| **Rock goat** | brute | 13–16 | R3, the pass | frost / fire | L14: HP 335, atk 77, def 21, sp.def 13, dodge 3, init 8, move 3, res 0 | 1.53 | 63 | 26 | fall (charge) | charges two tiles and knocks the target down (fall); butts kobolds off ledges | gold scrap |
-| **Stoker** | caster | 13–18 | R3, the crater | frost / fire | L15: HP 199, sp.atk 82 (atk 41), def 9, sp.def 23, dodge 10, init 10, move 4, res 10 | 0.90 | 28 | 16 | burn | throws embers that burn; stokes hot tiles around itself | gold scrap |
-| **Magma slug** | brute | 15–18 | the crater | frost / fire | L17: HP 449, atk 97, def 26, sp.def 16, dodge 3, init 8, move 3, res 0 | 1.53 | 86 | 30 | burn (hot trail) | leaves a trail of hot tiles (burn on entry); very slow | gold scrap, boss fang (5%) |
-| **Snow beast** | brute | 19–22 | R5, the snowfield | fire / frost | L20: HP 486, atk 109, def 30, sp.def 19, dodge 3, init 8, move 3, res 0 | 1.53 | 112 | 35 | fall (ice) | stamps ice tiles around it (fall on entry); hugs (root) when adjacent | frost shard |
-| **Frost guard** | normal | 19–23 | R5, the draft outpost | fire / frost | L21: HP 359, atk 93, def 20, sp.def 20, dodge 10, init 10, move 4, res 0 | 1.00 | 70 | 24 | slow (frost spear) | a guard with a frost spear: reach 2, slows on hit | frost shard |
-| **Ice mite** | swarm | 20–23 | the ice cellars | fire / frost | L22: HP 147, atk 57, def 10, sp.def 10, dodge 15, init 11, move 5, res 0 | 0.40 | 28 | 10 | fall (slick) | skitters in fours; makes the floor slick where it dies | frost shard |
-| **Shore crab** | brute | 23–27 | R6, R7, the shipwreck | storm / fire | L24: HP 613, atk 122, def 37, sp.def 23, dodge 3, init 8, move 3, res 0 | 1.54 | 130 | 42 | — | armoured (defence ×1.6); pinches and holds (root) the kobold in front | pearl, reed |
-| **Smuggler** | quick | 23–26 | R6, the shipwreck | storm / fire | L24: HP 268, atk 86, def 16, sp.def 18, dodge 22, init 12, move 6, res 0 | 0.74 | 57 | 20 | unseen (hides) | hides in crates (unseen), strikes, pockets gold (−1% of the pack's gold, given back on defeat) | reed, pearl |
-| **Sea guard** | ranged | 25–27 | R7, the islands | storm / fire | L26: HP 319, atk 97, def 20, sp.def 20, dodge 10, init 10, move 4, res 0 | 0.79 | 65 | 23 | — | throws harpoons (steadiness 4); pulls a kobold one tile closer on hit | pearl |
-| **Cave eel** | caster | 26–27 | the island cave | storm / fire | L27: HP 340, sp.atk 129 (atk 64), def 15, sp.def 41, dodge 10, init 10, move 4, res 10 | 0.90 | 62 | 27 | — | storm bolts that chain to one more kobold; lives in water tiles (cover) | pearl |
-| **Royal guard** | elite | 27–30 | the castle | — / — | L29: HP 939, atk 154, def 36, sp.def 33, dodge 25, init 11, move 4, res 10 | 1.95 | 265 | 63 | stun (shield bash) | guards Snatchclaw's hall in pairs; shield-bash stun; never flees | boss fang (15%) |
-| **Castle crossbow** | ranged | 27–30 | the castle walls | — / — | L29: HP 376, atk 111, def 22, sp.def 22, dodge 10, init 10, move 4, res 0 | 0.79 | 78 | 26 | — | fires from the walls (full cover) at 8–10 tiles; steadiness 3 | gold scrap |
+| **Guard recruit** | normal | 2–3 | the castle yard drill (set-piece) | — / — | L2: HP 45, atk 16, def 2, sp.def 2, dodge 10, init 10, move 4, res 0 | 1.00 | 5 | 4 | — | guards (dodge +25) when hurt; a tutorial in cover | — |
+| **Nettlenose scout** | quick | 3–30 | every road as the story goes on | — / — | L5: HP 73, atk 28, def 3, sp.def 4, dodge 22, init 12, move 6, res 0 | 0.76 | 10 | 6 | unseen in tall grass | ambushes from grass, hits the most hurt kobold, slips away | moss or the zone's material |
+| **Nettlenose slinger** | ranged | 3–30 | every road | — / — | L5: HP 84, atk 29, def 4, sp.def 4, dodge 10, init 10, move 4, res 0 | 0.80 | 10 | 6 | — | keeps 5–6 tiles away behind cover; retreats when a kobold comes close | the zone's material |
+| **Snatchclaw's guard** | normal | 8–30 | roads, toll gates, barracks, castle | — / — | L12: HP 217, atk 62, def 11, sp.def 11, dodge 10, init 10, move 4, res 0 | 1.00 | 36 | 15 | — | shield wall: guards an ally beside it; taunts (threat ×2) | gold scrap |
+| **Guard sergeant** | elite | 16–30 | R4, the castle, patrols | — / — | L20: HP 715, atk 125, def 25, sp.def 23, dodge 25, init 11, move 4, res 10 | 1.93 | 168 | 44 | weaken (shout) | leads a patrol; shouts weaken at the pack; calls a guard if alone | boss fang (10%) |
+| **Copper beetle** | brute | 3–8 | R1, the mine | earth / storm | L5: HP 167, atk 39, def 8, sp.def 5, dodge 3, init 8, move 3, res 0 | 1.50 | 21 | 11 | — | charges in a line; curls up (defence ×2) for a turn when hurt | moss, gold scrap |
+| **Glow grub** | caster | 5–8 | the mine | earth / storm | L7: HP 93, sp.atk 41 (atk 20), def 4, sp.def 11, dodge 10, init 10, move 4, res 10 | 0.89 | 12 | 8 | slow (sticky spit) | spits from range at the kobold with the lowest defence; lights the dark tiles | gold scrap |
+| **Sand skink** | quick | 8–13 | R2, the oasis | nature / earth | L10: HP 137, atk 46, def 7, sp.def 8, dodge 22, init 12, move 6, res 0 | 0.75 | 20 | 10 | poison (bite) | darts in, bites, darts out; hides under sand (unseen) on sand tiles | sand glass |
+| **Cellar bee** | swarm | 10–13 | the honey cellars | nature / earth | L11: HP 83, atk 35, def 5, sp.def 5, dodge 15, init 11, move 5, res 0 | 0.39 | 12 | 5 | poison (sting) | flies over terrain in a cloud of three; goes for the healer | sand glass, reed |
+| **Wax golem** | brute | 11–13 | the honey cellars | nature / earth | L12: HP 347, atk 74, def 18, sp.def 11, dodge 3, init 8, move 3, res 0 | 1.52 | 61 | 22 | slow (wax) | plods, leaves wax tiles (slow) behind it; melts (defence ×0.5) when burned | sand glass |
+| **Rock goat** | brute | 13–16 | R3, the pass | frost / fire | L14: HP 381, atk 83, def 21, sp.def 13, dodge 3, init 8, move 3, res 0 | 1.52 | 63 | 26 | fall (charge) | charges two tiles and knocks the target down (fall); butts kobolds off ledges | gold scrap |
+| **Stoker** | caster | 13–18 | R3, the crater | frost / fire | L15: HP 227, sp.atk 88 (atk 44), def 9, sp.def 23, dodge 10, init 10, move 4, res 10 | 0.89 | 28 | 16 | burn | throws embers that burn; stokes hot tiles around itself | gold scrap |
+| **Magma slug** | brute | 15–18 | the crater | frost / fire | L17: HP 519, atk 106, def 26, sp.def 16, dodge 3, init 8, move 3, res 0 | 1.52 | 86 | 30 | burn (hot trail) | leaves a trail of hot tiles (burn on entry); very slow | gold scrap, boss fang (5%) |
+| **Snow beast** | brute | 19–22 | R5, the snowfield | fire / frost | L20: HP 572, atk 120, def 30, sp.def 19, dodge 3, init 8, move 3, res 0 | 1.52 | 112 | 35 | fall (ice) | stamps ice tiles around it (fall on entry); hugs (root) when adjacent | frost shard |
+| **Frost guard** | normal | 19–23 | R5, the draft outpost | fire / frost | L21: HP 425, atk 102, def 20, sp.def 20, dodge 10, init 10, move 4, res 0 | 1.00 | 70 | 24 | slow (frost spear) | a guard with a frost spear: reach 2, slows on hit | frost shard |
+| **Ice mite** | swarm | 20–23 | the ice cellars | fire / frost | L22: HP 174, atk 63, def 10, sp.def 10, dodge 15, init 11, move 5, res 0 | 0.39 | 28 | 10 | fall (slick) | skitters in fours; makes the floor slick where it dies | frost shard |
+| **Shore crab** | brute | 23–27 | R6, R7, the shipwreck | storm / fire | L24: HP 734, atk 135, def 37, sp.def 23, dodge 3, init 8, move 3, res 0 | 1.53 | 130 | 41 | — | armoured (defence ×1.6); pinches and holds (root) the kobold in front | pearl, reed |
+| **Smuggler** | quick | 23–26 | R6, the shipwreck | storm / fire | L24: HP 321, atk 96, def 16, sp.def 18, dodge 22, init 12, move 6, res 0 | 0.75 | 57 | 20 | unseen (hides) | hides in crates (unseen), strikes, pockets gold (−1% of the pack's gold, given back on defeat) | reed, pearl |
+| **Sea guard** | ranged | 25–27 | R7, the islands | storm / fire | L26: HP 386, atk 108, def 20, sp.def 20, dodge 10, init 10, move 4, res 0 | 0.79 | 65 | 23 | — | throws harpoons (steadiness 4); pulls a kobold one tile closer on hit | pearl |
+| **Cave eel** | caster | 26–27 | the island cave | storm / fire | L27: HP 413, sp.atk 143 (atk 72), def 15, sp.def 41, dodge 10, init 10, move 4, res 10 | 0.89 | 62 | 27 | — | storm bolts that chain to one more kobold; lives in water tiles (cover) | pearl |
+| **Royal guard** | elite | 27–30 | the castle | — / — | L29: HP 1149, atk 172, def 36, sp.def 33, dodge 25, init 11, move 4, res 10 | 1.94 | 265 | 63 | stun (shield bash) | guards Snatchclaw's hall in pairs; shield-bash stun; never flees | boss fang (15%) |
+| **Castle crossbow** | ranged | 27–30 | the castle walls | — / — | L29: HP 459, atk 124, def 22, sp.def 22, dodge 10, init 10, move 4, res 0 | 0.79 | 78 | 26 | — | fires from the walls (full cover) at 8–10 tiles; steadiness 3 | gold scrap |
 
 ## 4. Who you meet where (typical groups)
 
