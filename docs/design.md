@@ -333,7 +333,9 @@ Joakim can overrule any of these at Gate 1.
     the same for solo and co-op (`systems.md` §1).
 20. **Every system the slice touches is specified in `systems.md`** before Gate 1; what is measured on purpose is listed there (§14).
 21. **Minimal versions of the RPG staples** (`systems.md` §15): Together (team attack), the Book (bestiary, lore, places, stamps),
-    map pins, Pip's colour, flavour weather, Ghost the pet, cooking at inns, buyback, town thanks, a small post-game, new game plus.
+    map pins, the hero's colour, flavour weather, Ghost the pet, cooking at inns, buyback, town thanks, a small post-game, new game plus.
+22. **Six characters per account** (`systems.md` §16): a select screen, one device per character at a time, the Book's knowledge and
+    cosmetics shared across them, nothing else; **the player names the hero** (default Pip); the old save kept read-only as a legacy hero.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

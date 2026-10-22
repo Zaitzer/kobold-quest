@@ -6,6 +6,7 @@ mine, and the slice's campfire chats. Written from `story-hatching.md` (v6), pla
 
 ## 0. How to read this, and the rules the lines follow
 
+- **"Pip" means the hero:** the player names the hero (default Pip, `systems.md` §16); every "Pip" in a line is `{hero}` in the data.
 - `**Name:** line` is one spoken line (one text box on the phone). *Italics* are what the player sees happen; they are not
   lines. A box holds at most about 90 characters, so no line here is longer than that.
 - Each scene says **where** it is, **when** it plays (the flag it needs) and **what it sets**. The flags are new v6 names

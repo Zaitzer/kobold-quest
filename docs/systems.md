@@ -35,6 +35,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 23 | art | `style-guide.md`, `art/v6/ASSETS.md` | designed |
 | 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
 | 25 | what is measured on purpose | §14 | listed |
+| 27 | accounts and characters: six slots, the select screen, one device at a time, what is shared, guests, the move to v6 | §16 | designed 22 Oct |
 | 26 | the small things every RPG has: team attacks, the Book (bestiary, codex, stamps), map pins, looks, weather, a pet, cooking, buyback, town thanks, post-game, new game plus | §15 | minimal versions, 22 Oct |
 
 ## 1. Turn order: the timeline (charge time; Joakim, 22 Oct)
@@ -276,8 +277,8 @@ Each is the smallest version that fills the gap; none changes the balance curve 
    fight, a dark version cast, a corruption cleansed...), cosmetic only (a stamp on the page). The Smiler's instructions are its last page.
 3. **Map pins.** The goal bar's target is a pin on the world map and an arrow at the screen's edge when it is off screen; a setting turns
    the arrow off.
-4. **Looks.** At the start the player picks Pip's scale colour from six palettes (a palette swap on the same sprite sheet). Pip keeps
-   his name (the story's); hats come from gear.
+4. **Looks.** At the start the player picks the hero's scale colour from six palettes (a palette swap on the same sprite sheet) and
+   **names the hero** (default "Pip", §16); hats come from gear.
 5. **Weather**, flavour only: falling snow in Frostwick and on R5, heat shimmer in Sunhaven and on R2–R3, sea spray at Saltspray,
    drifting flour dust in Pebblebrook once the mill turns. Drawn over the map, never in fights, no rules.
 6. **A pet.** After *The ghost of the mill*, Ghost the raptor chick follows Pip on the map (a follower sprite) and yips when he yips. No
@@ -292,3 +293,40 @@ Each is the smallest version that fills the gap; none changes the balance curve 
     15 minutes by count; it opens after the new hatching.
 11. **New game plus.** After the credits, *Hatch again* starts the story over with the Book (foes, lore, stamps) and Pip's colour kept;
     levels, gear and gold start fresh. Nothing else changes.
+
+## 16. Accounts and characters (MMO-style, decided 22 Oct)
+
+**An account holds up to six characters** (Joakim). A character is one hero with its own class, colour, name, story progress, pack,
+gear and gold: one save (§11). The account holds what belongs to the player rather than the hero.
+
+- **The account** is the website login (name and password, the token kept on the device) or, on the Claude page, the claude.ai
+  identity. Nothing else identifies a player.
+- **Naming the hero (Joakim):** the player names the hero when creating the character, **default "Pip"**. Every line in the story that
+  says Pip uses the hero's name (`{hero}` in the data; the script writes "Pip" and means the hero); other players see that name above the
+  kobold. Rules: 2 to 12 letters, a word filter, unique per account, not across the server (two players may both be Pip). One rename per
+  character, at the moon shrine.
+- **The character select screen** (after login, and from ☰ → *Characters*): six slots, each showing the hero's portrait and colour, name,
+  class, level, where they are (the last fountain), the Smiler pieces, the time played and when last played. Tap a slot to play; an empty
+  slot says *New hero*. **Creating:** name, scale colour, then the story begins (the class is picked at the yard drill, as in the
+  script). **Deleting:** hold the slot, then type the hero's name to confirm; a deleted hero is kept for **7 days** and can be restored
+  from the same screen, then it is gone.
+- **One device at a time.** A character can be played on one device at once: opening it takes a lock that the game renews every 30 s.
+  Opening it elsewhere asks *"{hero} is being played on another device. Play here instead?"*; yes moves the lock, and the other device saves
+  and returns to the select screen. Two *different* characters of one account can be online at the same time (two devices, two heroes,
+  even in one co-op fight).
+- **What the account shares** across its characters: **the Book's stamps and its Foes and Lore tabs** (what you have learned stays
+  learned), cosmetics (palettes unlocked, bun crumbs), friends, letters to Quill, settings that are not per device. **Not shared:** gold,
+  items, levels, story progress, corruption. There is no shared stash; a player can still *gift* between their own characters through
+  the normal gift (one item a day, `design.md` §10), so nothing is lost but nothing is farmed either.
+- **Where it lives:** on the server under `data/users/<account>/chars/<slot>` (one document per character, the v6 save) and
+  `data/users/<account>/account` (the shared part and the slot list). The browser keeps a cache of each slot; per slot the newest copy wins,
+  as today. On the Claude page the same paths, so both front ends see the same heroes (`CLAUDE.md`: keep the db paths compatible).
+- **Guests:** someone without an account can play one character, saved on the device only. Logging in later offers to *Keep this hero*:
+  it moves into a free slot.
+- **The move to v6** (the progress reset, `gate1-review.md` A2): the old single save at `data/users/<id>/save` is not deleted. It is moved
+  to `data/users/<id>/legacy` (read-only), shown on the select screen as *"Your hero from the first story"* with a stamp in the Book for
+  having played it, and every account starts v6 with six empty slots.
+- **Admin:** the Admin screen lists an account's characters (name, level, last played) and can restore a deleted one inside its 7 days.
+  Player data stays on the server only (`/var/lib/kobold-quest`), never in the repository.
+- **Before going public** (`tech-plan.md`): the server checks saves for impossible values (levels, gold, items) before storing them; for
+  friends the client's save is trusted, as now.
