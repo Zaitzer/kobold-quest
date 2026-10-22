@@ -1,4 +1,4 @@
-# Kobold Quest: items (targets, v1, 20 Oct 2026)
+# Kobold Quest: items (targets, v1, 20 Oct 2026; every item, 22 Oct)
 
 *Part of the design document (`design.md`). The numbers match `balance.md` (same model). This is what the items should be,
 not what the engine holds today. The current item tables in the code are replaced by these.*
@@ -23,7 +23,7 @@ not what the engine holds today. The current item tables in the code are replace
 | +1 accuracy, +1 dodge | 1 point each (accuracy also adds reach) |
 | +1 initiative | acting first is worth about 1.1% of a fight's output (`balance.md` §3, the new stats) |
 | +2.4% armour piercing | 10% piercing is +4.2% damage, weighted over normal and heavy foes |
-| +5 resistance | one point of resistance cuts spell damage taken by about 0.12% and statuses landing by 1 point |
+| +3 resistance | one point cuts spell damage taken by about 0.12% and statuses landing by 1 point; the 40% resist cap makes it saturate (corrected 22 Oct from 5) |
 | −1 steadiness (a point per tile) | about +5% ranged damage at the average distance; **5 pp per point** |
 | +0.2 luck (+1 luck = **5 pp**) | luck tilts every roll in the wearer's favour: about +2.7% output and −2% damage taken per point |
 | +1 to an ability score = **2.5 pp** | +2 to a score is +1 modifier (5 pp) |
@@ -47,7 +47,8 @@ the level the tier arrives):
 | ring (two) | 5 pp attack + 5 pp HP each | |
 
 A full tier kit gives about **+80% of base attack, +68% of base defence and +22% of base HP**, which is what the level
-table in `balance.md` assumes. Wearing a new tier is therefore a visible step (+20–25% total power).
+table in `balance.md` assumes. A new tier lifts attack by +40% (T2), +25% (T3), +18% (T4), +13% (T5), +10% (T6): dramatic early,
+modest late (`balance.md` §3, P5).
 
 **Tiers** arrive at levels **1, 5, 10, 16, 22 and 28** and appear in shops one level earlier (so a player who has saved up
 meets them just before they need them). Item stat numbers are in section 3.
@@ -89,6 +90,19 @@ The daggers and fists hit weaker but twice as often.
 
 A starter weapon (T1) is free. The best weapon on sale in a town is the one for the tier that has just arrived.
 
+**Spell weapons** (wands, orbs, teapots, holy, nature, instruments): their power is **special attack**, not attack, and each one casts
+its basic spell in an **element** (the town tables in `bestiary.md` say who is weak to what). Holy and instruments are elementless:
+healing and songs never meet a resistance.
+
+| family | T1 | T2 | T3 | T4 | T5 | T6 |
+|---|---|---|---|---|---|---|
+| wands | Frost rod (frost) | Fire wand (fire) | Birch staff (nature) | Archstaff (storm) | Frost staff (frost) | Ember staff (fire) |
+| orbs | Spark stone (fire) | Ember stone (fire) | Cinder orb (fire) | Flame heart (fire) | Frost heart (frost) | Dragon heart (fire) |
+| teapots | Chipped teapot (fire) | Brass teapot (fire) | Copper kettle (storm) | Silver pot (frost) | Frost samovar (frost) | Dragon-glaze urn (fire) |
+| holy | Healing wand (—) | Oak crook (—) | Sun-bell (—) | Ember censer (—) | Frost chime (—) | Hearthspire lantern (—) |
+| nature | Twig (nature) | Root staff (earth) | Moss staff (nature) | Bramble crook (nature) | Frost-bark staff (frost) | Ember-wood staff (earth) |
+| instruments | Whistle (—) | Fiddle (—) | Lute (—) | Drum (—) | Frost horn (frost) | Golden harp (—) |
+
 ## 3. The other slots: names and numbers by tier
 
 (Stat numbers are for the reference fighter and are the *same* for every class; the cost of a slot is the same for all.)
@@ -109,9 +123,18 @@ A starter weapon (T1) is free. The best weapon on sale in a town is the one for 
 
 The variants are sold in the same shops at the same prices. They exist so a wizard is not forced to wear a vest.
 
-**Prices** (a multiple of F, the gold of one fight at the tier's entry level; see `balance.md`):
+| slot · variant | T1 (L1) | T2 (L5) | T3 (L10) | T4 (L16) | T5 (L22) | T6 (L28) |
+|---|---|---|---|---|---|---|
+| armour · **robe** (casters) | Apprentice robe · +0.5 def, +0.8 mana | Scribe's robe · +1.8 def, +1.2 mana | Sand-silk robe · +3.4 def, +1.6 mana | Ember robe · +5.3 def, +2.1 mana | Frost-weave robe · +7.1 def, +2.6 mana | Pearl robe · +9 def, +3.1 mana |
+| armour · **scout** (ranger, rogue, monk) | Twig jerkin · +0.5 def, +2.3 spd | Runner's vest · +1.8 def, +2.3 spd | Sand-scale jerkin · +3.4 def, +2.3 spd | Basalt-lite vest · +5.3 def, +2.3 spd | Snow-scout coat · +7.1 def, +2.3 spd | Shore-scout coat · +9 def, +2.3 spd |
+| helm · **robe** (casters) | Cloth cap · +0.2 def, +0.2 mana, +1.3 HP | Scholar's hat · +0.5 def, +0.3 mana, +2.6 HP | Honey-silk hood · +1 def, +0.5 mana, +4.3 HP | Ember hood · +1.5 def, +0.6 mana, +6.3 HP | Snow cowl · +2 def, +0.7 mana, +8.3 HP | Pearl cowl · +2.6 def, +0.9 mana, +10.2 HP |
+| helm · **scout** (ranger, rogue, monk) | Feather band · +0.2 def, +0.7 spd, +1.3 HP | Scout's cap · +0.5 def, +0.7 spd, +2.6 HP | Goggles · +1 def, +0.7 spd, +4.3 HP | Ember visor · +1.5 def, +0.7 spd, +6.3 HP | Fur ear-flaps · +2 def, +0.7 spd, +8.3 HP | Gull-feather cap · +2.6 def, +0.7 spd, +10.2 HP |
+| cloak · **robe** (casters) | Linen shawl · +0.1 def, +0.1 mana, +2.2 HP | Reading shawl · +0.3 def, +0.2 mana, +4.4 HP | Sun shawl · +0.5 def, +0.2 mana, +7.2 HP | Cinder shawl · +0.8 def, +0.3 mana, +10.5 HP | Fog shawl · +1 def, +0.4 mana, +13.8 HP | Tide shawl · +1.3 def, +0.4 mana, +17.1 HP |
+| cloak · **scout** (ranger, rogue, monk) | Grass cape · +0.1 def, +0.3 spd, +2.2 HP | Dust cape · +0.3 def, +0.3 spd, +4.4 HP | Dune cape · +0.5 def, +0.3 spd, +7.2 HP | Ash cape · +0.8 def, +0.3 spd, +10.5 HP | White cape · +1 def, +0.3 spd, +13.8 HP | Sea-spray cape · +1.3 def, +0.3 spd, +17.1 HP |
 
-| tier | F | weapon (4F) | armour (2.5F) | shield, neck (1.8F) | helm, boots, cloak, ring (1.5F) |
+**Prices** (a multiple of F₀, the gold of one pack-of-three fight at the tier's entry level; see `balance.md` §3):
+
+| tier | F₀ | weapon (4F₀) | armour (2.5F₀) | shield, neck (1.8F₀) | helm, boots, cloak, ring (1.5F₀) |
 |---|---|---|---|---|---|
 | T1 | 10 | 40 | 25 | 18 | 15 |
 | T2 | 27 | 108 | 68 | 49 | 41 |
@@ -142,6 +165,18 @@ Dropped gear (never shop gear) can have a bonus. A **prefix is worth 3 pp, a suf
 | of the Boar | attack | suffix |
 | of Thorns | defence | suffix |
 | of Mending | regeneration | suffix |
+| Arcane | special attack | prefix |
+| Warded | special defence | prefix |
+| Quick | initiative (+3) | prefix |
+| Piercing | armour piercing (+7%) | prefix |
+| Steady | −0.6 steadiness (guns and spell weapons only) | prefix |
+| of Fortune | luck (+1: 5 pp, the one suffix that rounds up) | suffix |
+| of the Rally | morale (+1 on the wearer: 7 pp, so it takes both bonus places) | prefix and suffix |
+| of Warding | resistance (+12) | suffix |
+| of Embers | 6% of hits burn | suffix |
+| of Venom | 6% of hits poison | suffix |
+
+Integer stats (luck, initiative, morale, resistance) are rounded, and what is left of the affix budget goes to HP.
 
 **Drop chances for a gear drop:** plain 67%, one bonus 25%, both 8%. A both-bonus ring is worth about 70% more than a plain one
 (7 pp on a 10 pp slot). **That is the whole point of looking at loot.** It is meant to be a pleasant surprise, not a
@@ -267,3 +302,69 @@ slice stay in saves as long as the save format allows; they are retired at the p
 4. Each class's weapon family, with its modifier, clears fights in 85–115% of the fighter's time (`balance.md`, check 7).
 5. A plain next-tier weapon or armour always beats a both-bonus one of the previous tier; for rings and necks the two are
    within 5% of each other.
+
+## 12. Gear for the new stats (22 Oct)
+
+Each of these is a normal piece of its slot whose budget is spent on a stat from the character sheet (`design.md` §8). Flat stats
+(luck, initiative, piercing, resistance, morale, accuracy) **take half the slot budget**, because they are worth the same share of
+power at every level; the other half is HP, which grows with the tier, so a higher tier is still the better piece. Special attack
+and special defence scale with the tier and take the whole budget. Names follow the ring ladder's materials (Copper, Honey,
+Gold-scrap, Ember, Ice, Pearl). Prices are the slot's, like any piece of its tier.
+
+| item (slot) | T1 | T2 | T3 | T4 | T5 | T6 | what it is for |
+|---|---|---|---|---|---|---|---|
+| **Clover ring** (ring) | Copper · +1 luck, +2.2 HP | Honey · +1 luck, +4.4 HP | Gold-scrap · +1 luck, +7.2 HP | Ember · +1 luck, +10.5 HP | Ice · +1 luck, +13.8 HP | Pearl · +1 luck, +17.1 HP | luck tilts every roll (balance.md, the new stats) |
+| **Quickstep anklet** (boots) | Copper · +3 init, +1.3 HP | Honey · +3 init, +2.6 HP | Gold-scrap · +3 init, +4.3 HP | Ember · +3 init, +6.3 HP | Ice · +3 init, +8.3 HP | Pearl · +3 init, +10.2 HP | acts earlier; speed is the boots' usual job, so this trades it |
+| **Pick-charm** (neck) | Copper · +13.2% piercing, +2.4 HP | Honey · +13.2% piercing, +4.8 HP | Gold-scrap · +13.2% piercing, +7.9 HP | Ember · +13.2% piercing, +11.5 HP | Ice · +13.2% piercing, +15.1 HP | Pearl · +13.2% piercing, +18.8 HP | armour piercing: best against brutes and bosses |
+| **Ward bell** (neck) | Copper · +17 res, +2.3 HP | Honey · +17 res, +4.7 HP | Gold-scrap · +17 res, +7.6 HP | Ember · +17 res, +11.1 HP | Ice · +17 res, +14.7 HP | Pearl · +17 res, +18.2 HP | resistance: spells and statuses land less often |
+| **Warding robe** (armour) | Copper · +1.1 sp.def | Honey · +3.6 sp.def | Gold-scrap · +6.7 sp.def | Ember · +10.5 sp.def | Ice · +14.3 sp.def | Pearl · +18.1 sp.def | special defence instead of defence: for facing casters |
+| **Spellband** (ring) | Copper · +0.5 sp.atk | Honey · +1.4 sp.atk | Gold-scrap · +2.5 sp.atk | Ember · +3.8 sp.atk | Ice · +5.1 sp.atk | Pearl · +6.4 sp.atk | special attack for casters and the monk |
+| **Rally drum** (neck) | Copper · +1 morale, +1.8 HP | Honey · +1 morale, +3.5 HP | Gold-scrap · +1 morale, +5.7 HP | Ember · +1 morale, +8.4 HP | Ice · +1 morale, +11 HP | Pearl · +1 morale, +13.6 HP | one kobold's morale (the first point is worth 7 pp) |
+| **Hunter's eyeglass** (helm) | Copper · +3.5 acc, +1.5 HP | Honey · +3.5 acc, +3.1 HP | Gold-scrap · +3.5 acc, +5 HP | Ember · +3.5 acc, +7.3 HP | Ice · +3.5 acc, +9.6 HP | Pearl · +3.5 acc, +11.9 HP | accuracy, which also adds reach at range |
+| **Herd bell** (neck) | Copper · threat ×1.5, +4.8 HP | Honey · threat ×1.5, +9.7 HP | Gold-scrap · threat ×1.5, +15.7 HP | Ember · threat ×1.5, +23 HP | Ice · threat ×1.5, +30.3 HP | Pearl · threat ×1.5, +37.5 HP | threat ×1.5: draw the foes onto the wearer (0 pp: the rest of the budget stays HP) |
+| **Shadow scarf** (cloak) | Copper · threat ×0.5, +3.1 HP | Honey · threat ×0.5, +6.2 HP | Gold-scrap · threat ×0.5, +10 HP | Ember · threat ×0.5, +14.6 HP | Ice · threat ×0.5, +19.3 HP | Pearl · threat ×0.5, +23.9 HP | threat ×0.5: the foes look elsewhere (0 pp) |
+
+## 13. The gambler's gear (free trades on the rewarded-crit table)
+
+These cost no power points: they trade normal damage for crit damage at the **rewarded** value for their crit chance
+(`balance.md`, crit builds, λ = 0.15), so the average goes up exactly as much as the risk does. Luck tilts their crit chance
+like any roll (the "lucky gambler", watched in playtests).
+
+| item | slot | normal hits | crit chance | crit damage | average | no crit in a 10-round boss fight |
+|---|---|---|---|---|---|---|
+| **Loaded die** | ring | ×0.50 | (yours, 8%) | ×9.2 | ×1.20 | 43% |
+| **Gambler's glove** | ring | ×0.50 | (yours, 15% with a flanking build) | ×4.8 | ×1.15 | 20% |
+| **Lucky penny** | neck | ×0.25 | sets it to 3% | ×36 | ×1.32 | 74% |
+| **Wishing coin** | neck | ×0.25 | sets it to 1% | ×116 | ×1.40 | 90% |
+
+## 14. Pip's regalia and the monk's gear
+
+| item (slot) | T1 | T2 | T3 | T4 | T5 | T6 | note |
+|---|---|---|---|---|---|---|---|
+| **Leader's sash** (neck) | Copper · +1 Might, +2.4 HP | Honey · +1 Might, +4.8 HP | Gold-scrap · +1 Might, +7.7 HP | Ember · +1 Might, +11.3 HP | Ice · +1 Might, +14.9 HP | Pearl · +1 Might, +18.4 HP | Pip only: the whole pack hits and holds harder |
+| **Thinking cap** (helm) | Copper · +1 Wits, +0.6 HP | Honey · +1 Wits, +1.2 HP | Gold-scrap · +1 Wits, +2 HP | Ember · +1 Wits, +2.9 HP | Ice · +1 Wits, +3.9 HP | Pearl · +1 Wits, +4.8 HP | Pip only: the whole pack's spells and magic defence |
+| **Square bell** (neck) | Copper · +1 Leadership, +2 HP | Honey · +1 Leadership, +4 HP | Gold-scrap · +1 Leadership, +6.4 HP | Ember · +1 Leadership, +9.4 HP | Ice · +1 Leadership, +12.4 HP | Pearl · +1 Leadership, +15.3 HP | Pip only: pack morale; strong early, saturates late |
+| **Balance beads** (neck) | Copper · +2 to a score (your lowest), +2.6 HP | Honey · +2 to a score (your lowest), +5.3 HP | Gold-scrap · +2 to a score (your lowest), +8.6 HP | Ember · +2 to a score (your lowest), +12.5 HP | Ice · +2 to a score (your lowest), +16.5 HP | Pearl · +2 to a score (your lowest), +20.5 HP | the monk: always raises the lowest score, so Balance climbs |
+| **Ki band** (ring) | Copper · +1.2 mana ki | Honey · +1.7 mana ki | Gold-scrap · +2.3 mana ki | Ember · +3 mana ki | Ice · +3.7 mana ki | Pearl · +4.4 mana ki | the monk: a bigger ki pool (+10% of base mana) |
+
+Pip also earns leader points by level (one every second level, `balance.md` §3); regalia add on top.
+
+## 15. Weapon variants
+
+Any weapon of a family can come as a variant: 10 of its 60 pp move from attack to the variant's effect. They drop and can be crafted
+(the crafting rule's +15% applies), but are never sold in shops.
+
+| variant (any weapon family) | what it does | its price inside the weapon's 60 pp |
+|---|---|---|
+| **Ember-coated** | 15% of hits burn (1/16 of HP a turn for 3 turns, and weaken) | 10 pp (the weapon keeps 50 pp of attack) |
+| **Venom-tipped** | 15% of hits poison (1/8 of HP a turn for 3 turns) | 10 pp |
+| **Pike-hafted** (blades, axes) | reach +1 (the next tile at 75%) | 10 pp |
+| **Steady-stocked** (guns) | steadiness −2 points per tile (about +2 tiles of reach) | 10 pp |
+| **Heavy-headed** (axes, fists) | 25% armour piercing | 10 pp |
+
+## 16. The count
+
+Weapons 66 (11 families × 6 tiers) plus 5 variants of each; armour, shield, helm, boots, cloak, neck and ring 42; robe and scout
+versions 36; special-stat gear 60 (10 kinds × 6 tiers); Pip's regalia 18 and the monk's gear 12; the gambler's gear 4; boss uniques 11;
+set pieces 18; crafted pieces 15; consumables 10; materials 7. **About 300 items in all**, every one priced by the power-point rule.
+

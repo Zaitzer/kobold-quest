@@ -13,6 +13,7 @@ agree with each other:
 |---|---|
 | **`balance.md`** | the feelings we want; time per stretch; the level table (damage, HP, XP, gold); the other eleven classes; the six ability scores and the monk's Balance; the skill cost rule and every new skill; fights, bosses and co-op scaling; hit chances, spells, statuses, terrain and crits; encounter rates, route lengths and the fight budget; grind and optional content; gold; player progression; sensitivity |
 | **`items.md`** | the power-point rule; slot budgets; weapons for all eleven families; every slot by tier; prices; affixes; boss uniques; sets; consumables; materials and crafting; what the player finds |
+| **`bestiary.md`** | every opponent: roles, stats by place, weights, XP, elements, who you meet where, the bosses |
 | **`ui-design.md`** | layout; taps per action; what is used most and least; what is highlighted; every screen; the battle in detail; accessibility; how we check |
 
 Where this file and those disagree, **those win** for numbers and screens; this file wins for rules and story.
@@ -66,7 +67,7 @@ Where this file and those disagree, **those win** for numbers and screens; this 
     damage to the rewarded value.
   - **Bosses** come from two rules (length and a damage budget), attack three times a round, telegraph every third round,
     and soften 10% after each defeat.
-- **Foes by place:** Nettlenose scouts and slingers (Snatchclaw's, spreading along the roads as the story goes on),
+- **Foes by place** (every one, with stats, in `bestiary.md`): Nettlenose scouts and slingers (Snatchclaw's, spreading along the roads as the story goes on),
   Snatchclaw's guards (a strong version later), and the land's own creatures (beetles, sand skinks, rock goats, stokers,
   snow beasts, crabs, smugglers).
 - **Bosses:** Grubb and Snipe (Pebblebrook), a guard captain per town, Snatchclaw (Emberreach, then the castle),
