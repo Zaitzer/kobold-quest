@@ -1,7 +1,7 @@
 import {rpAiTurn,tcPosScore} from './ai.js';
 import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
-import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
+import {v6DoSkill,v6HealMul,v6OnTile,v6Queue,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
 import {v6Fall,v6Keep,v6Leave} from './v6end.js';
 import {TT} from './view.js';
@@ -194,7 +194,7 @@ function tcResolve(st){
   const b=rp.bt;b.anim=null;
   if(st.k==='atk')tcStrike(st.a,st.tg,st.o);
   else if(st.k==='heal'){const t=st.tg,o=st.o;if(o.revive){if(!tcLive(t)&&!t.fled){t.m.hp=Math.round(rpStats(t.m).hp*o.revive);t.k.state='idle';t.k.rot=0;t.k.rotT=0;tcFloatU(t,'Back up!','#ffb347');if(!rp.headless)sfx('win')}}
-    else if(tcLive(t)){const amt=Math.round(t.max*o.amt*(1+((st.a&&st.a.m&&rpStats(st.a.m).healp)||0)));t.hp=Math.min(t.max,t.hp+amt);tcFloatU(t,'+'+amt,'#9af0a0');if(!rp.headless){burst(t.k.x,t.k.y-24,5,['#ff8fb1','#ffb3c1'],60,'heart');sfx('nom')}}}
+    else if(tcLive(t)){const amt=Math.round(t.max*o.amt*(1+((st.a&&st.a.m&&rpStats(st.a.m).healp)||0))*v6HealMul(st.a,o));t.hp=Math.min(t.max,t.hp+amt);tcFloatU(t,'+'+amt,'#9af0a0');if(!rp.headless){burst(t.k.x,t.k.y-24,5,['#ff8fb1','#ffb3c1'],60,'heart');sfx('nom')}}}
   else if(st.k==='area'){const S=RP_SK[st.sk],T=RP_ST[st.sk]||{},a=st.a;
     if(!tcLive(a)&&!T.chan)return;
     const hit=b.units.filter(u=>tcLive(u)&&(T.ff||u.side!==a.side)&&tcTiles(u).some(([x,y])=>Math.hypot(x-st.cx,y-st.cy)<=T.area+.01));
@@ -236,9 +236,9 @@ function tcDo(u,act){
     if(T.area){tcQ({k:'area',a:u,sk:act.sk,cx:act.cx,cy:act.cy,dark:act.dark});return true}
     if(T.around){b.units.filter(t=>t.side!==u.side&&tcLive(t)&&tcCheb(u,t)<=(T.aroundR||rpTW(tcW(u)).r)).forEach(t=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul,name:S.n,spell:T.spell,v6:T.v6,dark:act.dark}}));return true}
     if(T.self){const al=b.units.filter(t=>t.side===u.side&&tcLive(t)&&tcCheb(u,t)<=T.self);
-      if(S.heal)al.forEach(t=>tcQ({k:'heal',a:u,tg:t,o:{amt:S.heal}}));
+      if(S.heal)al.forEach(t=>tcQ({k:'heal',a:u,tg:t,o:{amt:S.heal,sk:act.sk,dark:act.dark}}));
       else if(S.buff)tcQ({k:'fn',fn:()=>{al.forEach(t=>{t.buff[S.buff]=3;tcFloatU(t,S.buff==='atk'?'ATK up!':'DEF up!','#ffe27a')});if(!rp.headless)sfx('win')}});return true}
-    if(S.heal){tcQ({k:'heal',a:u,tg:act.t,o:{amt:S.heal}});return true}
+    if(S.heal){tcQ({k:'heal',a:u,tg:act.t,o:{amt:S.heal,sk:act.sk,dark:act.dark}});return true}
     if(S.revive){tcQ({k:'heal',a:u,tg:act.t,o:{revive:S.revive}});return true}
     if(T.chain){let prev=act.t;const hit=[prev];for(let i=0;i<T.chain;i++){const nx=b.units.filter(x=>x.side===prev.side&&tcLive(x)&&!hit.includes(x)&&tcCheb(x,prev)<=2).sort((x,y)=>tcCheb(x,prev)-tcCheb(y,prev))[0];if(!nx)break;hit.push(nx);prev=nx}
       hit.forEach((t,i)=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul*(i?.7:1),spell:1,stunP:S.stunP,name:S.n,v6:T.v6,dark:act.dark}}));return true}

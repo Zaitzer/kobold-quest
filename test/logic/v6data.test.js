@@ -32,4 +32,5 @@ for(const [f,t] of before)if(fs.readFileSync(path.join(D,f),'utf8')!==t)bad(f+' 
   // maps: the slice's places exist
   for(const k of ['hearthspire','r1','pebblebrook','mine1','mine2','mine3'])if(!Mp.MAPS6[k])bad('no map '+k);
   if(!Mp.ROOMS6.bakery||!Mp.ROOMS6.mill)bad('rooms missing');
+  {const r=require('child_process').spawnSync('node',['tools/doc-tables.js','check'],{cwd:require('path').join(__dirname,'../..'),encoding:'utf8'});if(r.status)bad('the documents\' tables differ from their tools (run node tools/doc-tables.js): '+r.stdout.trim())}
   console.log(fails?fails+' failures':'v6 data: up to date and agrees with the design ('+SK.length+' skills, '+Object.keys(F.FOES6).length+' foes)');process.exitCode=fails?1:0})();

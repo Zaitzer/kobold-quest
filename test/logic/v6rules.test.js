@@ -27,7 +27,7 @@ const M=require('../../tools/balance-model.js');
   near(V.tilt(0.82,1),0.834,0.001,'luck hit');near(V.tilt(0.08,1),0.087,0.001,'luck crit');near(V.tilt(0.8,-1),0.784,0.001,'luck on being hit');
   // 5 morale (+7.1, 12.5, 16.7, 25, 33.3% actions)
   [[1,7.1],[2,12.5],[3,16.7],[6,25],[12,33.3]].forEach(([m,w])=>near(V.moraleP(m)/2*100,w,0.1,'morale '+m));
-  near(V.bondFactor(30),M.foeScale(30),1e-9,'bond factor L30');near(V.bondFactor(10),M.foeScale(10),1e-9,'bond factor L10');
+  near(V.bondFactor(30),M.foeBond(30),1e-9,'bond factor L30');near(V.bondFactor(10),M.foeBond(10),1e-9,'bond factor L10');
   // 6 the timeline: turns in 100 ticks at initiative 10, 11, 12, 14
   for(const I of [10,11,12,14]){const u=[{id:1,side:0,x:0,hp:1,init:I}];let n=0;for(let t=0;t<100;t++)n+=V.tick(u).length;near(n,90+I,0,'timeline turns at I '+I)}
   {const units=[{id:1,side:1,x:0,hp:1,init:10},{id:2,side:0,x:5,hp:1,init:10},{id:3,side:0,x:2,hp:1,init:12}];const p=V.preview(units,3);

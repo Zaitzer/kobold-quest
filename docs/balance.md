@@ -127,24 +127,24 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 
 *Printed by `node tools/balance-model.js levels`. The reference fighter makes its picks like a player (P27, 22 Oct): about 9 score
 cards (STR and CON in turn), its talent skills at 2, 5, 11 and 14, and a passive with every other pick (Tough, Weapon focus, Iron skin in
-turn). Foe HP includes the bond factor g(L).*
+turn). Foe HP includes the bond factor g(L) and the leader factor (P29).*
 
 | L | gear tier | XP to next | total XP | HP | attack | defence | basic hit | foe HP | foe attack | foe defence | XP per foe | gold per foe | gold per fight | fights to next level |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | T1 | 12 | 12 | 54 | 9 | 5 | 9 | 37 | 12 | 1 | 2.3 | 3 | 11 | 2 |
+| 1 | T1 | 12 | 12 | 54 | 9 | 5.0 | 9 | 37 | 12 | 1 | 2.3 | 3 | 11 | 2 |
 | 2 | T1 | 36 | 48 | 65 | 11 | 6.8 | 11 | 43 | 15 | 2 | 4.8 | 4 | 15 | 3 |
 | 3 | T1 | 70 | 118 | 78 | 13 | 8.6 | 12 | 49 | 19 | 3 | 5.5 | 5 | 18 | 5 |
-| 5 | T2 | 158 | 386 | 111 | 26 | 17.1 | 24 | 101 | 31 | 5 | 13 | 7 | 25 | 5 |
-| 8 | T2 | 334 | 1,201 | 145 | 34 | 24.2 | 30 | 130 | 39 | 8 | 18 | 11 | 42 | 6 |
-| 10 | T3 | 478 | 2,083 | 185 | 49 | 34.7 | 45 | 200 | 52 | 10 | 27 | 13 | 51 | 6 |
-| 13 | T3 | 727 | 4,006 | 220 | 57 | 43.3 | 51 | 228 | 64 | 12 | 33 | 16 | 67 | 7 |
-| 15 | T4 | 914 | 5,738 | 270 | 73 | 58.4 | 67 | 307 | 83 | 14 | 41 | 18 | 76 | 7 |
-| 18 | T4 | 1,224 | 9,092 | 316 | 87 | 64.9 | 79 | 368 | 95 | 17 | 54 | 21 | 89 | 7 |
-| 20 | T4 | 1,448 | 11,874 | 350 | 92 | 73.8 | 83 | 390 | 108 | 19 | 65 | 23 | 98 | 7 |
-| 23 | T5 | 1,811 | 16,938 | 406 | 115 | 95.6 | 106 | 507 | 121 | 22 | 70 | 26 | 111 | 8 |
-| 25 | T5 | 2,070 | 20,947 | 443 | 121 | 100.5 | 110 | 531 | 130 | 24 | 81 | 28 | 120 | 8 |
-| 27 | T6 | 2,341 | 25,492 | 508 | 143 | 120.4 | 133 | 645 | 153 | 26 | 92 | 30 | 129 | 8 |
-| 30 | T6 | 2,771 | 30,597 | 564 | 157 | 135.4 | 146 | 718 | 172 | 29 | , | 33 | 142 | , |
+| 5 | T2 | 158 | 386 | 111 | 26 | 17.1 | 24 | 102 | 31 | 5 | 13 | 7 | 25 | 5 |
+| 8 | T2 | 334 | 1,201 | 145 | 34 | 24.2 | 30 | 132 | 39 | 8 | 18 | 11 | 42 | 6 |
+| 10 | T3 | 478 | 2,083 | 185 | 49 | 34.7 | 45 | 205 | 53 | 10 | 27 | 13 | 51 | 6 |
+| 13 | T3 | 727 | 4,006 | 220 | 57 | 43.3 | 51 | 235 | 65 | 12 | 33 | 16 | 67 | 7 |
+| 15 | T4 | 914 | 5,738 | 270 | 73 | 58.4 | 67 | 318 | 84 | 14 | 41 | 18 | 76 | 7 |
+| 18 | T4 | 1,224 | 9,092 | 316 | 87 | 64.9 | 79 | 383 | 98 | 17 | 54 | 21 | 89 | 7 |
+| 20 | T4 | 1,448 | 11,874 | 350 | 92 | 73.8 | 83 | 408 | 111 | 19 | 65 | 23 | 98 | 7 |
+| 23 | T5 | 1,811 | 16,938 | 406 | 115 | 95.6 | 106 | 535 | 125 | 22 | 70 | 26 | 111 | 8 |
+| 25 | T5 | 2,070 | 20,947 | 443 | 121 | 100.5 | 110 | 562 | 135 | 24 | 81 | 28 | 120 | 8 |
+| 27 | T6 | 2,341 | 25,492 | 508 | 143 | 120.4 | 133 | 687 | 159 | 26 | 92 | 30 | 129 | 8 |
+| 30 | T6 | 2,771 | 30,597 | 564 | 157 | 135.4 | 146 | 770 | 179 | 29 | , | 33 | 142 | , |
 
 **The XP formula** is `12 × level^1.6` (30,597 XP in total to reach level 30). Every pack member gets the full XP of a fight.
 
@@ -453,7 +453,7 @@ the structural fix is to price luck on gear by what it does to the wearer's own 
   saturates), so a Leadership Pip is strong early and a Might or Wits Pip strong late.
 
 Fifteen points are worth about +7% to the pack whatever the split, so **foe HP and foe attack carry × (1 + 0.0025 × (L − 1))**
-(+7% at level 30): the curve expects Pip to lead.
+(+7% at level 30): the curve expects Pip to lead. (In the tables since 22 Oct, P29: the model's foe scale is g(L) times this.)
 
 **The curve also expects the bond (D, decided 22 Oct, P24).** Chats and quests are spread over the story, so the expected bond grows
 about evenly, `b(L) = 5 (L − 1) / 29` (a companion with every chat and its quest has about 5), and a pack at that bond has `p(b)/2` more
@@ -557,17 +557,17 @@ that is a fountain, an inn, a campfire (one free heal per dungeon visit, half-wa
 
 | boss | level | rounds R | HP multiple k | HP (× g(L)) | each of 4 hits (× g) | % of fighter HP | fighter's HP | first-try win at −2 / 0 / +2 levels (sim, pack of three) | the trick |
 |---|---|---|---|---|---|---|---|---|---|
-| Grubb the toll boss | 5 | 7 | 34× | 860 | 26 | 22% | 111 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
-| Snipe the copper snatcher | 8 | 7 | 35× | 1,133 | 37 | 24% | 145 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
-| Sunhaven guard captain | 12 | 8 | 41× | 2,242 | 49 | 22% | 208 | 25% / 78% / 98% | drains the oasis tiles one by one |
-| Emberreach guard captain | 16 | 8 | 42× | 3,329 | 68 | 24% | 291 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
-| Snatchclaw (Emberreach) | 18 | 10 | 54× | 4,963 | 61 | 20% | 316 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
-| Bun-road toll captain | 18 | 8 | 43× | 3,952 | 76 | 24% | 316 | 45% / 78% / 95% | brings reinforcements every third round |
-| Draft sergeant (Frostwick) | 22 | 8 | 44× | 5,447 | 97 | 26% | 393 | 18% / 72% / 89% | tries to draft a pack member for three turns |
-| Pier captain (Saltspray) | 26 | 8 | 46× | 6,445 | 116 | 27% | 456 | 43% / 69% / 94% | fights from boats at range |
-| Castle commander | 28 | 10 | 58× | 9,541 | 104 | 22% | 522 | 24% / 74% / 89% | a wall of guards that opens in phases |
-| Snatchclaw (castle) | 29 | 11 | 64× | 10,729 | 98 | 21% | 550 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
-| Glitterbeak | 30 | 12 | 70× | 12,566 | 93 | 18% | 564 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
+| Grubb the toll boss | 5 | 7 | 34× | 869 | 25 | 23% | 111 | 0% / 70% / 100% | blocks the mill road; cheap, loud, easy to read |
+| Snipe the copper snatcher | 8 | 7 | 35× | 1,153 | 35 | 24% | 145 | 9% / 80% / 100% | hides behind cover, rides a copper cart |
+| Sunhaven guard captain | 12 | 8 | 41× | 2,304 | 48 | 23% | 208 | 25% / 78% / 98% | drains the oasis tiles one by one |
+| Emberreach guard captain | 16 | 8 | 42× | 3,453 | 71 | 25% | 291 | 2% / 80% / 95% | seizes ovens: heat tiles that hurt |
+| Snatchclaw (Emberreach) | 18 | 10 | 54× | 5,174 | 64 | 20% | 316 | 45% / 82% / 98% | talks the pack into standing down (a mock "stun") |
+| Bun-road toll captain | 18 | 8 | 43× | 4,120 | 80 | 25% | 316 | 45% / 78% / 95% | brings reinforcements every third round |
+| Draft sergeant (Frostwick) | 22 | 8 | 44× | 5,733 | 106 | 27% | 393 | 18% / 72% / 89% | tries to draft a pack member for three turns |
+| Pier captain (Saltspray) | 26 | 8 | 46× | 6,848 | 130 | 29% | 456 | 43% / 69% / 94% | fights from boats at range |
+| Castle commander | 28 | 10 | 58× | 10,185 | 122 | 23% | 522 | 24% / 74% / 89% | a wall of guards that opens in phases |
+| Snatchclaw (castle) | 29 | 11 | 64× | 11,480 | 119 | 22% | 550 | 50% / 73% / 89% | goes for the tower fire; the player must hold him |
+| Glitterbeak | 30 | 12 | 70× | 13,477 | 113 | 20% | 564 | 47% / 74% / 87% | cold: heals when he eats buns, loses it when the pack's embers glow |
 
 *HP and hits carry the bond factor g(L) (P24, 22 Oct); the win rates were measured before it, against a pack without its bond, so they
 still describe a pack that has heard its chats.*

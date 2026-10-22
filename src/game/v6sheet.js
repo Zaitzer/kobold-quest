@@ -31,8 +31,13 @@ function v6KitSkills(cls,lvl){const K=KITS6[cls];if(!K)return[];const list=K.sta
    (the same picks the model's reference fighter makes, balance-model.js picksAt) */
 function v6AutoPassives(cls,lvl){const n=Math.max(0,lvl-1),sc=Math.floor(n*9/29),sk=[2,5,11,14].filter(x=>x<=lvl).length,P=PASSIVES6[cls]||[],out=[];
   for(let i=0;i<Math.max(0,n-sc-sk);i++)if(P.length)out.push(P[i%Math.min(3,P.length)].n);return out}
+/* the leader points a test hero would have spent: Leadership to 5 first (strong early), then Might and Wits in turn (balance.md §3) */
+function v6AutoLead(lvl){const o={might:0,wits:0,lead:0};for(let i=0;i<Math.floor(lvl/2);i++){if(o.lead<5)o.lead++;else if(o.might<=o.wits)o.might++;else o.wits++}return o}
+/* every skill a kobold of this level knows: the start and the talents its level has reached (the four equipped are v6KitSkills) */
+function v6KnownAt(cls,lvl){const K=KITS6[cls];return K?K.start.concat(K.talents.filter(t=>t.lvl<=lvl).map(t=>t.id)):[]}
 function v6Kobold(name,cls,lvl,opt){opt=opt||{};const m={v6:1,name,cls,lvl,xp:0,scores:opt.scores||v6AutoScores(cls,lvl),start:v6StartScores(cls),passives:opt.passives||v6AutoPassives(cls,lvl),
-  gear:opt.gear||v6KitAt(cls,v6TierFor(lvl)),skills:opt.skills||v6KitSkills(cls,lvl),dark:{},bond:opt.bond||0,streak:0,corr:opt.corr||0,luck:opt.luck||0,pend:0,hero:!!opt.hero};
+  gear:opt.gear||v6KitAt(cls,v6TierFor(lvl)),skills:opt.skills||v6KitSkills(cls,lvl),dark:{},bond:opt.bond||0,streak:0,corr:opt.corr||0,luck:opt.luck||0,pend:0,hero:!!opt.hero,
+  known:opt.known||v6KnownAt(cls,lvl),ranks:{},sub:opt.sub||null,lead:opt.hero?(opt.lead||v6AutoLead(lvl)):null};
   m.w=V6_LOOK[CLASSES6[cls].fam];const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp;return m}
 
 /* ---------------------------------------------------------------- the sheet */
@@ -67,4 +72,4 @@ function v6Stats(m){
     sight:0,stealth:0,rage:0,mov:0};
   if(m.cls==='monk')S.kiMul=0.5+S.balance;
   return S}
-export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6Kobold,v6StartScores,v6Stats,v6TierFor};
+export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6TierFor};

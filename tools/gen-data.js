@@ -70,6 +70,12 @@ bRows.forEach((r,i)=>{const L=+r[1],R=+r[2],k=+r[3].replace('×',''),x=xRows[i]|
   BOSSES[id]={id,n:(x[0]||r[0]).replace(/\*\*/g,'').trim().replace(/ the toll boss| the copper snatcher/,''),L,R,k,hp:Math.round(k*f.D*g),atk:+M.atkFor(g*hit*rf.hp,rf.def).toFixed(1),def:+f.def.toFixed(1),sd:+f.def.toFixed(1),
     dodge:5,init:10,move:3,res:10,where:x[2]||'',trick:x[4]||r[9]||'',adds:x[5]||'none',drop:x[6]||'',xp:Math.round(k*CT.roleStats('normal',L).xp/4),gold:Math.round(6*1.15*(2+0.9*L))}});
 if(Object.keys(BOSSES).length!==11)problems.push('bosses parsed: '+Object.keys(BOSSES).length);
+/* `node tools/gen-data.js bosstable` prints balance.md's boss table with its computed columns (HP, each hit, % of the fighter's HP,
+   the fighter's HP) filled from the rules above; tools/doc-tables.js puts it in the document */
+if(process.argv[2]==='bosstable'){const head=BTXT.find(l=>l.startsWith('| boss | level | rounds R |'));console.log(head);console.log('|'+'---|'.repeat(head.split('|').length-2));
+  bRows.forEach((r,i)=>{const L=+r[1],R=+r[2],rf=M.ref(L),g=M.foeScale(L),T=M.P.bossT[0]+M.P.bossT[1]*L,hit=g*T/(M.P.packSize*R),B=Object.values(BOSSES)[i];
+    const c=r.slice();c[4]=B.hp.toLocaleString('en-US');c[5]=String(Math.round(hit*rf.hp));c[6]=Math.round(hit*100)+'%';c[7]=String(Math.round(rf.hp));console.log('| '+c.join(' | ')+' |')});
+  process.exit(0)}
 /* hidden trials (bestiary.md §5b): the elite version of the area's signature foe, × 1.5 HP, with its trick */
 const TRIALS={};for(const r of mdRows(XTXT,l=>l.startsWith('| trial | base foe |'))){const n=r[0].replace(/\*\*/g,'').trim(),base=slug(r[1]),L=+r[2];
   const el=CT.roleStats('elite',L);if(!FOES[base]){problems.push('trial '+n+' names an unknown foe '+base);continue}

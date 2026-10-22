@@ -65,7 +65,9 @@ function HF(A,D){const d=40*(A-D)/Math.max(1e-9,A+D);return d>=0?1+0.05*d:Math.m
 function hitDmg(A,M,D){return Math.max(1,P.dmgC*A*M*HF(A,D))}
 function atkFor(target,D){let lo=0,hi=1e6;for(let i=0;i<100;i++){const m=(lo+hi)/2;hitDmg(m,1,D)<target?lo=m:hi=m}return hi}   // the attack that lands `target` on defence D
 /* the curve expects the bond (P24): foes' HP and damage carry g(L) = 1 + p(b)/2 */
-const foeScale=l=>{const b=P.bond(l);return 1+.5*b/(b+6)};
+/* foes carry the two things the curve expects the pack to have (balance.md §3): its bond, g(L) (P24), and Pip's leader points,
+   ×(1 + 0.0025 (L − 1)) (P29: written in the leader-stat rule since 21 Oct, missing from the tables until 22 Oct) */
+const foeBond=l=>{const b=P.bond(l);return 1+.5*b/(b+6)},foeLead=l=>1+0.0025*(l-1),foeScale=l=>foeBond(l)*foeLead(l);
 function foe(l){const r=ref(l),D=hitDmg(r.atk,1,foeDef(l)),g=foeScale(l);                // D = the fighter's basic hit on an on-level foe
   return{D,g,hp:P.foeHpMult*D*g,def:foeDef(l),atk:atkFor(g*P.foeHitShare(l)*r.hp,r.def)}}
 
@@ -263,7 +265,7 @@ function runFights(names,Lp,Lf,N,policy,seed,opt){const rand=rng(seed||1),res={w
     res.win+=r.win;res.rounds+=r.rounds;res.lost+=r.lost;res.falls+=r.falls;res.dealt+=r.dealt;res.clean+=(r.win&&r.falls===0)}
   Object.keys(res).forEach(k=>res[k]/=N);return res}
 const f2=x=>x.toFixed(2),pc=x=>(x*100).toFixed(0)+'%';
-module.exports={picksAt,foeScale,odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
+module.exports={picksAt,foeScale,foeBond,foeLead,odds,expectFactor,scoresOf,scoreFactor,balanceOf,govMod,initOf,threatOf,moraleP,tilt,tiltU,CX,DOT,P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
 
 if(require.main===module&&(process.argv[2]==='levels'||process.argv[2]==='all')){
   console.log('THE LEVEL TABLE (the reference fighter with its expected picks, on-level standard foes; balance.md §3)');

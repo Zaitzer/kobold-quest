@@ -16,7 +16,7 @@ import {SKILLS6} from '../data/v6/skills.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {set_shake,shake} from '../engine/fx.js';
-import {v6Kobold} from '../game/v6sheet.js';
+import {v6Kobold,v6Stats} from '../game/v6sheet.js';
 import {netFx} from '../net/battle.js';
 
 const v6u=u=>!!u&&((u.m&&u.m.v6)||(u.E&&u.E.v6));
@@ -64,14 +64,21 @@ function v6Hit(b,a,t,o){o=o||{};const as=tcStat(a),ts=tcStat(t),kind=v6Kind(a,o)
 function v6Land(b,a,t,o){const as=tcStat(a),ts=tcStat(t),tiles=Math.max(1,Math.round(tcEuc(a,t)));
   return spellLand({res:ts.res||0,lvlGap:v6Lvl(t)-v6Lvl(a),tiles,steady:as.steady||4,unseen:!tcSees(b,t,a),luck:(as.luck||0)-(ts.luck||0)})}
 function v6DmgRange(b,a,t,mul,o){o=o||{};const as=tcStat(a),ts=tcStat(t),spell=v6Kind(a,o)==='spell';
-  const A=(spell?as.spa:as.atk)*(1+v6Buff(a,'atk')+v6Buff(a,'atkguard')+v6Buff(a,'rage')+v6Buff(a,'atkdodge'))*(v6Has(a,'weaken')||v6Has(a,'burn')?0.75:1);
-  const D=spell?ts.sd:ts.def*(1+v6Buff(t,'def')+v6Buff(t,'defsd'));
-  let M=(mul||1)*(o.quick?QUICK_MUL:1)*(o.dark?darkMul(a.m?a.m.corr:0):1);
+  const A=(spell?as.spa:as.atk)*(1+v6Buff(a,'atk')+v6Buff(a,'atkguard')+v6Buff(a,'rage')+v6Buff(a,'atkdodge'))*(v6Has(a,'weaken')||v6Has(a,'burn')?0.75:1)*v6LeadMul(b,a,spell);
+  const D=(spell?ts.sd*(1+v6Buff(t,'defsd')):ts.def*(1+v6Buff(t,'def')+v6Buff(t,'defsd')))*v6LeadMul(b,t,spell);
+  let M=(mul||1)*(o.quick?QUICK_MUL:1)*(o.dark?darkMul(a.m?a.m.corr:0):1)*(o.v6&&o.v6.id&&a.m?v6RankMul(a.m,o.v6.id):1);
   M*=(1+v6Buff(t,'dmgtaken')-v6Buff(t,'atkguard'))*(v6Has(t,'hex')?1.25:1)*(t.mark&&a.side===0?1.3:1)*(t.guard?0.75:1)*(t.curled?0.5:1);
   if(t.sz>1&&o.area)M*=1;   // a big foe is hit once per overlapped tile: the area code strikes it per tile
   return[Math.max(1,Math.round(damage(A,M,D,as.ap||0,0))),Math.max(1,Math.round(damage(A,M,D,as.ap||0,1)))]}
 function v6Crit(b,a,t,fl,unseen){const as=tcStat(a),ts=tcStat(t);return critChance({base:as.crit,D:as.critD,beta:as.beta,flank:fl,unseen,unaware:t.side===1&&!t.aware,luck:(as.luck||0)-(ts.luck||0)})}
 
+/* Pip's leader points (balance.md §3): Might × the pack's attack and defence, Wits × special attack and defence, Leadership to morale */
+function v6Lead(b){const h=b&&b.units.find(u=>u.side===0&&u.m&&u.m.hero);return(h&&h.m.lead)||{might:0,wits:0,lead:0}}
+function v6LeadMul(b,u,spell){if(!b||!b.v6||u.side!==0||!u.m)return 1;const L=v6Lead(b);return 1+0.01*(spell?L.wits:L.might)}
+/* a skill's rank 2 and 3: +15% to its effect each (skills.md §2) */
+function v6RankMul(m,id){return 1+0.15*Math.max(0,((m.ranks||{})[id]||1)-1)}
+/* a v6 heal: its rank, and ×1.25 (×1.4 from corruption 50) when it is the dark version (corruption.md) */
+function v6HealMul(a,o){if(!a||!a.m||!a.m.v6)return 1;return(o.sk?v6RankMul(a.m,o.sk):1)*(o.dark?darkMul(a.m.corr||0):1)}
 /* ---------------------------------------------------------------- one strike: v6 rules, statuses, skill hooks */
 function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh=o.v6||{},kind=v6Kind(a,o);
   let fl=false,unseen=false,landed=true;
@@ -115,7 +122,7 @@ function v6TurnStart(b,u){u.atkN=0;
   return false}
 function v6PackMorale(b){const ks=b.units.filter(u=>u.side===0&&u.m&&u.m.v6);if(!ks.length)return 0;
   const bond=ks.reduce((a,u)=>a+(u.m.bond||0)+Math.min(STREAK_MAX,u.m.streak||0),0)/ks.length,corr=ks.reduce((a,u)=>a+(u.m.corr||0),0)/ks.length;
-  const lead=(ks.find(u=>u.m.hero)||{m:{}}).m.leadership||0;return packMorale(bond,lead,corr)}
+  const lead=v6Lead(b).lead;return packMorale(bond,lead,corr)}
 /* movement: the sheet's move, rooted 0, slowed half */
 function v6Move(u){const s=tcStat(u);let mv=u.m?s.move:(u.E.move||4);if(u.sz>1)mv--;if(v6Has(u,'root'))return 0;if(v6Has(u,'slow'))mv=Math.ceil(mv/2);return mv+v6Buff(u,'move')}
 /* the timeline: tick until someone acts (systems.md §1) */
@@ -261,7 +268,9 @@ const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,theme:'',m
 /* the board theme from where a fight happens (systems.md §2) */
 function v6PlaceTheme(where){where=String(where||'').toLowerCase();if(/flooded/.test(where))return'flooded';if(/dark|deep/.test(where))return'dark';
   if(/mine|cellar|cave|crater|wreck|tunnel/.test(where))return'cave';if(/castle|yard|town|hall|throne|pier|roof|oasis|oven|square|harbour|barracks/.test(where))return'town';if(/wood|forest/.test(where))return'woods';return'meadow'}
-function v6LabStart(){const s=rp.s;if(!s)return;const L=v6Lab.lvl,members=v6Lab.pack.filter(Boolean).map((c,i)=>({m:v6Kobold(['Pip','Wizzle','Glint','Bork'][i],c,L,{hero:i===0}),ctl:'me',own:'h'}));
+/* the lab's kobolds stay between fights (so the sheet's picks count); a new pack or level makes new ones */
+function v6LabKobolds(){const sig=v6Lab.pack.join(',')+'@'+v6Lab.lvl;if(!v6Lab.ks||v6Lab.sig!==sig){v6Lab.sig=sig;v6Lab.ks=v6Lab.pack.map((c,i)=>c?v6Kobold(['Pip','Wizzle','Glint','Bork'][i],c,v6Lab.lvl,{hero:i===0}):null)}return v6Lab.ks}
+function v6LabStart(){const s=rp.s;if(!s)return;const L=v6Lab.lvl,members=v6LabKobolds().filter(Boolean).map(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp;return{m,ctl:'me',own:'h'}});
   const sel=String(v6Lab.place);rp.mode='map';const th=t=>v6Lab.theme||v6PlaceTheme(t);
   if(sel.startsWith('b:')){const key=v6BossKey(sel.slice(2));rpBattle([key],{members,boss:key,v6:1,theme:th(BOSSES6[sel.slice(2)].where)})}
   else if(sel.startsWith('t:')){const key=v6TrialKey(sel.slice(2));rpBattle([key],{members,zone:',',v6:1,theme:th(TRIALS6[sel.slice(2)].where)})}
@@ -273,10 +282,12 @@ function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+
     '<label>Level <select id="lab-l">'+opt(v6Lab.lvl,Array.from({length:30},(_,i)=>[i+1,i+1]))+'</select></label> '+
     '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label> '+
     '<label>Board <select id="lab-th">'+opt(v6Lab.theme,[['','by place'],['meadow','meadow'],['woods','woods'],['cave','cave'],['town','town'],['dark','dark'],['flooded','flooded']])+'</select></label>'+
-    '</div><div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
+    '</div><div class="rpcmd">'+(v6Lab.ks&&v6Lab.sig===v6Lab.pack.join(',')+'@'+v6Lab.lvl?v6Lab.ks.map((m,i)=>m?'<button class="rpb" type="button" data-rp="v6sheet" data-v="'+i+'">'+m.name+'\'s sheet<small>level '+m.lvl+(m.pend>0?' · ✦ '+m.pend+' pick'+(m.pend>1?'s':''):'')+'</small></button>':'').join(''):'<button class="rpb" type="button" data-rp="labmake">Make the pack<small>then open their sheets</small></button>')+'</div>'+
+    '<div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
 feature({id:'fightlab',init(){v6RegisterSkills()},
-  panels:{lab:{sig:()=>JSON.stringify(v6Lab),html:v6LabHtml}},
+  panels:{lab:{sig:()=>JSON.stringify([v6Lab.pack,v6Lab.lvl,v6Lab.place,v6Lab.theme,v6Lab.sig,(v6Lab.ks||[]).map(m=>m&&[m.lvl,m.pend])]),html:v6LabHtml}},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
-  actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
-    for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+  actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()}}});
+function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
+  for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

@@ -2,7 +2,7 @@
 process.emitWarning=()=>{};
 let fails=0,checks=0;const bad=m=>{fails++;console.log('FAIL',m)};const ok=(c,m)=>{checks++;if(!c)bad(m)};
 const X=require('../lib/game.js')();X.rp.headless=true;X.rp.autoParty=true;
-function start(place,L){X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=L||5;X.v6Lab.place=place;X.v6Lab.theme='';X.v6LabStart();X.rp.autoParty=false;X.rpTacBegin&&0;return X.rp.bt}
+function start(place,L){X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=L||5;X.v6Lab.place=place;X.v6Lab.theme='';X.v6Lab.ks=null;X.v6LabStart();X.rp.autoParty=false;X.rpTacBegin&&0;return X.rp.bt}
 const kobs=b=>b.units.filter(u=>u.side===0);
 // a fall: −1 streak, and the win is not clean
 {const b=start(0);const k=kobs(b)[1];k.m.streak=2;k.hp=0;X.tcKo(k);ok(k.m.streak===1,'a fall should cost 1 streak: '+k.m.streak);ok(b.falls===1,'the fight should count the fall')
