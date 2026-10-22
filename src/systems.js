@@ -52,6 +52,7 @@ import './battle/v6rules.js';
 import './battle/v6battle.js';
 import './battle/v6board.js';
 import './battle/v6end.js';
+import './core/save6.js';
 import './game/v6talent.js';
 import './ui/v6sheetui.js';
 import './net/core.js';
