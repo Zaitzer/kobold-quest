@@ -1,7 +1,7 @@
 /* ---------- AI (enemies, and the party when a test bot plays) ---------- */
 import {tcDo,tcQ} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCheb,tcCover,tcCrit,tcDmg,tcEuc,tcHit,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcReach,tcSideSees,tcT,tcW} from './rules.js';
-import {v6AiTurn,v6PosHabit} from './v6battle.js';
+import {v6AiTurn,v6PosHabit,v6TogetherOpts} from './v6battle.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
@@ -47,6 +47,7 @@ function tcOptions(b,u,apLeft){
       else if(S.heal){b.units.forEach(t=>{if(t.side===u.side&&tcLive(t)&&t.hp<t.max*.6&&tcInReach(b,u,t,T.rng))out.push({act:{k:'sk',sk,t},v:Math.min(t.max*S.heal,t.max-t.hp)/t.max*40-mpc})})}
       else if(S.revive){b.units.forEach(t=>{if(t.side===u.side&&!t.fled&&t.hp<=0&&tcCheb(u,t)<=1)out.push({act:{k:'sk',sk,t},v:40})})}
       else foes.forEach(t=>{if(!tcInReach(b,u,t,T.rng))return;const o={spell:T.spell,aim:T.aim};let v=val(t,S.mul,o)-mpc;if(S.stun&&!(t.E&&t.E.boss))v+=6;if(T.chain)v*=1.8;out.push({act:{k:'sk',sk,t},v})})});
+    if(b.v6&&pay(1))v6TogetherOpts(b,u).forEach(({f,t})=>out.push({act:{k:'together',f,t},v:val(t,1,{})+val(t,1,{})*0.8}));
     ['potion','feather'].forEach(k=>{if(!(rp.s.bag[k]>0)||!pay(1))return;b.units.forEach(t=>{if(t.side!==u.side||t.fled||tcCheb(u,t)>1)return;
       if(k==='potion'&&tcLive(t)&&t.hp<t.max*.35)out.push({act:{k:'it',it:k,t},v:18});if(k==='feather'&&t.hp<=0)out.push({act:{k:'it',it:k,t},v:30})})})}
   else{const E=u.E;

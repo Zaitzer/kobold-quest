@@ -3,7 +3,7 @@
    is rebuilt, so the v37 parity test still guards them. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
-import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcSideSees,tcStat,tcUnitAt} from './rules.js';
+import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcUnitAt} from './rules.js';
 import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -47,7 +47,8 @@ function v6Has(u,k){return!!(u.vs&&u.vs[k]>0)}
 /* ---------------------------------------------------------------- hit, spells, damage, crits (balance.md §4a) */
 function v6Hit(b,a,t,o){o=o||{};const as=tcStat(a),ts=tcStat(t),kind=v6Kind(a,o),parts=[];
   const [ax,ay]=tcNear(a,t);let cv=kind==='ranged'?tcCover(b,t,ax,ay):{c:0,fl:tcCover(b,t,ax,ay).fl};
-  if(kind==='ranged'&&t.E&&t.E.trick==='snipe')cv={c:2,fl:false};   // Snipe rides his copper cart: full cover against shots
+  if(kind==='ranged'&&t.E&&t.E.trick==='snipe')cv={c:2,fl:false};
+  if(o.flank)cv={c:0,fl:true};                                     // Together: flanked, cover ignored   // Snipe rides his copper cart: full cover against shots
   const tiles=Math.max(1,Math.round(tcEuc(a,t))),unseen=!tcSees(b,t,a),noDodge=v6Has(t,'stun')||v6Has(t,'root')||!!t.stun||(t.side===1&&!t.aware);
   let acc=as.acc||0;if(a.m&&V6_WEAK.has(a.m.cls)&&!o.spell)acc+=0;   // the class table's −10 is already in acc
   if(o.aim){acc+=o.aim;parts.push((o.aim>0?'skill +':'skill ')+o.aim)}if(o.aoo){acc-=10;parts.push('free hit −10')}if(o.watch){acc-=15;parts.push('watch −15')}
@@ -118,8 +119,22 @@ function v6PackMorale(b){const ks=b.units.filter(u=>u.side===0&&u.m&&u.m.v6);if(
 /* movement: the sheet's move, rooted 0, slowed half */
 function v6Move(u){const s=tcStat(u);let mv=u.m?s.move:(u.E.move||4);if(u.sz>1)mv--;if(v6Has(u,'root'))return 0;if(v6Has(u,'slow'))mv=Math.ceil(mv/2);return mv+v6Buff(u,'move')}
 /* the timeline: tick until someone acts (systems.md §1) */
-function v6Queue(b){const live=b.units.filter(tcLive);live.forEach(u=>{if(u.init==null)u.init=tcStat(u).init||10});
+function v6Seat(b){b.units.forEach((u,i)=>{if(u.seat==null)u.seat=i;if(u.init==null)u.init=tcStat(u).init||10})}
+function v6Queue(b){v6Seat(b);const live=b.units.filter(tcLive);
   for(let t=0;t<200;t++){const q=tick(live);if(q.length)return q}return live}
+/* Together (systems.md §15.1): two kobolds beside the same foe; 1 AP, once a fight per pair; both attack now, flanking (no cover,
+   crit +15 by value), and the friend's charge drops by 100 (it spends its next turn now) */
+const v6PairKey=(a,c)=>[a.name,c.name].sort().join('+');
+function v6TogetherOpts(b,u){if(!b||!b.v6||!u||u.side!==0||!u.m||u.ap<1)return[];const out=[];b.together=b.together||{};
+  b.units.forEach(f=>{if(f===u||f.side!==0||!tcLive(f)||!f.m||b.together[v6PairKey(u,f)])return;
+    b.units.forEach(t=>{if(t.side===1&&tcLive(t)&&tcShown(b,t)&&tcCheb(u,t)<=1&&tcCheb(f,t)<=1)out.push({f,t})})});return out}
+function v6Together(b,u,f,t){u.ap+=1;if(!v6TogetherOpts(b,u).some(o=>o.f===f&&o.t===t))return false;u.ap-=1;b.together[v6PairKey(u,f)]=1;   // tcDo has paid the 1 AP
+  f.ct=(f.ct||0)-100;b.queue=b.queue.filter(x=>x!==f);b.msg=u.name+' and '+f.name+' strike together!';tcFloatU(u,'together!','#ffd54a');
+  [u,f].forEach(a=>tcQ({k:'atk',a,tg:t,o:{mul:1,flank:1,quick:!!tcStat(a).quick,name:'Together'}}));return true}
+/* the turn-order bar: the unit acting now, the rest of this tick, then the clock run forward on copies (systems.md §1: it never lies) */
+function v6Upcoming(b,n){v6Seat(b);const out=[];if(b.cur&&tcLive(b.cur))out.push(b.cur);b.queue.forEach(u=>{if(tcLive(u)&&out.length<n)out.push(u)});
+  const c=b.units.filter(tcLive).map(u=>({ref:u,hp:1,ct:u.ct||0,init:u.init,side:u.side,seat:u.seat}));
+  for(let t=0;t<400&&out.length<n;t++)tick(c).forEach(x=>{if(out.length<n)out.push(x.ref)});return out}
 /* how far a v6 attack reaches: melee 1 (the spear 2); ranged and spells as far as the chance stays above 0, in sight (balance.md §4a) */
 function v6InReach(b,a,t,rng){const s=tcStat(a);if(rng!=null&&rng!=='w')return tcEuc(a,t)<=rng+.5&&tcLos(b,a,t);
   const kind=v6Kind(a,{});if(kind==='melee')return tcCheb(a,t)<=1;
@@ -220,12 +235,16 @@ function v6BossTurn(b,u){const E=u.E;u.bt=(u.bt||0)+1;
   if(u.bt%3===0){b.msg=u.name+' brings down the big swing!';u.ap=0;b.phase='ai';return true}   // the telegraphed turn: the swing lands from the chan, nothing else
   const kob=()=>b.units.filter(v=>v.side===0&&tcLive(v));
   const reach=v=>E.ranged?tcEuc(u,v)<=9&&tcLos(b,u,v):tcCheb(u,v)<=1;
-  if(!kob().some(reach)){const focus=v6Focus(b,u,kob());if(focus){const R=tcReach(b,u,tcMov(u));let best=null,bd=1e9;
-    R.dist.forEach((d,k)=>{const x=k%b.W,y=(k/b.W)|0,dd=Math.hypot(x-focus.x,y-focus.y);if(dd<bd){bd=dd;best=[x,y]}});
-    if(best){const p=tcPath(R,best[0],best[1]);if(p&&p.length)tcDo(u,{k:'move',path:p,cost:1})}}}
+  if(!kob().some(reach)){const focus=v6Focus(b,u,kob());if(focus)v6BossWalk(b,u,focus,reach)}
   tcQ({k:'fn',fn:()=>{if(!tcLive(u))return;for(let i=0;i<(E.acts||4);i++){const tg=v6Focus(b,u,kob().filter(reach));if(tg)tcQ({k:'atk',a:u,tg,o:{mul:1,name:E.ranged?'Copper toss':'Swing'}})}
     if(u.bt%3===2){const ks=kob();if(ks.length){const c=v6Focus(b,u,ks);const ch={u,sk:'v6_bigswing',cx:c.x,cy:c.y,area:1.5,side:1};u.chan=ch;b.chans.push(ch);b.msg=u.name+' winds up a big swing: get out of the circle!';tcFloatU(u,'winds up!','#ffb347')}}}});
   u.ap=0;b.phase='ai';return true}
+/* the boss walks the shortest way (over the whole board, as a 2 × 2) to where it can hit its focus, as far as one move goes; if even a
+   dash would not get it there it dashes (the four attacks need a target, so a turn spent walking is the price) */
+function v6BossWalk(b,u,focus,reach){const R=tcReach(b,u,99),mov=tcMov(u);let goal=null,gd=1e9;const ox=u.x,oy=u.y;
+  R.dist.forEach((d,k)=>{if(d>=gd)return;u.x=k%b.W;u.y=(k/b.W)|0;if(reach(focus)){gd=d;goal=[u.x,u.y]}});u.x=ox;u.y=oy;
+  if(!goal)return;const path=tcPath(R,goal[0],goal[1]);if(!path||!path.length)return;
+  const budget=gd<=mov?mov:mov*2,cut=path.filter(([x,y])=>R.dist.get(y*b.W+x)<=budget);if(cut.length)tcDo(u,{k:'move',path:cut,cost:gd<=mov?1:2})}
 function v6Spawn(b,u,n,what){const id=Object.keys(FOES6).find(k=>what.toLowerCase().includes(FOES6[k].n.toLowerCase().split(' ').slice(-1)[0].replace(/s$/,'')))||'nettlenose_scout';
   for(let i=0;i<n;i++){const key=v6FoeKey(id,u.E.L),E=RP_E[key];let spot=null;for(let r=1;r<4&&!spot;r++)for(let y=Math.max(0,u.y-r);y<=Math.min(b.H-1,u.y+r)&&!spot;y++)for(let x=Math.max(0,u.x-r);x<=Math.min(b.W-1,u.x+r)&&!spot;x++){const t={sz:1};if(tcFits(b,t,x,y)&&!b.units.some(o=>tcLive(o)&&x>=o.x&&x<o.x+(o.sz||1)&&y>=o.y&&y<o.y+(o.sz||1)))spot=[x,y]}
     if(!spot)return;const v={side:1,E,key,name:E.n,x:spot[0],y:spot[1],sz:1,hp:E.hp,max:E.hp,atk:E.atk,def:E.def,spd:E.spd,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,pod:u.pod,turns:0,fled:false,own:'e',ctl:'ai'};
@@ -254,4 +273,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
     for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

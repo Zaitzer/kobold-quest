@@ -54,9 +54,10 @@ export const mbar=sc=>SCORES.reduce((a,k)=>a+modOf(sc[k]),0)/6;
 
 /* ---------------------------------------------------------------- the timeline (systems.md §1): charge time */
 export const rateOf=init=>90+init;
-/* advance the clock one tick; returns the units that act this tick, in order (highest charge first; pack before foes; leftmost) */
+/* advance the clock one tick; returns the units that act this tick, in order (highest charge first; pack before foes; then the order
+   they joined the fight, `seat`, never the position: systems.md §1) */
 export function tick(units){units.forEach(u=>{if(u.hp>0)u.ct=(u.ct||0)+rateOf(u.init==null?10:u.init)});
-  const out=[];for(;;){const ready=units.filter(u=>u.hp>0&&u.ct>=100).sort((a,b)=>b.ct-a.ct||a.side-b.side||a.x-b.x||(a.id||0)-(b.id||0));
+  const out=[];for(;;){const ready=units.filter(u=>u.hp>0&&u.ct>=100).sort((a,b)=>b.ct-a.ct||a.side-b.side||(a.seat||0)-(b.seat||0)||(a.id||0)-(b.id||0));
     if(!ready.length)break;ready.forEach(u=>{u.ct-=100;out.push(u)})}return out}
 /* the next n turns, without changing anything (the turn-order bar) */
 export function preview(units,n){const c=units.map(u=>Object.assign({},u)),out=[];for(let t=0;t<1000&&out.length<n;t++)tick(c).forEach(u=>out.push(u.id));return out.slice(0,n)}

@@ -1,6 +1,7 @@
 /* ---------- player input ---------- */
 import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from './rules.js';
+import {v6TogetherOpts} from './v6battle.js';
 import {v6CanRetry,v6Retry} from './v6end.js';
 import {BVH,BVW,TT} from './view.js';
 import {rpLoc,rpVec,rpcv} from '../core/layout.js';
@@ -60,6 +61,8 @@ function rpTacTap(x,y){
     b.msg='Pick a highlighted target.';b.pend=null;return}
   if(m.startsWith('it:')){const it=m.slice(3);if(t&&tcTargets(b,u).includes(t)){b.pend={act:{k:'it',it,t},t,tx:x,ty:y,info:'Use a <b>'+RP_ITEMS[it].n.toLowerCase()+'</b> on '+esc2(t.name)+' · 1 AP'};return}
     b.msg='Items work on yourself or a kobold next to you.';b.pend=null;return}
+  if(m==='tog'){const o=t&&v6TogetherOpts(b,u).find(o=>o.t===t);if(!o){b.msg='Pick a foe that you and a friend both stand next to.';b.pend=null;return}
+    b.pend={act:{k:'together',f:o.f,t},t,tx:x,ty:y,info:'<b>Together</b> with '+esc2(o.f.name)+' on '+esc2(t.name)+': both attack now, flanking (no cover, better crits); '+esc2(o.f.name)+' spends its next turn · 1 AP · once a fight per pair'};return}
   if(t&&t.side===1&&tcShown(b,t)){
     if(!tcInReach(b,u,t)){b.msg=t.name+' is out of reach. '+(tcMelee(u)?'Walk next to it first.':'Get closer or find a clear line.');b.pend=null;return}
     if(!tcCanPay(u,tcActCost(u,{k:'atk'}))){b.msg='Not enough AP to attack with that weapon.';return}
@@ -112,6 +115,7 @@ function rpTacPanel(){
         rpMemSkills(m).map(k=>{const S=RP_SK[k],T=RP_ST[k]||{ap:'end'};return '<button class="rpb sk'+on('sk:'+k)+'" type="button" data-tac="mode" data-v="sk:'+k+'"'+(m.mp<S.mp||!tcCanPay(u,T.ap)?' disabled':'')+'>'+S.n+'<small>'+S.mp+' MP · '+(T.ap==='end'?'ends turn':T.ap+' AP')+(T.chan?' · next turn':'')+'</small></button>'}).join('')+
         Object.keys(RP_ITEMS).filter(k=>s.bag[k]>0).map(k=>'<button class="rpb it'+on('it:'+k)+'" type="button" data-tac="mode" data-v="it:'+k+'">'+RP_ITEMS[k].n+' ×'+s.bag[k]+'<small>1 AP · self or adjacent</small></button>').join('')+
         (TW.r>1&&!tcMelee(u)?'<button class="rpb" type="button" data-tac="mode" data-v="watch">Watch<small>Shoot the first mover</small></button>':'')+
+        (v6TogetherOpts(b,u).length?'<button class="rpb go'+on('tog')+'" type="button" data-tac="mode" data-v="tog">Together<small>'+[...new Set(v6TogetherOpts(b,u).map(o=>esc2(o.f.name)))].join(', ')+' · 1 AP · both attack</small></button>':'')+
         '<button class="rpb" type="button" data-tac="mode" data-v="guard">Guard<small>Harder to hit</small></button>'+
         (b.exits&&u.y===b.H-1?'<button class="rpb" type="button" data-tac="mode" data-v="leave">Leave<small>Escape the fight</small></button>':'')+
         '<button class="rpb x" type="button" data-tac="mode" data-v="end">End turn</button></div>'}}

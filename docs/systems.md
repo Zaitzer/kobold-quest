@@ -48,7 +48,9 @@ Modular arithmetic instead of dice (the charge-time system of *Final Fantasy Tac
 - Every unit has a **charge** `CT`, starting at 0. The clock ticks; each tick every living unit gains its rate. **Every unit with
   `CT ≥ 100` acts, highest CT first, and then `CT ← CT − 100`** (it keeps the remainder: that is the modular part). A unit whose CT is
   still 100 or more after acting acts again in the same tick, after the others.
-- **Ties:** the pack before foes, then the unit further left on the board, then lower id. So the order is fully decided and
+- **Ties:** the pack before foes, then the order the units joined the fight (the pack's slots, then the foes as placed). Not the
+  position on the board: a tie that turned on who stands further left would change the bar every time someone moved (found while
+  building the bar, 22 Oct). So the order is fully decided and
   **shown**: the turn-order bar shows the next eight turns exactly, and it never changes unless something changes a rate or a CT.
 - **What it means:** with rates near 100 every unit acts about once a tick, faster units first; the remainder adds up, so a rate of
   104 gains an extra turn every 25. **+1 initiative is +1% of turns, about 1 power point** (the same price as before).

@@ -1,7 +1,7 @@
 import {rpAiTurn,tcPosScore} from './ai.js';
 import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
-import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6TurnStart,v6u} from './v6battle.js';
+import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
 import {v6Fall,v6Keep,v6Leave} from './v6end.js';
 import {TT} from './view.js';
@@ -89,7 +89,7 @@ function tcRound(b){b.round++;
   if(b.quiet>=3){b.quiet=0;b.units.forEach(p=>{if(p.side===0&&tcLive(p))tcSeen(b,p)});const es=b.units.filter(e=>e.side===1&&tcLive(e));b.pings=es.map(e=>({x:e.x,y:e.y,r:b.round}));
     if(es.length){const e=es[0],c=b.units.find(p=>p.side===0&&tcLive(p))||e;b.msg='You hear something to the '+(Math.abs(e.y-c.y)>=Math.abs(e.x-c.x)?(e.y<c.y?'north':'south'):(e.x<c.x?'west':'east'))+'…'}}
   if(b.pings)b.pings=b.pings.filter(p=>b.round-p.r<2);if(b.round>=5)b.units.forEach(e=>{if(e.side===1&&tcLive(e)&&!e.aware){b.units.forEach(p=>{if(p.side===0&&tcLive(p))tcSeen(b,p)});tcAlert(b,e.pod,false)}});b.queue=b.v6?v6Queue(b):b.units.filter(tcLive).map(u=>({u,s:tcStat(u).spd+Math.random()*.6})).sort((x,y)=>y.s-x.s).map(x=>x.u)}
-function tcUpcoming(b,n){const out=[];if(b.cur&&tcLive(b.cur))out.push(b.cur);b.queue.forEach(u=>{if(tcLive(u))out.push(u)});
+function tcUpcoming(b,n){if(b.v6)return v6Upcoming(b,n+1);const out=[];if(b.cur&&tcLive(b.cur))out.push(b.cur);b.queue.forEach(u=>{if(tcLive(u))out.push(u)});
   if(out.length<n){const nx=b.units.filter(tcLive).slice().sort((x,y)=>tcStat(y).spd-tcStat(x).spd);for(let i=0;out.length<n&&i<nx.length*2;i++)out.push(nx[i%nx.length])}return out.slice(0,n)}
 function tcCheckEnd(){const b=rp.bt;if(!b||b.over)return true;
   if(b.duel){const a=b.units.some(u=>u.side===0&&tcLive(u)),c=b.units.some(u=>u.side===1&&tcLive(u));
@@ -253,6 +253,7 @@ function tcDo(u,act){
   if(act.k==='watch'){u.watch=1;b.msg=u.name+' keeps watch.';tcFloatU(u,'watching','#9ad0ff');return true}
   if(act.k==='guard'){u.guard=1;b.msg=u.name+' takes cover and guards.';tcFloatU(u,'guard','#9ad0ff');return true}
   if(act.k==='end'){u.ap=0;b.msg=u.name+' ends the turn.';return true}
+  if(act.k==='together')return v6Together(b,u,act.f,act.t);
   if(act.k==='leave'){u.fled=true;b.msg=u.name+' slips off the edge of the field.';v6Leave(b,u);if(!rp.headless)sfx('pop');return true}
   return false;
 }

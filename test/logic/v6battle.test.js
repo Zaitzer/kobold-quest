@@ -60,4 +60,20 @@ seeded(11,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','c
 {let errs=0,stuck=0;const sels=X.PLACES6.map((p,i)=>i).filter(i=>X.PLACES6[i].L<=8).concat(['b:grubb','b:snipe','t:old_shellback']);
  for(const sel of sels){try{const b=lab(['ranger','monk','bard','sorcerer'],sel==='b:snipe'||sel==='t:old_shellback'?8:5,sel,77);if(!b.over)stuck++}catch(e){errs++;console.log(sel,e.stack.split('\n').slice(0,3).join(' | '))}}
  checks++;if(errs||stuck)bad('crash scan: '+errs+' errors, '+stuck+' stuck')}
+// the turn-order bar (step 6): eight turns, and it never lies: whenever the same units are alive, the eight it shows are the eight that come
+{let windows=0,wrong=0;for(const [sel,L,seed] of [[0,6,3],[1,8,4],['b:grubb',7,5],['b:snipe',10,6]]){const turns=[];
+  seeded(seed,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','ranger',null,null];X.v6Lab.lvl=L;X.v6Lab.place=sel;X.v6Lab.theme='';X.v6LabStart();const b=X.rp.bt;b.together={'Pip+Wizzle':1};let s=0,last=null;
+    while(!b.over&&s<40000){X.rpBattleStep(1/30);s++;if(b.cur&&b.cur!==last&&b.phase!=='place'){last=b.cur;turns.push({u:b.cur,bar:X.tcUpcoming(b,7),live:b.units.filter(X.tcLive).length,n:b.units.length,tog:Object.keys(b.together||{}).length,stun:b.units.filter(u=>u.stun).length})}}});
+  for(let i=0;i+8<=turns.length;i++){const w=turns.slice(i,i+8);if(w.some(t=>t.live!==w[0].live||t.n!==w[0].n||t.tog!==w[0].tog))continue;windows++;   // (a death, an add or a Together changes the clock)
+    checks++;if(turns[i].bar.length!==8)bad('the bar should show eight turns');if(w.some((t,j)=>t.u!==turns[i].bar[j])){wrong++;if(wrong<3)console.log('bar',turns[i].bar.map(u=>u.name).join(','),'actual',w.map(t=>t.u.name).join(','))}}}
+ checks++;if(wrong)bad('the bar lied in '+wrong+' of '+windows+' windows');checks++;if(windows<20)bad('too few windows to check the bar: '+windows)}
+// Together (systems.md §15.1): two kobolds beside one foe; 1 AP; both attack now flanking; the friend's charge drops by 100; once per pair
+seeded(21,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','rogue',null,null];X.v6Lab.lvl=5;X.v6Lab.place=0;X.v6Lab.theme='meadow';X.v6LabStart();const b=X.rp.bt;
+  const [a,c]=b.units.filter(u=>u.side===0),f=b.units.find(u=>u.side===1);b.units.filter(u=>u.side===1&&u!==f).forEach(u=>{u.hp=0});
+  f.aware=true;a.x=4;a.y=5;f.x=5;f.y=5;c.x=6;c.y=5;f.hp=f.max=9999;a.ap=2;c.ct=40;b.vis.fill(2);
+  const opts=X.v6TogetherOpts(b,a);checks++;if(!opts.some(o=>o.f===c&&o.t===f))bad('Together should be offered when both stand beside the foe');
+  const H=X.v6Hit(b,a,f,{flank:1});checks++;if(!H.fl)bad('a Together attack flanks');
+  checks++;if(!X.tcDo(a,{k:'together',f:c,t:f}))bad('Together should start');checks++;if(a.ap!==1)bad('Together costs 1 AP: '+a.ap);checks++;if(c.ct!==-60)bad('the friend spends its next turn: ct '+c.ct);
+  checks++;if(b.seq.filter(st=>st.k==='atk'&&st.tg===f).length!==2)bad('both should attack the foe');
+  a.ap=2;checks++;if(X.v6TogetherOpts(b,a).length)bad('once a fight per pair')});
 console.log(fails?fails+' failures':'v6 battles: '+checks+' checks');process.exitCode=fails?1:0;
