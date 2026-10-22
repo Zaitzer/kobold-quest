@@ -186,6 +186,7 @@ Fennel and Nugget as recruits.
 | `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes, the numbers to confirm and **ten open decisions** | current (22 Oct) |
 | `docs/world-map.png`, `.svg`, `.json` | **the world map**: towns, routes at their exact step lengths, biomes, areas, gates, landmarks (`tools/worldmap.js`) | new 22 Oct |
 | `docs/maps/` | **the slice's maps**: Hearthspire, R1 (120 steps), Pebblebrook, the mine's three floors, five rooms; letter grids in the engine's format, with checks (`tools/slicemaps.js`) | new 22 Oct |
+| `docs/slice-dialogue.md` | **the slice's script**: act 1, R1, Pebblebrook and the mine, five campfire chats, the v6 flags; line count by `tools/linecount.js` | new 22 Oct |
 | `art/v6/` and `art/v6/ASSETS.md` | **every art asset as a sprite sheet** (469, sorted in folders, empty placeholders) with templates; `tools/assets.js` regenerates (never overwrites a drawing) | new 22 Oct |
 | `docs/town-kit.md`, `docs/companions.md` | the town checklist (Pebblebrook in full) and the companions beat by beat | new 22 Oct |
 | `docs/skills.md` | **every class's skills, subclasses and talents**, costs by rule (`tools/skills-table.js`) | new 22 Oct |

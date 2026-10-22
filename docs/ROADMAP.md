@@ -50,7 +50,7 @@ Grubb and Snipe, Nugget, the first Smiler piece and the raptors.
 |---|---|---|
 | 2.1 | Systems designer + gameplay programmer | Hearthspire on the map; Smiler pieces; keeper challenges; class wave 1; companion arcs and quests; raptor travel |
 | 2.2 | Level designer | Hearthspire (marble streets, castle, nest, tower), the capital gate, the route, Pebblebrook with the mine  (first pass done 22 Oct: `docs/maps/`) |
-| 2.3 | Narrative writer | the slice's dialogue, from story v6 |
+| 2.3 | Narrative writer | the slice's dialogue, from story v6 (first draft done 22 Oct: `docs/slice-dialogue.md`) |
 | 2.4 | Artist | Joakim's drawings for the slice's cast and tiles |
 | 2.5 | Sound designer | Hearthspire and castle tracks |
 | 2.6 | Balance analyst | the slice simulator rerun on the new path and classes |
