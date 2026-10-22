@@ -42,6 +42,8 @@ design document, and parts of the story bible.
 
 ## Phase 2: Vertical slice (one piece, finished properly), second pass
 
+**The step-by-step build plan is `docs/build-plan.md`** (22 Oct): 22 steps in order, four playable checkpoints, a *done when* for each.
+
 **Hearthspire (act 1) → the capital gate → route → Pebblebrook (with the mine)**, built to final quality. It covers
 the opening of the real story: the hatching, Bib, Mallow, Glitterbeak, Bork at the gate, the first keeper challenge,
 Grubb and Snipe, Nugget, the first Smiler piece and the raptors.
