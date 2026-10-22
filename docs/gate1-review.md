@@ -129,4 +129,4 @@ After the completeness pass, the RPG checklist (`systems.md` §15), characters (
 9. **The hard packs:** stay hard.
 10. **Adopted:** HoMM3 defence factor, Pathfinder multiple-attack penalty, Pokémon burn and poison.
 
-Gate 1 itself passes when Joakim says go.
+**Gate 1 passed on 22 Oct 2026, evening** (Joakim: "you get to do whatever you want to make the game, there are no active players").

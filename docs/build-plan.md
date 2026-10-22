@@ -6,9 +6,8 @@ and say it is fun).*
 
 ## 0. How we build
 
-- **On `main`, without touching the live game.** The live server runs `release/` and the Claude page is the published
-  `dist/kobold-quest.html`; neither is rebuilt from the new work until the slice is ready (Gate 1, A1). So `src/` may change freely:
-  the old game keeps running for players from `release/`.
+- **On `main`.** There are no active players (Joakim, 22 Oct), so the live server and the Claude page may be updated whenever a
+  checkpoint is worth showing; until then `release/` stays on the old game, simply because it is the last thing that works.
 - **The design leads.** When the build shows the design is wrong or silent, the fix goes into the design document first, in writing,
   then into the code. Nothing is decided only in code.
 - **Content is generated, not typed twice.** The tools that print the design's tables (`skills-table.js`, `content-tables.js`,

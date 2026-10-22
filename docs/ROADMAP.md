@@ -38,7 +38,7 @@ design document, and parts of the story bible.
 3. **Gate 1 again:** Joakim reads the world plan, the design document (with `balance.md`, `items.md`, `ui-design.md`) and `docs/gate1-review.md` (the designer's checklist; its ten decisions were taken on 22 Oct, `design.md` §16) and says go.
 4. **The new vertical slice** (phase 2 below).
 
-**Gate 1:** passed 17 Oct 2026 for the first story; **to pass again** with story v6.
+**Gate 1:** passed 17 Oct 2026 for the first story, and **passed again on 22 Oct 2026** for story v6. Phase 2 has started (`docs/build-plan.md`).
 
 ## Phase 2: Vertical slice (one piece, finished properly), second pass
 
