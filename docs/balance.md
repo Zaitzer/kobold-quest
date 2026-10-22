@@ -132,7 +132,7 @@ nothing is "worse", only different. Stats are multipliers on the reference fight
 | Paladin | .30 | .40 | .30 | ×0.95 | ×0.90 | ×1.10 | ×0.9 | 8 → 36 | 3 |
 | Ranger | .45 | .20 | .35 | ×0.80 | ×1.05 | ×0.60 | ×1.3 | 10 → 40 | 4 |
 | Rogue | .45 | .20 | .35 | ×0.75 | ×1.05 | ×0.60 | ×1.4 | 8 → 36 | 4 |
-| Monk | .40 | .30 | .30 | ×0.85 | ×0.95 | ×0.75 | ×1.4 | 8 → 40 | 5 (cheap skills) |
+| Monk | .33 | .33 | .34 | ×0.90 | ×0.90 | ×0.90 | ×1.1 | 10 → 46 (ki) | 5 (cheap skills); ki power and pool × (0.5 + Balance) |
 | Cleric | .15 | .30 | .55 | ×0.85 | ×0.70 | ×0.70 | ×0.9 | 14 → 62 | 6 |
 | Druid | .25 | .25 | .50 | ×0.85 | ×0.75 | ×0.70 | ×1.0 | 14 → 62 | 6 |
 | Bard | .20 | .20 | .60 | ×0.75 | ×0.70 | ×0.60 | ×1.1 | 12 → 58 | 6 |
@@ -165,7 +165,7 @@ class's identity (like a hit die); the scores add to it.
 | Paladin | STR, CHA, CON, WIS, DEX, INT |
 | Ranger | DEX, WIS, CON, STR, INT, CHA |
 | Rogue | DEX, INT, CON, CHA, WIS, STR |
-| Monk | DEX, WIS, CON, STR, CHA, INT |
+| Monk | none: the even array 12, 12, 12, 12, 12, 12 (same total, Balance 100%) |
 | Cleric | WIS, CON, STR, CHA, DEX, INT |
 | Druid | WIS, CON, DEX, INT, STR, CHA |
 | Bard | CHA, DEX, CON, WIS, INT, STR |
@@ -177,6 +177,50 @@ class's identity (like a hit die); the scores add to it.
   defence and +2.1 HP per level" line. **Gear** can give +1 or +2 to a score.
 - *Open, not simulated:* the numbers above are a proposal. They are not yet reconciled with the class table or the talent
   line (audit tasks 3 and 7), and the yardstick fighter's stats must be re-derived to include its scores.
+
+#### The monk: the generalist, scaling on Balance (J, Joakim's design, 22 Oct)
+
+The monk is the build that commits to **being even**, as the other classes commit to a peak. It is Bork's arc (sloth to
+diligence) made mechanical: it grows by fixing its weakest point.
+
+**Balance**, the monk's own stat (shown as a percentage on its sheet, with the next threshold marked):
+
+$$\mu = \tfrac16\textstyle\sum_i s_i, \qquad \sigma = \sqrt{\tfrac16\sum_i (s_i-\mu)^2}, \qquad \text{Balance} = \max\!\left(0,\; 1 - \sigma/\mu\right)$$
+
+| scores | Balance |
+|---|---|
+| 12 ×6 (the monk's start) | 100% |
+| 13, 13, 12, 12, 11, 11 | 93% |
+| 15, 14, 13, 12, 10, 8 (the standard array) | 80% |
+| 20, 20, 10, 8, 8, 6 (stacked) | 52% |
+
+**Two parts, kept apart:** *how much* the monk has invested is the average of its six modifiers, `m̄`, used wherever another
+class uses its governing score; *how even* it is, is Balance. Stacking one score raises `m̄` a little and drops Balance a lot.
+
+| monk ability | scales on Balance |
+|---|---|
+| ki skills (strike, mend, ward) | power × (0.5 + Balance): ×1.5 at 100%, ×1.0 at 50% |
+| ki pool | × (0.5 + Balance) |
+| crafting yield | × (0.5 + Balance) |
+| filling the pack's gap (a weak version of the missing role: heal, threat, ...) | strength × Balance |
+| knowledge | at 70%: sees foes' weaknesses and resistances (shared with the pack and co-op players); at 90%: also each foe's next action |
+| Adapt (swap one of the four equipped skills mid-fight) | once per fight; twice at 90% or more |
+
+- **Any weapon:** no off-class penalty; the weapon's own multiplier and steadiness apply. Swapping in battle costs 1 AP
+  (free each turn for Way of the Hand).
+- **Ki is the monk's mana** and powers small versions of other classes' magic, always weaker than the specialist's
+  (Ki mend is about half a cleric's heal). Ki strike takes the element the monk chooses, so the monk always has the foe's
+  weakness.
+- **Growth:** a stat pick is best spent on the lowest score (it raises Balance most); monk gear can carry
+  "+1 to your lowest score".
+- **What it costs:** no peaks (no jackpot crits, no set bonus that needs one high score, no peak ultimate), ki magic weaker than
+  a specialist's, and less added value in a well-built group than another specialist would bring.
+- **Why it balances (the mean-floor-ceiling rule):** over the mix of encounters the monk's average should match a
+  specialist's within a few percent; its worst encounter is well above a specialist's worst, its best well below a
+  specialist's best. In a pack the best tool is used, so specialists shine together and **the monk shines solo and in a pack
+  with a hole**: its added value is `max(0, v_monk − best of the others)` in each encounter. If the monk's average ever
+  beats the specialists, cut the gap-filling first.
+- *Not simulated. The 0.5 + Balance shape, the 70% and 90% thresholds and the class numbers are **U**.*
 
 #### Score-to-stat mapping (J, 21 Oct): every stat has one governing score
 
