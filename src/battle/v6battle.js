@@ -230,7 +230,6 @@ function v6Spawn(b,u,n,what){const id=Object.keys(FOES6).find(k=>what.toLowerCas
   for(let i=0;i<n;i++){const key=v6FoeKey(id,u.E.L),E=RP_E[key];let spot=null;for(let r=1;r<4&&!spot;r++)for(let y=Math.max(0,u.y-r);y<=Math.min(b.H-1,u.y+r)&&!spot;y++)for(let x=Math.max(0,u.x-r);x<=Math.min(b.W-1,u.x+r)&&!spot;x++){const t={sz:1};if(tcFits(b,t,x,y)&&!b.units.some(o=>tcLive(o)&&x>=o.x&&x<o.x+(o.sz||1)&&y>=o.y&&y<o.y+(o.sz||1)))spot=[x,y]}
     if(!spot)return;const v={side:1,E,key,name:E.n,x:spot[0],y:spot[1],sz:1,hp:E.hp,max:E.hp,atk:E.atk,def:E.def,spd:E.spd,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,pod:u.pod,turns:0,fled:false,own:'e',ctl:'ai'};
     v.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:'none',pers:'brave',speed:1,hp:E.hp,size:.62},0,0,!rp.headless);v.k.face=-1;const h=tcHome(v);v.k.x=h.x;v.k.y=h.y;b.units.push(v);tcFloatU(v,'joins!','#ffb347')}}
-function v6BossLost(b){if(!b||!b.v6)return;const boss=b.units.find(u=>u.E&&u.E.v6boss);if(!boss||!rp.s)return;rp.s.bossDefeats=rp.s.bossDefeats||{};rp.s.bossDefeats[boss.E.id]=(rp.s.bossDefeats[boss.E.id]||0)+1}
 
 /* ---------------------------------------------------------------- the fight lab (checkpoint A): any classes and level against any place or foe */
 const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,theme:'',msg:''};
@@ -250,9 +249,9 @@ function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+
     '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label> '+
     '<label>Board <select id="lab-th">'+opt(v6Lab.theme,[['','by place'],['meadow','meadow'],['woods','woods'],['cave','cave'],['town','town'],['dark','dark'],['flooded','flooded']])+'</select></label>'+
     '</div><div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
-feature({id:'fightlab',init(){v6RegisterSkills()},on:{'battle:lost':b=>v6BossLost(b)},
+feature({id:'fightlab',init(){v6RegisterSkills()},
   panels:{lab:{sig:()=>JSON.stringify(v6Lab),html:v6LabHtml}},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
     for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};

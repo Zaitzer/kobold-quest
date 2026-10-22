@@ -51,6 +51,7 @@ import './battle/input.js';
 import './battle/v6rules.js';
 import './battle/v6battle.js';
 import './battle/v6board.js';
+import './battle/v6end.js';
 import './net/core.js';
 import './net/draw.js';
 import './net/ui.js';

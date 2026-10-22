@@ -3,6 +3,7 @@ import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
 import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6TurnStart,v6u} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
+import {v6Fall,v6Keep,v6Leave} from './v6end.js';
 import {TT} from './view.js';
 import {emit} from '../core/bus.js';
 import {rpInputReset} from '../core/input.js';
@@ -44,7 +45,7 @@ function rpBattle(keys,opt){
   const b={win:opt.win||null,W,H,g:T6?v6Gen(opt.theme,W,H,boss,Math.random()*1e9|0):tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,dark:!!(T6&&T6.dark),theme6:T6?opt.theme:null,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
     seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel,v6:!!opt.v6};
   if(opt.net)b.net={role:'host',id:opt.nid,peer:opt.net,gParty:opt.gParty||[]};
-  rp.bt=b;
+  rp.bt=b;v6Keep(b,keys,opt);
   const px=(W>>1)-1;
   const addKob=(mem,i,side)=>{const m=mem.m,st=rpStats(m);
     const u={side,m,own:mem.own,ctl:mem.ctl,name:m.name,x:0,y:0,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,
@@ -219,7 +220,7 @@ function tcStrike(a,t,o){
   tcWake(b,t);
 }
 function tcWake(b,t){if(t.side===1&&!t.aware)tcAlert(b,t.pod,true);if(t.side===0)tcSeen(b,t)}
-function tcKo(t){const b=rp.bt;t.k.state='ko';t.k.rotT=(t.side?1:-1)*Math.PI/2;t.chan=null;b.chans=b.chans.filter(c=>c.u!==t);if(t.side===0)rpBuzz(70);if(!rp.headless){burst(t.k.x,t.k.y-20,10,['#ffe27a','#fff'],130,'star');sfx('ko')}}
+function tcKo(t){const b=rp.bt;v6Fall(b,t);t.k.state='ko';t.k.rotT=(t.side?1:-1)*Math.PI/2;t.chan=null;b.chans=b.chans.filter(c=>c.u!==t);if(t.side===0)rpBuzz(70);if(!rp.headless){burst(t.k.x,t.k.y-20,10,['#ffe27a','#fff'],130,'star');sfx('ko')}}
 /* do an action: used by both the player (after confirming) and the AI */
 function tcDo(u,act){
   const b=rp.bt,c=tcActCost(u,act);if(!tcCanPay(u,c))return false;
@@ -252,7 +253,7 @@ function tcDo(u,act){
   if(act.k==='watch'){u.watch=1;b.msg=u.name+' keeps watch.';tcFloatU(u,'watching','#9ad0ff');return true}
   if(act.k==='guard'){u.guard=1;b.msg=u.name+' takes cover and guards.';tcFloatU(u,'guard','#9ad0ff');return true}
   if(act.k==='end'){u.ap=0;b.msg=u.name+' ends the turn.';return true}
-  if(act.k==='leave'){u.fled=true;b.msg=u.name+' slips off the edge of the field.';if(!rp.headless)sfx('pop');return true}
+  if(act.k==='leave'){u.fled=true;b.msg=u.name+' slips off the edge of the field.';v6Leave(b,u);if(!rp.headless)sfx('pop');return true}
   return false;
 }
 /* ---------- each frame ---------- */

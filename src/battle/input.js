@@ -1,6 +1,7 @@
 /* ---------- player input ---------- */
 import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from './rules.js';
+import {v6CanRetry,v6Retry} from './v6end.js';
 import {BVH,BVW,TT} from './view.js';
 import {rpLoc,rpVec,rpcv} from '../core/layout.js';
 import {rpOpt,rpOptSave} from '../core/options.js';
@@ -82,6 +83,7 @@ function rpTacBtn(d){
   switch(d.tac){
     case 'start':if(!(b.net&&b.net.role==='guest')){rpTacBegin();if(b.net)b.net.started=1}break;
     case 'cont':rpEndBattle();break;
+    case 'retry':v6Retry();rpUI(true);break;
     case 'spd':rpOpt.bspd=(rpOpt.bspd||1)>=4?1:(rpOpt.bspd||1)*2;rpOptSave();break;
     case 'ok':rpTacConfirm();break;
     case 'cancel':b.pend=null;b.mode='move';break;
@@ -101,7 +103,7 @@ function rpTacPanel(){
   h+='<div class="tparty">'+b.units.filter(x=>x.side===0).map(x=>{const st=rpStats(x.m);return '<div class="tpm'+(x.hp<=0?' down':'')+(x.fled?' gone':'')+(x===u?' on':'')+(x.ctl==='remote'?' fr':'')+'"><b>'+esc2(x.name)+(x.ctl==='remote'?' <i>'+esc2(netName())+'</i>':'')+'</b>'+rpBar(Math.max(0,x.hp),st.hp,x.hp>st.hp*.5?'#7ad67a':x.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>'+Math.max(0,x.hp)+' HP · '+x.m.mp+' MP'+(x===u&&b.phase!=='place'?' · '+'●'.repeat(Math.max(0,x.ap))+'○'.repeat(Math.max(0,2-x.ap)):'')+'</small></div>'}).join('')+'</div>';
   h+='<div class="rpmsg tmsg">'+(b.pend?b.pend.info:esc2(b.msg))+'</div>';
   if(b.phase==='place')h+=b.net&&b.net.role==='guest'?'<div class="tbar"><p class="rptip">Tap one of your kobolds, then a blue tile to move it. '+esc2(netName())+' starts the battle.</p></div>':'<div class="tbar"><p class="rptip">Tap a kobold, then a blue tile to move it. '+(b.net?esc2(netName())+' can place theirs too.':'Enemies hide in the fog.')+'</p><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';
-  else if(b.phase==='end')h+='<div class="tbar"><button class="pill go big" type="button" data-tac="cont">Continue ▸</button></div>';
+  else if(b.phase==='end')h+='<div class="tbar">'+(v6CanRetry(b)?'<button class="pill big" type="button" data-tac="retry">Try again</button>':'')+'<button class="pill go big" type="button" data-tac="cont">Continue ▸</button></div>';
   else if(b.phase==='turn'&&u&&u.side===0){
     if(b.pend)h+='<div class="tbar two"><button class="rpb x" type="button" data-tac="cancel">✕ Cancel</button><button class="rpb go" type="button" data-tac="ok">✓ Confirm<small>or tap the same spot again</small></button></div>';
     else{const m=u.m,w=m.w,TW=rpTW(w),ac=tcActCost(u,{k:'atk'}),on=x=>b.mode===x?' on':'';
