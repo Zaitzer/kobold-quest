@@ -322,6 +322,7 @@ Joakim can overrule any of these at Gate 1.
 14. **The monk keeps 12 ×6**, one modifier point ahead of the standard array, accepted (P25).
 15. **Fights with four kobolds take about 90 s**, accepted; the story is about 16.7 hours (P7).
 16. **Corruption costs morale:** every 10 of the pack's total is −1 pack morale.
+17. **Quick weapons hit twice for the same damage:** a quick basic attack costs 1 AP and deals ×0.635, so two make one normal attack.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

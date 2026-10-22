@@ -76,6 +76,13 @@ attack (the number is the multiplier on the tier's weapon power: 3, 8, 15, 23, 3
 less raw attack and more of the budget goes to the skill bonus (the 15% on top). The barbarian trades speed for damage.
 The daggers and fists hit weaker but twice as often.
 
+**Quick attacks (decided 22 Oct).** A quick weapon's (guns, daggers, fists) **basic attack costs 1 AP instead of ending the turn**, so a
+kobold that stands still attacks twice (the second at the multiple-attack penalty, −4 light, −5 guns). To keep the damage per turn what
+the family table intends, **a quick basic attack deals ×0.635**: `1 ÷ (1 + 0.6 × 0.96)`, where 0.6 is the share of turns with a second
+attack (J: the first turn of a melee closes the distance) and 0.96 the second hit's chance against the first's. The rule is on the basic
+attack, not the weapon's power, so skills (Flurry, Sneak attack, Aimed shot), which are priced on the attack stat, are unchanged.
+What quick buys is flexibility: two crit chances, splitting hits between two foes, or attacking and still moving.
+
 **Weapon power by tier and family** (rounded):
 
 | family | T1 | T2 | T3 | T4 | T5 | T6 |
