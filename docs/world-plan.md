@@ -4,7 +4,14 @@
 the middle**, five towns and fewer routes. The story is `story-hatching.md`; the map data is `REGION` in
 `src/data/overworld.js` (rebuilt in the slice, not before Gate 1).*
 
-## The map in one picture
+## The map (drawn 22 Oct 2026)
+
+**`docs/world-map.png`** (and `world-map.svg`) is the map; **`docs/world-map.json`** is the same map as data, which the slice builds
+`REGION` from. Both come from `node tools/worldmap.js`, so change the data there, not the picture. The grid is **420 × 340 tiles**
+(shrunk from 600 × 340 after the P9 check); every route winds until its length is exactly its step count below; the towns sit
+where the P9 check put them.
+
+## The map in one picture (the sketch)
 
 The towns follow the bun chain, and Hearthspire sits in the middle of it like a hub.
 
