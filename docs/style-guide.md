@@ -60,13 +60,54 @@ again; to go back, GitHub Desktop's **History** has every version.
 | gold / shiny | `#ffd54a` |
 | UI purple | `#4a35b0` `#2a1a73` |
 
-## What to draw first
+## What to draw first (the new slice, 22 Oct 2026)
 
-The full list with file names is `art/WANTED.md`. Suggested order:
-1. **Heroes:** `pip.png`, `bork.png`, `wizzle.png`.
-2. **Burrowhome:** `elder.png`, `yarrow.png`, `tikka.png`, `toast.png`, `biscuit.png`, `clink.png`, `pebble.png`, `nettle.png`, `quill.png`.
-3. **The first towns:** `turnip.png`, `grubb.png`, `ruddle.png`, `snipe.png`, `pickett.png`, `nugget.png`, `dusty.png`, `shale.png`.
-4. **Monsters met early:** `scout.png`, `slinger.png`, `thief.png`.
-5. **Tiles**, if you want to: `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-tree.png`, `tile-water.png`.
+The slice is **Hearthspire act 1 → the capital gate → R1 → Pebblebrook and the mine** (`scope.md` M1). Everything not on this
+list stays drawn in code until phase 3, so draw top to bottom and stop anywhere: each drawing makes the game better on its own.
+`art/WANTED.md` is regenerated for the new cast when the slice starts; existing files with the right name (`bork.png`,
+`glint.png`, `mallow.png`, `nugget.png`, `grubb.png`, `glitterbeak.png`, `beetle.png`) are reused.
 
-Later: walking frames, portraits, houses, the eggs, the other towns' people and monsters.
+**A. The first ten (the faces of the whole game)**
+
+| # | file | who / what | template | why first |
+|---|---|---|---|---|
+| ✅ | `pip.png` | Pip | character-128 | done |
+| 1 | `mallow.png` | Mallow, the baker | character-128 | the mentor; on screen in every act |
+| 2 | `bib.png` | Bib on his bench | character-128 | the theme in one kobold; first and last scene |
+| 3 | `wizzle.png` | Wizzle | character-128 | joins in act 1 |
+| 4 | `glint.png` | Glint | character-128 | joins in act 1 |
+| 5 | `bork.png` | Bork | character-128 | joins at the gate |
+| 6 | `guard.png` | one of Snatchclaw's guards | character-128 | the most common foe and villager of the game |
+| 7 | `scout.png` | a Nettlenose scout | character-128 | the first foe on R1 |
+| 8 | `glitterbeak.png` | Glitterbeak, hatched | boss-256 | the hatching's big moment |
+| 9 | `tile-marble.png` | Hearthspire's street | tile-64 | the capital is the first place anyone sees |
+| 10 | `nugget.png` | Nugget | character-128 | joins in the mine |
+
+**B. The rest of the slice's cast**
+
+| file | who / what | template |
+|---|---|---|
+| `ruddle.png` | Miller Ruddle (keeper) | character-128 |
+| `grubb.png` | Grubb (boss) | boss-256 |
+| `snipe.png` | Snipe on his copper cart (boss) | boss-256 |
+| `smudge.png` | Smudge, the friendly cousin | character-128 |
+| `bramble.png` | Bramble, who backs the sprouty egg | character-128 |
+| `egg-sprouty.png`, `egg-sleepy.png`, `egg-shiny.png` | the three eggs at the nest | character-128 |
+| `slinger.png` | a Nettlenose slinger | character-128 |
+| `beetle.png` | a copper beetle | character-128 |
+| `glowgrub.png` | a glow grub | character-128 |
+| `rat.png` | a cellar rat | character-128 |
+| `miner.png` | a miner (Ore, Tansy, Flint and Grit, Marl share it, tinted) | character-128 |
+
+**C. Places (tiles and buildings)**
+
+| file | what | template |
+|---|---|---|
+| `tile-castlewall.png`, `tile-nest.png` | the castle wall; the Great Nest's straw | tile-64 |
+| `bakery.png`, `castlegate.png`, `inn.png` | Mallow's bakery (with the cellar door), the capital gate, an inn | house-4x3 |
+| `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-pond.png` | R1 | tile-64 |
+| `mill.png` | the mill and its wheel (Pebblebrook's landmark) | house-4x3 |
+| `tile-minefloor.png`, `tile-rails.png`, `tile-dark.png` | the mine | tile-64 |
+
+**Later (phase 3):** Snatchclaw, the other companions (Saffi, Cinder, Crumb), the keepers, each town's foes and tiles, walking
+frames and portraits. In all the game wants roughly 80 to 110 drawings (`gate1-review.md` B1); the slice needs about 35.

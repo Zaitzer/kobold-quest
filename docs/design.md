@@ -14,6 +14,8 @@ agree with each other:
 | **`balance.md`** | the feelings we want; time per stretch; the level table (damage, HP, XP, gold); the other eleven classes; the six ability scores and the monk's Balance; the skill cost rule and every new skill; fights, bosses and co-op scaling; hit chances, spells, statuses, terrain and crits; encounter rates, route lengths and the fight budget; grind and optional content; gold; player progression; sensitivity |
 | **`items.md`** | the power-point rule; slot budgets; weapons for all eleven families; every slot by tier; prices; affixes; boss uniques; sets; consumables; materials and crafting; what the player finds |
 | **`skills.md`** | every class's eight skills, the subclasses and capstones, the talent picks and passives, every cost by the rule |
+| **`town-kit.md`** | what every town must contain to fill its stretch; Pebblebrook in full as the template |
+| **`companions.md`** | the seven companions beat by beat: chats, quests, absences, the morale they give |
 | **`bestiary.md`** | every opponent: roles, stats by place, weights, XP, elements, who you meet where, the bosses |
 | **`ui-design.md`** | layout; taps per action; what is used most and least; what is highlighted; every screen; the battle in detail; accessibility; how we check |
 
