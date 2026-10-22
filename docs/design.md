@@ -332,6 +332,8 @@ Joakim can overrule any of these at Gate 1.
 19. **Turn order is the timeline** (charge time, as in Final Fantasy Tactics): rate 90 + initiative, act at 100, keep the remainder;
     the same for solo and co-op (`systems.md` §1).
 20. **Every system the slice touches is specified in `systems.md`** before Gate 1; what is measured on purpose is listed there (§14).
+21. **Minimal versions of the RPG staples** (`systems.md` §15): Together (team attack), the Book (bestiary, lore, places, stamps),
+    map pins, Pip's colour, flavour weather, Ghost the pet, cooking at inns, buyback, town thanks, a small post-game, new game plus.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

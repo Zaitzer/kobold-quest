@@ -589,8 +589,8 @@ whether this feels fair or whether the low side should be softened).
   for loot.
 - **Strength words on patrols** (Few / Several / Pack / Lots / Overwhelming) are shown **relative to the viewer's synced
   level**, and one group fight counts the same for everyone in the group.
-- **Shared-world resources** (mines, dwellings, anything that produces something each day) are **personal instances**, so
-  there is no race and no griefing.
+- **Chests, patrols and bounties are personal**: each player opens their own chest and fights their own patrol, so there is no race and
+  no griefing. (There are no daily-producing places such as mines or dwellings: the old line about them is cut, 22 Oct.)
 - **Turns:** the timeline (`systems.md` §1) decides whose kobold acts; its owner has a 20-second timer, then it guards. (Replaced the
   shared phase on 22 Oct: one turn order for solo and co-op, and initiative keeps its value.)
 - *Not simulated; arithmetic only. The sim has no co-op fights.*
@@ -1050,7 +1050,7 @@ the trial's unique piece: about one level ahead, as designed.
 villager's hint). A level takes 5–8 fights, about 7 to 12 minutes at 87 s a fight. **The worst-case top-up is about 20 minutes**, and the
 bounty board is the fastest way (a named fight per hunt, 1.5× XP). We aim for an *average* top-up of zero.
 
-**Post-game (small; its length will be what its content gives, counted when it is designed):** the islands' trials and Glitterbeak's hoard, level 30 gear, no new levels.
+**Post-game (small; its length will be what its content gives, counted when it is designed):** the islands' trials and Glitterbeak's hoard (minimal version: `systems.md` §15), level 30 gear, no new levels.
 
 ## 7. Gold
 

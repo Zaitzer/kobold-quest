@@ -35,6 +35,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 23 | art | `style-guide.md`, `art/v6/ASSETS.md` | designed |
 | 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
 | 25 | what is measured on purpose | §14 | listed |
+| 26 | the small things every RPG has: team attacks, the Book (bestiary, codex, stamps), map pins, looks, weather, a pet, cooking, buyback, town thanks, post-game, new game plus | §15 | minimal versions, 22 Oct |
 
 ## 1. Turn order: the timeline (charge time; Joakim, 22 Oct)
 
@@ -259,3 +260,35 @@ the rule is revisited in writing first:
 5. The monk's Balance shape (0.5 + Balance) and the 70% and 90% thresholds.
 6. Corruption's trade (a dark pack against its bond) and the deeds' values.
 7. The bond factor g(L) (does a pack that skips the chats feel the difference?).
+
+## 15. The small things every RPG has (minimal versions, 22 Oct)
+
+Each is the smallest version that fills the gap; none changes the balance curve unless it says so.
+
+1. **Together** (a team attack). When two kobolds stand next to the same foe, the active one may use *Together* (1 AP, once a fight per
+   pair): both attack it now, and the friend's charge drops by 100 (it spends its next turn now, `systems.md` §1). The foe counts as
+   flanked for both attacks (cover ignored, crit +15 paid by value). It moves a turn earlier and adds a flank: about +2% a fight, inside
+   the curve. Each pair's first Together plays a two-kobold animation. The finale's Smiler is the same verb for the whole country.
+2. **The Book** (Mallow's recipe book, which Pip carries from act 1): one screen with four tabs. *Foes:* every foe met, with its picture
+   and level range; weaknesses and resistances appear after three wins against it (or at once with INT 14+, or a monk at Balance 70%).
+   *Lore:* the rhyme, the mural, the signs, the notice, each kept once read. *Places:* each area's chests found out of its total.
+   *Stamps:* 20 milestones (first fight, each piece, each companion's quest, every chest in a town, every foe in the Book, a clean boss
+   fight, a dark version cast, a corruption cleansed...), cosmetic only (a stamp on the page). The Smiler's instructions are its last page.
+3. **Map pins.** The goal bar's target is a pin on the world map and an arrow at the screen's edge when it is off screen; a setting turns
+   the arrow off.
+4. **Looks.** At the start the player picks Pip's scale colour from six palettes (a palette swap on the same sprite sheet). Pip keeps
+   his name (the story's); hats come from gear.
+5. **Weather**, flavour only: falling snow in Frostwick and on R5, heat shimmer in Sunhaven and on R2–R3, sea spray at Saltspray,
+   drifting flour dust in Pebblebrook once the mill turns. Drawn over the map, never in fights, no rules.
+6. **A pet.** After *The ghost of the mill*, Ghost the raptor chick follows Pip on the map (a follower sprite) and yips when he yips. No
+   combat, no stats.
+7. **Cooking.** At an inn, *Cook*: 2 materials of any kind become a **snack** that heals 35% (a potion that cannot be bought). A use for
+   spare materials; a pack never carries more than 5 snacks. Crumb's line when she joins: "Who taught you to cook? Nobody? It shows."
+8. **Buyback.** A shop remembers the last 5 things you sold it and sells them back at the price you got, until you leave the town.
+9. **Town thanks.** Finishing a town's keeper's challenge makes its shop 5% cheaper for you (stacking with fame's steps). Fame stays the
+   one reputation number; the guards have none.
+10. **Post-game.** *The islands' trials:* three elite fights at level 30, one on each island and one in the island cave, each dropping a
+    level-30 unique. *Glitterbeak's hoard:* a vault room in the castle with five chests (gold, the T6 crafted recipes, a stamp). About
+    15 minutes by count; it opens after the new hatching.
+11. **New game plus.** After the credits, *Hatch again* starts the story over with the Book (foes, lore, stamps) and Pip's colour kept;
+    levels, gear and gold start fresh. Nothing else changes.
