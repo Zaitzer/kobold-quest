@@ -1,6 +1,6 @@
-# Kobaldia: audio plan (draft)
+# Kobaldia: audio plan (draft, story v6 added 22 Oct 2026)
 
-*Step 1.6 of the roadmap.*
+*Step 1.6 of the roadmap, and 2.5 for the slice (Hearthspire and the castle).*
 
 ## Approach
 
@@ -12,33 +12,53 @@ made in code.
 Rules:
 1. **Sound is on by default, quiet by default.** A tap starts the audio (browsers require it); a mute button is always one tap away.
 2. **Music never fights dialogue.** It dips while someone talks.
-3. **Every important moment has a sound:** a new spark, a level up, a key item, a recruit joining. Small actions
+3. **Every important moment has a sound:** a Smiler piece, a level up, a key item, a recruit joining. Small actions
    (talking, opening a door) get a soft click so the game feels alive.
 4. **Each place sounds like itself:** the land picks the instrument and the scale; towns get calmer, slower versions.
+5. **A town's trouble takes a layer away; fixing it brings the layer back** (v6). Each town's track loses its drums while its
+   trouble lasts and gets them back at the reconciliation: Pebblebrook's drums *are* the mill wheel, so when the wheel turns the
+   music starts walking again. One rule, five towns, no extra tracks, and the player hears the town get better.
+6. **One tune is fixed, not generated: Mallow's rhyme** (v6). It is the game's theme: Mallow hums it in the bakery, it
+   plays thin and slow in the Reward when the ember glows, and in full at the new hatching.
 
 ## Music (one track per kind of place, plus story moments)
 
+*The engine's tracks are a key, a tempo, a scale, a 4-chord loop, a seed, a lead voice and a drum pattern (`engine/music.js`).
+New tracks below are given in those terms so they are a line each in `RP_TRACKS`. Old-story tracks are marked cut.*
+
 | track | where | mood | built from |
 |---|---|---|---|
-| Burrowhome | home valley | warm, bouncy | exists (village) |
-| Town | every town (each town shifts key and tempo) | calm, friendly | done: each town its own key, tempo and land flavour |
-| Grass route | grassy routes | light, adventurous | exists (meadow) |
-| Woods | forest routes, Whisper Woods | soft, curious | exists |
-| Cave | the tunnel, caves | slow, drippy | exists |
+| ~~Burrowhome~~ | cut (the village track becomes Hearthspire's) | | |
+| **Hearthspire, morning** | act 1 | warm, bouncy, a little smug | new: `bpm 100, root 62, major, [0,3,4,0], seed 3, triangle, dr light`; the rhyme's first bar as an intro |
+| **Hearthspire, under the guards** | after the hatching, until the march | the same tune, but the guards' step has crept in | same seed: `bpm 88, harm, square, dr march` (the rule of layers: the town's drums become the guards' boots) |
+| **The empty square** | the Approach and the Ordeal (the bench) | lonely | same seed: `bpm 70`, lead only, no chords, no drums |
+| **Hearthspire, everyone came** | the march home and the capital filling | big, walking | same seed: `bpm 108, major, dr march`, the rhyme as the lead |
+| **The castle** | the yard, the hall, the tower stairs; Snatchclaw's scenes | polite, steady, very sure of itself (he never cheats, so it is not sinister) | new: `bpm 96, root 50, dorian, [0,4,0,5], seed 43, square, dr march`; indoors `dr soft` |
+| **The tower fire** | the top of the tower | still, holy-ish | no music: the fire crackle alone (a sound, below) |
+| **Glitterbeak** | his scenes (the mill roof, the volcano, the castle roof) | shivering, spoiled | new: `bpm 120, root 71, harm, [0,1,0,1], seed 47, sine, dr drip`: high, thin and cold |
+| Town | every town (each town shifts key and tempo) | calm, friendly | done; now with rule 5 (no drums until the trouble is fixed) |
+| Pebblebrook | the town | the town tune, its drums the mill wheel | rule 5: `dr none` until the wheel turns, then `dr bounce` |
+| Grass route | grassy routes (R1) | light, adventurous | exists (meadow) |
+| Woods | forest routes | soft, curious | exists |
+| Cave | the mine, the crater, the cellars | slow, drippy | exists; the mine's floor 2 (the dark) drops the lead to `sine` |
 | Desert | Sunhaven routes | hot, swaying | done |
 | Mountain pass | passes, Emberreach | stomping, steady | done |
-| Snow | Frostwick, the snowfield, Frostpeak | twinkly, slow | done |
-| Marsh | Glimmerfen | foggy, odd | done |
-| Shore | Saltspray, Brindlecove, the bridges | breezy | done |
+| Snow | Frostwick | twinkly, slow | done |
+| ~~Marsh~~ | cut with Glimmerfen (kept for a route stop if one needs it) | | |
+| Shore | Saltspray, the island boats | breezy | done |
 | Battle | normal fights | quick | exists |
-| Boss | bosses | heavy | exists |
-| Rival | Tikka's battles | cheeky, fast | new |
-| Snatchclaw | his scenes and fights | sly showman | new |
-| Crisis | Glitterbeak's rampage | urgent | new |
-| Old Guardian | Frostpeak summit | slow, ancient | new |
-| The Hatching | the finale | big and happy | new |
+| Boss | bosses | heavy | exists; Snatchclaw's fight uses the castle track at `bpm 140, dr drive` |
+| ~~Rival~~ | cut with Tikka | | |
+| ~~Snatchclaw~~ | becomes **The castle** above | | |
+| ~~Crisis~~ | cut (Glitterbeak never rampages; he is cold) | | |
+| ~~Old Guardian~~ | cut (no Frostpeak summit in v6) | | |
+| **The Hatching** | the finale and the new hatching | big and happy | new: the rhyme in full, `bpm 112, major, sawtooth lead, dr drive`, ending on one held chord (one ember) |
 
-Short jingles: spark gained, level up, recruit joins, key item, battle won, battle lost.
+**The rhyme's tune** (scale degrees in the track's key, one bar a line of the rhyme, four beats a bar; `-` holds):
+`0 2 4 4 | 5 4 2 - | 0 2 4 4 | 3 2 1 - | 4 4 5 7 | 7 5 4 - | 3 2 1 2 | 0 - - -`. A lullaby a kobold could hum; Joakim may
+replace it. The engine needs a `tune` field on a track to play fixed notes instead of seeded ones (tech plan).
+
+Short jingles: Smiler piece gained, level up, recruit joins, key item, battle won, battle lost.
 
 ## Sounds
 
@@ -52,9 +72,15 @@ Short jingles: spark gained, level up, recruit joins, key item, battle won, batt
 | chest | opening a chest | done |
 | fountain | drinking, healing | done |
 | bump | walking into a barrier | done |
-| spark | gaining a spark | done |
+| Smiler piece | gaining a piece (was the spark sound) | done, renamed |
 | level up | | done (also recruit, key item, battle lost) |
 | egg crack, dragon roar | the hatchings, Glitterbeak | new |
+| Glitterbeak's MINE | each time he says it: a low, greedy blip | new (a talk blip at his own pitch) |
+| tower fire | an ambient crackle at the tower and the bakery oven | new |
+| ember glow | the Reward, once: a soft rising chime | new |
+| stone in the bag | Pebblebrook's circle: a clack per stone | new |
+| mill wheel | creak and splash, on a loop near the mill once it turns | new |
+| raptor | a skree when mounting, and Ghost the chick | new |
 | menu tap | buttons | done |
 
 Music dips indoors, more while someone talks, and nearly vanishes under a jingle (done).
