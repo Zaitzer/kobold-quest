@@ -184,6 +184,7 @@ Fennel and Nugget as recruits.
 | `docs/balance.md`, `docs/items.md`, `docs/ui-design.md` | **the numbers and the screens (targets, 20 Oct)**: level/damage/gold curves, encounters per route, every item, taps per action | current |
 | `docs/number-audit.md` | **to-do list for making every number deliberate**: the working rules, problems P1–P18 (several resolved), 16 tasks with status | current (22 Oct) |
 | `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes, the numbers to confirm and **ten open decisions** | current (22 Oct) |
+| `art/v6/` and `art/v6/ASSETS.md` | **every art asset as a sprite sheet** (469, sorted in folders, empty placeholders) with templates; `tools/assets.js` regenerates (never overwrites a drawing) | new 22 Oct |
 | `docs/town-kit.md`, `docs/companions.md` | the town checklist (Pebblebrook in full) and the companions beat by beat | new 22 Oct |
 | `docs/skills.md` | **every class's skills, subclasses and talents**, costs by rule (`tools/skills-table.js`) | new 22 Oct |
 | `docs/bestiary.md` | **every opponent**: roles, stats, weights, XP, elements by town, groups per place, bosses | new 22 Oct |

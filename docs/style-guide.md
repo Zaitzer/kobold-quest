@@ -68,6 +68,17 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 | gold / shiny | `#ffd54a` |
 | UI purple | `#4a35b0` `#2a1a73` |
 
+## The new art folder: `art/v6` (sprite sheets, 22 Oct 2026)
+
+Every asset of the new game is now waiting in **`art/v6/`**, sorted in folders (characters, foes, bosses, tiles, buildings, fx,
+portraits, objects, icons), as an **empty transparent placeholder at the right size**. Each one is a **sprite sheet**: its
+animations in rows (walk down, up and side; battle idle; attack; cast; hurt, down and cheer), frames left to right. The
+templates with frame borders, feet lines and safe boxes are in `art/v6/templates/`; **`art/v6/ASSETS.md`** lists all 469 assets
+with their sheet type and marks the 202 the slice uses (★). To draw one: open the placeholder, import the template as a layer,
+draw underneath, delete the template layer, save, push. The live game still reads `art/sprites/`, so nothing in `art/v6` shows
+until the slice wires it in. The list below says what to draw **first**; ★ in `ASSETS.md` says everything the slice will use
+(what isn't drawn yet keeps a look drawn in code).
+
 ## What to draw first (the new slice, 22 Oct 2026)
 
 The slice is **Hearthspire act 1 → the capital gate → R1 → Pebblebrook and the mine** (`scope.md` M1). Everything not on this
