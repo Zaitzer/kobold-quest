@@ -25,24 +25,32 @@ again; to go back, GitHub Desktop's **History** has every version.
 
 `art/WANTED.md` is the checklist: every drawing the game can use, its template, and ✅ once it's in.
 
-## Sizes (templates)
+## Sizes: pixel art at twice Ruby's resolution (decided 22 Oct 2026)
 
-| what | canvas | template | rules |
-|---|---|---|---|
-| Map tile | 64 × 64 | `tile-64.png` | shows at 32 px on screen; draw at double size so phones stay sharp. Edges should tile with the same tile on every side |
-| Character (kobold, villager, monster) | 128 × 128 | `character-128.png` | **facing right** (the game flips it for left); feet on the red line; stay inside the green box |
-| Boss | 256 × 256 | `boss-256.png` | same rules, twice the size |
-| House or building | 256 × 192 (4 × 3 tiles) | `house-4x3.png` | door in the red box, bottom middle |
-| Portrait (dialogue) | 192 × 192 | `portrait-192.png` | head and shoulders, facing right; optional, for later |
+The game is **pixel art at twice the resolution of Pokémon Ruby and Emerald** (the GBA's 16 × 16 tiles and 16 × 32 characters).
+Draw **one pixel per pixel** at the size below; the game scales it up on screen with no smoothing (nearest-neighbour), so every
+pixel stays a crisp square on any phone. A drawing is small, so a character takes minutes, not an evening.
+
+| what | canvas (draw at this size) | template | on screen | rules |
+|---|---|---|---|---|
+| Map tile | **32 × 32** | `tile-32.png` | 32 px, scaled up whole on dense screens | edges tile with the same tile on every side |
+| Character (kobold, villager, foe) | **32 × 64** | `character-32x64.png` | one tile wide, two tall | **facing right** (the game flips it for left); feet on the red line (row 60); stay inside the green box |
+| Boss (a 2 × 2-tile foe) | **64 × 96** | `boss-64x96.png` | two tiles wide, three tall | same rules, twice as wide |
+| House or building | **128 × 96** (4 × 3 tiles) | `house-128x96.png` | | door in the red box, bottom middle |
+| Portrait (dialogue, optional) | **64 × 64** | `portrait-64.png` | shown at 3× | head and shoulders, facing right |
+
+**Pip** was drawn on the old 128 × 128 template and needs redrawing at 32 × 64 (a shrunk copy loses the pixel look).
 
 ## Style rules (suggested)
 
-1. **Thick dark outline** around every character and object (about 4–6 px at template size), so they read on a small
-   screen. The game's outline colour is a deep ink purple, `#140a35`.
-2. **Flat colours**, at most one shade per colour. No gradients or textures inside shapes.
-3. **Big heads, small bodies** for kobolds. Faces need to read at the size of a fingertip.
+1. **A one-pixel dark outline** around every character and object, so they read on a small screen. The ink colour is a deep
+   purple, `#140a35`. Tiles have no outline inside the ground.
+2. **Few colours:** up to 16 per drawing including the outline (twice what a GBA sprite could use on its own palette, so two or
+   three shades per colour are fine).
+3. **Big heads, small bodies** for kobolds: about half the height is the head, so the face reads at a fingertip's size.
 4. **Each kobold has one strong colour** so friends tell them apart at a glance (Pip orange, Bork green, Wizzle blue...).
-5. **Tiles are calmer than characters:** lower contrast, no outlines inside the ground tiles, so characters stand out.
+5. **Tiles are calmer than characters:** lower contrast, so characters stand out.
+6. **No anti-aliasing:** in Paint.NET turn antialiasing off (the button in the toolbar) and use the pencil, not the brush.
 
 ## Palette (suggested starting point, from the current game)
 
@@ -71,43 +79,43 @@ list stays drawn in code until phase 3, so draw top to bottom and stop anywhere:
 
 | # | file | who / what | template | why first |
 |---|---|---|---|---|
-| ✅ | `pip.png` | Pip | character-128 | done |
-| 1 | `mallow.png` | Mallow, the baker | character-128 | the mentor; on screen in every act |
-| 2 | `bib.png` | Bib on his bench | character-128 | the theme in one kobold; first and last scene |
-| 3 | `wizzle.png` | Wizzle | character-128 | joins in act 1 |
-| 4 | `glint.png` | Glint | character-128 | joins in act 1 |
-| 5 | `bork.png` | Bork | character-128 | joins at the gate |
-| 6 | `guard.png` | one of Snatchclaw's guards | character-128 | the most common foe and villager of the game |
-| 7 | `scout.png` | a Nettlenose scout | character-128 | the first foe on R1 |
-| 8 | `glitterbeak.png` | Glitterbeak, hatched | boss-256 | the hatching's big moment |
-| 9 | `tile-marble.png` | Hearthspire's street | tile-64 | the capital is the first place anyone sees |
-| 10 | `nugget.png` | Nugget | character-128 | joins in the mine |
+| 0 | `pip.png` | Pip (redraw at 32 × 64) | character-32x64 | the hero; the old drawing was on the 128 template |
+| 1 | `mallow.png` | Mallow, the baker | character-32x64 | the mentor; on screen in every act |
+| 2 | `bib.png` | Bib on his bench | character-32x64 | the theme in one kobold; first and last scene |
+| 3 | `wizzle.png` | Wizzle | character-32x64 | joins in act 1 |
+| 4 | `glint.png` | Glint | character-32x64 | joins in act 1 |
+| 5 | `bork.png` | Bork | character-32x64 | joins at the gate |
+| 6 | `guard.png` | one of Snatchclaw's guards | character-32x64 | the most common foe and villager of the game |
+| 7 | `scout.png` | a Nettlenose scout | character-32x64 | the first foe on R1 |
+| 8 | `glitterbeak.png` | Glitterbeak, hatched | boss-64x96 | the hatching's big moment |
+| 9 | `tile-marble.png` | Hearthspire's street | tile-32 | the capital is the first place anyone sees |
+| 10 | `nugget.png` | Nugget | character-32x64 | joins in the mine |
 
 **B. The rest of the slice's cast**
 
 | file | who / what | template |
 |---|---|---|
-| `ruddle.png` | Miller Ruddle (keeper) | character-128 |
-| `grubb.png` | Grubb (boss) | boss-256 |
-| `snipe.png` | Snipe on his copper cart (boss) | boss-256 |
-| `smudge.png` | Smudge, the friendly cousin | character-128 |
-| `bramble.png` | Bramble, who backs the sprouty egg | character-128 |
-| `egg-sprouty.png`, `egg-sleepy.png`, `egg-shiny.png` | the three eggs at the nest | character-128 |
-| `slinger.png` | a Nettlenose slinger | character-128 |
-| `beetle.png` | a copper beetle | character-128 |
-| `glowgrub.png` | a glow grub | character-128 |
-| `rat.png` | a cellar rat | character-128 |
-| `miner.png` | a miner (Ore, Tansy, Flint and Grit, Marl share it, tinted) | character-128 |
+| `ruddle.png` | Miller Ruddle (keeper) | character-32x64 |
+| `grubb.png` | Grubb (boss) | boss-64x96 |
+| `snipe.png` | Snipe on his copper cart (boss) | boss-64x96 |
+| `smudge.png` | Smudge, the friendly cousin | character-32x64 |
+| `bramble.png` | Bramble, who backs the sprouty egg | character-32x64 |
+| `egg-sprouty.png`, `egg-sleepy.png`, `egg-shiny.png` | the three eggs at the nest | character-32x64 |
+| `slinger.png` | a Nettlenose slinger | character-32x64 |
+| `beetle.png` | a copper beetle | character-32x64 |
+| `glowgrub.png` | a glow grub | character-32x64 |
+| `rat.png` | a cellar rat | character-32x64 |
+| `miner.png` | a miner (Ore, Tansy, Flint and Grit, Marl share it, tinted) | character-32x64 |
 
 **C. Places (tiles and buildings)**
 
 | file | what | template |
 |---|---|---|
-| `tile-castlewall.png`, `tile-nest.png` | the castle wall; the Great Nest's straw | tile-64 |
-| `bakery.png`, `castlegate.png`, `inn.png` | Mallow's bakery (with the cellar door), the capital gate, an inn | house-4x3 |
-| `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-pond.png` | R1 | tile-64 |
-| `mill.png` | the mill and its wheel (Pebblebrook's landmark) | house-4x3 |
-| `tile-minefloor.png`, `tile-rails.png`, `tile-dark.png` | the mine | tile-64 |
+| `tile-castlewall.png`, `tile-nest.png` | the castle wall; the Great Nest's straw | tile-32 |
+| `bakery.png`, `castlegate.png`, `inn.png` | Mallow's bakery (with the cellar door), the capital gate, an inn | house-128x96 |
+| `tile-grass.png`, `tile-tallgrass.png`, `tile-path.png`, `tile-pond.png` | R1 | tile-32 |
+| `mill.png` | the mill and its wheel (Pebblebrook's landmark) | house-128x96 |
+| `tile-minefloor.png`, `tile-rails.png`, `tile-dark.png` | the mine | tile-32 |
 
 **Later (phase 3):** Snatchclaw, the other companions (Saffi, Cinder, Crumb), the keepers, each town's foes and tiles, walking
 frames and portraits. In all the game wants roughly 80 to 110 drawings (`gate1-review.md` B1); the slice needs about 35.

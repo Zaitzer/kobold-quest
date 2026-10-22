@@ -61,6 +61,15 @@
 | Monk | Balance, ki, any weapon, element choice, Adapt (swap a skill mid-fight), buildable cover | no |
 | Packs and co-op | a pack of four; at most four kobolds and four players in a fight, sharing the places; all players act in one phase with a short timer; revive by another player; personal loot | yes (pack of four) |
 
+## Pixel art at twice Ruby's resolution (decided 22 Oct, for the slice)
+
+| change | where |
+|---|---|
+| new templates: `tile-32`, `character-32x64` (feet on row 60), `boss-64x96`, `house-128x96`, `portrait-64` | `art/templates`, `tools/artlist.js` |
+| draw sprites with `imageSmoothingEnabled = false` and scale by whole numbers where the layout allows | `src/engine/sprites.js`, the map and battle renderers |
+| the feet line and the sprite unit read from the template size instead of 112/128 and 76/128 | `src/engine/sprites.js` (`feetOf`, `SPRITE_UNIT`) |
+| Pip's existing 128 × 128 drawing is retired at the merge (redrawn at 32 × 64) | `art/sprites/pip.png` |
+
 ## Before going public (not needed for friends)
 
 - **Server storage:** the world is one JSON file in memory; fine for friends. For hundreds of players, move to SQLite.
