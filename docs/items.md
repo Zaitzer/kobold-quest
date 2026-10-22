@@ -266,7 +266,7 @@ materials** of its home type, and **40% of the shop price in gold**. The smith c
 
 | tier | recipes (materials → item) |
 |---|---|
-| T2 | 5 moss → **Moss cape+**; 5 gold scrap → **Copper pot-helm**; 3 moss and 2 gold scrap → **Miller's spear** (weapon) |
+| T2 | 5 moss → **Moss cape+**; 5 gold scrap → **Copper pot-helm**; 3 moss and 2 gold scrap → **Miller's spear** (weapon); 5 gold scrap → **miller's boots** (Millers' set) |
 | T3 | 6 sand glass → **Sand-glass charm** (neck); 6 reed → **Reed sandals** (boots); 3 sand glass and 3 reed → **Honeycomb shield** |
 | T4 | 7 gold scrap → **Gold-scrap ring+**; 5 gold scrap and 1 fang → **Basalt plate+**; 6 gold scrap and 1 fang → **Crater axe** (weapon) |
 | T5 | 8 frost shards → **Frostfur cloak+**; 6 shards and 1 fang → **Ice slab+**; 7 shards → **Shard stiletto** (weapon) |
@@ -288,7 +288,7 @@ For a stretch of about 25 fights (2.5 hours):
 | shop purchases | about 6 to 10 | 70–85% of the next tier |
 | crafts | 1 or 2 | a stretch's worth of one material type |
 | quest rewards | about 1 | |
-| **gear changes in all** | **about 14** | **about one upgrade the player wants every 11–12 minutes** |
+| **gear changes in all** | **about 14** | **about one upgrade the player wants every 6 minutes (by count: a stretch is about 70 minutes, `balance.md` §2)** |
 
 **Rarity colours** (for the screens, see `ui-design.md`): plain (white), one bonus (blue), both bonuses (purple),
 unique (gold), crafted (a small hammer mark), set piece (green).

@@ -19,8 +19,8 @@
     "#...BDBB.MKKKKKKKKKkkKKKKKKKKK...BDBB..#",
     "#........M..........M..................#",
     "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#",
-    "#..M...........MMMMMMMMMoM..........M..#",
-    "#.oM...........MMMMFFMMMMM..........Mo.#",
+    "#..M.BBBB......MMMMMMMMMoM..........M..#",
+    "#.oM.BDBB......MMMMFFMMMMM..........Mo.#",
     "GMMMMMMMMMMMMMMMMMMFFMMMMMMMMMMMMMMMMMMG",
     "#..M...........MMMMMMMMMMM..........M..#",
     "#..M.BBBBBB....MbMMMMMMMMM..BBBBBB..M..#",
@@ -101,6 +101,11 @@
      16,
      18,
      "Bib's bench"
+    ],
+    [
+     6,
+     15,
+     "raptor stable (opens with the first piece)"
     ],
     [
      24,
@@ -355,10 +360,10 @@
     "XXffffffffffRXXXfffXXXXXXXXXXXXX",
     "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
     "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
-    "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
-    "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
-    "XfffXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
-    "XfffXXXXXXXXRRRRRRRRRRRRRRxXXXXX",
+    "XXfXXXXXXRRRSXXXXRRRRRXXXXXXXXXX",
+    "XXfXXXXXXXXXRXXXXRXXXRXXXXXXXXXX",
+    "XfffXXXXXXXXRXXXXRXXXRXXXXXXXXXX",
+    "XfffXXXXXXXXRRRRRSRfRSRRRRxXXXXX",
     "XfffXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XfufXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -373,6 +378,26 @@
      26,
      16,
      "Ore's stuck cart (challenge step 1)"
+    ],
+    [
+     19,
+     16,
+     "the broken rail"
+    ],
+    [
+     21,
+     16,
+     "switch: into the loop"
+    ],
+    [
+     17,
+     16,
+     "switch: out of the loop"
+    ],
+    [
+     12,
+     13,
+     "switch: the dead-end siding"
     ],
     [
      5,
@@ -673,6 +698,135 @@
     [
      "o",
      "the roster board"
+    ]
+   ],
+   "solid": [
+    "w",
+    "n",
+    "s",
+    "m",
+    "p",
+    "l",
+    "z",
+    "y",
+    "c",
+    "a",
+    "_",
+    "H",
+    "|",
+    "o"
+   ]
+  },
+  "mill": {
+   "title": "the mill (Pebblebrook), ground floor",
+   "rows": [
+    "wwwwwwwwwwwwwww",
+    "wsssqqqqqqaaaqw",
+    "wqqqqqqqqqqqqqw",
+    "wqqnnqqqqqqqqgw",
+    "wqqnnqqqzzqqqqw",
+    "wqqqqqqqzzqqqqw",
+    "wwwwwwweewwwwww"
+   ],
+   "marks": [
+    [
+     "n",
+     "the millstones (still)"
+    ],
+    [
+     "g",
+     "the ladder to the loft"
+    ],
+    [
+     "z",
+     "Ruddle's table, the nine-years chalk"
+    ],
+    [
+     "a",
+     "empty flour sacks"
+    ]
+   ],
+   "solid": [
+    "w",
+    "n",
+    "s",
+    "m",
+    "p",
+    "l",
+    "z",
+    "y",
+    "c",
+    "a",
+    "_",
+    "H",
+    "|",
+    "o"
+   ]
+  },
+  "tower": {
+   "title": "the tower top (Hearthspire)",
+   "rows": [
+    "wwwwwwwww",
+    "wqqqqqqqw",
+    "wqqHHHqqw",
+    "wqqHHHqqw",
+    "wqqqqqqqw",
+    "wwwweewww"
+   ],
+   "marks": [
+    [
+     "H",
+     "the tower fire (every hearth was lit from it)"
+    ],
+    [
+     "e",
+     "the stairs down"
+    ]
+   ],
+   "solid": [
+    "w",
+    "n",
+    "s",
+    "m",
+    "p",
+    "l",
+    "z",
+    "y",
+    "c",
+    "a",
+    "_",
+    "H",
+    "|",
+    "o"
+   ]
+  },
+  "pebinn": {
+   "title": "the Pebblebrook inn",
+   "rows": [
+    "wwwwwwwwwwwww",
+    "wHqqqssqqqqow",
+    "wqqq_____qqqw",
+    "wlzlqqqqqlzlw",
+    "wqqqqqqqqqqyw",
+    "wpqpqqqqqpqpw",
+    "wwwwwweewwwww"
+   ],
+   "marks": [
+    [
+     "H",
+     "the hearth: campfire chats"
+    ],
+    [
+     "p",
+     "beds"
+    ],
+    [
+     "o",
+     "the roster board"
+    ],
+    [
+     "_",
+     "the counter (pies are just crust until the mill turns)"
     ]
    ],
    "solid": [

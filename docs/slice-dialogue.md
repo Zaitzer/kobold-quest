@@ -243,6 +243,9 @@ gold crumbs with a ribbon on it.*
 **Tansy:** One moment. And a beetle took it. Into the reeds.
 *A fight with a copper beetle and its friends in the tall grass by the pond.*
 **Pip:** Your lunch. Slightly chewed.
+*A choice appears: "Give it back" or "Eat it" (a deed, `corruption.md` #9: +2 corruption; "Give it back" is kind deed 3, −1). Eating it:*
+**Tansy:** You ATE it? ...Fine. I'm still coming. I'm not happy about it.
+*Either way she comes; the line below is for "Give it back".*
 **Tansy:** *(inspecting it)* That's beetle chewing. Fine. I'll come to the circle.
 **Tansy:** I'm eating it on the way, though.
 
@@ -563,14 +566,14 @@ and once, when he holds up the tube at the mill (§3.12), Wizzle looks at his po
 | part | lines |
 |---|---|
 | 1. Act 1: Hearthspire | 105 |
-| 2. R1 (the capital gate → Pebblebrook) | 13 |
+| 2. R1 (the capital gate → Pebblebrook) | 14 |
 | 3. Pebblebrook | 120 |
 | 6. The slice's campfire chats | 42 |
-| **all** | **280** |
+| **all** | **281** |
 
 | stretch | lines | the kit's budget |
 |---|---|---|
 | hearthspire | 122 | none (act 1 is the story itself) |
-| pebblebrook | 158 | 150–250 (in) |
+| pebblebrook | 159 | 150–250 (in) |
 
 Every line fits one box (90 characters).

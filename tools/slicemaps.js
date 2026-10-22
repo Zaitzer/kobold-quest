@@ -16,7 +16,7 @@ const T={
  'b':['bench','#a8743f',1],'o':['board or sign','#ffd54a',1],'t':['tower','#8a7a8f',1],'r':['rock','#62526d',1],'O':['circle stones','#9aa0b0',1],'W':['mill wheel','#7a4f27',1],
  // the mine
  'f':['mine floor','#8a7360',0],'R':['cart rails','#6b5545',0],'d':['unlit floor','#3b2f2a',0],'w':['flooded floor','#4d7fa8',0],'X':['rock wall','#2a1f1d',1],'x':['cart','#a8743f',1],
- 'u':['stairs up','#ffd54a',0],'v':['stairs down','#ffd54a',0],'C':['campfire','#ff8a3a',0],'P':['copper pile','#d98a3a',1],
+ 'S':['rail switch (tap to flip)','#ffb347',0],'u':['stairs up','#ffd54a',0],'v':['stairs down','#ffd54a',0],'C':['campfire','#ff8a3a',0],'P':['copper pile','#d98a3a',1],
  // rooms (the engine's room letters, plus new ones)
  'q':['floor','#c9a36a',0],'e':['the way out','#ffd54a',0],'n':['oven','#b0574a',1],'k2':['',''],'s':['shelf','#7a4f27',1],'m':['mural','#4a35b0',1],'p':['bed','#c4523a',1],
  'l':['stool','#a8743f',1],'z':['table','#7a4f27',1],'y':['plant','#3f7f3a',1],'c':['chest','#d9a43a',1],'a':['flour sacks','#eee6d0',1],'g':['the flour tunnel (sealed until act 3)','#5a3a1a',0],
@@ -61,11 +61,12 @@ const mark=(M,x,y,label)=>M.marks.push([x,y,label]);
  house(5,23,6,3,7,23);   // the smithy
  house(13,23,4,3,14,23); // the moon shrine
  house(31,4,5,4,33,7);   // the barracks
+ m.rect(5,14,4,2,'B');m.set(6,15,'D');   // the raptor stable by the capital gate (systems.md §6)
  house(4,4,5,4,6,7);house(23,23,4,3,24,23);house(4,9,4,3,5,11);house(33,9,4,3,34,11);   // houses
  // gardens and trees
  for(const [x,y] of [[2,2],[3,3],[37,2],[36,3],[2,27],[37,27],[12,27],[27,27],[2,20],[37,20],[16,27],[24,27]])m.set(x,y,'T');
  m.set(2,15,'o');m.set(37,15,'o');m.set(8,1,'o');m.set(21,28,'o');   // signs at the gates
- for(const [x,y,l] of [[8,21,'bakery (Mallow)'],[11,19,'cellar hatch (flour tunnel)'],[30,21,'inn (rest, roster, campfire chats)'],[30,23,'shop (tier 1)'],[7,23,'smithy'],[14,23,'moon shrine (talent reset)'],[33,7,'barracks'],[20,6,'castle hall (the mural)'],[27,5,'the tower (the tower fire)'],[19,9,'the Great Nest'],[14,9,'the throne (act 2)'],[19,15,'fountain'],[16,18,'Bib\'s bench'],[24,14,'market and note board'],[0,16,'the capital gate → R1'],[9,0,'north gate → R5'],[39,16,'east gate → R6'],[20,29,'south gate → R4']])mark(M,x,y,l);
+ for(const [x,y,l] of [[8,21,'bakery (Mallow)'],[11,19,'cellar hatch (flour tunnel)'],[30,21,'inn (rest, roster, campfire chats)'],[30,23,'shop (tier 1)'],[7,23,'smithy'],[14,23,'moon shrine (talent reset)'],[33,7,'barracks'],[20,6,'castle hall (the mural)'],[27,5,'the tower (the tower fire)'],[19,9,'the Great Nest'],[14,9,'the throne (act 2)'],[19,15,'fountain'],[16,18,'Bib\'s bench'],[6,15,'raptor stable (opens with the first piece)'],[24,14,'market and note board'],[0,16,'the capital gate → R1'],[9,0,'north gate → R5'],[39,16,'east gate → R6'],[20,29,'south gate → R4']])mark(M,x,y,l);
  M.notes='No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square.';
  MAPS.hearthspire=M}
 
@@ -123,10 +124,13 @@ function mineFloor(n,build){const m=grid(32,20,'X');const M={title:`the mine, fl
 mineFloor(1,(m,M)=>{M.entry=[2,17];
  m.line(walk([[2,17],[2,10],[12,10],[12,5],[22,5],[22,9],[29,9],[29,3]]),'f');m.rect(1,15,3,4,'f');m.set(2,18,'u');
  m.line(walk([[12,10],[12,16],[26,16]]),'R');m.set(26,16,'x');   // Ore's stuck cart at the end of the rails
+ // the rail puzzle (systems.md §9): a broken rail at 19,16; a loop round it (switches at 17,16 and 21,16); a dead-end siding (switch at 12,13)
+ m.set(19,16,'f');m.line(walk([[17,16],[17,13],[21,13],[21,16]]),'R');m.line(walk([[12,13],[9,13]]),'R');
+ m.set(17,16,'S');m.set(21,16,'S');m.set(12,13,'S');
  m.rect(5,4,4,3,'f');m.line(walk([[8,5],[12,5]]),'f');m.set(5,4,'c');  // a side room with a chest (a dead end)
  m.rect(16,8,3,3,'f');m.line(walk([[18,9],[22,9]]),'f');
  m.set(29,2,'v');m.set(29,3,'f');
- for(const [x,y,l] of [[2,18,'up: the mine\'s mouth'],[26,16,'Ore\'s stuck cart (challenge step 1)'],[5,4,'chest'],[16,8,'Nugget, haggling over a lantern'],[29,2,'stairs down']])mark(M,x,y,l);
+ for(const [x,y,l] of [[2,18,'up: the mine\'s mouth'],[26,16,'Ore\'s stuck cart (challenge step 1)'],[19,16,'the broken rail'],[21,16,'switch: into the loop'],[17,16,'switch: out of the loop'],[12,13,'switch: the dead-end siding'],[5,4,'chest'],[16,8,'Nugget, haggling over a lantern'],[29,2,'stairs down']])mark(M,x,y,l);
  M.stairs=[[2,18],[29,2]];M.notes='Copper beetles and scouts; Nugget joins here.'});
 mineFloor(2,(m,M)=>{M.entry=[29,2];
  m.set(29,2,'u');m.line(walk([[29,3],[29,8],[20,8],[20,3],[10,3],[10,10],[4,10],[4,17]]),'d');
@@ -179,6 +183,29 @@ const ROOMS={
   'wqqqqqqqqqqyw',
   'wpqpqqqqqpqpw',
   'wwwwwweewwwww'],marks:[['H','the hearth: campfire chats'],['p','beds (rest)'],['o','the roster board']]},
+ mill:{title:'the mill (Pebblebrook), ground floor',rows:[
+  'wwwwwwwwwwwwwww',
+  'wsssqqqqqqaaaqw',
+  'wqqqqqqqqqqqqqw',
+  'wqqnnqqqqqqqqgw',
+  'wqqnnqqqzzqqqqw',
+  'wqqqqqqqzzqqqqw',
+  'wwwwwwweewwwwww'],marks:[['n','the millstones (still)'],['g','the ladder to the loft'],['z','Ruddle\'s table, the nine-years chalk'],['a','empty flour sacks']]},
+ tower:{title:'the tower top (Hearthspire)',rows:[
+  'wwwwwwwww',
+  'wqqqqqqqw',
+  'wqqHHHqqw',
+  'wqqHHHqqw',
+  'wqqqqqqqw',
+  'wwwweewww'],marks:[['H','the tower fire (every hearth was lit from it)'],['e','the stairs down']]},
+ pebinn:{title:'the Pebblebrook inn',rows:[
+  'wwwwwwwwwwwww',
+  'wHqqqssqqqqow',
+  'wqqq_____qqqw',
+  'wlzlqqqqqlzlw',
+  'wqqqqqqqqqqyw',
+  'wpqpqqqqqpqpw',
+  'wwwwwweewwwww'],marks:[['H','the hearth: campfire chats'],['p','beds'],['o','the roster board'],['_','the counter (pies are just crust until the mill turns)']]},
  loft:{title:'the mill loft (Pebblebrook)',rows:[
   'wwwwwwwwwww',
   'waaqqqqqaaw',

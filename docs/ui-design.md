@@ -26,7 +26,7 @@ current screens. At Gate 2 every row of the tap table is counted in the real gam
 ```
 OVERWORLD                                        BATTLE
 +------------------------------------------+     +------------------------------------------+
-| [☰]  GOAL: Find Miller Ruddle    [🍞 3]  |     | round 3   Pip ▶    [turn order ▸▸▸]      |
+| [☰]  GOAL: Find Miller Ruddle    [🍞 3]  |     | Pip ▶   [next 8 turns: the timeline ▸▸▸]  |
 |                                          |     |                                          |
 |                                          |     |        foes (hit chance on each)         |
 |              the world                   |     |                                          |

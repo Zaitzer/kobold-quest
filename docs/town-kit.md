@@ -105,7 +105,7 @@ waits.
 | route extras (R1) | the chest behind the pond; a runaway goat that follows the pack until it's walked home (reward: a Clover ring, copper) |
 | bounty hunts | **Big Pinch** (a copper beetle elite on R1); **the Nettlenose scout leader** (a guard sergeant's cousin, mine floor 2) |
 | hidden trial | **Old Shellback**, a huge copper beetle in the flooded gallery (mine floor 3): elite × 1.5 HP, curls up every second turn; drops the **flour-dusted apron** (Millers' set, armour) |
-| chests (5) | behind the pond (R1); under the mill road bridge (R1); mine floor 2 (a dead end); mine floor 3 (behind Snipe's cart); the mill loft (town, needs the vote bag found) |
+| chests (7) | behind the pond (R1); on the lookout (R1); by the dam (the hidden one, town); mine floor 1 (the side room); mine floor 2 (in the dark); mine floor 3 (behind Snipe's cart); the mill loft (needs the vote bag). Contents: `systems.md` §8 |
 | the set | Millers' set: mill cap (challenge), flour-dusted apron (trial), miller's boots (smith: 5 gold scrap) |
 | shop | tier 2 (from level 5): weapons and armour, Scribe's robe and Runner's vest; Potion, Ether, **Phoenix feather** |
 | landmark | the mill wheel, and the dam behind it |

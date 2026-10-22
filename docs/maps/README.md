@@ -31,6 +31,7 @@ No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits)
 | 14, 9 | the throne (act 2) |
 | 19, 15 | fountain |
 | 16, 18 | Bib's bench |
+| 6, 15 | raptor stable (opens with the first piece) |
 | 24, 14 | market and note board |
 | 0, 16 | the capital gate → R1 |
 | 9, 0 | north gate → R5 |
@@ -88,7 +89,7 @@ Snipe's toll box sits by the mine's mouth until the twist. The circle is the mee
 
 ![mine1](mine1.png)
 
-`X` rock wall (solid) · `v` stairs down · `f` mine floor · `c` chest (solid) · `R` cart rails · `x` cart (solid) · `u` stairs up
+`X` rock wall (solid) · `v` stairs down · `f` mine floor · `c` chest (solid) · `R` cart rails · `S` rail switch (tap to flip) · `x` cart (solid) · `u` stairs up
 
 Copper beetles and scouts; Nugget joins here.
 
@@ -96,6 +97,10 @@ Copper beetles and scouts; Nugget joins here.
 |---|---|
 | 2, 18 | up: the mine's mouth |
 | 26, 16 | Ore's stuck cart (challenge step 1) |
+| 19, 16 | the broken rail |
+| 21, 16 | switch: into the loop |
+| 17, 16 | switch: out of the loop |
+| 12, 13 | switch: the dead-end siding |
 | 5, 4 | chest |
 | 16, 8 | Nugget, haggling over a lantern |
 | 29, 2 | stairs down |
@@ -199,6 +204,53 @@ wwwwwweewwwww
 ```
 
 `H` the hearth: campfire chats · `p` beds (rest) · `o` the roster board
+
+### Room: the mill (Pebblebrook), ground floor
+
+![mill](room-mill.png)
+
+```
+wwwwwwwwwwwwwww
+wsssqqqqqqaaaqw
+wqqqqqqqqqqqqqw
+wqqnnqqqqqqqqgw
+wqqnnqqqzzqqqqw
+wqqqqqqqzzqqqqw
+wwwwwwweewwwwww
+```
+
+`n` the millstones (still) · `g` the ladder to the loft · `z` Ruddle's table, the nine-years chalk · `a` empty flour sacks
+
+### Room: the tower top (Hearthspire)
+
+![tower](room-tower.png)
+
+```
+wwwwwwwww
+wqqqqqqqw
+wqqHHHqqw
+wqqHHHqqw
+wqqqqqqqw
+wwwweewww
+```
+
+`H` the tower fire (every hearth was lit from it) · `e` the stairs down
+
+### Room: the Pebblebrook inn
+
+![pebinn](room-pebinn.png)
+
+```
+wwwwwwwwwwwww
+wHqqqssqqqqow
+wqqq_____qqqw
+wlzlqqqqqlzlw
+wqqqqqqqqqqyw
+wpqpqqqqqpqpw
+wwwwwweewwwww
+```
+
+`H` the hearth: campfire chats · `p` beds · `o` the roster board · `_` the counter (pies are just crust until the mill turns)
 
 ### Room: the mill loft (Pebblebrook)
 

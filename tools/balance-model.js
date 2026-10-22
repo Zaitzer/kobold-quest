@@ -111,7 +111,7 @@ function expectFactor(c,kind,opt){opt=opt||{};const B=P.board,x=CX[c]||{},un=x.u
     const land=kind==='spell'?o.p+(1-o.p)*.5:o.p;sum+=wt*land*hit;w+=wt}
   return sum/w}
 /* initiative: I = 10 + DEX modifier + class bonus; each round I + d6, luck tilting the d6 */
-const initOf=c=>c==='foe'?10:10+govMod(c,'DEX')+((CX[c]&&CX[c].init)||0);
+const initOf=c=>c==='foe'?10:10+govMod(c,'DEX')+((CX[c]&&CX[c].init)||0);   // the timeline's rate is 90 + this (systems.md §1)
 /* threat: the class's base (its effective HP relative to the fighter) x (1 + 0.1 CHA modifier) */
 const threatOf=c=>((CX[c]&&CX[c].threat)||1)*(1+.1*govMod(c,'CHA'));
 /* morale: pack mean + Leadership/5; each turn +1 AP (half an action on a base of 2) with chance |M|/(|M|+6), or -1 if negative */
@@ -199,7 +199,8 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
     if(u.boss&&!u.phased&&u.hp<=u.max/2&&P.phaseBreak>0){u.phased=true;u.stagger=P.phaseBreak}
     if(u.stagger>0){u.stagger--;return}
     const live=pack.filter(x=>x.hp>0);let atk=u.atk*(u.weak>0?.75:1);
-    if(u.boss&&!u.noBig&&rounds%3===0){live.forEach(x=>{if(careless||rand()<.5){hurt(x,dmg(atk,.6,x.def))}});return}   // telegraphed: a competent pack steps out of half of it
+    u.turns=(u.turns||0)+1;
+    if(u.boss&&!u.noBig&&u.turns%3===0){live.forEach(x=>{if(careless||rand()<.5){hurt(x,dmg(atk,.6,x.def))}});return}   // telegraphed: a competent pack steps out of half of it
     for(let a=0;a<(u.acts||1);a++){const tt=pickT();if(!tt)break;
       if(roll(tilt(1-tt.dodge,-(tt.luck||0)))){let d=dmg(atk,1,tt.def,-(tt.luck||0));if(roll(tilt(P.crit,-(tt.luck||0))))d*=P.critMul;if(d>=tt.max*.999&&tt.hp===tt.max)stats.oneshot++;hurt(tt,d)}}};
   const koboldAct=u=>{                                                      // one action of a pack kobold
@@ -230,7 +231,10 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
   while(pack.some(u=>u.hp>0)&&foes.some(u=>u.hp>0)&&rounds<80){
     rounds++;
     if(boss&&rounds===4&&boss.adds){boss.adds.forEach(a=>foes.push(a))}
-    const order=all().filter(u=>u.hp>0).map(u=>({u,r:(u.init||10)+1+Math.floor(6*tiltU(rand(),u.luck||0))+rand()*.01})).sort((a,b)=>b.r-a.r).map(o=>o.u);   // initiative: I + d6
+    /* the timeline (systems.md §1): each tick a unit's charge grows by its rate 90 + initiative; at 100 it acts and keeps the remainder */
+    all().filter(u=>u.hp>0).forEach(u=>{u.ct=(u.ct||0)+90+(u.init||10)});
+    const order=[];let more=true;while(more){more=false;const ready=all().filter(u=>u.hp>0&&(u.ct||0)>=100).sort((a,b)=>b.ct-a.ct||a.side-b.side);
+      if(ready.length){more=true;ready.forEach(u=>{u.ct-=100;order.push(u)})}}
     if(buff>0)buff--;
     foes.forEach(f=>{if(f.weak>0)f.weak--;if(f.hex>0)f.hex--;if(f.dot&&f.dot.turns>0&&f.hp>0){const d=Math.min(f.dot.amt,f.hp);dealt+=d;hurt(f,f.dot.amt);if(--f.dot.turns===0)f.dot=null}});
     for(const u of order){
@@ -316,8 +320,8 @@ if(require.main===module&&(process.argv[2]==='rules'||process.argv[2]==='all')){
   console.log('\n5. Morale: extra actions a turn (balance.md: +7% at 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12)');
   console.log('   '+[1,2,3,6,12].map(m=>`${m}: +${(moraleP(m)/2*100).toFixed(1)}%`).join(', '));
   console.log('   the curve expects the bond (P24): foes x g(L) = '+[1,5,10,15,20,25,30].map(L=>`L${L} x${foeScale(L).toFixed(2)}`).join(', '));
-  console.log('\n6. Initiative: chance a +g gap acts first, I + d6 each (balance.md: +1 65%, +2 78%, +3 88%, +5 99%)');
-  console.log('   '+[1,2,3,5].map(g=>{let w=0;for(let a=1;a<=6;a++)for(let b=1;b<=6;b++)w+=(a+g>b?1:a+g===b?.5:0);return`+${g}: ${pc(w/36)}`}).join(', '));
+  console.log('\n6. The timeline (charge time): turns in 100 ticks at rate 90 + initiative (balance.md: +1 initiative = +1% of turns)');
+  console.log('   '+[10,11,12,14].map(I=>{let ct=0,n=0;for(let t=0;t<100;t++){ct+=90+I;while(ct>=100){ct-=100;n++}}return`I ${I}: ${n} turns`}).join(', '));
   console.log('\n7. Crit builds on the board, against a plain fighter on the same board (balance.md 4a table)');
   console.log('| crit chance, normal hit, crit | table (no position) | on the board, bonuses added (the old rule) | on the board, bonuses by value (decided 22 Oct) |\n|---|---|---|---|');
   const was=P.critRule;[[.08,1,1.5],[.08,.5,9.2],[.03,.1,42],[.01,.25,116]].forEach(([c,b,D])=>{const bl=()=>expectFactor('fighter','melee',{build:{beta:1,D:1.5,c:0}});

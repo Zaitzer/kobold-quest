@@ -99,6 +99,17 @@ the story gives.
 Decided the same day (Joakim): **morale priced into the curve** and the streak capped at +3 (P24); **the monk keeps 12 ×6** (P25);
 **fights of about 90 s accepted** (P7); **corruption costs morale**, −1 pack morale per 10.
 
+## Completeness pass (22 Oct: "design everything before the big step")
+
+Every system the slice touches is now specified in **`systems.md`** (its §0 is the checklist: 25 systems, each with where it is written
+and its status). Found and designed in this pass: the turn order (**the timeline**, charge time, replacing I + d6 and the co-op phase);
+the board's rules and goals; one AI rule for every foe; foes fleeing; down, losing and fleeing; the bench's XP floor; how companions
+join; patrols and bounties on the map; the slice's barriers (the flooded south road); the dark floor, the flooded gallery and the
+rail puzzle; the slice's eight chests and its shops; three more rooms and the Hearthspire stable; the goal-bar lines and hints;
+autosave and the v6 save's contents; one difficulty and the settings; **corruption** as a dark path for every class (`corruption.md`).
+The engine's runtime foe scaling is removed (it contradicted the bestiary and "nothing scales"). What is still measured is measured on
+purpose and listed (`systems.md` §14).
+
 ## Decided at Gate 1 (Joakim, 22 Oct; full list in `design.md` §16)
 
 1. **A1:** build on `main` (not a `v6` branch). Keep `release/` and the Claude page on the old game until the slice is ready.

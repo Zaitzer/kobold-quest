@@ -1,0 +1,261 @@
+# Kobold Quest: every system, specified (22 Oct 2026)
+
+*Part of the design document (`design.md`). Written before Gate 1 so the build never has to guess: every system the slice touches is
+here, either as a rule with its numbers or as a pointer to the document that holds them. Where the engine already does something
+we keep, it is written down too, so it is a decision and not an accident. **Measure this** marks the few numbers that are goals to be
+checked in play; everything else is designed. Numbers come from `balance.md`, `items.md`, `bestiary.md`, `skills.md` and
+`corruption.md`; where this file and those disagree, those win for numbers, this file for how the systems work.*
+
+## 0. The checklist
+
+| # | system | where it is specified | status |
+|---|---|---|---|
+| 1 | turn order: the timeline | §1 | new 22 Oct (replaces I + d6 and the co-op phase) |
+| 2 | the battle board: size, terrain, cover, starts, fog, sight | §2 | written down (engine) + goals |
+| 3 | foes: stats, groups, AI, no runtime scaling | §3, `bestiary.md` | written down + changes |
+| 4 | hit, damage, crits, statuses, terrain | `balance.md` §3, §4a | designed |
+| 5 | AP economy, skills, quick weapons | `balance.md` §3, `skills.md`, `items.md` §2 | designed |
+| 6 | down, losing, fleeing, retries | §4 | written down (engine) + rules |
+| 7 | recovery between fights | §5 | designed |
+| 8 | overworld: encounters, patrols, bounties, barriers, time of day | §6 | designed |
+| 9 | travel: fountains, fast travel, raptors | §6 | designed |
+| 10 | the pack: joining, bench XP, talents, subclass, leader points, morale | §7 | designed |
+| 11 | corruption | `corruption.md` | designed |
+| 12 | items: chests, shops, crafting, drops, bag, selling | §8, `items.md` | designed (slice contents here) |
+| 13 | rooms and interiors | §9, `docs/maps/` | designed |
+| 14 | the slice's special tiles: the dark floor, the flooded gallery, the rail puzzle | §9 | designed |
+| 15 | the goal bar and hints | §10 | designed (slice lines here) |
+| 16 | saving and the save format | §11 | designed |
+| 17 | co-op | §12, `design.md` §10 | designed |
+| 18 | settings, difficulty, accessibility | §13, `ui-design.md` §10 | designed |
+| 19 | screens and taps | `ui-design.md` | designed |
+| 20 | story, script, chats | `story-hatching.md`, `slice-dialogue.md`, `companions.md` | designed (slice) |
+| 21 | maps | `docs/maps/`, `world-map.json` | designed (slice) |
+| 22 | music and sound | `audio-plan.md` | designed |
+| 23 | art | `style-guide.md`, `art/v6/ASSETS.md` | designed |
+| 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
+| 25 | what is measured on purpose | §14 | listed |
+
+## 1. Turn order: the timeline (charge time; Joakim, 22 Oct)
+
+Modular arithmetic instead of dice (the charge-time system of *Final Fantasy Tactics*):
+
+- Every unit has a **rate** `r = 90 + initiative` (initiative as in `balance.md` §3: kobolds `10 + DEX modifier + class bonus + gear`,
+  foes 10, quick foes 12, brutes 8; so a plain foe has rate 100 and a ranger with DEX 15 has 104).
+- Every unit has a **charge** `CT`, starting at 0. The clock ticks; each tick every living unit gains its rate. **Every unit with
+  `CT ≥ 100` acts, highest CT first, and then `CT ← CT − 100`** (it keeps the remainder: that is the modular part). A unit whose CT is
+  still 100 or more after acting acts again in the same tick, after the others.
+- **Ties:** the pack before foes, then the unit further left on the board, then lower id. So the order is fully decided and
+  **shown**: the turn-order bar shows the next eight turns exactly, and it never changes unless something changes a rate or a CT.
+- **What it means:** with rates near 100 every unit acts about once a tick, faster units first; the remainder adds up, so a rate of
+  104 gains an extra turn every 25. **+1 initiative is +1% of turns, about 1 power point** (the same price as before).
+- **Statuses:** *stun* is `CT − 100` (the unit loses one turn); *slow* keeps its meaning (movement); a future *haste* is `CT + 50`.
+- **A "round"** (for buff lengths, the boss's telegraph, morale's AP roll) is the unit's own turn: "for 3 turns" means three of the
+  affected unit's turns; the boss telegraphs on every third boss turn.
+- **Luck** no longer touches turn order (there is no die); its other effects stay.
+- **Co-op:** there are no phases. Whoever owns the kobold whose turn it is acts; the others watch. **A turn has a 20-second timer**
+  (the goal for a turn is 4.5 s), after which the kobold guards. Foes act on their own turns as always.
+
+## 2. The battle board
+
+The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules written down and given goals:
+
+- **Size:** normal fights 9 × 12 (one or two foes), 10 × 13 (three), 11 × 14 (four or more); bosses 12 × 14. The 2 × 2 boss has room
+  cleared around its start.
+- **Theme** from where the fight starts: *meadow* (grass routes, the farms), *woods*, *cave* (the mine, cellars), *town* (set pieces:
+  the bakery cellar uses *cave*, the castle yard *town*), *dark* (unlit tiles, new: *cave* with sight 3), *flooded* (new: *cave* with
+  difficult water tiles).
+- **Terrain by theme** (the generator's densities): meadow: paths, bushes 5% (half cover, hide), rocks 3.5% (full cover), trees 2.5%;
+  woods: trees 13%, bushes 4%; cave: water pools, rocks 11%, mushrooms 6% (half cover). The kobolds' three starting rows are kept open.
+  Every open tile is reachable.
+- **Goals the generator is checked against** (counted over generated boards by a test, not measured in play): a foe's tile has half
+  or full cover next to it about **30% of the time**, and the average distance from the pack's start to the foes is **4 to 5 tiles**
+  (the model's average board, `balance.md` §4a). If the count misses, the densities change, not the hit formula.
+- **Starts:** the pack places its kobolds in the bottom three rows (the placement phase). Foes stand in one or two hidden groups
+  (pods) in the far 42% of the board, and **start unaware** unless it is a boss or a patrol that saw the pack first (§6): an unaware
+  foe has no dodge and is crit at +10 until its pod is alerted.
+- **Fog and sight:** a unit sees 7 tiles (5 in a cave, 3 in the dark), plus its sight bonus; tall grass and bushes hide a unit beyond
+  3 tiles (2 with stealth). If nobody has seen anybody for three turns, both sides hear each other ("something to the north").
+- **Exits:** in a normal fight the pack's own edge (the bottom row) is an exit: a kobold on it may leave for 1 AP (§4).
+
+## 3. Foes
+
+- **Stats come only from the bestiary** (`bestiary.md`: role × the level foe, with the bond factor g(L)). **The engine's runtime
+  scaling is removed**: no `1 + 0.08 × (level − 3)` on foes, no scaling of bosses by the number of kobolds (nothing scales, Gate 1).
+- **Groups:** a random fight draws a mix from the place's table whose weights add up to the fight's target weight (`bestiary.md` §4),
+  not "pack size + 1".
+- **AI, one rule for every foe:** on its turn a foe picks, among the actions it can pay for, the one with the highest expected damage
+  to the pack (or healing to its side, for healers), with **the target drawn by threat** (`balance.md` §3: probability ∝ threat among
+  the kobolds it can reach this turn). Its role adds one habit (the bestiary's "how it fights"): brutes charge the nearest, ranged foes
+  keep 3+ tiles and seek cover, casters stay behind a friend, quick foes flank, elites call their pod. **Fleeing:** a normal foe
+  under 25% HP whose pod has lost half its members turns to run for its edge (a fleeing foe is deed 2 in `corruption.md`).
+- **Bosses** follow the two boss rules and their own trick (`bestiary.md` §5); four attacks a turn, the telegraph every third boss
+  turn, at least seven turns, 10% softer after each defeat.
+
+## 4. Down, losing, fleeing, retries
+
+- **Down:** a kobold at 0 HP is down. It can be raised by a Phoenix feather (50%), a Golden feather (100%), Revive, or (co-op) another
+  player's kobold standing beside it for 1 AP (raised at 25%). A down kobold still earns XP and stands up with 1 HP when the fight is won.
+  Each fall is −1 to its streak (morale).
+- **Losing** (everyone down): back to the last fountain you drank from, everyone healed, **half your gold** kept. Nothing else is
+  lost. A boss you lost to is **10% softer** next time (each defeat, never below 70%).
+- **Fleeing** (normal fights only): a kobold on the exit edge leaves for 1 AP; if every standing kobold leaves, the fight ends with no
+  XP and no gold, and the foes stay where they were. Leaving a downed friend behind is deed 5 in `corruption.md` (the downed kobold is
+  carried out, cartoon rules).
+- **Retries:** a boss can be retried at once; the potions used are the only cost. Set pieces can be retried the same way.
+
+## 5. Recovery between fights
+
+- **After a win:** 10% of max mana back to every kobold; no HP.
+- **Fountains:** full HP and mana, free, any number of times. **Inns:** full HP and mana and a save, for the bed's price (0.5F, never
+  under 10 gold); the roster and the campfire chats. **Campfires** (one per town area, half-way): one free full heal per visit to the
+  area (a visit ends when you leave it).
+- **Potions and ethers** (`items.md` §7); **ember-buns**: full HP and mana for the whole pack, usable in a fight or outside, three in
+  the whole game.
+- **HP regen** (sets, gear) works per turn in a fight only.
+
+## 6. The overworld
+
+- **Encounters:** only tall grass rolls (`balance.md` §5); every route's road crosses grass for 40% of its middle; dungeon floors roll
+  on every step; never in towns; the first and last 10 steps of a route are safe; at least 12 steps between fights.
+- **Patrols** (visible groups, `balance.md` §5): they stand on a route facing a direction, shown with a strength word. Walking into
+  their sight (3 tiles in front of them) starts the fight with them **aware**; reaching one from behind or from tall grass starts it with
+  them **unaware** (the ambush). A beaten patrol is gone **until the next inn rest** (then it is back, for players who want the XP).
+  Slice: R1 has two (stretch 2's "+2 patrols"), the mill road one.
+- **Bounties:** reading a bounty on a board places its named foe as a patrol (with its escort) at the spot the bounty names; beating it
+  pays the bounty at the board. One fight, 1.5× XP.
+- **Barriers** are story, explained before you hit them (`design.md` §2). The slice's: the capital gate opens when Bork joins; **the
+  road south from Pebblebrook (to R2) is flooded** while the dam is shut, because the diverted brook runs over it; it is dry when the
+  wheel turns (the tube). The map shows the dry road; the flood is a layer drawn while `pb < 6`.
+- **Time of day:** there is none. A scene may tint the screen (the circle "at dusk", the night at the nest), and the tint ends with the
+  scene.
+- **NPCs** stand at their places; scenes move them; they never wander.
+- **Signs and boards** are one box each (the welcome sign, the jokes).
+
+**Travel**
+
+- **Fountains:** drinking sets the respawn point and, from the second Smiler piece, unlocks fast travel to every fountain drunk from
+  (3 taps).
+- **Raptors** (from the first piece): ride between **stables** you have visited (3 taps). Every town has one on its first route, and
+  Hearthspire has one by the capital gate; the slice has two (Hearthspire's and the mill road's). Raptors are travel only.
+
+## 7. The pack and progression
+
+- **Joining:** a companion joins at the **pack's mean level, rounded down** (never above Pip), with its class's starting skill, the
+  talents a kobold of that level would have picked (the first card of each offer), and **the current tier's shop weapon and armour** for
+  its class. It brings no other gear.
+- **The bench:** companions not in the pack wait at the inn. They get **half the XP** the pack earns, **but never fall more than two
+  levels below Pip**: a benched companion that would, gets full XP until it is two levels below again (a floor, not a catch-up jump).
+- **Talents:** one pick a level from level 2, three cards (`skills.md` §2); the subclass at level 8; Pip's leader point every second
+  level (`balance.md` §3). Picks can wait (a "!" badge); the moon shrine resets talents for 4F.
+- **Morale:** each kobold keeps its bond (chats, quest) and its streak (clean wins, at most +3, falls −1, back to 0 at an inn); pack
+  morale is the formula in `balance.md` §3 (with corruption's mean). The sheet shows it; the AP it adds is shown as a "+1 AP" spark.
+- **Corruption:** `corruption.md`.
+
+## 8. Items in the slice
+
+**Rules** are in `items.md` (budgets, tiers, prices, drops, crafting). **The bag has no limit** (it is a cozy game; the sheet sorts by
+slot and tier). **Selling** gives 35% of the shop price; uniques and set pieces ask "are you sure?". **Drops**: 40% of fights a
+material from the zone, 8% a gear piece at the stretch's tier (15% of those one tier up), 6% a consumable; bosses their unique.
+
+**The slice's chests** (by the rule: about 3 gear, 2 gold or consumables a stretch; the town's hidden one; the Mossback set started):
+
+| chest | where (map mark) | contents |
+|---|---|---|
+| Mallow's old box | the bakery cellar, after the rats | Moss cape (T1 cloak, Mossback set) — the first chest, the equipment screen |
+| behind the pond | R1 (33, 20) | Frog boots (T1 boots, Mossback set) |
+| on the lookout | R1 (73, 18) | 40 gold and 2 potions |
+| by the dam (hidden) | Pebblebrook (5, 10) | Leaf crown (T1 helm, Mossback set: the set's third piece) |
+| the side room | mine floor 1 (5, 4) | a Phoenix feather (the first one) |
+| in the dark | mine floor 2 (28, 16) | Honey ring (T2 ring, one bonus) |
+| behind Snipe's cart | mine floor 3 (22, 16) | Padded jacket (T2 armour, both bonuses) |
+| the loft (needs the vote bag) | the mill loft | 60 gold and 2 ethers |
+
+**The slice's shops:**
+
+| shop | sells |
+|---|---|
+| Hearthspire | every T1 piece for the eight wave-1 families and every slot, with the robe and scout variants; Potion, Ether |
+| Pebblebrook | T1 until Pip is level 5, then T2 (every slot and family, robe and scout); Potion, Ether, **Phoenix feather** (the town's consumable) |
+| Pebblebrook smith | the T2 recipes (`items.md` §8) and **miller's boots** (5 gold scrap: the Millers' set's crafted piece) |
+| Hearthspire smith | T1–T3 recipes as they are found; reforging is Emberreach's |
+
+## 9. Rooms and the slice's special tiles
+
+- **Rooms:** hand-made rooms are in `docs/maps/` (the bakery, the cellar, the castle hall, the Hearthspire inn, the mill loft, and
+  added 22 Oct: the mill, the tower top, the Pebblebrook inn). Every other door (houses, shops, the smithy, the shrine, the barracks)
+  opens a room made by the engine's house generator, furnished by its kind (a shop has a counter, a house a bed and a table).
+- **The dark floor** (mine floor 2, tiles `d`): sight is 3 on and into dark tiles, on the map and in fights (the *dark* theme). **Glow
+  grubs light the 2 tiles around them**, and so do lanterns (Nugget's is the pack's: the pack sees 4 while he is in it), and the
+  campfire lights 4 tiles. A dark fight's unseen rule matters: hiding is easy, and that is the point of the floor.
+- **The flooded gallery** (mine floor 3, tiles `w`): water is **difficult** (entering costs two moves) for kobolds and land foes;
+  Old Shellback swims (no cost). Fire skills are ×0.5 on a foe standing in water; storm skills are ×1.25 (the town's foes resist storm,
+  but water carries it): a reason to bring the right caster to the hidden trial.
+- **The rail puzzle** (mine floor 1, Ore's cart): the rails run from the stairs to a full cart at the far end, with **a broken rail**
+  half-way and **three switches**: one into a loop that goes round the broken rail, one out of it, and one into a dead-end siding. Tap a
+  switch to flip it, tap the cart to push it. One setting of the eight brings the cart home; a wrong one sends it into the siding or to
+  the gap, where it stops with a clank and a joke, and the player can push it back. Hint (one tap): "Rails don't like gaps. Go round."
+  The map (`tools/slicemaps.js`) draws the loop, the siding and the switches.
+
+## 10. The goal bar and hints (the slice)
+
+The goal bar shows one line from the flags (`slice-dialogue.md` §7); tapping it opens the quest log, which lists the open steps with
+a hint each (one tap).
+
+| flags | goal bar | hint (one tap) |
+|---|---|---|
+| act 1 | Chase the rats out of Mallow's cellar | The hatch is by the bakery's back wall. |
+| act 2 | Light Mallow's lamp at the tower fire | The tower is in the castle yard. Mind the drill. |
+| act 3 | Take your ember to the Great Nest | The Nest is in the castle yard. |
+| act 4 | Warm an egg | Any of them. Or... |
+| act 5 | Talk to Mallow | The bakery has a notice on it now. |
+| act 6 | Leave by the capital gate | West, along the marble street. |
+| act 7, pb 0 | Walk to Pebblebrook | R1, 120 steps. Beetles. |
+| pb 1 | Find out why the mill has stopped | The mill is by the brook, west of the square. |
+| pb 2 | Get the shift to the circle: {miners} of 5 | Ore (the mine), Tansy (the pond on R1), Flint and Grit (the square), Old Marl (the north houses). |
+| pb 2, grubb 0 | ... and clear the mill road | Grubb is on the mill road, east. |
+| pb 3 | Deal with Snipe at the bottom of the mine | Three floors down. The campfire is on floor 2. |
+| pb 4 | Bring Grubb to the circle | The toll box, on the mill road. Take Nugget and Old Marl. |
+| pb 5 | The circle meets | The circle stones. |
+| pb 6 | Take the tube home (or ride: the stable is open) | The raptor stable is on the mill road. |
+
+Per miner (the quest log's five lines): Ore "His cart is stuck on floor 1." · Tansy "Lost her lunch by the pond." · Flint and Grit "Each
+blames the other for the stone. Where is the bag?" · Old Marl "She wants to be heard. Ask Ruddle." · Grubb "After Snipe."
+
+## 11. Saving
+
+- **Autosave** at every flag change, every fight's end, every door, every inn rest and every fountain drink. No save menu; one save
+  per player, in the browser and in the cloud (the newest wins, as now).
+- **The v6 save** (`SAVE_EPOCH` bumped at the progress reset, `gate1-review.md` A2) holds: the flags (`act`, `pb`, `grubb`, `miner_*`,
+  the side quests, the bounties; the save keys kept from the old game: `seals` for the pieces, `party` for the pack); Pip's class; for
+  each kobold its level, XP, scores, talents, skills (equipped, dark or plain), gear, HP, mana, bond, streak and corruption; the roster
+  and who is in the pack; gold, the bag, the ember-buns left; Pip's leader points; fountains drunk from, stables visited, the respawn
+  fountain; each boss's defeats (for softening); chests opened; patrols beaten since the last rest; fame.
+
+## 12. Co-op
+
+`design.md` §10 holds the model (a shared world, personal stories, level sync, shared boss credit, phasing). In a fight: at most four
+kobolds and four players sharing the places; **the timeline** (§1) decides whose turn it is; a 20-second turn timer; revive by standing
+beside a downed friend's kobold (1 AP, 25%); buffs from two players do not stack; XP and loot are personal; a player who leaves mid-fight
+leaves their kobolds guarding until the fight ends.
+
+## 13. Settings, difficulty, accessibility
+
+- **One difficulty.** The curve is tuned for a pack of four; the player's levers are the pack, the gear, leaving fights, the bond and
+  levelling (the bounty board). One curve keeps co-op and level sync simple, and the game says when a boss is two levels too high.
+- **Settings:** sound and music volume, mute; text speed (the 3-second box is the default; "fast" and "tap only"); reduced motion
+  (animations under 200 ms or off); screen shake off; colour-blind palette (shapes as well as colours); left-handed layout (swaps the
+  thumb zones). Accessibility rules are `ui-design.md` §10.
+
+## 14. Measured on purpose (goals checked in play, not open design)
+
+These are designed numbers whose *feel* only play can confirm. Each has a goal; play checks the build against it, and if one misses,
+the rule is revisited in writing first:
+
+1. The unit times of play (3 s a box, 4.5 s a kobold turn, 1.2 s a foe turn): the length follows from them (`balance.md` §2).
+2. Boss fairness at the low side (two levels under an early boss) and whether the third boss feels fair or cheap.
+3. Whether misses feel like bad luck (the 84% average hit).
+4. The risk premium's 0.25 (are risky skills picked?), the crit-build λ, the 0.6 share of second quick attacks.
+5. The monk's Balance shape (0.5 + Balance) and the 70% and 90% thresholds.
+6. Corruption's trade (a dark pack against its bond) and the deeds' values.
+7. The bond factor g(L) (does a pack that skips the chats feel the difference?).

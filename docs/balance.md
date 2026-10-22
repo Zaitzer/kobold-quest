@@ -350,10 +350,11 @@ table: at $\text{Fame} \ge 5, 10, 20$ a town greeting changes, and each threshol
 touches combat.
 
 **Corruption thresholds (J).** Corruption $C$ is read against three steps, and each step unlocks but never forces. **Its price (decided
-22 Oct):** every 10 of the pack's total corruption is −1 pack morale (above), so dark power is paid for with the pack's bond:
-- $C \ge 10$: dark skills appear in the skill list.
-- $C \ge 25$: some keepers and companions react (one line of dialogue each); the shops of the two evil-leaning towns offer a dark discount.
-- $C \ge 50$: dark skills reach their strongest tier. **Corruption is combat only** (decided 22 Oct): no ending branch and no
+22 Oct):** pack morale loses the pack's mean corruption ÷ 10 (above), so dark power is paid for with the pack's bond. Everything else is in
+**`corruption.md`**: every skill's dark version (×1.25, ×1.4 from 50), the deeds that raise and lower it, the reactions.
+- $C \ge 10$: the dark versions of the class's own skills.
+- $C \ge 25$: the subclass's dark versions; companions and keepers react (one line each); Smudge's stall and the guards' quartermasters sell at −10%.
+- $C \ge 50$: the dark capstone; every dark version rises to ×1.4. **Corruption is combat only** (decided 22 Oct): no ending branch and no
   story effect beyond the reactions at 25.
 
 *Open, not simulated:* these mappings and steps are proposals. The numbers (5% per point, 2% per threshold, the steps of 10, 25 and 50) are J and need the playtest to settle them.
@@ -387,10 +388,10 @@ The casters' special attack is their attack multiplier from the class table, so 
 weapon is an afterthought, as `items.md` already prices holy and instruments). Foes: special defence = defence, and caster
 foes use their attack as special attack.
 
-**Initiative (turn order).** `I = 10 + DEX modifier + class bonus (ranger +2, rogue +2, monk +1) + gear`; foes have 10 (quick
-foes 12, brutes 8). Each round every unit rolls `I + d6`, highest first; speed is movement only. A gap of +1, +2, +3, +5 acts
-first 65%, 78%, 88%, 99% of the time. Acting first in round one is worth about half an action of a seven-action fight, so
-**+1 initiative ≈ +1.1% output (1 pp)**.
+**Initiative (turn order: the timeline, decided 22 Oct).** `I = 10 + DEX modifier + class bonus (ranger +2, rogue +2, monk +1) + gear`;
+foes have 10 (quick foes 12, brutes 8). Turn order is **charge time** (`systems.md` §1): a unit's rate is `90 + I`, its charge grows by
+the rate each tick, and at 100 or more it acts and keeps the remainder (`CT − 100`). No die: the order is decided and shown. Speed is
+movement only. A rate of 104 gains an extra turn every 25, so **+1 initiative = +1% of turns (1 pp)**, the old price.
 
 **Threat (who the foes go for).** A foe picks kobold *i* with probability `threat_i ÷ Σ threat`. **The base threat is the class's
 effective HP relative to the fighter (D)**, because attacks spread in proportion to what each kobold can take make the whole
@@ -410,9 +411,9 @@ so **1 pp = 2.4% piercing**. It is a stat that rewards picking your target.
 **Morale and AP.** Each kobold has a morale score (an integer): **+1 for its companion quest done and +1 per campfire chat with
 it** (its bond, kept), **+1 for each fight won with nobody falling and −1 each time it falls** (its streak, back to zero at an
 inn, **never above +3**: decided 22 Oct, P24, so a clean run is rewarded without a dungeon getting easier as it goes). Pack morale is the
-mean plus Pip's Leadership, minus one for every 10 of the pack's total corruption (decided 22 Oct: the companions don't like dark magic):
+mean plus Pip's Leadership, minus a tenth of the pack's mean corruption (decided 22 Oct: the companions don't like dark magic; the mean, so a dark pack is a choice, not a trap, `corruption.md` §1):
 
-$$M_{\text{pack}} = \overline{M} + \frac{\text{Leadership}}{5} - \left\lfloor \frac{\sum C}{10} \right\rfloor, \qquad p = \frac{|M_{\text{pack}}|}{|M_{\text{pack}}| + 6}$$
+$$M_{\text{pack}} = \overline{M} + \frac{\text{Leadership}}{5} - \frac{\overline{C}}{10}, \qquad p = \frac{|M_{\text{pack}}|}{|M_{\text{pack}}| + 6}$$
 
 Each turn each kobold gains 1 AP with chance `p` if morale is positive, or loses 1 with chance `p` if it is negative. On a base of
 2 AP that is +7% actions at morale 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12: it keeps growing but never runs away.
@@ -423,9 +424,9 @@ yes/no event whose good outcome (for that kobold) has chance `p`, the odds are m
 
 $$p' = \frac{p\,q}{p\,q + 1 - p}$$
 
-For a range roll (the ±15% damage spread, the initiative d6, loot amounts) the roll `u ∈ [0, 1]` becomes `u^{1/q}`, tilted toward
+For a range roll (the ±15% damage spread, loot amounts) the roll `u ∈ [0, 1]` becomes `u^{1/q}`, tilted toward
 the good end. When two sides with luck meet (a duel, a lucky foe), `q = 1.1^{(\text{luck}_{\text{self}} - \text{luck}_{\text{other}})}`. So luck reaches its hits,
-its crits, its damage rolls, the foes' hits on it (it is missed more), spells and statuses both ways, its initiative, its
+its crits, its damage rolls, the foes' hits on it (it is missed more), spells and statuses both ways, its
 morale AP rolls, and the pack's loot (the pack's mean luck). The mercy rule stays.
 
 What one point does (to a kobold hitting 82%): hit 82% → 83.4%, crit 8% → 8.7%, damage roll +0.7%, so **own output +2.7%** (only
@@ -590,8 +591,8 @@ whether this feels fair or whether the low side should be softened).
   level**, and one group fight counts the same for everyone in the group.
 - **Shared-world resources** (mines, dwellings, anything that produces something each day) are **personal instances**, so
   there is no race and no griefing.
-- **Turns:** in a co-op fight all players act in the same phase, in any order, with a short timer. Nobody waits for a
-  friend's four-skill choice.
+- **Turns:** the timeline (`systems.md` §1) decides whose kobold acts; its owner has a 20-second timer, then it guards. (Replaced the
+  shared phase on 22 Oct: one turn order for solo and co-op, and initiative keeps its value.)
 - *Not simulated; arithmetic only. The sim has no co-op fights.*
 
 Bosses can be retried at once with no loss beyond the potions used. **Each defeat softens that boss's HP by 10%** (up to

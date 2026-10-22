@@ -17,6 +17,8 @@ agree with each other:
 | **`town-kit.md`** | what every town must contain to fill its stretch; Pebblebrook in full as the template |
 | **`companions.md`** | the seven companions beat by beat: chats, quests, absences, the morale they give |
 | **`bestiary.md`** | every opponent: roles, stats by place, weights, XP, elements, who you meet where, the bosses |
+| **`systems.md`** | **every system the slice touches, specified**: the timeline (turn order), boards, foes and their AI, down and losing, recovery, the overworld, travel, the pack, the slice's chests and shops, rooms and special tiles, the goal bar, saving, co-op, settings, what is measured on purpose |
+| **`corruption.md`** | the dark path open to every class: a dark version of every skill, the deeds that raise and lower corruption, the reactions |
 | **`ui-design.md`** | layout; taps per action; what is used most and least; what is highlighted; every screen; the battle in detail; accessibility; how we check |
 
 Where this file and those disagree, **those win** for numbers and screens; this file wins for rules and story.
@@ -208,7 +210,7 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Speed | ℝ, [0, +∞] | movement (turn order is initiative) | §3 |
 | | Action points (AP) | ℕ, [0, +∞] | actions per turn | §3 (skill AP costs) |
 | | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP (bond from chats and quests, a streak of at most +3, Leadership, minus corruption) | §3, the new stats |
-| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct); every 10 in the pack is −1 pack morale | §3 (thresholds) |
+| | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct); pack morale loses the mean ÷ 10; every skill has a dark version (`corruption.md`) | §3 (thresholds) |
 | scores | STR, DEX, CON, INT, WIS, CHA | ℤ, [1, +∞] | each governs a fixed set of stats | §3, ability scores and the score-to-stat mapping |
 | | Balance † | ℝ, [0, 1] | how even the six scores are; all monk abilities scale on it | §3, the monk |
 | hit and avoid | Accuracy | ℝ, (−∞, +∞), in points | raises hit chance and reach | §4a |
@@ -220,7 +222,7 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | weapon | Damage multiplier | ℝ, [0, +∞] | the weapon family's power | `items.md` |
 | | Steadiness | ℝ, [0, +∞], points per tile | how fast hit chance falls with distance | §4a |
 | | Reach | ℕ, [0, +∞], tiles | how far a melee attack reaches | §3 |
-| tempo | Initiative | ℝ, (−∞, +∞) | turn order | §3, the new stats |
+| tempo | Initiative | ℝ, (−∞, +∞) | the timeline: rate 90 + initiative, charge time (`systems.md` §1) | §3, the new stats |
 | | Threat | ℝ, [0, +∞] | how likely foes are to attack this kobold | §3, the new stats |
 | | HP regen | ℝ, [0, +∞], a share of max HP per turn | healing over time | `items.md` |
 | world | Luck | ℤ, (−∞, +∞) | tilts every random outcome in the kobold's favour (hits, crits, damage rolls, being hit, spells, statuses, initiative, morale, loot) | §3, the new stats |
@@ -259,8 +261,8 @@ breakdown on the sheet (`ui-design.md`, the kobold sheet). In battle the hit cha
 - **Fights together** (`balance.md` §4, "Playing together"): **a fight holds at most four kobolds and four players**, who
   share the four places (one player brings up to four, two bring two each, four bring one each). Nothing scales with the
   number of players: every fight is tuned for four kobolds. Buffs from two players do not stack; a downed kobold can be
-  revived by another player; XP and loot are personal; shared-world resources are personal instances; all players act in
-  the same phase with a short timer.
+  revived by another player; XP and loot are personal; shared-world resources are personal instances; turns follow the
+  timeline, with a 20-second timer for the kobold's owner (`systems.md` §1).
 - Playing together never blocks anyone's story, and nobody has to play with others.
 - **Theme check:** the multiplayer is the theme made playable. A boss is beaten by whoever shows up; a friend who
   doesn't, doesn't. The helper's reward means showing up is rewarded, and nothing is lost by staying home except the
@@ -322,10 +324,14 @@ Joakim can overrule any of these at Gate 1.
 13. **Morale is priced into the curve** (foes × g(L) for the expected bond); the clean-fight streak counts at most +3 (P24).
 14. **The monk keeps 12 ×6**, one modifier point ahead of the standard array, accepted (P25).
 15. **Fights with four kobolds take about 90 s** (87 s by count), accepted (P7).
-16. **Corruption costs morale:** every 10 of the pack's total is −1 pack morale.
+16. **Corruption is a dark path open to every class** (`corruption.md`): every skill has a dark version (×1.25, ×1.4 from 50, +1
+    corruption a cast); 24 deeds raise it, 8 kind deeds and the moon shrine lower it; pack morale loses the mean corruption ÷ 10.
 17. **Quick weapons hit twice for the same damage:** a quick basic attack costs 1 AP and deals ×0.635, so two make one normal attack.
 18. **Design sets goals and counts; it does not measure.** Time and taps are counted from the content with unit goals (3 s a box, 4.5 s
     a kobold turn), and the length is what the content gives (`tools/timecount.js`). Playtests check the build against the unit goals.
+19. **Turn order is the timeline** (charge time, as in Final Fantasy Tactics): rate 90 + initiative, act at 100, keep the remainder;
+    the same for solo and co-op (`systems.md` §1).
+20. **Every system the slice touches is specified in `systems.md`** before Gate 1; what is measured on purpose is listed there (§14).
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

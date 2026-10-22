@@ -15,8 +15,8 @@
 #...BDBB.MKKKKKKKKKkkKKKKKKKKK...BDBB..#
 #........M..........M..................#
 #..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#
-#..M...........MMMMMMMMMoM..........M..#
-#.oM...........MMMMFFMMMMM..........Mo.#
+#..M.BBBB......MMMMMMMMMoM..........M..#
+#.oM.BDBB......MMMMFFMMMMM..........Mo.#
 GMMMMMMMMMMMMMMMMMMFFMMMMMMMMMMMMMMMMMMG
 #..M...........MMMMMMMMMMM..........M..#
 #..M.BBBBBB....MbMMMMMMMMM..BBBBBB..M..#
@@ -46,6 +46,7 @@ GMMMMMMMMMMMMMMMMMMFFMMMMMMMMMMMMMMMMMMG
 14, 9: the throne (act 2)
 19, 15: fountain
 16, 18: Bib's bench
+6, 15: raptor stable (opens with the first piece)
 24, 14: market and note board
 0, 16: the capital gate → R1
 9, 0: north gate → R5
