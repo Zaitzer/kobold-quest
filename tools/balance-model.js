@@ -24,7 +24,7 @@ const P={
   spellResist0:.10,                                // D  base resist before distance; a resisted spell deals half
   koboldDodge:l=>.10+.10*Math.min(1,(l-1)/14),     // J  10% base, about 20% by mid-game from gear (4a)
   crit:.08, critMul:1.5,                           // B/J  flanked +15, unseen +10 (4a)
-  critRule:'add',                                  // J  'add' (as written) or 'value' (proposed): see odds()
+  critRule:'value',                                // J  decided 22 Oct (P22): crit bonuses paid by value; 'add' is the old rule
   luck:0, morale:0, leadership:0,                  // J  defaults: an ordinary pack (balance.md 3, the new stats)
   dmgSpread:.15,                                   // B  +-15%
   potion:.35, potionsPerFight:3,                   // J  potions in the bag at a boss
@@ -94,7 +94,10 @@ function odds(c,kind,sit,opt){opt=opt||{};const x=CX[c]||{acc:0},B=P.board,i=opt
   if(kind==='melee')p=1+x.acc+accScore+(opt.hitAdj||0)-dodge-mapPen(c,i);
   else if(kind==='ranged')p=1+x.acc+accScore+(opt.hitAdj||0)-dodge-(sit.cover?B.halfCover:0)-(x.steady||5)/100*(sit.tiles-1)-mapPen(c,i);
   else{const r0=clamp(P.spellResist0+.01*(opt.res||0),.05,.40)*(sit.unseen?.5:1);p=1+(opt.hitAdj||0)-r0-(x.steady||4)/100*(sit.tiles-1)}
-  return{p:tilt(clamp(p,0,1),opt.luck||0),crit:tilt(clamp(crit,0,1),opt.luck||0)}}
+  /* luck tilts the crit chance too; under 'value' its gain is the gain it gives an ordinary kobold, paid in the build's currency */
+  let critL=tilt(clamp(crit,0,1),opt.luck||0);
+  if(P.critRule==='value'&&opt.luck){const g=tilt(P.crit,opt.luck)-P.crit;critL=clamp(crit+g*(P.critMul-1)/Math.max(P.critMul-1,b_.D-b_.beta),0,1)}
+  return{p:tilt(clamp(p,0,1),opt.luck||0),crit:critL}}
 /* the average board, enumerated (no dice): the expected damage factor of one attack, crit build {beta, D, c} optional */
 function expectFactor(c,kind,opt){opt=opt||{};const B=P.board,x=CX[c]||{},un=x.unseen||0,cb=opt.build||{beta:1,D:P.critMul,c:0};let sum=0,w=0;
   const tiles=opt.near?[1]:kind==='ranged'?B.rangedTiles:kind==='spell'?B.spellTiles:[1];
@@ -312,7 +315,7 @@ if(require.main===module&&(process.argv[2]==='rules'||process.argv[2]==='all')){
   console.log('\n6. Initiative: chance a +g gap acts first, I + d6 each (balance.md: +1 65%, +2 78%, +3 88%, +5 99%)');
   console.log('   '+[1,2,3,5].map(g=>{let w=0;for(let a=1;a<=6;a++)for(let b=1;b<=6;b++)w+=(a+g>b?1:a+g===b?.5:0);return`+${g}: ${pc(w/36)}`}).join(', '));
   console.log('\n7. Crit builds on the board, against a plain fighter on the same board (balance.md 4a table)');
-  console.log('| crit chance, normal hit, crit | table (no position) | on the board, bonuses added (today) | on the board, bonuses by value (proposed) |\n|---|---|---|---|');
+  console.log('| crit chance, normal hit, crit | table (no position) | on the board, bonuses added (the old rule) | on the board, bonuses by value (decided 22 Oct) |\n|---|---|---|---|');
   const was=P.critRule;[[.08,1,1.5],[.08,.5,9.2],[.03,.1,42],[.01,.25,116]].forEach(([c,b,D])=>{const bl=()=>expectFactor('fighter','melee',{build:{beta:1,D:1.5,c:0}});
     P.critRule='add';const ea=expectFactor('fighter','melee',{build:{beta:b,D,c:c-P.crit}})/bl();P.critRule='value';const ev=expectFactor('fighter','melee',{build:{beta:b,D,c:c-P.crit}})/bl();
     console.log(`| ${pc(c)}, x${b}, x${D} | x${((1-c)*b+c*D).toFixed(2)} | x${ea.toFixed(2)} | x${ev.toFixed(2)} |`)});P.critRule=was;

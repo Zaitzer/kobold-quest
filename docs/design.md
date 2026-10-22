@@ -312,8 +312,12 @@ Joakim can overrule any of these at Gate 1.
 6. **Crit builds are rewarded for their risk**; no cap on crit damage.
 7. **More stats is better**: the character sheet in §8, with Pip as the pack's leader and the six D&D scores.
 8. **The monk is the generalist**, scaling on Balance.
-9. **Co-op bosses scale with the players.**
+9. ~~**Co-op bosses scale with the players.**~~ Replaced at Gate 1 (§16.6): nothing scales with the number of players.
 10. **No more simulations unless asked;** arithmetic and playtests instead.
+11. **Crit bonuses from position and luck are paid by value** (`Δc × 0.5 ÷ (D − β)`), so flanking is worth the same to a jackpot
+    build as to anyone (P22).
+12. **A change to the hit rules never rebalances the classes:** class attack is re-solved to keep each class's damage against the
+    fighter (P23).
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

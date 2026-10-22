@@ -149,17 +149,25 @@ nothing is "worse", only different. Stats are multipliers on the reference fight
 | class | damage | durability | utility | HP | attack | defence | speed | mana L1 → L30 | skill casts per fight |
 |---|---|---|---|---|---|---|---|---|---|
 | Fighter | .30 | .50 | .20 | ×1.00 | ×1.00 | ×1.00 | ×1.0 | 8 → 30 | 3 |
-| Barbarian | .50 | .35 | .15 | ×1.10 | ×1.15 | ×0.63 | ×1.0 | 6 → 24 | 2 |
-| Paladin | .30 | .40 | .30 | ×0.95 | ×0.90 | ×0.88 | ×0.9 | 8 → 36 | 3 |
-| Ranger | .45 | .20 | .35 | ×0.80 | ×1.05 | ×0.69 | ×1.3 | 10 → 40 | 4 |
-| Rogue | .45 | .20 | .35 | ×0.75 | ×1.05 | ×0.78 | ×1.4 | 8 → 36 | 4 |
-| Monk | .33 | .33 | .34 | ×0.90 | ×0.90 | ×0.82 | ×1.1 | 10 → 46 (ki) | 5 (cheap skills); ki power and pool × (0.5 + Balance) |
-| Cleric | .15 | .30 | .55 | ×0.85 | ×0.70 | ×0.93 | ×0.9 | 14 → 62 | 6 |
-| Druid | .25 | .25 | .50 | ×0.85 | ×0.75 | ×0.74 | ×1.0 | 14 → 62 | 6 |
-| Bard | .20 | .20 | .60 | ×0.75 | ×0.70 | ×0.82 | ×1.1 | 12 → 58 | 6 |
-| Wizard | .55 | .10 | .35 | ×0.65 | ×1.00 | ×0.67 | ×0.95 | 16 → 70 | 6 |
-| Sorcerer | .60 | .12 | .28 | ×0.70 | ×1.10 | ×0.67 | ×1.0 | 14 → 64 | 5 |
-| Warlock | .50 | .22 | .28 | ×0.80 | ×0.95 | ×0.76 | ×1.0 | 12 → 52 | 5 |
+| Barbarian | .50 | .35 | .15 | ×1.10 | ×1.20 | ×0.63 | ×1.0 | 6 → 24 | 2 |
+| Paladin | .30 | .40 | .30 | ×0.95 | ×0.95 | ×0.88 | ×0.9 | 8 → 36 | 3 |
+| Ranger | .45 | .20 | .35 | ×0.80 | ×1.12 | ×0.69 | ×1.3 | 10 → 40 | 4 |
+| Rogue | .45 | .20 | .35 | ×0.75 | ×1.07 | ×0.78 | ×1.4 | 8 → 36 | 4 |
+| Monk | .33 | .33 | .34 | ×0.90 | ×0.93 | ×0.82 | ×1.1 | 10 → 46 (ki) | 5 (cheap skills); ki power and pool × (0.5 + Balance) |
+| Cleric | .15 | .30 | .55 | ×0.85 | ×0.77 | ×0.93 | ×0.9 | 14 → 62 | 6 |
+| Druid | .25 | .25 | .50 | ×0.85 | ×0.82 | ×0.74 | ×1.0 | 14 → 62 | 6 |
+| Bard | .20 | .20 | .60 | ×0.75 | ×0.78 | ×0.82 | ×1.1 | 12 → 58 | 6 |
+| Wizard | .55 | .10 | .35 | ×0.65 | ×1.09 | ×0.67 | ×0.95 | 16 → 70 | 6 |
+| Sorcerer | .60 | .12 | .28 | ×0.70 | ×1.22 | ×0.67 | ×1.0 | 14 → 64 | 5 |
+| Warlock | .50 | .22 | .28 | ×0.80 | ×1.03 | ×0.76 | ×1.0 | 12 → 52 | 5 |
+
+**Attack re-solved for the one hit formula (P23, decided 22 Oct, D).** *Rule: a change to the hit rules never rebalances the
+classes.* Under the one formula the fighter's +5 class accuracy counts and spells are resisted more at range, which moved every class
+2–13% against the fighter; each class's attack (special attack for casters) is solved so its damage relative to the fighter is what
+the table intended (barbarian 1.15 → 1.20, paladin 0.90 → 0.95, ranger 1.05 → 1.12, rogue 1.05 → 1.07, monk 0.90 → 0.93, cleric
+0.70 → 0.77, druid 0.75 → 0.82, bard 0.70 → 0.78, wizard 1.00 → 1.09, sorcerer 1.10 → 1.22, warlock 0.95 → 1.03; solved by
+bisection in the model, exact against the old model at level 10). The fighter itself hits 95% now, against the flat 90% the old
+model gave all melee; the pack average is 84% against the 85% the fight lengths assumed, so the level table stands.
 
 **Defence re-derived for the HoMM3 factor (P3, arithmetic, 22 Oct).** The damage factor punishes low defence harder than
 subtraction did (a foe hit on the wizard went from 1.39× to 1.56× a hit on the fighter), which pushed the documented table to
@@ -331,19 +339,19 @@ foes deal is magical (J), so the ward factor moves durability only a little; it 
 | class | attack | special attack | defence | special defence |
 |---|---|---|---|---|
 | Fighter | ×1.00 | ×0.50 | ×1.00 | ×0.80 |
-| Barbarian | ×1.15 | ×0.50 | ×0.63 | ×0.50 |
-| Rogue | ×1.05 | ×0.50 | ×0.78 | ×0.62 |
-| Paladin | ×0.90 | ×0.70 | ×0.88 | ×0.88 |
-| Ranger | ×1.05 | ×0.60 | ×0.69 | ×0.69 |
-| Monk | ×0.90 | ×0.90 | ×0.82 | ×0.82 |
-| Cleric | ×0.60 | ×0.70 | ×0.93 | ×1.49 |
-| Druid | ×0.60 | ×0.75 | ×0.74 | ×1.18 |
-| Bard | ×0.60 | ×0.70 | ×0.82 | ×1.31 |
-| Wizard | ×0.60 | ×1.00 | ×0.67 | ×1.07 |
-| Sorcerer | ×0.60 | ×1.10 | ×0.67 | ×1.07 |
-| Warlock | ×0.60 | ×0.95 | ×0.76 | ×1.22 |
+| Barbarian | ×1.20 | ×0.50 | ×0.63 | ×0.50 |
+| Rogue | ×1.07 | ×0.50 | ×0.78 | ×0.62 |
+| Paladin | ×0.95 | ×0.74 | ×0.88 | ×0.88 |
+| Ranger | ×1.12 | ×0.60 | ×0.69 | ×0.69 |
+| Monk | ×0.93 | ×0.93 | ×0.82 | ×0.82 |
+| Cleric | ×0.60 | ×0.77 | ×0.93 | ×1.49 |
+| Druid | ×0.60 | ×0.82 | ×0.74 | ×1.18 |
+| Bard | ×0.60 | ×0.78 | ×0.82 | ×1.31 |
+| Wizard | ×0.60 | ×1.09 | ×0.67 | ×1.07 |
+| Sorcerer | ×0.60 | ×1.22 | ×0.67 | ×1.07 |
+| Warlock | ×0.60 | ×1.03 | ×0.76 | ×1.22 |
 
-The casters' special attack is their old attack multiplier, so their damage is unchanged; their weapon attack is ×0.6 (the
+The casters' special attack is their attack multiplier from the class table, so their damage is unchanged; their weapon attack is ×0.6 (the
 weapon is an afterthought, as `items.md` already prices holy and instruments). Foes: special defence = defence, and caster
 foes use their attack as special attack.
 
@@ -392,7 +400,7 @@ What one point does (to a kobold hitting 82%): hit 82% → 83.4%, crit 8% → 8.
 78.4%, **damage taken −2%**; its spells resisted 10% → 9.2%; its statuses land 80% → 81.5%. **+1 luck ≈ 5 pp.** It never caps,
 it only bends the odds: luck 10 makes an 82% hit 92% and a foe's 80% hit 61%; luck 20 makes them 97% and 37%.
 
-**The gambler synergy (U, watch it).** Because luck now reaches crit chance, it is worth far more to a jackpot build: at a 1% crit
+**The gambler synergy (fixed 22 Oct by P22: luck's crit gain is paid by value, so the paragraph below is history).** Because luck now reaches crit chance, it is worth far more to a jackpot build: at a 1% crit
 for ×100, +1 luck lifts the crit to 1.1% and the average damage by about +10%, against +2.7% for an ordinary kobold, and it also
 makes the jackpot less risky. Luck plus a jackpot is therefore a real build ("the lucky gambler"), in the spirit of rewarding
 commitment, but its price of 5 pp is set for an ordinary kobold. If playtests show gamblers stacking luck past everything else,
@@ -777,8 +785,8 @@ Check against the level table (fighter against an on-level foe): L1 `0.39 × 9 �
 |---|---|
 | base crit chance | **8%** |
 | crit damage | **×1.5** base, no upper limit |
-| flanked target | +15 |
-| unaware target | +10 |
+| flanked target | +15 (paid by value: `+15 × 0.5 ÷ (D − β)` for a crit build, below) |
+| unaware target | +10 (the same) |
 | gear and talents | priced by expected value: 1 power point = +1% expected damage, i.e. `100 × Δ[c × (D − 1)]` pp (so +2% crit chance at ×1.5 is 1 pp, as before) |
 | crit chance | a probability: never above 100%; luck tilts it like every other roll |
 | spells | can crit at the same chance and multiplier |
@@ -828,7 +836,7 @@ rewarded `D` for the crit chance it is used with. Halving normal damage needs ab
 at 8% it needs ×9. A ×100 crit is a real build: about a 1% chance with normal hits cut to a quarter, +40% damage on
 average, and nine boss fights in ten without a single crit.
 
-**Open (proposed 22 Oct, P22): positional crit bonuses by value.** Flanked (+15) and unseen (+10) *add* to the crit chance, which is
+**Positional crit bonuses by value (decided 22 Oct, P22).** Flanked (+15) and unseen (+10) *add* to the crit chance, which is
 worth +7.5% damage to an ordinary kobold and a fortune to a jackpot build: a 1% build at ×116 that flanks lands 16% crits, and on
 the average board it deals **×4.6** a plain fighter instead of the table's ×1.4. The structural fix: **a bonus to crit chance is a
 bonus to expected damage, paid in the build's own currency**, so it is worth the same to every build:
@@ -837,7 +845,9 @@ $$\Delta c' = \Delta c \cdot \frac{0.5}{D - \beta}$$
 
 (flanked +15 at ×1.5; +0.065 at ×116 with normal hits ×0.25). On the board this puts the builds back on the table: ×1.15, ×1.30 and
 ×1.35 for the 8%, 3% and 1% rows (×1.20, ×1.36, ×1.41 in the table). The same rule would fix the gambler synergy (luck tilting crit
-chance, §3). It is in the model as `P.critRule = 'value'`; today's rule is `'add'`.
+chance, §3). **Luck's tilt on crit chance is paid the same way**, so the gambler synergy is gone: a point of luck is worth the same to a jackpot
+as to anyone. Bought crit chance (gear, talents) still adds directly, since its price already depends on the build's D. In the model:
+`P.critRule = 'value'`.
 
 **Open (proposed, not decided):** overkill carrying over to the nearest foe within 1 tile, so a jackpot can clear a group,
 and boss phase lines (75 / 50 / 25%) that one hit cannot cross more than one of, with a crit that crosses a line costing the

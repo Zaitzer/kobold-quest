@@ -327,13 +327,13 @@ Gold-scrap, Ember, Ice, Pearl). Prices are the slot's, like any piece of its tie
 ## 13. The gambler's gear (free trades on the rewarded-crit table)
 
 These cost no power points: they trade normal damage for crit damage at the **rewarded** value for their crit chance
-(`balance.md`, crit builds, λ = 0.15), so the average goes up exactly as much as the risk does. Luck tilts their crit chance
-like any roll (the "lucky gambler", watched in playtests).
+(`balance.md`, crit builds, λ = 0.15), so the average goes up exactly as much as the risk does. Luck, flanking and unseen
+add to their crit chance **by value** (`balance.md`, P22): the same expected gain as for anyone, so they never turn a jackpot into a sure thing.
 
 | item | slot | normal hits | crit chance | crit damage | average | no crit in a 10-round boss fight |
 |---|---|---|---|---|---|---|
 | **Loaded die** | ring | ×0.50 | (yours, 8%) | ×9.2 | ×1.20 | 43% |
-| **Gambler's glove** | ring | ×0.50 | (yours, 15% with a flanking build) | ×4.8 | ×1.15 | 20% |
+| **Gambler's glove** | ring | ×0.50 | (yours, 15% with bought crit chance) | ×4.8 | ×1.15 | 20% |
 | **Lucky penny** | neck | ×0.25 | sets it to 3% | ×36 | ×1.32 | 74% |
 | **Wishing coin** | neck | ×0.25 | sets it to 1% | ×116 | ×1.40 | 90% |
 
