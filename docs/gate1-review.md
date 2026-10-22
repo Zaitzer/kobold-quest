@@ -110,6 +110,12 @@ autosave and the v6 save's contents; one difficulty and the settings; **corrupti
 The engine's runtime foe scaling is removed (it contradicted the bestiary and "nothing scales"). What is still measured is measured on
 purpose and listed (`systems.md` §14).
 
+## Ready for Gate 1 (22 Oct, evening)
+
+After the completeness pass, the RPG checklist (`systems.md` §15), characters (§16), admin tools (§17) and the new screens
+(`ui-design.md` §8), every system the slice touches has a written rule, its numbers, and its screen. What is measured is measured on purpose
+(`systems.md` §14). What is left is build work (the rename pass, the slice simulator) and Joakim's drawings.
+
 ## Decided at Gate 1 (Joakim, 22 Oct; full list in `design.md` §16)
 
 1. **A1:** build on `main` (not a `v6` branch). Keep `release/` and the Claude page on the old game until the slice is ready.

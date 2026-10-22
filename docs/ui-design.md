@@ -219,6 +219,20 @@ shape badge as well as a colour. The game works in a colourblind palette.
 | **Phasing** | none; other players are simply not drawn in the story scenes |
 | **Raptors and boats** | a map with stable and pier pins; one tap, one confirm |
 | **Helper's reward** | a small banner after a co-op fight: "+3 bun crumbs" |
+| **The timeline** (`systems.md` §1) | the top bar of a fight shows the next eight turns as portraits, left to right, the active one large; a stun or a fast unit visibly moves its portraits; in co-op each portrait carries its owner's colour and the active one a 20-second ring |
+| **Together** | when the active kobold and a friend both touch a foe, a *Together* button appears beside Attack with both portraits; one tap, then the foe (two taps); greyed once the pair has used it this fight |
+| **Dark versions** (`corruption.md`) | in the skill kit each skill card with an unlocked dark twin has a small moon mark; tap it to flip the card (plain ↔ dark, purple frame); in a fight dark skills have a purple edge and show "+1 corruption" on hold |
+| **Corruption on the sheet** | a row with the number, a bar to the next threshold (10, 25, 50) and the pack's morale cost beside it |
+| **The Book** (`systems.md` §15) | ☰ → *The Book*: four tabs (Foes, Lore, Places, Stamps) as pages of Mallow's book; a foe page shows its picture, levels, and weak/resists once known ("?" until then); the last page is the Smiler's instructions |
+| **Map pins** | the goal's pin on the world map; on the field a small arrow at the screen edge pointing to it (setting: off) |
+| **Character select and creation** (`systems.md` §16) | six cards in a 3 × 2 grid (portrait, name, class, level, place, pieces, time played); *New hero*: a name field (default "Pip") and six colour swatches on a big portrait, then *Begin*; hold a card to delete (type the name); a *Restore* strip at the bottom for heroes deleted in the last 7 days; the legacy hero as a seventh, greyed card |
+| **Playing elsewhere** | a dialogue on the second device: "{hero} is being played on another device. Play here instead?" (Yes / Back) |
+| **Cooking** | at an inn, *Cook*: pick two materials (the bag's material list), see "a snack that heals 35%", tap *Cook*; the snack count (max 5) beside the potions |
+| **Buyback** | a *Sold* tab in the shop with the last five sold items at the price you got |
+| **Settings** (`systems.md` §13) | ☰ → *Settings*: sound, music, mute; text speed (normal, fast, tap only); reduced motion; screen shake; colour-blind palette; left-handed layout; the edge arrow |
+| **The rail puzzle** | the switches glow when tapped and flip with a clunk; the cart is pushed with one tap; a *Hint* button in the corner |
+| **Dark tiles** | outside the light, the map and the board are drawn in near-black with only outlines; lit circles around glow grubs, lanterns and the campfire |
+| **Admin** (`systems.md` §17) | ☰ → *Admin* (owner and moderators only): tabs Server, Players, Moderation, Market, Events, Letters, Tests, Log; every destructive tool asks for a reason and a confirm; a moderator sees only their tabs |
 
 ## 9. Sound and touch feedback
 
