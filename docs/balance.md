@@ -524,7 +524,7 @@ holds for line and cone skills. Each overlapped tile rolls its own hit and crit,
 | normal, two levels under | 5 | 45% | the game says it's a hard one |
 | patrol or elite (a visible group) | 5 | 35% | worth more XP (×1.5), one tough foe |
 | a dungeon floor guardian | 6 | 40% | roughly a small boss; the end of a floor |
-| **boss** | 6–12 | 40–55% | three attacks a round, no one-shots; one telegraphed big attack; add-ons on round 4 |
+| **boss** | 7–12 | 40–55% | four attacks a round (one per kobold), no one-shots; one telegraphed big attack; add-ons on round 4 |
 
 **Pace of a normal fight:** the pack deals about 3.5 × a basic hit per round (skills and an area spell help), and foes have
 4 × the basic hit in HP each, so three foes die in about 3.4 rounds (with a pack of four, 4/3 the damage against 4/3 the foes:
