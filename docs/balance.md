@@ -206,6 +206,10 @@ in `design.md` §8 (the character sheet).
 | Wizard | INT, CON, DEX, WIS, CHA, STR |
 | Sorcerer, Warlock | CHA, CON, DEX, INT or WIS, WIS or INT, STR |
 
+- **Accuracy is read the same way (D, P17, 22 Oct).** Every class puts its 15 or 14 in the score its attack uses, so the class
+  accuracy table (§4a) is read **including the starting scores**: a score adds +2.5 accuracy per modifier point only *above its
+  start* (stat picks, gear). Counting the start again put fighters at 100% in melee and the average hit at 87%, over the target;
+  read this way the average is **84%** (model, `node tools/balance-model.js rules`).
 - **Growth:** the stat picks among the talents (about 30% of the 30 picks, so about 9) each give **+1 to a score**, up to a
   cap of 20. A cap makes the player spread points instead of stacking one. This replaces the old "+0.45 attack, +0.375
   defence and +2.1 HP per level" line. **Gear** can give +1 or +2 to a score.
@@ -290,10 +294,12 @@ uses 0.
 
 **Resistance feeds the spell formula (D).** The resist chance becomes
 
-$$r = \operatorname{clamp}\!\left(0.10 + 0.01\,\max(0,\,L_t - L_c) + 0.01\,(d-1) + 0.01\,\text{Res}_t,\; 0.05,\; 0.40\right)$$
+$$r = \operatorname{clamp}\!\left(0.10 + 0.01\,\max(0,\,L_t - L_c) + 0.01\,\text{Res}_t,\; 0.05,\; 0.40\right) + \frac{s}{100}\,(d-1), \qquad r \le 1$$
 
 so each point of the target's resistance **raises** its chance to resist by one point (corrected 22 Oct: the first version had the sign
-backwards), and the resistance stat is no longer decorative.
+backwards), and the resistance stat is no longer decorative. `s` is the spell family's steadiness and `d` the distance in tiles: the
+distance term is the one formula's (§4a), outside the 5–40% clamp, so a far spell still reaches "too far" (corrected 22 Oct, P17: the
+first version used 1 point a tile, which disagreed with §4a).
 
 **Reach (D).** A melee attack can hit every target within `reach` tiles, but the damage falls off with distance: the target at
 tile $j$ takes $\text{dmg} \cdot (1 - 0.25\,\max(0,\,j-1))$, so the extra tiles of a long weapon cost nothing at the front and hurt
@@ -381,7 +387,8 @@ the good end. When two sides with luck meet (a duel, a lucky foe), `q = 1.1^{(\t
 its crits, its damage rolls, the foes' hits on it (it is missed more), spells and statuses both ways, its initiative, its
 morale AP rolls, and the pack's loot (the pack's mean luck). The mercy rule stays.
 
-What one point does: hit 82% → 83.4%, crit 8% → 8.7%, damage roll +0.7%, so **own output +2.7%**; foes' hits on it 80% →
+What one point does (to a kobold hitting 82%): hit 82% → 83.4%, crit 8% → 8.7%, damage roll +0.7%, so **own output +2.7%** (only
++1.6% to a fighter that already hits 95%: luck is worth most to the kobolds who miss most); foes' hits on it 80% →
 78.4%, **damage taken −2%**; its spells resisted 10% → 9.2%; its statuses land 80% → 81.5%. **+1 luck ≈ 5 pp.** It never caps,
 it only bends the odds: luck 10 makes an 82% hit 92% and a foe's 80% hit 61%; luck 20 makes them 97% and 37%.
 
@@ -574,8 +581,8 @@ chance comes from the *target*, so it can be read off the foe:
   penalty**: they reach anyone in sight.
 - **Magic steadiness, by family** (`items.md`): wands 3, orbs 4 (a little unstable), teapots 2.5 (steady), holy 5, nature 4,
   instruments 5 points per tile. Reach at 50% landed against a normal foe is `1 + 40 ÷ steadiness`: wands 14 tiles, orbs 11,
-  teapots 17, holy 9, nature 11, instruments 9. A wand's expected damage is 95% of the listed number at 1 tile, 87% at 5,
-  79% at 9, 71% at 13 (`0.5 × (1 + chance landed)`). Area spells measure the distance to their centre and each target
+  teapots 17, holy 9, nature 11, instruments 9. A wand's expected damage is 95% of the listed number at 1 tile, 89% at 5,
+  83% at 9, 77% at 13 (`0.5 × (1 + chance landed)`). Area spells measure the distance to their centre and each target
   rolls its own resistance.
 - **Unseen attackers are easier to hit.** If the target cannot see the attacker, **its dodge (or resistance) counts as half**
   and the attacker gets +10 crit. A foe with no dodge gains nothing from not seeing, and gains nothing it did not already
@@ -821,6 +828,17 @@ rewarded `D` for the crit chance it is used with. Halving normal damage needs ab
 at 8% it needs ×9. A ×100 crit is a real build: about a 1% chance with normal hits cut to a quarter, +40% damage on
 average, and nine boss fights in ten without a single crit.
 
+**Open (proposed 22 Oct, P22): positional crit bonuses by value.** Flanked (+15) and unseen (+10) *add* to the crit chance, which is
+worth +7.5% damage to an ordinary kobold and a fortune to a jackpot build: a 1% build at ×116 that flanks lands 16% crits, and on
+the average board it deals **×4.6** a plain fighter instead of the table's ×1.4. The structural fix: **a bonus to crit chance is a
+bonus to expected damage, paid in the build's own currency**, so it is worth the same to every build:
+
+$$\Delta c' = \Delta c \cdot \frac{0.5}{D - \beta}$$
+
+(flanked +15 at ×1.5; +0.065 at ×116 with normal hits ×0.25). On the board this puts the builds back on the table: ×1.15, ×1.30 and
+×1.35 for the 8%, 3% and 1% rows (×1.20, ×1.36, ×1.41 in the table). The same rule would fix the gambler synergy (luck tilting crit
+chance, §3). It is in the model as `P.critRule = 'value'`; today's rule is `'add'`.
+
 **Open (proposed, not decided):** overkill carrying over to the nearest foe within 1 tile, so a jackpot can clear a group,
 and boss phase lines (75 / 50 / 25%) that one hit cannot cross more than one of, with a crit that crosses a line costing the
 boss its next turn. Both cut the realized value of the biggest crits a little below the table.
@@ -838,7 +856,8 @@ For an average pack in an average fight, the attacks are about 40% melee, 40% ra
 | spells (resisted for half, more often far away) | 20% | about 89% of the damage at 3–4 tiles |
 | **overall** | | **40%×90 + 40%×66 + 20%×89 = 80%** |
 
-That is at the bottom of the 80–85% target (it was 82% before spells followed distance), and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
+*With each class's own accuracy and steadiness (the model's `rules` check, 22 Oct): melee 88%, ranged (the ranger) 77%, spells' damage
+91%, **overall 84%**.* That is inside the 80–85% target (the table above, without class accuracy, is the bottom of it; it was 82% before spells followed distance), and the damage model in section 3 (which assumed 85%) is close enough. **If the sim finds
 the average below 78%, fights run too long and the first fix is less cover on the boards, not a higher base chance.**
 In a 3–4 round fight a pack makes about 14 attacks, so the expected number of misses is **2.5**; roughly 6% of fights have
 no misses at all and about 9% have five or more.
