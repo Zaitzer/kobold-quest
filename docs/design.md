@@ -336,6 +336,8 @@ Joakim can overrule any of these at Gate 1.
     map pins, the hero's colour, flavour weather, Ghost the pet, cooking at inns, buyback, town thanks, a small post-game, new game plus.
 22. **Six characters per account** (`systems.md` §16): a select screen, one device per character at a time, the Book's knowledge and
     cosmetics shared across them, nothing else; **the player names the hero** (default Pip); the old save kept read-only as a legacy hero.
+23. **Admin tools** (`systems.md` §17): owner and moderator roles; server, players, moderation, market, events, letters, tests and a log
+    that cannot be edited; no XP or gold multipliers; no reading passwords or private messages.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

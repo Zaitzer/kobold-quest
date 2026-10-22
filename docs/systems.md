@@ -36,6 +36,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
 | 25 | what is measured on purpose | §14 | listed |
 | 27 | accounts and characters: six slots, the select screen, one device at a time, what is shared, guests, the move to v6 | §16 | designed 22 Oct |
+| 28 | admin tools: roles, server, players, characters, moderation, market, events, letters, tests, the log | §17 | designed 22 Oct |
 | 26 | the small things every RPG has: team attacks, the Book (bestiary, codex, stamps), map pins, looks, weather, a pet, cooking, buyback, town thanks, post-game, new game plus | §15 | minimal versions, 22 Oct |
 
 ## 1. Turn order: the timeline (charge time; Joakim, 22 Oct)
@@ -330,3 +331,45 @@ gear and gold: one save (§11). The account holds what belongs to the player rat
   Player data stays on the server only (`/var/lib/kobold-quest`), never in the repository.
 - **Before going public** (`tech-plan.md`): the server checks saves for impossible values (levels, gold, items) before storing them; for
   friends the client's save is trusted, as now.
+
+## 17. Admin tools (designed 22 Oct)
+
+The Admin screen in ☰ grows from today's two things (the GitHub token, the messenger list) into the tools a small server needs.
+**Every admin action is checked on the server, written to the admin log, and never shows a password or sends player data off the
+server** (`CLAUDE.md`). Phone-first: one tab per job, two to three taps per action.
+
+**Roles.** The **owner** is named in `server/config.json` (`admins`, today Zaitzer) and can do everything, including granting roles.
+A **moderator** (granted in the game by the owner, stored in the server's data) can do the *Players* and *Moderation* jobs marked (m).
+Everyone else sees no Admin button.
+
+| tab | tool | what it does | who |
+|---|---|---|---|
+| **Server** | status | the build (and whether it matches `release/server/BUILD`), uptime, players online, accounts, last backup, the data file's size | owner, (m) |
+| | message of the day | a line shown once to everyone at login | owner |
+| | announce | a toast to everyone online now | owner, (m) |
+| | maintenance | blocks new logins except admins, warns everyone online, saves and signs them out after 2 minutes; off again with one tap | owner |
+| **Players** | find | search accounts by name; each shows created, last seen, online, its heroes, warnings and bans | owner, (m) |
+| | a hero | read-only: the sheet, where it stands, its flags, its bag and gold, its last 20 saves' times | owner, (m) |
+| | unstuck | moves a hero to its last fountain (for a hero stuck in a wall or a broken scene) | owner, (m) |
+| | release the lock | frees a hero's "one device" lock (§16) when a device vanished | owner, (m) |
+| | set a story flag | moves a hero one step on in a broken quest (only to a value the quest can reach) | owner |
+| | rename | renames an account or a hero with a bad name (the player is told why) | owner, (m) |
+| | password reset | gives a one-time code the player uses to set a new password; the admin never sees the password | owner |
+| | restore | brings back a deleted hero within 7 days, or one hero from a daily backup (pick the date; the current save is kept as a copy first) | owner |
+| | compensate | gives gold, an item, or a level's XP to a hero after a bug, with a reason the player sees in a letter | owner |
+| | delete an account | at the player's request, after typing the name; kept 7 days like a hero | owner |
+| **Moderation** | reports | the queue from the report button (`tech-plan.md`): who, about whom, the chat lines around it; close with *no action*, *warn*, *mute* or *ban* | owner, (m) |
+| | warn, mute, ban | a warning (shown at next login), a chat mute (1 hour, 1 day, 1 week), a ban (1 day, 1 week, for good) with a reason; undo any of them | owner, (m) |
+| | word filter | add or remove words from the name and chat filter | owner, (m) |
+| | chat log | the last 24 hours of world chat (kept 24 hours, then gone); private messages are never shown | owner, (m) |
+| **Market** | listings | every market listing; remove one (the item goes back to its seller) | owner, (m) |
+| | gifts | the last 100 gifts (who to whom, what), for spotting a stuck or abused gift | owner |
+| **Events** | festival | a cosmetic event with an end date: a banner, bunting in the towns, a stamp for logging in during it. **No XP or gold multipliers**: the curve is counted, and level sync would carry the bonus into everyone's fights | owner |
+| **Letters** | the messenger | the GitHub token (checked against GitHub) and the messenger list (as today); the count of letters sent this week | owner |
+| **Tests** | test hero | an admin may mark one of their own heroes *test*: it can jump to any story flag, pick any level, spawn any fight or boss, and is hidden from the market, gifts and co-op credit | owner |
+| | preview | see a scene as a player would (phasing on, others hidden) without changing the hero | owner |
+| **Log** | admin log | every admin action: who, when, which tool, on whom, the reason; it cannot be edited or deleted; kept a year | owner, (m) sees their own |
+| | errors | the error reports pages send (`tech-plan.md`, "Before going public"), grouped by message and build | owner |
+
+**What admins cannot do:** read passwords or private messages; edit a save by hand (only the named tools above, each logged); give a
+multiplier to the curve; copy player data out of the server.
