@@ -1,5 +1,6 @@
 import {tcTargets} from './input.js';
 import {tcBase,tcHome,tcLive,tcMov,tcReach,tcShown,tcT} from './rules.js';
+import {v6LegalTiles} from './v6battle.js';
 import {BVH,BVW,TT} from './view.js';
 import {RT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {rp} from '../core/state.js';
@@ -43,6 +44,8 @@ function rpDrawBattle(){
   /* where the active kobold can go: blue = 1 AP, gold = 2 AP */
   if(mine&&b.mode==='move'&&!b.pend){const mov=tcMov(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov);
     R2.dist.forEach((d,kk)=>{const x=kk%b.W,y=(kk/b.W)|0;if(x===u.x&&y===u.y)return;ctx.fillStyle=d<=mov?'rgba(111,184,255,.28)':'rgba(255,213,74,.22)';ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2)})}
+  /* the legal tiles for a tile or area skill (build step 4) */
+  if(mine&&b.v6&&!b.pend&&b.mode.startsWith('sk:')){const L=v6LegalTiles(b,u,b.mode.slice(3));if(L){ctx.fillStyle='rgba(155,227,107,'+(.18+.06*Math.sin(b.t*4))+')';L.forEach(([x,y])=>ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2))}}
   /* charging spells */
   b.chans.forEach(c=>{const T=Math.ceil(c.area);ctx.fillStyle='rgba(255,90,60,'+(.18+.1*Math.sin(b.t*6))+')';for(let y=c.cy-T;y<=c.cy+T;y++)for(let x=c.cx-T;x<=c.cx+T;x++)if(Math.hypot(x-c.cx,y-c.cy)<=c.area+.01)ctx.fillRect(x*TT,y*TT,TT,TT)});
   /* preview */

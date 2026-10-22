@@ -76,4 +76,23 @@ seeded(21,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','r
   checks++;if(!X.tcDo(a,{k:'together',f:c,t:f}))bad('Together should start');checks++;if(a.ap!==1)bad('Together costs 1 AP: '+a.ap);checks++;if(c.ct!==-60)bad('the friend spends its next turn: ct '+c.ct);
   checks++;if(b.seq.filter(st=>st.k==='atk'&&st.tg===f).length!==2)bad('both should attack the foe');
   a.ap=2;checks++;if(X.v6TogetherOpts(b,a).length)bad('once a fight per pair')});
+// tile targeting (step 4): the ranger's snare, the monk's Raise cover and the wizard's Fireball on a boss, with the legal tiles
+seeded(31,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['ranger','monk','wizard',null];X.v6Lab.lvl=14;X.v6Lab.place='b:grubb';X.v6Lab.theme='meadow';X.v6LabStart();const b=X.rp.bt;b.vis.fill(2);X.rp.autoParty=false;b.seq=[];b.step=null;
+  const drain=u=>{b.cur=u;b.phase='busy';let st=0;while((b.seq.length||b.step)&&st<800){X.rpBattleStep(1/30);st++}};
+  const [r,m,w]=b.units.filter(u=>u.side===0),g=b.units.find(u=>u.E&&u.E.v6boss);m.m.skills=['monk_raise_cover'];m.m.mp=99;r.m.mp=99;w.m.mp=99;
+  // the snare: only empty tiles in reach; a foe stepping on it is rooted
+  r.ap=2;const L=X.v6LegalTiles(b,r,'ranger_hunter_s_snare');checks++;if(!L||!L.length)bad('the snare should have legal tiles');
+  checks++;if(L.some(([x,y])=>X.tcUnitAt(b,x,y)||X.tcT(b.g[y][x]).solid))bad('a snare tile must be empty');
+  const [sx,sy]=L[0];checks++;if(!X.tcDo(r,{k:'sk',sk:'ranger_hunter_s_snare',cx:sx,cy:sy}))bad('the snare should be set');drain(r);
+  checks++;if(!(b.tiles6||[]).some(t=>t.k==='trap'&&t.x===sx&&t.y===sy))bad('the snare should lie on its tile');
+  const f={side:1,E:X.RP_E[X.v6FoeKey('nettlenose_scout',14)],name:'scout',x:sx,y:sy,sz:1,hp:500,max:500,vs:{},vb:[],buff:{atk:0,def:0},aware:true,k:{x:0,y:0}};b.units.push(f);
+  X.v6OnTile(b,f);checks++;if((b.tiles6||[]).some(t=>t.k==='trap'&&t.x===sx&&t.y===sy))bad('the snare should spring on the foe');b.units.pop();
+  // Raise cover: only the empty tiles beside the monk; the tile becomes half cover
+  m.ap=2;const C=X.v6LegalTiles(b,m,'monk_raise_cover');checks++;if(!C.length||C.some(([x,y])=>Math.max(Math.abs(x-m.x),Math.abs(y-m.y))>1))bad('cover goes beside the monk');
+  const [cx,cy]=C[0];X.tcDo(m,{k:'sk',sk:'monk_raise_cover',cx,cy});drain(m);checks++;if(X.tcT(b.g[cy][cx]).cov!==1)bad('Raise cover should leave half cover');
+  // Fireball on Grubb: struck once per tile of his that the blast covers
+  w.ap=2;w.x=g.x;w.y=g.y+4;X.rp.count=[];
+  const tiles=X.tcTiles(g).filter(([x,y])=>Math.hypot(x-g.x,y-g.y)<=1+.01).length;checks++;if(!X.tcDo(w,{k:'sk',sk:'wizard_fireball',cx:g.x,cy:g.y}))bad('Fireball should cast');
+  b.cur=w;b.phase='busy';let st=0;while((b.seq.length||b.step)&&st<800){X.rpBattleStep(1/30);st++}const n=X.rp.count.filter(c=>c.tg===g).length;X.rp.count=null;
+  checks++;if(n!==tiles)bad('Fireball should strike Grubb once per covered tile: '+n+' of '+tiles);X.rp.autoParty=true});
 console.log(fails?fails+' failures':'v6 battles: '+checks+' checks');process.exitCode=fails?1:0;

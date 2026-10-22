@@ -3,7 +3,7 @@
    is rebuilt, so the v37 parity test still guards them. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
-import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcUnitAt} from './rules.js';
+import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
 import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -78,9 +78,9 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
   const pure=!o.mul&&sh.st&&!sh.mul;                       // a pure status skill: rolls the status check, no damage
   if(pure){const p=statusLand({lvlGap:v6Lvl(t)-v6Lvl(a),res:tcStat(t).res,cha:tcStat(a).cha||0,kind:t.E&&t.E.boss?'boss':t.E&&t.E.role==='elite'?'elite':'normal',luck:(tcStat(a).luck||0)-(tcStat(t).luck||0)});
     if(Math.random()<p)v6Status(t,sh.st);else tcFloatU(t,'resisted','#d7c9e3');tcWake(b,t);return}
-  if(kind==='spell'){landed=Math.random()<v6Land(b,a,t,o)}
+  if(kind==='spell'){landed=Math.random()<v6Land(b,a,t,o);if(rp.count)rp.count.push({side:a.side,kind,tg:t,tiles:Math.max(1,Math.round(tcEuc(a,t))),cover:0,p:1})}
   else if(sh.sure){}                                        // a telegraphed boss attack does not roll (balance.md §4a)
-  else{const H=v6Hit(b,a,t,o);fl=H.fl;if(rp.count)rp.count.push({side:a.side,kind,tiles:Math.max(1,Math.round(tcEuc(a,t))),cover:H.cv||0,p:H.p});   // the counting sims (build steps 9, 20)unseen=H.unseen;a.atkN=(a.atkN||0)+1;
+  else{const H=v6Hit(b,a,t,o);fl=H.fl;if(rp.count)rp.count.push({side:a.side,kind,tg:t,tiles:Math.max(1,Math.round(tcEuc(a,t))),cover:H.cv||0,p:H.p});   // the counting sims (build steps 9, 20)unseen=H.unseen;a.atkN=(a.atkN||0)+1;
     if(Math.random()>=H.p){a.misses=(a.misses||0)+1;tcFloatU(t,'miss','#d7c9e3');if(!rp.headless)sfx('pop');tcWake(b,t);return}a.misses=0}
   const [lo,hi]=v6DmgRange(b,a,t,o.mul||1,o);let d=lo+Math.random()*(hi-lo);
   if(!landed){d*=0.5;tcFloatU(t,'resisted','#d7c9e3')}
@@ -171,11 +171,17 @@ function v6DoSkill(b,u,act,S,T){const s=T.v6;
   if(T.tile){tcQ({k:'fn',fn:()=>v6TileSkill(b,u,act,s)});return true}
   return false}
 function v6TileSkill(b,u,act,s){const x=act.cx,y=act.cy;b.tiles6=b.tiles6||[];
-  if(s.fx==='trap'||s.fx==='traps3'){b.tiles6.push({x,y,k:'trap',side:u.side,by:u,s});tcFloatU(u,'trap set','#e0c3ff');return}
+  /* a hidden tile with a status (the ranger's snare) is a trap too */
+  if(s.fx==='trap'||s.fx==='traps3'||(!s.fx&&s.st)){b.tiles6.push({x,y,k:'trap',side:u.side,by:u,s});tcFloatU(u,'trap set','#e0c3ff');return}
   if(s.fx==='cover'){b.tiles6.push({x,y,k:'cover',turns:s.turns||3,old:b.g[y][x]});if(!tcUnitAt(b,x,y))b.g[y][x]='h';tcFloatU(u,'cover','#9be36b');return}
   if(s.fx==='teleport'||s.fx==='leap'){if(tcFits(b,u,x,y)){u.x=x;u.y=y;const h=tcHome(u);u.k.x=h.x;u.k.y=h.y}
     if(s.fx==='leap')b.units.filter(v=>v.side!==u.side&&tcLive(v)&&tcCheb(u,v)<=1).forEach(v=>v6Strike(u,v,{mul:s.mul,v6:s}));return}
   tcFloatU(u,s.n+' (soon)','#d7c9e3')}
+/* the tiles a tile or area skill may target (build step 4, the legal-tile glow; the tap is refused anywhere else) */
+function v6LegalTiles(b,u,sk){const S=SKILLS6[sk],T=RP_ST[sk]||{};if(!T.area)return null;const rng=T.rng==='w'?1:(T.rng||S&&S.rng||1),out=[];
+  for(let y=0;y<b.H;y++)for(let x=0;x<b.W;x++){if(b.vis[y*b.W+x]!==2)continue;const d=T.tile&&S&&S.fx==='cover'?Math.max(Math.abs(x-u.x),Math.abs(y-u.y)):Math.hypot(x-u.x,y-u.y);if(d>rng+.5)continue;
+    if(T.tile){if(tcT(b.g[y][x]).solid||tcUnitAt(b,x,y)||(b.tiles6||[]).some(t=>t.x===x&&t.y===y))continue}else if(!tcLosT(b,u.x,u.y,x,y))continue;out.push([x,y])}
+  return out}
 /* a unit steps on a tile: traps spring (systems.md: the rogue's and the ranger's) */
 function v6OnTile(b,u){if(!b.tiles6)return;const tr=b.tiles6.find(t=>t.k==='trap'&&t.side!==u.side&&t.x===u.x&&t.y===u.y);if(!tr)return;
   b.tiles6=b.tiles6.filter(t=>t!==tr);tcFloatU(u,'trap!','#ffb347');v6Strike(tr.by,u,{mul:tr.s.mul||1,v6:tr.s})}
@@ -273,4 +279,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
     for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

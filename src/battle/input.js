@@ -1,7 +1,7 @@
 /* ---------- player input ---------- */
 import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from './rules.js';
-import {v6TogetherOpts} from './v6battle.js';
+import {v6LegalTiles,v6TogetherOpts} from './v6battle.js';
 import {v6CanRetry,v6Retry} from './v6end.js';
 import {BVH,BVW,TT} from './view.js';
 import {rpLoc,rpVec,rpcv} from '../core/layout.js';
@@ -21,6 +21,7 @@ import {rpBar,rpUI} from '../ui/hud.js';
 
 function tcTargets(b,u){
   const m=b.mode;
+  if(m==='tog')return[...new Set(v6TogetherOpts(b,u).map(o=>o.t))];
   if(m==='move'||m==='atk')return tcCanPay(u,tcActCost(u,{k:'atk'}))?b.units.filter(t=>t.side===1&&tcLive(t)&&tcShown(b,t)&&tcInReach(b,u,t)):[];
   if(m.startsWith('sk:')){const sk=m.slice(3),S=RP_SK[sk],T=RP_ST[sk]||{};
     if(S.heal&&!T.self)return b.units.filter(t=>t.side===0&&tcLive(t)&&tcInReach(b,u,t,T.rng));
@@ -53,7 +54,7 @@ function rpTacTap(x,y){
   if(P&&P.tx===x&&P.ty===y){rpTacConfirm();return}
   const t=tcUnitAt(b,x,y);const m=b.mode;
   if(m.startsWith('sk:')){const sk=m.slice(3),S=RP_SK[sk],T=RP_ST[sk]||{};
-    if(T.area){const rng=T.rng==='w'?rpTW(tcW(u)).r:T.rng;if(Math.hypot(x-u.x,y-u.y)>rng+.5||!tcLosT(b,u.x,u.y,x,y)||b.vis[y*b.W+x]===0){b.msg='Out of range or out of sight.';b.pend=null;return}
+    if(T.area){const L=b.v6&&v6LegalTiles(b,u,sk),rng=T.rng==='w'?rpTW(tcW(u)).r:T.rng;if(L?!L.some(([a,c])=>a===x&&c===y):(Math.hypot(x-u.x,y-u.y)>rng+.5||!tcLosT(b,u.x,u.y,x,y)||b.vis[y*b.W+x]===0)){b.msg=T.tile?'Pick a glowing tile: empty, in reach and in sight.':'Out of range or out of sight.';b.pend=null;return}
       const tiles=[];for(let yy=0;yy<b.H;yy++)for(let xx=0;xx<b.W;xx++)if(Math.hypot(xx-x,yy-y)<=T.area+.01)tiles.push([xx,yy]);
       const hits=b.units.filter(v=>tcLive(v)&&tcShown(b,v)&&tcTiles(v).some(([a,c])=>Math.hypot(a-x,c-y)<=T.area+.01));const own=hits.filter(v=>v.side===0);
       b.pend={act:{k:'sk',sk,cx:x,cy:y},tx:x,ty:y,tiles,info:'<b>'+S.n+'</b>: hits '+hits.filter(v=>v.side===1).length+' foe'+(own.length?' and <b class="hp">'+own.length+' friend'+(own.length>1?'s':'')+'!</b>':'s')+(T.chan?' · lands on your next turn, enemies may dodge':'')+' · '+S.mp+' MP · '+(T.ap==='end'?'ends turn':T.ap+' AP')};return}
