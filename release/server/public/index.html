@@ -411,33 +411,72 @@ button,.rpb,.pill{touch-action:manipulation}
     return f.frame && frames.push(f.frame), f.init && inits.push(f.init), menuItems.sort((a, b) => (a.order || 0) - (b.order || 0)), options.sort((a, b) => (a.order || 0) - (b.order || 0)), f;
   }
 
-  // src/adapters/storage.js
-  var store = {
-    backend: null,
-    raw() {
-      if (this.backend) return this.backend;
-      try {
-        return window.localStorage || null;
-      } catch {
-        return null;
-      }
-    },
-    get(key, fallback) {
-      try {
-        let v = this.raw().getItem(key);
-        return v == null ? fallback : JSON.parse(v);
-      } catch {
-        return fallback;
-      }
-    },
-    set(key, val2) {
-      try {
-        return this.raw().setItem(key, JSON.stringify(val2)), !0;
-      } catch {
-        return !1;
-      }
-    }
+  // src/battle/v6rules.js
+  function HF(A, D) {
+    let d = 40 * (A - D) / Math.max(1e-9, A + D);
+    return d >= 0 ? 1 + 0.05 * d : Math.max(0.3, 1 + 0.025 * d);
+  }
+  function damage(A, M, D, ap, u) {
+    let D2 = D * (1 - (ap || 0));
+    return Math.max(1, 0.39 * A * M * HF(A, D2)) * (1 + 0.15 * (2 * (u ?? 0.5) - 1));
+  }
+  var tilt = (p, luck) => {
+    if (!luck) return p;
+    let q = Math.pow(1.1, luck);
+    return p * q / (p * q + 1 - p);
   };
+  var MAP = (i, light) => i <= 0 ? 0 : light ? i === 1 ? 4 : 8 : i === 1 ? 5 : 10;
+  function hitChance(s) {
+    let dodge = s.noDodge ? 0 : (s.dodge || 0) * (s.unseen ? 0.5 : 1), p = 100 + (s.acc || 0) - dodge - MAP(s.i || 0, s.light);
+    return s.kind === "ranged" && (p -= (s.cover || 0) + (s.steady || 5) * Math.max(0, (s.tiles || 1) - 1)), s.mercy && (p += 15), tilt(Math.min(1, Math.max(0, p / 100)), s.luck || 0);
+  }
+  function spellLand(s) {
+    let r = 0.1 + 0.01 * Math.max(0, s.lvlGap || 0) + 0.01 * (s.res || 0);
+    return s.el === "weak" ? r -= 0.1 : s.el === "resist" && (r += 0.15), r = Math.min(0.4, Math.max(0.05, r)), s.unseen && (r *= 0.5), r += (s.steady || 4) / 100 * Math.max(0, (s.tiles || 1) - 1), tilt(Math.min(1, Math.max(0, 1 - r)), s.luck || 0);
+  }
+  function statusLand(s) {
+    let p = 80 - 2 * Math.max(0, s.lvlGap || 0) - (s.res || 0) + 2 * (s.cha || 0);
+    return p = Math.max(40, p), p *= s.kind === "boss" ? 0.5 : s.kind === "elite" ? 0.8 : 1, tilt(Math.min(1, p / 100), s.luck || 0);
+  }
+  var CRIT = 0.08, CRIT_MUL = 1.5;
+  function critChance(c) {
+    let D = c.D || CRIT_MUL, beta = c.beta == null ? 1 : c.beta, base = c.base == null ? CRIT : c.base, pos = (c.flank ? 0.15 : 0) + (c.unseen ? 0.1 : 0) + (c.unaware ? 0.1 : 0), scale = (CRIT_MUL - 1) / Math.max(CRIT_MUL - 1, D - beta), p = base + pos * scale;
+    if (c.luck) {
+      let g = tilt(CRIT, c.luck) - CRIT;
+      p += g * scale;
+    }
+    return Math.min(1, Math.max(0, p));
+  }
+  var SCORES = ["STR", "DEX", "CON", "INT", "WIS", "CHA"], modOf = (v) => Math.floor((v - 10) / 2);
+  function balanceOf(sc) {
+    let v = SCORES.map((k) => sc[k]), mu = v.reduce((a, b) => a + b, 0) / 6, sg = Math.sqrt(v.reduce((a, b) => a + (b - mu) ** 2, 0) / 6);
+    return Math.max(0, 1 - sg / mu);
+  }
+  var mbar = (sc) => SCORES.reduce((a, k) => a + modOf(sc[k]), 0) / 6, rateOf = (init) => 90 + init;
+  function tick(units) {
+    units.forEach((u) => {
+      u.hp > 0 && (u.ct = (u.ct || 0) + rateOf(u.init == null ? 10 : u.init));
+    });
+    let out = [];
+    for (; ; ) {
+      let ready = units.filter((u) => u.hp > 0 && u.ct >= 100).sort((a, b) => b.ct - a.ct || a.side - b.side || (a.seat || 0) - (b.seat || 0) || (a.id || 0) - (b.id || 0));
+      if (!ready.length) break;
+      ready.forEach((u) => {
+        u.ct -= 100, out.push(u);
+      });
+    }
+    return out;
+  }
+  var moraleP = (M) => Math.abs(M) / (Math.abs(M) + 6), packMorale = (bondMean, leadership, corrMean) => bondMean + (leadership || 0) / 5 - (corrMean || 0) / 10, STREAK_MAX = 3;
+  var QUICK_MUL = 1 / (1 + 0.6 * 0.96);
+  var DOT = { burn: { share: 1 / 16, weaken: 0.25 }, poison: { share: 1 / 8, weaken: 0 } }, dotAmount = (kind, targetMax, stdFoeHp, resisted) => DOT[kind].share * Math.min(targetMax, stdFoeHp) * (resisted ? 0.5 : 1);
+  function pickByThreat(list, r) {
+    let w = list.map((u) => Math.max(0, u.threat == null ? 1 : u.threat)), tw = w.reduce((a, b) => a + b, 0), x = r * tw;
+    for (let i = 0; i < list.length; i++)
+      if (x -= w[i], x <= 0) return list[i];
+    return list[list.length - 1];
+  }
+  var darkMul = (corruption) => corruption >= 50 ? 1.4 : 1.25;
 
   // src/data/places.js
   var RP_PLACES = {
@@ -1338,6 +1377,34 @@ button,.rpb,.pill{touch-action:manipulation}
     return ctx = v;
   }
 
+  // src/adapters/storage.js
+  var store = {
+    backend: null,
+    raw() {
+      if (this.backend) return this.backend;
+      try {
+        return window.localStorage || null;
+      } catch {
+        return null;
+      }
+    },
+    get(key, fallback) {
+      try {
+        let v = this.raw().getItem(key);
+        return v == null ? fallback : JSON.parse(v);
+      } catch {
+        return fallback;
+      }
+    },
+    set(key, val2) {
+      try {
+        return this.raw().setItem(key, JSON.stringify(val2)), !0;
+      } catch {
+        return !1;
+      }
+    }
+  };
+
   // src/core/save.js
   var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 1, saveKey = SAVE_KEY;
   function setSaveKey(k) {
@@ -1534,6 +1601,127 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function set_soundOn(v) {
     return soundOn = v;
+  }
+
+  // src/battle/v6end.js
+  function v6Fall(b, t) {
+    !b || !b.v6 || t.side !== 0 || !t.m || (t.m.streak = (t.m.streak || 0) - 1, b.falls = (b.falls || 0) + 1);
+  }
+  function v6Leave(b, u) {
+    !b || !b.v6 || !u.m || b.units.some((v) => v.side === 0 && v !== u && v.hp <= 0 && !v.fled) && (u.m.corr = (u.m.corr || 0) + 2, b.msg = u.name + " leaves a friend behind… (corruption +2)");
+  }
+  function v6Won(b) {
+    !b || !b.v6 || b.units.filter((u) => u.side === 0 && u.m).forEach((u) => {
+      let m = u.m, st = rpStats(m);
+      m.mp = Math.min(st.mp, (m.mp || 0) + Math.round(st.mp * 0.1)), b.falls || (m.streak = Math.min(3, (m.streak || 0) + 1));
+    });
+  }
+  function v6Lost(b) {
+    if (!b || !b.v6) return;
+    let boss = b.units.find((u) => u.E && u.E.v6boss);
+    !boss || !rp.s || (rp.s.bossDefeats = rp.s.bossDefeats || {}, rp.s.bossDefeats[boss.E.id] = (rp.s.bossDefeats[boss.E.id] || 0) + 1);
+  }
+  function v6Keep(b, keys, opt) {
+    !b || !b.v6 || (b.start6 = { keys: keys.slice(), opt: Object.assign({}, opt), hm: (opt.members || []).map((x) => [x.m, x.m.hp, x.m.mp]) });
+  }
+  function v6CanRetry(b) {
+    return !!(b && b.v6 && b.over === "lose" && b.start6 && (b.boss || b.start6.opt.setPiece));
+  }
+  function v6Retry() {
+    let b = rp.bt;
+    if (!v6CanRetry(b)) return !1;
+    let S = b.start6;
+    S.hm.forEach(([m, hp, mp]) => {
+      m.hp = hp, m.mp = mp;
+    });
+    let boss = b.units.find((u) => u.E && u.E.v6boss), keys = boss ? [v6BossKey(boss.E.id)] : S.keys;
+    return rp.bt = null, rp.mode = "map", rpBattle(keys, boss ? Object.assign({}, S.opt, { boss: keys[0] }) : S.opt), rp.bt && (rp.bt.v6 = 1), !0;
+  }
+  function v6End(b) {
+    !b || !b.v6 || b.units.filter((u) => u.side === 0 && u.m).forEach((u) => {
+      let m = u.m;
+      if (b.over === "lose") {
+        let st = rpStats(m);
+        m.hp = st.hp, m.mp = st.mp;
+      } else m.hp <= 0 && (m.hp = 1);
+    });
+  }
+  feature({ id: "v6end", on: { "battle:won": (b) => v6Won(b), "battle:lost": (b) => v6Lost(b), "battle:end": (b) => v6End(b) } });
+
+  // src/core/options.js
+  var RP_OPT_KEY = "kobold-pit-rpopt", rpOpt = Object.assign({ hand: "left", buzz: !0 }, store.get(RP_OPT_KEY, {}));
+  function rpOptSave() {
+    store.set(RP_OPT_KEY, rpOpt);
+    let v = $("v-rpg");
+    v && v.classList.toggle("lefty", rpOpt.hand === "right"), rpLayout();
+  }
+  function rpBuzz(p) {
+    if (!(rp.headless || !rpOpt.buzz))
+      try {
+        navigator.vibrate && navigator.vibrate(p);
+      } catch {
+      }
+  }
+
+  // src/core/layout.js
+  var RT = 32, RVW = 11, RVH = 11, RP_TILES = 10, RP_MAXTILE = 56, RPW = RT * RVW, RPH = RT * RVH;
+  function rpLoc(e, el2) {
+    let r = el2.getBoundingClientRect();
+    return rp.rot ? { x: e.clientY - r.top, y: r.right - e.clientX, w: r.height, h: r.width } : { x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height };
+  }
+  function rpVec(dx, dy) {
+    return rp.rot ? { x: dy, y: -dx } : { x: dx, y: dy };
+  }
+  var rpcv = document.getElementById("rpcv"), rpctx = rpcv.getContext("2d"), rpS = 1, rpDpr = 1;
+  function rpResize() {
+    let pe = rpcv.parentElement, box2 = { width: pe.clientWidth, height: pe.clientHeight };
+    if (!box2.width || !box2.height) return;
+    if (!(rp.mode === "battle" && rp.bt)) {
+      let side = Math.min(box2.width, box2.height), k = Math.max(RP_TILES, side / RP_MAXTILE) * RT / side;
+      RPW = Math.round(box2.width * k), RPH = Math.round(box2.height * k);
+    }
+    let VW = rpViewW(), VH = rpViewH(), sc = Math.min(box2.width / VW, box2.height / VH), w = Math.floor(VW * sc), h = Math.floor(VH * sc);
+    rpcv.style.width = w + "px", rpcv.style.height = h + "px", rpDpr = Math.min(2, window.devicePixelRatio || 1);
+    let cw = Math.round(w * rpDpr), ch = Math.round(h * rpDpr);
+    (rpcv.width !== cw || rpcv.height !== ch) && (rpcv.width = cw, rpcv.height = ch), rpS = w / VW, rp.mapImg = null, rp.bt && (rp.bt.img = null);
+  }
+  function rpLayout() {
+    let v = $("v-rpg");
+    if (!v || !v.classList) return;
+    let rot = innerHeight > innerWidth;
+    (rot !== rp.rot || !v.classList.contains("land")) && (rp.rot = rot, v.classList.toggle("rot", rot), v.classList.add("land"), typeof rpResize == "function" && requestAnimationFrame(rpResize));
+  }
+  function rpGoFull(force) {
+    if (rpOpt.full === !1 && !force || !force && !(window.matchMedia && matchMedia("(pointer:coarse)").matches)) return;
+    let el2 = document.documentElement;
+    try {
+      let p = el2.requestFullscreen ? el2.requestFullscreen({ navigationUI: "hide" }) : el2.webkitRequestFullscreen ? el2.webkitRequestFullscreen() : null;
+      p && p.then && p.then(() => {
+        try {
+          screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {
+          });
+        } catch {
+        }
+      }).catch(() => {
+      });
+    } catch {
+    }
+  }
+  function rpExitFull() {
+    try {
+      document.fullscreenElement && document.exitFullscreen && document.exitFullscreen().catch(() => {
+      });
+    } catch {
+    }
+  }
+
+  // src/battle/view.js
+  var TT = 40, TVW = 9, TVH = 11, BVW = TT * TVW, BVH = TT * TVH;
+  function rpViewW() {
+    return rp.mode === "battle" && rp.bt ? BVW : RPW;
+  }
+  function rpViewH() {
+    return rp.mode === "battle" && rp.bt ? BVH : RPH;
   }
 
   // src/data/battle.js
@@ -3324,7 +3512,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-19T17:19:57Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-22T20:11:49Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -4182,6 +4370,10 @@ button,.rpb,.pill{touch-action:manipulation}
         x === u.x && y === u.y || (ctx.fillStyle = d <= mov ? "rgba(111,184,255,.28)" : "rgba(255,213,74,.22)", ctx.fillRect(x * TT + 1, y * TT + 1, TT - 2, TT - 2));
       });
     }
+    if (mine && b.v6 && !b.pend && b.mode.startsWith("sk:")) {
+      let L = v6LegalTiles(b, u, b.mode.slice(3));
+      L && (ctx.fillStyle = "rgba(155,227,107," + (0.18 + 0.06 * Math.sin(b.t * 4)) + ")", L.forEach(([x, y]) => ctx.fillRect(x * TT + 1, y * TT + 1, TT - 2, TT - 2)));
+    }
     b.chans.forEach((c) => {
       let T = Math.ceil(c.area);
       ctx.fillStyle = "rgba(255,90,60," + (0.18 + 0.1 * Math.sin(b.t * 6)) + ")";
@@ -4478,6 +4670,7 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/battle/input.js
   function tcTargets(b, u) {
     let m = b.mode;
+    if (m === "tog") return [...new Set(v6TogetherOpts(b, u).map((o) => o.t))];
     if (m === "move" || m === "atk") return tcCanPay(u, tcActCost(u, { k: "atk" })) ? b.units.filter((t) => t.side === 1 && tcLive(t) && tcShown(b, t) && tcInReach(b, u, t)) : [];
     if (m.startsWith("sk:")) {
       let sk = m.slice(3), S = RP_SK[sk], T = RP_ST[sk] || {};
@@ -4522,9 +4715,9 @@ button,.rpb,.pill{touch-action:manipulation}
     if (m.startsWith("sk:")) {
       let sk = m.slice(3), S = RP_SK[sk], T = RP_ST[sk] || {};
       if (T.area) {
-        let rng = T.rng === "w" ? rpTW(tcW(u)).r : T.rng;
-        if (Math.hypot(x - u.x, y - u.y) > rng + 0.5 || !tcLosT(b, u.x, u.y, x, y) || b.vis[y * b.W + x] === 0) {
-          b.msg = "Out of range or out of sight.", b.pend = null;
+        let L = b.v6 && v6LegalTiles(b, u, sk), rng = T.rng === "w" ? rpTW(tcW(u)).r : T.rng;
+        if (L ? !L.some(([a, c]) => a === x && c === y) : Math.hypot(x - u.x, y - u.y) > rng + 0.5 || !tcLosT(b, u.x, u.y, x, y) || b.vis[y * b.W + x] === 0) {
+          b.msg = T.tile ? "Pick a glowing tile: empty, in reach and in sight." : "Out of range or out of sight.", b.pend = null;
           return;
         }
         let tiles2 = [];
@@ -4547,6 +4740,15 @@ button,.rpb,.pill{touch-action:manipulation}
         return;
       }
       b.msg = "Items work on yourself or a kobold next to you.", b.pend = null;
+      return;
+    }
+    if (m === "tog") {
+      let o = t && v6TogetherOpts(b, u).find((o2) => o2.t === t);
+      if (!o) {
+        b.msg = "Pick a foe that you and a friend both stand next to.", b.pend = null;
+        return;
+      }
+      b.pend = { act: { k: "together", f: o.f, t }, t, tx: x, ty: y, info: "<b>Together</b> with " + esc2(o.f.name) + " on " + esc2(t.name) + ": both attack now, flanking (no cover, better crits); " + esc2(o.f.name) + " spends its next turn · 1 AP · once a fight per pair" };
       return;
     }
     if (t && t.side === 1 && tcShown(b, t)) {
@@ -4607,6 +4809,9 @@ button,.rpb,.pill{touch-action:manipulation}
       case "cont":
         rpEndBattle();
         break;
+      case "retry":
+        v6Retry(), rpUI(!0);
+        break;
       case "spd":
         rpOpt.bspd = (rpOpt.bspd || 1) >= 4 ? 1 : (rpOpt.bspd || 1) * 2, rpOptSave();
         break;
@@ -4648,7 +4853,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let st = rpStats(x.m);
       return '<div class="tpm' + (x.hp <= 0 ? " down" : "") + (x.fled ? " gone" : "") + (x === u ? " on" : "") + (x.ctl === "remote" ? " fr" : "") + '"><b>' + esc2(x.name) + (x.ctl === "remote" ? " <i>" + esc2(netName()) + "</i>" : "") + "</b>" + rpBar(Math.max(0, x.hp), st.hp, x.hp > st.hp * 0.5 ? "#7ad67a" : x.hp > st.hp * 0.25 ? "#ffc857" : "#ff6b6b") + "<small>" + Math.max(0, x.hp) + " HP · " + x.m.mp + " MP" + (x === u && b.phase !== "place" ? " · " + "●".repeat(Math.max(0, x.ap)) + "○".repeat(Math.max(0, 2 - x.ap)) : "") + "</small></div>";
     }).join("") + "</div>", h += '<div class="rpmsg tmsg">' + (b.pend ? b.pend.info : esc2(b.msg)) + "</div>", b.phase === "place") h += b.net && b.net.role === "guest" ? '<div class="tbar"><p class="rptip">Tap one of your kobolds, then a blue tile to move it. ' + esc2(netName()) + " starts the battle.</p></div>" : '<div class="tbar"><p class="rptip">Tap a kobold, then a blue tile to move it. ' + (b.net ? esc2(netName()) + " can place theirs too." : "Enemies hide in the fog.") + '</p><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';
-    else if (b.phase === "end") h += '<div class="tbar"><button class="pill go big" type="button" data-tac="cont">Continue ▸</button></div>';
+    else if (b.phase === "end") h += '<div class="tbar">' + (v6CanRetry(b) ? '<button class="pill big" type="button" data-tac="retry">Try again</button>' : "") + '<button class="pill go big" type="button" data-tac="cont">Continue ▸</button></div>';
     else if (b.phase === "turn" && u && u.side === 0)
       if (b.pend) h += '<div class="tbar two"><button class="rpb x" type="button" data-tac="cancel">✕ Cancel</button><button class="rpb go" type="button" data-tac="ok">✓ Confirm<small>or tap the same spot again</small></button></div>';
       else {
@@ -4656,7 +4861,7 @@ button,.rpb,.pill{touch-action:manipulation}
         h += '<div class="rpcmd tcmd"><button class="rpb go' + on2("atk") + '" type="button" data-tac="mode" data-v="atk"' + (tcCanPay(u, ac2) ? "" : " disabled") + ">Attack<small>" + WEAPONS[w].n + " · " + (TW.r > 1 ? "range " + TW.r : "reach 1") + " · " + (ac2 === "end" ? "ends turn" : ac2 + " AP") + "</small></button>" + rpMemSkills(m).map((k) => {
           let S = RP_SK[k], T = RP_ST[k] || { ap: "end" };
           return '<button class="rpb sk' + on2("sk:" + k) + '" type="button" data-tac="mode" data-v="sk:' + k + '"' + (m.mp < S.mp || !tcCanPay(u, T.ap) ? " disabled" : "") + ">" + S.n + "<small>" + S.mp + " MP · " + (T.ap === "end" ? "ends turn" : T.ap + " AP") + (T.chan ? " · next turn" : "") + "</small></button>";
-        }).join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0).map((k) => '<button class="rpb it' + on2("it:" + k) + '" type="button" data-tac="mode" data-v="it:' + k + '">' + RP_ITEMS[k].n + " ×" + s.bag[k] + "<small>1 AP · self or adjacent</small></button>").join("") + (TW.r > 1 && !tcMelee(u) ? '<button class="rpb" type="button" data-tac="mode" data-v="watch">Watch<small>Shoot the first mover</small></button>' : "") + '<button class="rpb" type="button" data-tac="mode" data-v="guard">Guard<small>Harder to hit</small></button>' + (b.exits && u.y === b.H - 1 ? '<button class="rpb" type="button" data-tac="mode" data-v="leave">Leave<small>Escape the fight</small></button>' : "") + '<button class="rpb x" type="button" data-tac="mode" data-v="end">End turn</button></div>';
+        }).join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0).map((k) => '<button class="rpb it' + on2("it:" + k) + '" type="button" data-tac="mode" data-v="it:' + k + '">' + RP_ITEMS[k].n + " ×" + s.bag[k] + "<small>1 AP · self or adjacent</small></button>").join("") + (TW.r > 1 && !tcMelee(u) ? '<button class="rpb" type="button" data-tac="mode" data-v="watch">Watch<small>Shoot the first mover</small></button>' : "") + (v6TogetherOpts(b, u).length ? '<button class="rpb go' + on2("tog") + '" type="button" data-tac="mode" data-v="tog">Together<small>' + [...new Set(v6TogetherOpts(b, u).map((o) => esc2(o.f.name)))].join(", ") + " · 1 AP · both attack</small></button>" : "") + '<button class="rpb" type="button" data-tac="mode" data-v="guard">Guard<small>Harder to hit</small></button>' + (b.exits && u.y === b.H - 1 ? '<button class="rpb" type="button" data-tac="mode" data-v="leave">Leave<small>Escape the fight</small></button>' : "") + '<button class="rpb x" type="button" data-tac="mode" data-v="end">End turn</button></div>';
       }
     else h += '<div class="tbar"><p class="rptip">' + (u && u.ctl === "remote" ? esc2(netName()) + "'s turn…" : u && u.side === 1 ? "Enemy turn…" : "…") + '</p><button class="pill" type="button" data-tac="spd">⏩ Enemy speed ' + (rpOpt.bspd || 1) + "×</button></div>";
     return { sig, h };
@@ -5307,6 +5512,145 @@ button,.rpb,.pill{touch-action:manipulation}
   RP_LOOT.g = RP_LOOT.C;
   var RP_SHOP2 = ["cap_pot", "cap_wizard", "cap_flower", "ar_vest", "ar_robe", "sh_lid", "sh_quiver", "sh_tome", "rg_life", "rg_mana", "bt_frog", "cl_moss", "w_bone", "w_pan", "w_popgun", "w_frostrod", "w_healwand", "w_sword", "w_spear", "w_blunder", "w_firewand", "w_club", "w_cannon", "w_archstaff"];
 
+  // src/data/v6/classes.js
+  var CLASSES6 = { fighter: { n: "Fighter", fam: "blades", split: [0.3, 0.5, 0.2], hp: 1, atk: 1, spa: 0.5, def: 1, sd: 0.8, spd: 1, mana: [8, 30], acc: 5, init: 0, threat: 1, prio: "STR CON DEX WIS CHA INT", wave: 1 }, barbarian: { n: "Barbarian", fam: "axes", split: [0.5, 0.35, 0.15], hp: 1.1, atk: 1.2, spa: 0.5, def: 0.63, sd: 0.5, spd: 1, mana: [6, 24], acc: -5, init: 0, threat: 0.84, prio: "STR CON DEX WIS CHA INT", wave: 2 }, paladin: { n: "Paladin", fam: "blades", split: [0.3, 0.4, 0.3], hp: 0.95, atk: 0.95, spa: 0.74, def: 0.88, sd: 0.88, spd: 0.9, mana: [8, 36], acc: 0, init: 0, threat: 0.87, prio: "STR CHA CON WIS DEX INT", wave: 2 }, ranger: { n: "Ranger", fam: "guns", split: [0.45, 0.2, 0.35], hp: 0.8, atk: 1.12, spa: 0.6, def: 0.69, sd: 0.69, spd: 1.3, mana: [10, 40], acc: 10, init: 2, threat: 0.64, prio: "DEX WIS CON STR INT CHA", wave: 1 }, rogue: { n: "Rogue", fam: "daggers", split: [0.45, 0.2, 0.35], hp: 0.75, atk: 1.07, spa: 0.5, def: 0.78, sd: 0.62, spd: 1.4, mana: [8, 36], acc: 5, init: 2, threat: 0.64, prio: "DEX INT CON CHA WIS STR", wave: 1 }, monk: { n: "Monk", fam: "fists", split: [0.33, 0.33, 0.34], hp: 0.9, atk: 0.93, spa: 0.93, def: 0.82, sd: 0.82, spd: 1.1, mana: [10, 46], acc: 5, init: 1, threat: 0.79, prio: null, wave: 1 }, cleric: { n: "Cleric", fam: "holy", split: [0.15, 0.3, 0.55], hp: 0.85, atk: 0.6, spa: 0.77, def: 0.93, sd: 1.49, spd: 0.9, mana: [14, 62], acc: -10, init: 0, threat: 0.81, prio: "WIS CON STR CHA DEX INT", wave: 1 }, druid: { n: "Druid", fam: "nature", split: [0.25, 0.25, 0.5], hp: 0.85, atk: 0.6, spa: 0.82, def: 0.74, sd: 1.18, spd: 1, mana: [14, 62], acc: -10, init: 0, threat: 0.7, prio: "WIS CON DEX INT STR CHA", wave: 2 }, bard: { n: "Bard", fam: "instruments", split: [0.2, 0.2, 0.6], hp: 0.75, atk: 0.6, spa: 0.78, def: 0.82, sd: 1.31, spd: 1.1, mana: [12, 58], acc: -10, init: 0, threat: 0.66, prio: "CHA DEX CON WIS INT STR", wave: 1 }, wizard: { n: "Wizard", fam: "wands", split: [0.55, 0.1, 0.35], hp: 0.65, atk: 0.6, spa: 1.09, def: 0.67, sd: 1.07, spd: 0.95, mana: [16, 70], acc: 0, init: 0, threat: 0.51, prio: "INT CON DEX WIS CHA STR", wave: 1 }, sorcerer: { n: "Sorcerer", fam: "orbs", split: [0.6, 0.12, 0.28], hp: 0.7, atk: 0.6, spa: 1.22, def: 0.67, sd: 1.07, spd: 1, mana: [14, 64], acc: 0, init: 0, threat: 0.55, prio: "CHA CON DEX INT WIS STR", wave: 1 }, warlock: { n: "Warlock", fam: "teapots", split: [0.5, 0.22, 0.28], hp: 0.8, atk: 0.6, spa: 1.03, def: 0.76, sd: 1.22, spd: 1, mana: [12, 52], acc: 0, init: 0, threat: 0.67, prio: "CHA CON DEX WIS INT STR", wave: 2 } }, BASE6 = { atk: [5, 2.2], def: [3, 1.8], hp: [44, 11] }, FAMILIES = { blades: { p: 1, reach: 1 }, axes: { p: 1.15, heavy: 1, spdPen: 1.5 }, guns: { p: 0.95, quick: 1, ranged: 1, steady: [6, 5, 12, 4, 3.5, 3] }, daggers: { p: 0.85, quick: 1, crit: 1 }, fists: { p: 0.8, quick: 1 }, wands: { p: 1, magic: 1, steady: 3 }, orbs: { p: 1.05, magic: 1, steady: 4 }, teapots: { p: 0.95, magic: 1, steady: 2.5 }, holy: { p: 0.6, magic: 1, steady: 5, healBonus: 0.15 }, nature: { p: 0.85, magic: 1, steady: 4 }, instruments: { p: 0.6, magic: 1, steady: 5, songBonus: 0.15 } }, TIER_POWER = [3, 8, 15, 23, 31, 39];
+
+  // src/data/v6/items.js
+  var GEAR6 = { armour: { plain: [{ n: "Leather vest", st: { def: 1 } }, { n: "Padded jacket", st: { def: 3.6 } }, { n: "Scale mail", st: { def: 6.7 } }, { n: "Basalt plate", st: { def: 11 } }, { n: "Frostfur coat", st: { def: 14 } }, { n: "Ember plate", st: { def: 18 } }], robe: [{ n: "Apprentice robe", st: { def: 0.5, mana: 0.8 } }, { n: "Scribe's robe", st: { def: 1.8, mana: 1.2 } }, { n: "Sand-silk robe", st: { def: 3.4, mana: 1.6 } }, { n: "Ember robe", st: { def: 5.3, mana: 2.1 } }, { n: "Frost-weave robe", st: { def: 7.1, mana: 2.6 } }, { n: "Pearl robe", st: { def: 9, mana: 3.1 } }], scout: [{ n: "Twig jerkin", st: { def: 0.5, spd: 2.3 } }, { n: "Runner's vest", st: { def: 1.8, spd: 2.3 } }, { n: "Sand-scale jerkin", st: { def: 3.4, spd: 2.3 } }, { n: "Basalt-lite vest", st: { def: 5.3, spd: 2.3 } }, { n: "Snow-scout coat", st: { def: 7.1, spd: 2.3 } }, { n: "Shore-scout coat", st: { def: 9, spd: 2.3 } }] }, shield: { plain: [{ n: "Pot lid", st: { def: 0.4, atk: 0.1 } }, { n: "Pan guard", st: { def: 1.3, atk: 0.4 } }, { n: "Spiked shield", st: { def: 2.4, atk: 0.7 } }, { n: "Basalt buckler", st: { def: 3.8, atk: 1.1 } }, { n: "Ice slab", st: { def: 5.1, atk: 1.5 } }, { n: "Baker's tray", st: { def: 6.5, atk: 1.9 } }] }, helm: { plain: [{ n: "Leaf crown", st: { def: 0.3, hp: 1.3 } }, { n: "Iron pot", st: { def: 1, hp: 2.6 } }, { n: "Bucket helm", st: { def: 1.9, hp: 4.3 } }, { n: "Copper kettle", st: { def: 3, hp: 6.3 } }, { n: "Frostfur hood", st: { def: 4.1, hp: 8.3 } }, { n: "Pearl circlet", st: { def: 5.2, hp: 10 } }], robe: [{ n: "Cloth cap", st: { def: 0.2, mana: 0.2, hp: 1.3 } }, { n: "Scholar's hat", st: { def: 0.5, mana: 0.3, hp: 2.6 } }, { n: "Honey-silk hood", st: { def: 1, mana: 0.5, hp: 4.3 } }, { n: "Ember hood", st: { def: 1.5, mana: 0.6, hp: 6.3 } }, { n: "Snow cowl", st: { def: 2, mana: 0.7, hp: 8.3 } }, { n: "Pearl cowl", st: { def: 2.6, mana: 0.9, hp: 10.2 } }], scout: [{ n: "Feather band", st: { def: 0.2, spd: 0.7, hp: 1.3 } }, { n: "Scout's cap", st: { def: 0.5, spd: 0.7, hp: 2.6 } }, { n: "Goggles", st: { def: 1, spd: 0.7, hp: 4.3 } }, { n: "Ember visor", st: { def: 1.5, spd: 0.7, hp: 6.3 } }, { n: "Fur ear-flaps", st: { def: 2, spd: 0.7, hp: 8.3 } }, { n: "Gull-feather cap", st: { def: 2.6, spd: 0.7, hp: 10.2 } }] }, boots: { plain: [{ n: "Frog boots", st: { spd: 1.3, def: 0.2 } }, { n: "Quick boots", st: { spd: 1.3, def: 0.5 } }, { n: "Iron boots", st: { spd: 1.3, def: 1 } }, { n: "Ember treads", st: { spd: 1.3, def: 1.5 } }, { n: "Snowshoes", st: { spd: 1.3, def: 2 } }, { n: "Sea-legs", st: { spd: 1.3, def: 2.6 } }] }, cloak: { plain: [{ n: "Moss cape", st: { hp: 2.2, def: 0.2 } }, { n: "Cozy scarf", st: { hp: 4.4, def: 0.5 } }, { n: "Shadow cloak", st: { hp: 7.2, def: 1 } }, { n: "Honey-silk cloak", st: { hp: 10, def: 1.5 } }, { n: "Frostfur cloak", st: { hp: 14, def: 2 } }, { n: "Ember mantle", st: { hp: 17, def: 2.6 } }], robe: [{ n: "Linen shawl", st: { def: 0.1, mana: 0.1, hp: 2.2 } }, { n: "Reading shawl", st: { def: 0.3, mana: 0.2, hp: 4.4 } }, { n: "Sun shawl", st: { def: 0.5, mana: 0.2, hp: 7.2 } }, { n: "Cinder shawl", st: { def: 0.8, mana: 0.3, hp: 10.5 } }, { n: "Fog shawl", st: { def: 1, mana: 0.4, hp: 13.8 } }, { n: "Tide shawl", st: { def: 1.3, mana: 0.4, hp: 17.1 } }], scout: [{ n: "Grass cape", st: { def: 0.1, spd: 0.3, hp: 2.2 } }, { n: "Dust cape", st: { def: 0.3, spd: 0.3, hp: 4.4 } }, { n: "Dune cape", st: { def: 0.5, spd: 0.3, hp: 7.2 } }, { n: "Ash cape", st: { def: 0.8, spd: 0.3, hp: 10.5 } }, { n: "White cape", st: { def: 1, spd: 0.3, hp: 13.8 } }, { n: "Sea-spray cape", st: { def: 1.3, spd: 0.3, hp: 17.1 } }] }, neck: { plain: [{ n: "Snail-shell charm", st: { atk: 0.4, hp: 1.8 } }, { n: "Glowcap pendant", st: { atk: 1, hp: 3.5 } }, { n: "Dragon tooth", st: { atk: 1.7, hp: 5.7 } }, { n: "Honey-glass charm", st: { atk: 2.7, hp: 8.4 } }, { n: "Frost pearl", st: { atk: 3.6, hp: 11 } }, { n: "Ember locket", st: { atk: 4.5, hp: 14 } }] }, ring: { plain: [{ n: "Copper ring", st: { atk: 0.3, hp: 2.2 } }, { n: "Honey ring", st: { atk: 0.7, hp: 4.4 } }, { n: "Gold-scrap ring", st: { atk: 1.2, hp: 7.2 } }, { n: "Ember ring", st: { atk: 1.9, hp: 10 } }, { n: "Ice ring", st: { atk: 2.6, hp: 14 } }, { n: "Pearl ring", st: { atk: 3.2, hp: 17 } }] } };
+
+  // src/data/v6/skills.js
+  var SKILLS6 = { fighter_power_bonk: { id: "fighter_power_bonk", cls: "fighter", n: "Power bonk", learn: "start", sub: null, d: "a big hit on one foe", mp: 3, ap: 1, t: "foe", rng: "w", mul: 1.8, dark: { n: "Grudge bonk", d: "the stick glows purple and remembers who it hit" } }, fighter_cleave: { id: "fighter_cleave", cls: "fighter", n: "Cleave", learn: "talent L2", sub: null, d: "swing through every foe in front (−10 per target)", mp: 3, ap: 2, t: "around", mul: 0.85, hit: -10, dark: { n: "Hate cleave", d: "a black arc that leaves a smear in the air" } }, fighter_shield_bash: { id: "fighter_shield_bash", cls: "fighter", n: "Shield bash", learn: "talent L5", sub: null, d: "hit and stun one foe", mp: 4, ap: 1, t: "foe", rng: "w", mul: 1.1, st: { k: "stun", turns: 1 }, dark: { n: "Spite bash", d: "the shield face grows teeth for a moment" } }, fighter_battle_cry: { id: "fighter_battle_cry", cls: "fighter", n: "Battle cry", learn: "talent L11", sub: null, d: "the pack hits 25% harder for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "atk", v: 0.25, turns: 3 }, dark: { n: "War howl", d: "a cry that makes friends hit harder and flowers wilt" } }, fighter_second_wind: { id: "fighter_second_wind", cls: "fighter", n: "Second wind", learn: "talent L14", sub: null, d: "heal yourself 30%", mp: 2, ap: 1, t: "self", heal: 0.3, dark: { n: "Stolen breath", d: "breath drawn from the cold air around the foes" } }, fighter_shield_wall: { id: "fighter_shield_wall", cls: "fighter", n: "Shield wall", learn: "L8", sub: "Knight", d: "you and friends beside you take 30% less for 3 turns", mp: 2, ap: 1, t: "allies", r: 1, buff: { k: "dmgtaken", v: -0.3, turns: 3 }, self: !0, dark: { n: "Iron grudge", d: "a wall of shields with spikes turned inward" } }, fighter_challenge: { id: "fighter_challenge", cls: "fighter", n: "Challenge", learn: "L16", sub: "Knight", d: "every foe within 4 tiles must attack you for 2 turns (threat ×4)", mp: 4, ap: 1, t: "area", rng: 0, r: 4, fx: "taunt", turns: 2, dark: { n: "Taunt of ash", d: "foes must come at you; their eyes burn red" } }, fighter_whirlwind: { id: "fighter_whirlwind", cls: "fighter", n: "Whirlwind", learn: "L8", sub: "Battle master", d: "spin and hit everything in reach (−10 per target)", mp: 6, ap: 2, t: "around", mul: 1.25, hit: -10, dark: { n: "Black whirl", d: "a spin that drags smoke behind it" } }, fighter_riposte: { id: "fighter_riposte", cls: "fighter", n: "Riposte", learn: "L16", sub: "Battle master", d: "the next melee attack on you this round is answered with ×1.0", mp: 2, ap: 1, t: "self", fx: "riposte", mul: 1, dark: { n: "Spite riposte", d: "the answer comes before the question" } }, ranger_volley: { id: "ranger_volley", cls: "ranger", n: "Volley", learn: "start", sub: null, d: "shoot every foe in an area (−10 per target)", mp: 2, ap: 2, t: "area", rng: "w", r: 1, mul: 0.7, kind: "ranged", hit: -10, dark: { n: "Thorn volley", d: "black-fletched shots that whistle" } }, ranger_aimed_shot: { id: "ranger_aimed_shot", cls: "ranger", n: "Aimed shot", learn: "talent L2", sub: null, d: "a careful, deadly shot (+20 to hit)", mp: 6, ap: 1, t: "foe", rng: "w", mul: 2.2, kind: "ranged", hit: 20, dark: { n: "Cruel aim", d: "a shot at the softest spot" } }, ranger_mark: { id: "ranger_mark", cls: "ranger", n: "Mark", learn: "talent L5", sub: null, d: "the foe takes +30% from the whole pack for 3 hits", mp: 2, ap: 1, t: "foe", rng: "w", fx: "mark", v: 0.3, hitsLeft: 3, dark: { n: "Doom mark", d: "a mark only the pack can see, like a bruise" } }, ranger_arrow_rain: { id: "ranger_arrow_rain", cls: "ranger", n: "Arrow rain", learn: "talent L11", sub: null, d: "shots on every foe in a wide area", mp: 5, ap: 2, t: "area", rng: "w", r: 1.5, mul: 1.05, kind: "ranged", dark: { n: "Ash rain", d: "a rain of shots that leaves soot on the board" } }, ranger_hunter_s_snare: { id: "ranger_hunter_s_snare", cls: "ranger", n: "Hunter's snare", learn: "talent L14", sub: null, d: "a hidden tile: whoever steps on it is rooted 2 turns", mp: 2, ap: 1, t: "tile", rng: 4, mul: 0.6, kind: "ranged", st: { k: "root", turns: 2 }, fx: "trap", dark: { n: "Biting snare", d: "the snare has teeth" } }, ranger_headshot: { id: "ranger_headshot", cls: "ranger", n: "Headshot", learn: "L8", sub: "Sniper", d: "a perfect shot (+15 to hit)", mp: 7, ap: 1, t: "foe", rng: "w", mul: 2.6, kind: "ranged", hit: 15, dark: { n: "Grim shot", d: "one shot, no sound" } }, ranger_long_shot: { id: "ranger_long_shot", cls: "ranger", n: "Long shot", learn: "L16", sub: "Sniper", d: "one shot with steadiness halved (about twice the reach)", mp: 4, ap: 1, t: "foe", rng: "w", mul: 1.6, kind: "ranged", fx: "steady_half", dark: { n: "Shadow shot", d: "the shot vanishes and reappears at the target" } }, ranger_hit_and_run: { id: "ranger_hit_and_run", cls: "ranger", n: "Hit and run", learn: "L8", sub: "Scout", d: "shoot, then move again", mp: 3, ap: 1, t: "foe", rng: "w", mul: 1.2, kind: "ranged", fx: "move_after", dark: { n: "Cut and vanish", d: "shoot, then melt into the nearest shadow" } }, ranger_flare: { id: "ranger_flare", cls: "ranger", n: "Flare", learn: "L16", sub: "Scout", d: "reveals every unseen foe; the pack gets +10 accuracy for 2 turns", mp: 2, ap: 1, t: "pack", fx: "reveal", buff: { k: "acc", v: 10, turns: 2 }, dark: { n: "Black flare", d: "a flare of dark light that shows every heartbeat" } }, wizard_ice_bolt: { id: "wizard_ice_bolt", cls: "wizard", n: "Ice bolt", learn: "start", sub: null, d: "frost; hit and slow one foe", mp: 3, ap: 1, t: "foe", rng: 6, mul: 1.3, kind: "spell", el: "frost", st: { k: "slow", turns: 2 }, dark: { n: "Grave frost", d: "frost that crackles like old bones" } }, wizard_fireball: { id: "wizard_fireball", cls: "wizard", n: "Fireball", learn: "talent L2", sub: null, d: "fire on every foe in an area", mp: 5, ap: 2, t: "area", rng: 6, r: 1, mul: 1, kind: "spell", el: "fire", dark: { n: "Hellfire", d: "purple fire that burns cold" } }, wizard_stone_spike: { id: "wizard_stone_spike", cls: "wizard", n: "Stone spike", learn: "talent L5", sub: null, d: "earth, a line of spikes", mp: 5, ap: 2, t: "line", len: 4, mul: 1.1, kind: "spell", el: "earth", dark: { n: "Bone spike", d: "spikes of grey stone shaped like ribs" } }, wizard_chain_lightning: { id: "wizard_chain_lightning", cls: "wizard", n: 3, learn: "talent L11", sub: null, d: "storm; jumps between foes, may stun (25%)", mp: 6, ap: 2, t: "chain", rng: 6, mul: 0.9, kind: "spell", el: "storm", st: { k: "stun", p: 0.25, turns: 1 }, dark: { n: "Black lightning", d: "a jumping bolt the colour of a bruise" } }, wizard_arcane_shield: { id: "wizard_arcane_shield", cls: "wizard", n: "Arcane shield", learn: "talent L14", sub: null, d: "yourself: special defence +50% and defence +30% for 3 turns", mp: 2, ap: 1, t: "self", buff: { k: "defsd", v: 0.4, turns: 3 }, dark: { n: "Shadow mantle", d: "a cloak of smoke that drinks the blows" } }, wizard_meteor: { id: "wizard_meteor", cls: "wizard", n: "Meteor", learn: "L8", sub: "Archmage", d: "fire from the sky on a wide area", mp: 8, ap: 2, t: "area", rng: 7, r: 1.5, mul: 1.5, kind: "spell", el: "fire", dark: { n: "Falling star of ash", d: "a star that should not be there" } }, wizard_spell_surge: { id: "wizard_spell_surge", cls: "wizard", n: "Spell surge", learn: "L16", sub: "Archmage", d: "your next spell this turn is ×1.5 and costs no AP", mp: 3, ap: 1, t: "self", fx: "surge", v: 1.5, dark: { n: "Overcharge", d: "the next spell crackles purple" } }, wizard_frost_nova: { id: "wizard_frost_nova", cls: "wizard", n: "Frost nova", learn: "L8", sub: "Battlemage", d: "frost around you; slows all it hits", mp: 6, ap: 2, t: "around", r: 2, mul: 1.1, kind: "spell", el: "frost", st: { k: "slow", turns: 2 }, dark: { n: "Grave nova", d: "a ring of grey frost" } }, wizard_blink: { id: "wizard_blink", cls: "wizard", n: "Blink", learn: "L16", sub: "Battlemage", d: "teleport up to 4 tiles in sight", mp: 2, ap: 1, t: "tile", rng: 4, fx: "teleport", dark: { n: "Shadow step", d: "you step out of your own shadow" } }, cleric_heal: { id: "cleric_heal", cls: "cleric", n: "Heal", learn: "start", sub: null, d: "heal one friend 45%", mp: 3, ap: 1, t: "ally", rng: 6, heal: 0.45, dark: { n: "Borrowed life", d: "the wound closes with warmth taken from somewhere else" } }, cleric_group_heal: { id: "cleric_group_heal", cls: "cleric", n: "Group heal", learn: "talent L2", sub: null, d: "heal every friend 25% (about 3 hurt on average)", mp: 4, ap: 1, t: "pack", heal: 0.25, dark: { n: "Blood tithe", d: "everyone heals; the grass around goes grey" } }, cleric_blessing: { id: "cleric_blessing", cls: "cleric", n: "Blessing", learn: "talent L5", sub: null, d: "the pack takes 30% less damage for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "dmgtaken", v: -0.3, turns: 3 }, dark: { n: "Dark covenant", d: "the pack is shielded by something that watches" } }, cleric_smite: { id: "cleric_smite", cls: "cleric", n: "Smite", learn: "talent L11", sub: null, d: "a holy whack on one foe", mp: 2, ap: 1, t: "foe", rng: "w", mul: 1.4, dark: { n: "Wrath", d: "the holy whack lands with a black flash" } }, cleric_revive: { id: "cleric_revive", cls: "cleric", n: "Revive", learn: "talent L14", sub: null, d: "raise a fallen friend at 40%", mp: 7, ap: 1, t: "down", rng: 3, heal: 0.4, dark: { n: "Raise again", d: "the fallen get up a little too quickly" } }, cleric_sanctuary: { id: "cleric_sanctuary", cls: "cleric", n: "Sanctuary", learn: "L8", sub: "Saint", d: "friends within 2 tiles heal 30%", mp: 4, ap: 1, t: "allies", r: 2, heal: 0.3, self: !0, dark: { n: "Shadow sanctuary", d: "a circle of dusk where wounds close" } }, cleric_purify: { id: "cleric_purify", cls: "cleric", n: "Purify", learn: "L16", sub: "Saint", d: "every friend loses its statuses", mp: 4, ap: 1, t: "pack", fx: "cleanse", dark: { n: "Devour", d: "statuses are eaten rather than cleansed" } }, cleric_holy_strike: { id: "cleric_holy_strike", cls: "cleric", n: "Holy strike", learn: "L8", sub: "War cleric", d: "smite and heal yourself 30% of the damage", mp: 3, ap: 1, t: "foe", rng: "w", mul: 1.6, fx: "drain", v: 0.3, dark: { n: "Unholy strike", d: "a smite that heals you from the foe's hurt" } }, cleric_judgement: { id: "cleric_judgement", cls: "cleric", n: "Judgement", learn: "L16", sub: "War cleric", d: "holy light on a small area", mp: 5, ap: 2, t: "area", rng: 6, r: 0.5, mul: 1.2, kind: "spell", el: "holy", dark: { n: "Condemnation", d: "a small area of grey light" } }, monk_ki_strike: { id: "monk_ki_strike", cls: "monk", n: "Ki strike", learn: "start", sub: null, d: "a hit in the element you choose (×0.8 × (0.5 + Balance))", mp: 2, ap: 1, t: "foe", rng: "w", mul: 0.8, fx: "ki_element", balance: !0, dark: { n: "Void strike", d: 'the element is always "nothing", and nothing hurts' } }, monk_ki_mend: { id: "monk_ki_mend", cls: "monk", n: "Ki mend", learn: "talent L2", sub: null, d: "heal a friend 15% × (0.5 + Balance)", mp: 2, ap: 1, t: "ally", rng: 4, heal: 0.15, balance: !0, dark: { n: "Ki theft", d: "a mend paid for with a foe's breath" } }, monk_flurry: { id: "monk_flurry", cls: "monk", n: "Flurry", learn: "talent L5", sub: null, d: "three hits of ×0.5 (multiple-attack penalty 0 / −4 / −8)", mp: 3, ap: 2, t: "foe", rng: "w", mul: 0.5, hits: 3, dark: { n: "Hungry flurry", d: "three hits that each want more" } }, monk_ki_ward: { id: "monk_ki_ward", cls: "monk", n: "Ki ward", learn: "talent L11", sub: null, d: "a friend gains resistance +10 × (0.5 + Balance) for 2 turns", mp: 2, ap: 1, t: "ally", rng: 4, buff: { k: "res", v: 10, turns: 2 }, balance: !0, dark: { n: "Void ward", d: "resistance from a hollow in the air" } }, monk_ki_step: { id: "monk_ki_step", cls: "monk", n: "Ki step", learn: "talent L14", sub: null, d: "move twice this turn", mp: 2, ap: 1, t: "self", fx: "extra_move", dark: { n: "Void step", d: "two moves through a gap in the world" } }, monk_adapt: { id: "monk_adapt", cls: "monk", n: "Adapt", learn: "start", sub: null, d: "swap one of the four equipped skills mid-fight (once a fight; twice at Balance 90%)", mp: 0, ap: 1, t: "self", fx: "adapt", dark: { n: "Unmake", d: "swap a skill, and the old one is forgotten for the fight" } }, monk_palm_strike: { id: "monk_palm_strike", cls: "monk", n: "Palm strike", learn: "L8", sub: "Way of the Hand", d: "hit and stun", mp: 4, ap: "end", t: "foe", rng: "w", mul: 1, st: { k: "stun", turns: 1 }, dark: { n: "Hollow palm", d: "a strike that stops the breath" } }, monk_counterflow: { id: "monk_counterflow", cls: "monk", n: "Counterflow", learn: "L16", sub: "Way of the Hand", d: "dodge +25 this round; each foe that misses you is hit ×0.8", mp: 2, ap: 1, t: "self", buff: { k: "dodge", v: 25, turns: 1 }, fx: "counter", v: 0.8, dark: { n: "Spite flow", d: "every miss on you is punished" } }, monk_raise_cover: { id: "monk_raise_cover", cls: "monk", n: "Raise cover", learn: "L8", sub: "Way of the Hearth", d: "half cover on an empty tile beside you for 3 turns", mp: 2, ap: 1, t: "tile", rng: 1, fx: "cover", cover: 1, turns: 3, dark: { n: "Bone wall", d: "cover built from old, grey stone" } }, monk_mend_gear: { id: "monk_mend_gear", cls: "monk", n: "Mend gear", learn: "L16", sub: "Way of the Hearth", d: "a friend's defence +20% for 3 turns", mp: 2, ap: 1, t: "ally", rng: 3, buff: { k: "def", v: 0.2, turns: 3 }, dark: { n: "Cursed fit", d: "a friend's gear fits too well" } }, sorcerer_spark: { id: "sorcerer_spark", cls: "sorcerer", n: "Spark", learn: "start", sub: null, d: "cheap fire on one foe", mp: 2, ap: 1, t: "foe", rng: 6, mul: 1.2, kind: "spell", el: "fire", dark: { n: "Black spark", d: "a spark that burns purple" } }, sorcerer_ember_burst: { id: "sorcerer_ember_burst", cls: "sorcerer", n: "Ember burst", learn: "talent L2", sub: null, d: "fire in an area", mp: 5, ap: 2, t: "area", rng: 6, r: 1, mul: 1, kind: "spell", el: "fire", dark: { n: "Ash burst", d: "a burst that leaves the tiles grey" } }, sorcerer_dragon_s_breath: { id: "sorcerer_dragon_s_breath", cls: "sorcerer", n: "Dragon's breath", learn: "talent L5", sub: null, d: "a line of fire that burns (15%)", mp: 5, ap: 2, t: "line", len: 4, mul: 1.1, kind: "spell", el: "fire", st: { k: "burn", p: 0.15, turns: 3 }, dark: { n: "Wyrm breath", d: "breath the colour of an old bruise" } }, sorcerer_wild_surge: { id: "sorcerer_wild_surge", cls: "sorcerer", n: "Wild surge", learn: "talent L11", sub: null, d: "×1.5 with a random extra effect (neutral on average)", mp: 3, ap: 1, t: "foe", rng: 6, mul: 1.5, kind: "spell", el: "fire", fx: "surge_table", dark: { n: "Chaos surge", d: "the surge table, but the good results are darker" } }, sorcerer_heat_haze: { id: "sorcerer_heat_haze", cls: "sorcerer", n: "Heat haze", learn: "talent L14", sub: null, d: "you are unseen for 1 turn", mp: 2, ap: 1, t: "self", fx: "unseen", turns: 1, dark: { n: "Shadow haze", d: "a haze nobody sees through" } }, sorcerer_scales: { id: "sorcerer_scales", cls: "sorcerer", n: "Scales", learn: "L8", sub: "Dragonblood", d: "defence and special defence +40% for 3 turns", mp: 2, ap: 1, t: "self", buff: { k: "defsd", v: 0.4, turns: 3 }, dark: { n: "Black scales", d: "scales like burnt glass" } }, sorcerer_dragon_roar: { id: "sorcerer_dragon_roar", cls: "sorcerer", n: "Dragon roar", learn: "L16", sub: "Dragonblood", d: "weakens every foe within 3 tiles", mp: 4, ap: 1, t: "around", r: 3, st: { k: "weaken", turns: 2 }, dark: { n: "Dread roar", d: "a roar that makes small foes forget their names" } }, sorcerer_surge_storm: { id: "sorcerer_surge_storm", cls: "sorcerer", n: "Surge storm", learn: "L8", sub: "Wild", d: "two Wild surges on one foe", mp: 7, ap: 2, t: "foe", rng: 6, mul: 1.5, hits: 2, kind: "spell", el: "fire", fx: "surge_table", dark: { n: "Chaos storm", d: "a storm of wild magic, all of it hungry" } }, sorcerer_chaos_bolt: { id: "sorcerer_chaos_bolt", cls: "sorcerer", n: "Chaos bolt", learn: "L16", sub: "Wild", d: "×2.0 in a random element: a weakness doubles it, a resistance halves it (a gamble with the same average)", mp: 4, ap: 1, t: "foe", rng: 6, mul: 2, kind: "spell", fx: "random_element", dark: { n: "Ruin bolt", d: "chaos, but it always picks the worst" } }, bard_vicious_mockery: { id: "bard_vicious_mockery", cls: "bard", n: "Vicious mockery", learn: "start", sub: null, d: "hit and weaken (−25% attack, 2 turns)", mp: 2, ap: 1, t: "foe", rng: 6, mul: 0.8, kind: "spell", st: { k: "weaken", turns: 2 }, dark: { n: "Venom tongue", d: "words that sting for days" } }, bard_rousing_song: { id: "bard_rousing_song", cls: "bard", n: "Rousing song", learn: "talent L2", sub: null, d: "the pack hits 25% harder and takes 25% less for 3 turns", mp: 4, ap: 1, t: "pack", buff: { k: "atkguard", v: 0.25, turns: 3 }, dark: { n: "War dirge", d: "a song that makes the pack fierce and a little mean" } }, bard_lullaby: { id: "bard_lullaby", cls: "bard", n: "Lullaby", learn: "talent L5", sub: null, d: "slows every foe in an area", mp: 3, ap: 1, t: "area", rng: 6, r: 1, st: { k: "slow", turns: 2 }, dark: { n: "Dread lullaby", d: "a lullaby with the wrong ending" } }, bard_rumour: { id: "bard_rumour", cls: "bard", n: "Rumour", learn: "talent L11", sub: null, d: "one foe attacks its friends for a turn", mp: 4, ap: 1, t: "foe", rng: 6, st: { k: "confuse", turns: 1 }, dark: { n: "Poison whisper", d: "a rumour that is half true and all cruel" } }, bard_ballad_of_rest: { id: "bard_ballad_of_rest", cls: "bard", n: "Ballad of rest", learn: "talent L14", sub: null, d: "friends regain 8% a turn for 3 turns", mp: 3, ap: 1, t: "pack", buff: { k: "regen", v: 0.08, turns: 3 }, dark: { n: "Ballad of debts", d: "rest now, pay later (in morale, by the rule)" } }, bard_cutting_words: { id: "bard_cutting_words", cls: "bard", n: "Cutting words", learn: "L8", sub: "Lore", d: "the foe's next attack does 50% less", mp: 2, ap: 1, t: "foe", rng: 6, fx: "blunt", v: 0.5, dark: { n: "Flaying words", d: "every word leaves a mark" } }, bard_countersong: { id: "bard_countersong", cls: "bard", n: "Countersong", learn: "L16", sub: "Lore", d: "the pack gains resistance +20 for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "res", v: 20, turns: 3 }, dark: { n: "Silence", d: "a song that stops other songs" } }, bard_valiant_strike: { id: "bard_valiant_strike", cls: "bard", n: "Valiant strike", learn: "L8", sub: "Valor", d: "a sword hit; your song's bonus doubles on it", mp: 2, ap: 1, t: "foe", rng: "w", mul: 1.4, fx: "song_double", dark: { n: "Vainglorious strike", d: "a strike for the crowd, not the cause" } }, bard_battle_hymn: { id: "bard_battle_hymn", cls: "bard", n: "Battle hymn", learn: "L16", sub: "Valor", d: "sing while you fight: Rousing song costs no action this turn", mp: 2, ap: 1, t: "self", fx: "free_song", dark: { n: "Battle dirge", d: "a hymn sung backwards" } }, rogue_sneak_attack: { id: "rogue_sneak_attack", cls: "rogue", n: "Sneak attack", learn: "start", sub: null, d: "×2.4 on a stunned, flanked, unseen or unaware foe, else ×1.2", mp: 3, ap: "end", t: "foe", rng: "w", mul: 1.2, fx: "sneak", v: 2.4, dark: { n: "Backstab", d: "the same strike, with no warning and no mercy" } }, rogue_trap: { id: "rogue_trap", cls: "rogue", n: "Trap", learn: "talent L2", sub: null, d: "a hidden tile: ×1.2 and stun to whoever steps on it", mp: 5, ap: 1, t: "tile", rng: 3, mul: 1.2, st: { k: "stun", turns: 1 }, fx: "trap", dark: { n: "Cruel trap", d: "a trap with a nasty surprise inside" } }, rogue_slip_past: { id: "rogue_slip_past", cls: "rogue", n: "Slip past", learn: "talent L5", sub: null, d: "move through foes with no free hits", mp: 2, ap: 1, t: "self", fx: "slip", dark: { n: "Shadow slip", d: "through foes like smoke" } }, rogue_hide: { id: "rogue_hide", cls: "rogue", n: "Hide", learn: "talent L11", sub: null, d: "you are unseen until you attack (not next to a foe)", mp: 2, ap: 1, t: "self", fx: "hide", dark: { n: "Vanish", d: "gone, and the foes feel watched" } }, rogue_pickpocket: { id: "rogue_pickpocket", cls: "rogue", n: "Pickpocket", learn: "talent L14", sub: null, d: "×0.6 and steal a material", mp: 2, ap: "end", t: "foe", rng: "w", mul: 0.6, fx: "steal", dark: { n: "Rob", d: "take the material and a little of their courage" } }, rogue_smoke_bomb: { id: "rogue_smoke_bomb", cls: "rogue", n: "Smoke bomb", learn: "L8", sub: "Thief", d: "the whole pack is unseen for 1 turn", mp: 4, ap: 1, t: "pack", fx: "unseen", turns: 1, dark: { n: "Black smoke", d: "smoke that smells of old fires" } }, rogue_lift: { id: "rogue_lift", cls: "rogue", n: "Lift", learn: "L16", sub: "Thief", d: "steal the foe's next turn's buff or a potion it carries", mp: 2, ap: 1, t: "foe", rng: "w", fx: "steal_buff", dark: { n: "Plunder", d: "steal twice as much, with nothing left behind" } }, rogue_spike_trap: { id: "rogue_spike_trap", cls: "rogue", n: "Spike trap", learn: "L8", sub: "Trapper", d: "×1.5 and root to whoever steps on it", mp: 5, ap: 1, t: "tile", rng: 3, mul: 1.5, st: { k: "root", turns: 2 }, fx: "trap", dark: { n: "Barbed trap", d: "spikes that hook" } }, rogue_trap_field: { id: "rogue_trap_field", cls: "rogue", n: "Trap field", learn: "L16", sub: "Trapper", d: "three traps at once in an area", mp: 8, ap: 2, t: "area", rng: 4, r: 1, mul: 1.2, st: { k: "stun", turns: 1 }, fx: "traps3", dark: { n: "Killing field", d: "a field of traps that hum" } }, barbarian_reckless_swing: { id: "barbarian_reckless_swing", cls: "barbarian", n: "Reckless swing", learn: "start", sub: null, d: "×2.4, you take +25% next turn", mp: 4, ap: 1, t: "foe", rng: "w", mul: 2.4, hit: 10, fx: "exposed", v: 0.25, dark: { n: "Ruinous swing", d: "a swing that does not care what it hits" } }, barbarian_rage: { id: "barbarian_rage", cls: "barbarian", n: "Rage", learn: "talent L2", sub: null, d: "+30% attack and −20% damage taken for 3 turns", mp: 2, ap: 1, t: "self", buff: { k: "rage", v: 0.3, turns: 3 }, dark: { n: "Black rage", d: "rage that burns blue-black" } }, barbarian_stomp: { id: "barbarian_stomp", cls: "barbarian", n: "Stomp", learn: "talent L5", sub: null, d: "hit everything next to you", mp: 4, ap: 2, t: "around", mul: 0.9, dark: { n: "Quake of spite", d: "a stomp that cracks the board" } }, barbarian_shrug_it_off: { id: "barbarian_shrug_it_off", cls: "barbarian", n: "Shrug it off", learn: "talent L11", sub: null, d: "heal yourself 30%", mp: 2, ap: 1, t: "self", heal: 0.3, dark: { n: "Feed on it", d: "a fallen foe's strength becomes yours" } }, barbarian_leap: { id: "barbarian_leap", cls: "barbarian", n: "Leap", learn: "talent L14", sub: null, d: "jump up to 3 tiles and hit ×1.0 where you land", mp: 2, ap: 1, t: "tile", rng: 3, mul: 1, fx: "leap", dark: { n: "Pounce", d: "a leap that lands claws first" } }, barbarian_frenzy: { id: "barbarian_frenzy", cls: "barbarian", n: "Frenzy", learn: "L8", sub: "Berserker", d: "two hits of ×1.0 (only below half HP)", mp: 3, ap: "end", t: "foe", rng: "w", mul: 1, hits: 2, fx: "below_half", dark: { n: "Blood frenzy", d: "a frenzy that smells the hurt" } }, barbarian_unstoppable: { id: "barbarian_unstoppable", cls: "barbarian", n: "Unstoppable", learn: "L16", sub: "Berserker", d: "immune to stun, fall and root for 3 turns", mp: 2, ap: 1, t: "self", fx: "immune", turns: 3, dark: { n: "Relentless dark", d: "nothing slows you, nothing at all" } }, barbarian_bear_totem: { id: "barbarian_bear_totem", cls: "barbarian", n: "Bear totem", learn: "L8", sub: "Totem", d: "the pack takes 15% less for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "dmgtaken", v: -0.15, turns: 3 }, dark: { n: "Dread totem", d: "a totem with too many eyes" } }, barbarian_wolf_totem: { id: "barbarian_wolf_totem", cls: "barbarian", n: "Wolf totem", learn: "L16", sub: "Totem", d: "the pack gets +1 move for 3 turns", mp: 3, ap: 1, t: "pack", buff: { k: "move", v: 1, turns: 3 }, dark: { n: "Hunger totem", d: "a totem that howls at nothing" } }, paladin_smite: { id: "paladin_smite", cls: "paladin", n: "Smite", learn: "start", sub: null, d: "a holy whack on one foe", mp: 3, ap: 1, t: "foe", rng: "w", mul: 1.7, dark: { n: "Wrath", d: "the holy whack lands with a black flash" } }, paladin_lay_on_hands: { id: "paladin_lay_on_hands", cls: "paladin", n: "Lay on hands", learn: "talent L2", sub: null, d: "heal a friend 60%", mp: 4, ap: 1, t: "ally", rng: 1, heal: 0.6, dark: { n: "Lay on claws", d: "healing hands with a cold touch" } }, paladin_guard: { id: "paladin_guard", cls: "paladin", n: "Guard", learn: "talent L5", sub: null, d: "take the next hit for a friend beside you", mp: 2, ap: 1, t: "ally", rng: 1, fx: "intercept", dark: { n: "Hold hostage", d: "you take the hit for a friend, and the foe pays for it" } }, paladin_oath: { id: "paladin_oath", cls: "paladin", n: "Oath", learn: "talent L11", sub: null, d: "friends within 1 tile take 20% less for 3 turns", mp: 2, ap: 1, t: "allies", r: 1, buff: { k: "dmgtaken", v: -0.2, turns: 3 }, self: !0, dark: { n: "Dark oath", d: "an aura that promises pain to whoever hurts your friends" } }, paladin_divine_shield: { id: "paladin_divine_shield", cls: "paladin", n: "Divine shield", learn: "talent L14", sub: null, d: "you ignore the next hit", mp: 3, ap: 1, t: "self", fx: "ignore_hit", dark: { n: "Shadow shield", d: "a shield of dusk" } }, paladin_aura_of_warding: { id: "paladin_aura_of_warding", cls: "paladin", n: "Aura of warding", learn: "L8", sub: "Devotion", d: "the pack gains resistance +15 for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "res", v: 15, turns: 3 }, dark: { n: "Aura of dread", d: "foes near you shake" } }, paladin_sacred_ground: { id: "paladin_sacred_ground", cls: "paladin", n: "Sacred ground", learn: "L16", sub: "Devotion", d: "a 3 × 3 area heals 10% a turn for 3 turns", mp: 4, ap: 1, t: "tile", rng: 4, r: 1, fx: "heal_zone", v: 0.1, turns: 3, dark: { n: "Cursed ground", d: "ground that bites at foes" } }, paladin_vow: { id: "paladin_vow", cls: "paladin", n: "Vow", learn: "L8", sub: "Vengeance", d: "one foe takes +30% from you until it falls", mp: 2, ap: 1, t: "foe", rng: 6, fx: "vow", v: 0.3, dark: { n: "Blood vow", d: "a vow sealed with a scratch" } }, paladin_avenging_strike: { id: "paladin_avenging_strike", cls: "paladin", n: "Avenging strike", learn: "L16", sub: "Vengeance", d: "×2.0 and heal yourself 20%", mp: 5, ap: "end", t: "foe", rng: "w", mul: 2, fx: "self_heal", v: 0.2, dark: { n: "Vengeful strike", d: "a strike that remembers every hurt" } }, druid_vine_snare: { id: "druid_vine_snare", cls: "druid", n: "Vine snare", learn: "start", sub: null, d: "root a foe for 2 turns (it can still attack)", mp: 2, ap: 1, t: "foe", rng: 6, mul: 0.5, kind: "spell", el: "nature", st: { k: "root", turns: 2 }, dark: { n: "Strangling vines", d: "vines that squeeze" } }, druid_plant_cover: { id: "druid_plant_cover", cls: "druid", n: "Plant cover", learn: "talent L2", sub: null, d: "a bush gives half cover for 3 turns", mp: 2, ap: 1, t: "tile", rng: 4, fx: "cover", cover: 1, turns: 3, dark: { n: "Thorn hedge", d: "a bush of black thorns" } }, druid_thorns: { id: "druid_thorns", cls: "druid", n: "Thorns", learn: "talent L5", sub: null, d: "friends reflect 20% of melee damage for 3 turns", mp: 2, ap: 1, t: "pack", buff: { k: "reflect", v: 0.2, turns: 3 }, dark: { n: "Barbs", d: "thorns that hook and stay" } }, druid_rain: { id: "druid_rain", cls: "druid", n: "Rain", learn: "talent L11", sub: null, d: "friends in the area regain 15% a turn for 3 turns", mp: 5, ap: 1, t: "allies", r: 2, buff: { k: "regen", v: 0.15, turns: 3 }, self: !0, dark: { n: "Blood rain", d: "a warm, red-tinted rain that heals the pack" } }, druid_poison_spores: { id: "druid_poison_spores", cls: "druid", n: "Poison spores", learn: "talent L14", sub: null, d: "nature; a cloud that poisons", mp: 6, ap: 2, t: "area", rng: 6, r: 1, mul: 0.6, kind: "spell", el: "nature", st: { k: "poison", turns: 3 }, dark: { n: "Rot spores", d: "spores that smell of a cellar" } }, druid_bloom: { id: "druid_bloom", cls: "druid", n: "Bloom", learn: "L8", sub: "Land", d: "heal three friends 25%", mp: 4, ap: 1, t: "allies", r: 3, heal: 0.25, self: !0, dark: { n: "Grave bloom", d: "grey flowers that heal" } }, druid_grove: { id: "druid_grove", cls: "druid", n: "Grove", learn: "L16", sub: "Land", d: "trees grow in a 3 × 3 area: half cover and 8% healing a turn for 3 turns", mp: 5, ap: 1, t: "tile", rng: 4, r: 1, fx: "grove", v: 0.08, turns: 3, dark: { n: "Dead grove", d: "a grove of leafless trees" } }, druid_bear_shape: { id: "druid_bear_shape", cls: "druid", n: "Bear shape", learn: "L8", sub: "Moon", d: "become a bear for 3 turns: HP ×1.5, melee ×1.3", mp: 2, ap: 1, t: "self", fx: "bear", turns: 3, dark: { n: "Dire shape", d: "a bear made of shadow" } }, druid_maul: { id: "druid_maul", cls: "druid", n: "Maul", learn: "L16", sub: "Moon", d: "a bear's swipe: ×1.6 and knock down (fall)", mp: 4, ap: 1, t: "foe", rng: "w", mul: 1.6, st: { k: "fall", turns: 1 }, dark: { n: "Rend", d: "a maul that tears" } }, warlock_teapot_blast: { id: "warlock_teapot_blast", cls: "warlock", n: "Teapot blast", learn: "start", sub: null, d: "steady ranged fire", mp: 2, ap: 1, t: "foe", rng: "w", mul: 1.3, kind: "spell", el: "fire", dark: { n: "Kettle of woe", d: "the teapot boils over with something black" } }, warlock_hex: { id: "warlock_hex", cls: "warlock", n: "Hex", learn: "talent L2", sub: null, d: "the foe takes +25% from everything for 3 turns", mp: 2, ap: 1, t: "foe", rng: 6, st: { k: "hex", turns: 3 }, dark: { n: "Doom hex", d: "a hex that grins" } }, warlock_whisper: { id: "warlock_whisper", cls: "warlock", n: "Whisper", learn: "talent L5", sub: null, d: "a friend gets +20% attack and +10 dodge for 3 turns", mp: 2, ap: 1, t: "ally", rng: 4, buff: { k: "atkdodge", v: 0.2, turns: 3 }, dark: { n: "Dark counsel", d: "the teapot's advice is good, and unkind" } }, warlock_brew: { id: "warlock_brew", cls: "warlock", n: "Brew", learn: "talent L11", sub: null, d: "×1.2 drain: heal yourself half the damage", mp: 2, ap: 1, t: "foe", rng: 6, mul: 1.2, kind: "spell", fx: "drain", v: 0.5, dark: { n: "Foul brew", d: "a brew that works, and tastes of regret" } }, warlock_pact_boon: { id: "warlock_pact_boon", cls: "warlock", n: "Pact boon", learn: "talent L14", sub: null, d: "×2.5 once a fight; you lose 10% of your HP", mp: 5, ap: "end", t: "foe", rng: 6, mul: 2.5, kind: "spell", fx: "pact", v: 0.1, dark: { n: "Deeper pact", d: "the teapot asks for a little more" } }, warlock_boiling_spout: { id: "warlock_boiling_spout", cls: "warlock", n: "Boiling spout", learn: "L8", sub: "The Teapot", d: "a line of fire that burns (15%)", mp: 5, ap: 2, t: "line", len: 4, mul: 1, kind: "spell", el: "fire", st: { k: "burn", p: 0.15, turns: 3 }, dark: { n: "Scalding spout", d: "a line of black steam" } }, warlock_steam_cloud: { id: "warlock_steam_cloud", cls: "warlock", n: "Steam cloud", learn: "L16", sub: "The Teapot", d: "the pack is unseen for 1 turn", mp: 4, ap: 1, t: "pack", fx: "unseen", turns: 1, dark: { n: "Choking cloud", d: "a cloud that coughs back" } }, warlock_gooey_slow: { id: "warlock_gooey_slow", cls: "warlock", n: "Gooey slow", learn: "L8", sub: "The Sourdough Starter", d: "an area of goo: slows", mp: 4, ap: 2, t: "area", rng: 6, r: 1, mul: 0.7, kind: "spell", st: { k: "slow", turns: 2 }, dark: { n: "Tar slow", d: "goo like tar" } }, warlock_rise: { id: "warlock_rise", cls: "warlock", n: "Rise", learn: "L16", sub: "The Sourdough Starter", d: "drain in an area: heal yourself a third of the damage", mp: 5, ap: 2, t: "area", rng: 6, r: 1, mul: 1, kind: "spell", fx: "drain", v: 0.33, dark: { n: "Rise, starter", d: "the sourdough starter lifts a friend, a little too eagerly" } } }, KITS6 = { fighter: { start: ["fighter_power_bonk"], talents: [{ id: "fighter_cleave", lvl: 2 }, { id: "fighter_shield_bash", lvl: 5 }, { id: "fighter_battle_cry", lvl: 11 }, { id: "fighter_second_wind", lvl: 14 }], subs: { Knight: { skills: ["fighter_shield_wall", "fighter_challenge"], cap: { n: "Bulwark", d: "guarding also guards the friends beside you", dark: "Bulwark of spite" } }, "Battle master": { skills: ["fighter_whirlwind", "fighter_riposte"], cap: { n: "Momentum", d: "each foe you fell gives +1 AP (once a turn)", dark: "Bloodlust" } } } }, ranger: { start: ["ranger_volley"], talents: [{ id: "ranger_aimed_shot", lvl: 2 }, { id: "ranger_mark", lvl: 5 }, { id: "ranger_arrow_rain", lvl: 11 }, { id: "ranger_hunter_s_snare", lvl: 14 }], subs: { Sniper: { skills: ["ranger_headshot", "ranger_long_shot"], cap: { n: "Deadeye", d: "crit damage +1 (×2.5 instead of ×1.5)", dark: "Death's eye" } }, Scout: { skills: ["ranger_hit_and_run", "ranger_flare"], cap: { n: "Pathfinder", d: "+1 move; difficult tiles cost nothing", dark: "Shadow path" } } } }, wizard: { start: ["wizard_ice_bolt"], talents: [{ id: "wizard_fireball", lvl: 2 }, { id: "wizard_stone_spike", lvl: 5 }, { id: "wizard_chain_lightning", lvl: 11 }, { id: "wizard_arcane_shield", lvl: 14 }], subs: { Archmage: { skills: ["wizard_meteor", "wizard_spell_surge"], cap: { n: "Mastery", d: "every spell costs 1 less mana (never under 2)", dark: "Forbidden mastery" } }, Battlemage: { skills: ["wizard_frost_nova", "wizard_blink"], cap: { n: "Warded", d: "+30% defence and special defence", dark: "Shrouded" } } } }, cleric: { start: ["cleric_heal"], talents: [{ id: "cleric_group_heal", lvl: 2 }, { id: "cleric_blessing", lvl: 5 }, { id: "cleric_smite", lvl: 11 }, { id: "cleric_revive", lvl: 14 }], subs: { Saint: { skills: ["cleric_sanctuary", "cleric_purify"], cap: { n: "Grace", d: "heals +30%", dark: "Borrowed grace" } }, "War cleric": { skills: ["cleric_holy_strike", "cleric_judgement"], cap: { n: "Zeal", d: "after you heal, your next hit is +25%", dark: "Fervour" } } } }, monk: { start: ["monk_ki_strike", "monk_adapt"], talents: [{ id: "monk_ki_mend", lvl: 2 }, { id: "monk_flurry", lvl: 5 }, { id: "monk_ki_ward", lvl: 11 }, { id: "monk_ki_step", lvl: 14 }], subs: { "Way of the Hand": { skills: ["monk_palm_strike", "monk_counterflow"], cap: { n: "Many hands", d: "Flurry has four hits", dark: "Many claws" } }, "Way of the Hearth": { skills: ["monk_raise_cover", "monk_mend_gear"], cap: { n: "Master builder", d: "your cover lasts until moved; crafting gives +1 affix", dark: "Bone mason" } } } }, sorcerer: { start: ["sorcerer_spark"], talents: [{ id: "sorcerer_ember_burst", lvl: 2 }, { id: "sorcerer_dragon_s_breath", lvl: 5 }, { id: "sorcerer_wild_surge", lvl: 11 }, { id: "sorcerer_heat_haze", lvl: 14 }], subs: { Dragonblood: { skills: ["sorcerer_scales", "sorcerer_dragon_roar"], cap: { n: "Fire in the blood", d: "every fire spell burns 15% of the time", dark: "Ash in the blood" } }, Wild: { skills: ["sorcerer_surge_storm", "sorcerer_chaos_bolt"], cap: { n: "Wild magic", d: "every spell has a 10% chance of a free surge", dark: "Chaos magic" } } } }, bard: { start: ["bard_vicious_mockery"], talents: [{ id: "bard_rousing_song", lvl: 2 }, { id: "bard_lullaby", lvl: 5 }, { id: "bard_rumour", lvl: 11 }, { id: "bard_ballad_of_rest", lvl: 14 }], subs: { Lore: { skills: ["bard_cutting_words", "bard_countersong"], cap: { n: "Encore", d: "songs last one turn longer", dark: "Dirge" } }, Valor: { skills: ["bard_valiant_strike", "bard_battle_hymn"], cap: { n: "Duelist", d: "+20% defence while singing", dark: "Bully" } } } }, rogue: { start: ["rogue_sneak_attack"], talents: [{ id: "rogue_trap", lvl: 2 }, { id: "rogue_slip_past", lvl: 5 }, { id: "rogue_hide", lvl: 11 }, { id: "rogue_pickpocket", lvl: 14 }], subs: { Thief: { skills: ["rogue_smoke_bomb", "rogue_lift"], cap: { n: "Fortune", d: "+2 luck", dark: "Ill fortune (yours is good)" } }, Trapper: { skills: ["rogue_spike_trap", "rogue_trap_field"], cap: { n: "Hair trigger", d: "traps stun for 2 turns", dark: "Cruel trigger" } } } }, barbarian: { start: ["barbarian_reckless_swing"], talents: [{ id: "barbarian_rage", lvl: 2 }, { id: "barbarian_stomp", lvl: 5 }, { id: "barbarian_shrug_it_off", lvl: 11 }, { id: "barbarian_leap", lvl: 14 }], subs: { Berserker: { skills: ["barbarian_frenzy", "barbarian_unstoppable"], cap: { n: "Fury", d: "+35% damage below half HP", dark: "Black fury" } }, Totem: { skills: ["barbarian_bear_totem", "barbarian_wolf_totem"], cap: { n: "Spirit guard", d: "once a fight, you get up at 20% when you fall", dark: "Spite guard" } } } }, paladin: { start: ["paladin_smite"], talents: [{ id: "paladin_lay_on_hands", lvl: 2 }, { id: "paladin_guard", lvl: 5 }, { id: "paladin_oath", lvl: 11 }, { id: "paladin_divine_shield", lvl: 14 }], subs: { Devotion: { skills: ["paladin_aura_of_warding", "paladin_sacred_ground"], cap: { n: "Steadfast", d: "you cannot fall while a friend stands beside you (once a fight)", dark: "Unyielding" } }, Vengeance: { skills: ["paladin_vow", "paladin_avenging_strike"], cap: { n: "Relentless", d: "+1 move toward your vowed foe", dark: "Hunter of grudges" } } } }, druid: { start: ["druid_vine_snare"], talents: [{ id: "druid_plant_cover", lvl: 2 }, { id: "druid_thorns", lvl: 5 }, { id: "druid_rain", lvl: 11 }, { id: "druid_poison_spores", lvl: 14 }], subs: { Land: { skills: ["druid_bloom", "druid_grove"], cap: { n: "Green thumb", d: "plant skills last one turn longer", dark: "Black thumb" } }, Moon: { skills: ["druid_bear_shape", "druid_maul"], cap: { n: "Moonlit hide", d: "+30% defence in bear shape", dark: "Moonless hide" } } } }, warlock: { start: ["warlock_teapot_blast"], talents: [{ id: "warlock_hex", lvl: 2 }, { id: "warlock_whisper", lvl: 5 }, { id: "warlock_brew", lvl: 11 }, { id: "warlock_pact_boon", lvl: 14 }], subs: { "The Teapot": { skills: ["warlock_boiling_spout", "warlock_steam_cloud"], cap: { n: "Kettle's patience", d: "+1 mana each turn", dark: "Kettle's grudge" } }, "The Sourdough Starter": { skills: ["warlock_gooey_slow", "warlock_rise"], cap: { n: "Starter culture", d: "poisons last one turn longer", dark: "Old culture" } } } } }, PASSIVES6 = { fighter: [{ n: "Tough", d: "+3% HP", fx: { hpP: 0.03 } }, { n: "Weapon focus", d: "+3% attack", fx: { atkP: 0.03 } }, { n: "Iron skin", d: "+7.5% defence", fx: { defP: 0.075 } }, { n: "Shield training", d: "guarding gives +10 more dodge", fx: { guardDodge: 10 } }], ranger: [{ n: "Sharp eye", d: "+3 accuracy", fx: { acc: 3 } }, { n: "Steady hands", d: "−0.6 steadiness", fx: { steady: -0.6 } }, { n: "Swift feet", d: "+1 speed", fx: { spd: 1 } }, { n: "Quick draw", d: "+3 initiative", fx: { init: 3 } }], wizard: [{ n: "Arcane mind", d: "+3% mana", fx: { mpP: 0.03 } }, { n: "Spell power", d: "+3% special attack", fx: { spaP: 0.03 } }, { n: "Focus", d: "−0.6 steadiness for spells", fx: { steadySpell: -0.6 } }, { n: "Elemental study", d: "your resisted spells deal 60% instead of 50%", fx: { resisted: 0.6 } }], cleric: [{ n: "Devotion", d: "+3% mana", fx: { mpP: 0.03 } }, { n: "Vigour", d: "+3% HP", fx: { hpP: 0.03 } }, { n: "Gentle hands", d: "heals +4%", fx: { healP: 0.04 } }, { n: "Faith", d: "+9 resistance", fx: { res: 9 } }], monk: [{ n: "Centre", d: "+1 to your lowest score (counts toward Balance)", fx: { lowest: 1 } }, { n: "Light step", d: "+1 speed", fx: { spd: 1 } }, { n: "Ki well", d: "+3% ki", fx: { mpP: 0.03 } }, { n: "Open palm", d: "+3% attack and special attack while Balance is 90% or more", fx: { atkP90: 0.03 } }], sorcerer: [{ n: "Spell power", d: "+3% special attack", fx: { spaP: 0.03 } }, { n: "Ember blood", d: "+3% HP", fx: { hpP: 0.03 } }, { n: "Kindling", d: "fire spells burn 3% of the time", fx: { fireBurn: 0.03 } }, { n: "Volatile", d: "crit damage +0.15", fx: { critD: 0.15 } }], bard: [{ n: "Showmanship", d: "songs +4% stronger", fx: { songP: 0.04 } }, { n: "Charm", d: "+3 initiative", fx: { init: 3 } }, { n: "Encouragement", d: "+0.4 morale for the pack", fx: { packMorale: 0.4 } }, { n: "Quick tongue", d: "+3% mana", fx: { mpP: 0.03 } }], rogue: [{ n: "Precision", d: "+1.5% crit chance", fx: { crit: 0.015 } }, { n: "Shadow", d: "+3 dodge", fx: { dodge: 3 } }, { n: "Sticky fingers", d: "+5% materials from fights", fx: { matP: 0.05 } }, { n: "Opportunist", d: "+6% damage to flanked foes", fx: { flankP: 0.06 } }], barbarian: [{ n: "Thick hide", d: "+7.5% defence", fx: { defP: 0.075 } }, { n: "Brawn", d: "+3% attack", fx: { atkP: 0.03 } }, { n: "Bloodlust", d: "heal 2% when you fell a foe", fx: { killHeal: 0.02 } }, { n: "Hard head", d: "+9 resistance", fx: { res: 9 } }], paladin: [{ n: "Faith", d: "+9 resistance", fx: { res: 9 } }, { n: "Sturdy", d: "+3% HP", fx: { hpP: 0.03 } }, { n: "Holy might", d: "+3% attack", fx: { atkP: 0.03 } }, { n: "Mercy", d: "Lay on hands +6%", fx: { layP: 0.06 } }], druid: [{ n: "Bark skin", d: "+7.5% defence", fx: { defP: 0.075 } }, { n: "Wild growth", d: "plant skills +4% stronger", fx: { plantP: 0.04 } }, { n: "Nature's gift", d: "+3% mana", fx: { mpP: 0.03 } }, { n: "Deep roots", d: "+9 resistance", fx: { res: 9 } }], warlock: [{ n: "Spell power", d: "+3% special attack", fx: { spaP: 0.03 } }, { n: "Dark pact", d: "+3% mana", fx: { mpP: 0.03 } }, { n: "Bitter brew", d: "hexes +4% stronger", fx: { hexP: 0.04 } }, { n: "Stubborn", d: "+9 resistance", fx: { res: 9 } }] };
+
+  // src/game/v6sheet.js
+  var V6_ARRAY = [15, 14, 13, 12, 10, 8], V6_TIERS = [1, 5, 10, 16, 22, 28], V6_ATK_SCORE = { fighter: "STR", barbarian: "STR", paladin: "STR", ranger: "DEX", rogue: "DEX", monk: "mbar", cleric: "WIS", druid: "WIS", bard: "CHA", wizard: "INT", sorcerer: "CHA", warlock: "CHA" }, V6_CAST_SCORE = { fighter: "STR", barbarian: "STR", paladin: "CHA", ranger: "WIS", rogue: "DEX", monk: "mbar", cleric: "WIS", druid: "WIS", bard: "CHA", wizard: "INT", sorcerer: "CHA", warlock: "CHA" }, V6_LOOK = { blades: "sword", axes: "club", guns: "popgun", daggers: "spoon", fists: "fish", wands: "frostrod", orbs: "firewand", teapots: "squirt", holy: "healwand", nature: "archstaff", instruments: "stick" }, V6_VARIANT = { wizard: "robe", sorcerer: "robe", warlock: "robe", cleric: "robe", druid: "robe", bard: "robe", ranger: "scout", rogue: "scout", monk: "scout" };
+  function v6StartScores(cls) {
+    let C = CLASSES6[cls], o = {};
+    return !C || !C.prio ? (SCORES.forEach((k) => o[k] = 12), o) : (C.prio.split(" ").forEach((k, i) => o[k] = V6_ARRAY[i]), o);
+  }
+  var v6TierFor = (lvl) => {
+    let t = 0;
+    return V6_TIERS.forEach((x, i) => {
+      x <= lvl + 1 && (t = i);
+    }), t;
+  };
+  function v6AutoScores(cls, lvl) {
+    let s = v6StartScores(cls), C = CLASSES6[cls], picks = Math.floor((lvl - 1) * 9 / 29);
+    for (let i = 0; i < picks; i++) {
+      let k;
+      if (!C.prio) k = SCORES.slice().sort((a, b) => s[a] - s[b])[0];
+      else {
+        let p = C.prio.split(" ");
+        k = s[p[i % 2]] < 20 ? p[i % 2] : p[(i + 1) % 2];
+      }
+      s[k] < 20 && s[k]++;
+    }
+    return s;
+  }
+  function v6KitAt(cls, t) {
+    let C = CLASSES6[cls], v = V6_VARIANT[cls] || "plain", g = { weapon: { fam: C.fam, tier: t } };
+    for (let slot of ["armour", "helm", "cloak"]) g[slot] = { slot, tier: t, v: GEAR6[slot][v] ? v : "plain" };
+    for (let slot of ["shield", "boots", "neck"]) g[slot] = { slot, tier: t, v: "plain" };
+    return g.ring1 = { slot: "ring", tier: t, v: "plain" }, g.ring2 = { slot: "ring", tier: t, v: "plain" }, g;
+  }
+  function v6KitSkills(cls, lvl) {
+    let K = KITS6[cls];
+    if (!K) return [];
+    let list = K.start.slice();
+    return K.talents.filter((t) => t.lvl <= lvl).forEach((t) => list.push(t.id)), list.slice(0, 4);
+  }
+  function v6AutoPassives(cls, lvl) {
+    let n = Math.max(0, lvl - 1), sc = Math.floor(n * 9 / 29), sk = [2, 5, 11, 14].filter((x) => x <= lvl).length, P = PASSIVES6[cls] || [], out = [];
+    for (let i = 0; i < Math.max(0, n - sc - sk); i++) P.length && out.push(P[i % Math.min(3, P.length)].n);
+    return out;
+  }
+  function v6Kobold(name, cls, lvl, opt) {
+    opt = opt || {};
+    let m = {
+      v6: 1,
+      name,
+      cls,
+      lvl,
+      xp: 0,
+      scores: opt.scores || v6AutoScores(cls, lvl),
+      start: v6StartScores(cls),
+      passives: opt.passives || v6AutoPassives(cls, lvl),
+      gear: opt.gear || v6KitAt(cls, v6TierFor(lvl)),
+      skills: opt.skills || v6KitSkills(cls, lvl),
+      dark: {},
+      bond: opt.bond || 0,
+      streak: 0,
+      corr: opt.corr || 0,
+      luck: opt.luck || 0,
+      pend: 0,
+      hero: !!opt.hero
+    };
+    m.w = V6_LOOK[CLASSES6[cls].fam];
+    let st = v6Stats(m);
+    return m.hp = st.hp, m.mp = st.mp, m;
+  }
+  function v6Gear(m) {
+    let out = { atk: 0, def: 0, hp: 0, spd: 0, mana: 0, wpow: 0, magic: !1, steady: 5, quick: !1, heavy: !1, fam: null };
+    for (let [k, g] of Object.entries(m.gear || {})) {
+      if (!g) continue;
+      if (k === "weapon") {
+        let F = FAMILIES[g.fam];
+        out.fam = F, out.famId = g.fam, out.wpow = TIER_POWER[g.tier] * F.p, out.magic = !!F.magic, out.quick = !!F.quick, out.heavy = !!F.heavy, out.steady = Array.isArray(F.steady) ? F.steady[g.tier] : F.steady || 5;
+        continue;
+      }
+      let row = (GEAR6[g.slot || k] || {})[g.v || "plain"] || GEAR6[g.slot || k].plain, p = row && row[g.tier];
+      if (p)
+        for (let [s, v] of Object.entries(p.st)) out[s === "mana" ? "mana" : s] += v;
+    }
+    return out;
+  }
+  function v6Stats(m) {
+    let C = CLASSES6[m.cls], L = m.lvl, sc = m.scores, st0 = m.start || v6StartScores(m.cls), G = v6Gear(m), P = {};
+    for (let n of m.passives || []) {
+      let d = (PASSIVES6[m.cls] || []).find((x) => x.n === n);
+      if (d) for (let [k, v] of Object.entries(d.fx)) P[k] = (P[k] || 0) + v;
+    }
+    let mod = (k) => k === "mbar" ? mbar(sc) : modOf(sc[k]), grow = (k) => k === "mbar" ? mbar(sc) - mbar(st0) : modOf(sc[k]) - modOf(st0[k]), f = (k) => (1 + 0.05 * mod(k)) / 1.1, bA = BASE6.atk[0] + BASE6.atk[1] * (L - 1), bD = BASE6.def[0] + BASE6.def[1] * (L - 1), bH = BASE6.hp[0] + BASE6.hp[1] * (L - 1), atk = (bA + G.atk + (G.magic ? 0 : G.wpow)) * C.atk * f(V6_ATK_SCORE[m.cls]) * (1 + (P.atkP || 0)), spa = (bA + G.atk + (G.magic ? G.wpow : 0)) * C.spa * f(V6_CAST_SCORE[m.cls]) * (1 + (P.spaP || 0)), def = (bD + G.def) * C.def * f("CON") * (1 + (P.defP || 0)), sd = (bD + G.def) * C.sd * f("CON") * (1 + (P.defP || 0)), hp = (bH + G.hp) * C.hp * f("CON") * (1 + (P.hpP || 0)), m30 = C.mana[1], m1 = C.mana[0], baseMana = m1 + (m30 - m1) * (L - 1) / 29, mp = baseMana * (1 + G.mana / 100) * (1 + (P.mpP || 0)), spd = (5 + 0.5 * (L - 1)) * C.spd + G.spd + (P.spd || 0), accScore = G.fam && G.fam.ranged ? "DEX" : "STR", S = {
+      hp: Math.round(hp),
+      mp: Math.round(mp),
+      atk,
+      spa,
+      def,
+      sd,
+      spd,
+      move: Math.min(6, Math.max(3, Math.round(2 + 0.35 * spd))),
+      acc: C.acc + 2.5 * grow(accScore) + (P.acc || 0),
+      // the class table includes the starting scores (P21)
+      dodge: Math.min(30, 10 + 2.5 * grow("DEX") + (P.dodge || 0)),
+      // points: 10 base, gear and skills capped at 30
+      res: (V6_CAST_SCORE[m.cls] === "WIS" ? 0 : 15 * grow("WIS")) + (P.res || 0),
+      // 5 pp a WIS modifier at 3 resistance a pp (balance.md §3)
+      init: 10 + modOf(sc.DEX) + C.init + (P.init || 0),
+      threat: C.threat * (1 + 0.1 * modOf(sc.CHA)),
+      cha: modOf(sc.CHA),
+      crit: 0.08 + (P.crit || 0),
+      critD: 1.5 + (P.critD || 0),
+      pas: P,
+      beta: 1,
+      ap: 0,
+      luck: m.luck || 0,
+      regen: 0,
+      mpregen: 0,
+      steady: Math.max(1, G.steady + (G.magic ? P.steadySpell || 0 : P.steady || 0)),
+      magic: G.magic,
+      quick: G.quick,
+      heavy: G.heavy,
+      fam: G.famId,
+      balance: balanceOf(sc),
+      corr: m.corr || 0,
+      // the old engine's names, so code that has not moved yet keeps working
+      sight: 0,
+      stealth: 0,
+      rage: 0,
+      mov: 0
+    };
+    return m.cls === "monk" && (S.kiMul = 0.5 + S.balance), S;
+  }
+
   // src/game/stats.js
   function rpSkills(w) {
     let W = WEAPONS[w], R2 = RP_W[w] || {}, s = [];
@@ -5317,6 +5661,7 @@ button,.rpb,.pill{touch-action:manipulation}
     return w === "healwand" ? "cleric" : W.magic ? "mage" : W.ranged ? "ranger" : "warrior";
   }
   function rpStats(m) {
+    if (m && m.v6) return v6Stats(m);
     let C = RP_CLS[m.cls] || RP_CLS.warrior, l = m.lvl - 1, R2 = RP_W[m.w] || { pow: 4 }, st = { hp: C.base.hp + C.gr.hp * l, mp: C.base.mp + C.gr.mp * l, atk: C.base.atk + C.gr.atk * l + R2.pow, def: C.base.def + C.gr.def * l, spd: C.base.spd + C.gr.spd * l + (R2.spd || 0), crit: 0.08, dodge: 0, regen: 0, mpregen: 0, rage: 0 }, add = (o) => {
       if (o)
         for (let k in o) st[k] = (st[k] || 0) + o[k];
@@ -5338,6 +5683,7 @@ button,.rpb,.pill{touch-action:manipulation}
     }), st.hp = Math.round(st.hp), st.mp = Math.round(st.mp), st;
   }
   function rpMemSkills(m) {
+    if (m && m.v6) return (m.skills || []).slice();
     let out = (RP_CLS[m.cls] || { sk: [] }).sk.slice();
     return rpSkills(m.w).forEach((k) => {
       out.includes(k) || out.push(k);
@@ -5412,81 +5758,580 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.mapImg = null, emit("world:apply");
   }
 
-  // src/core/options.js
-  var RP_OPT_KEY = "kobold-pit-rpopt", rpOpt = Object.assign({ hand: "left", buzz: !0 }, store.get(RP_OPT_KEY, {}));
-  function rpOptSave() {
-    store.set(RP_OPT_KEY, rpOpt);
-    let v = $("v-rpg");
-    v && v.classList.toggle("lefty", rpOpt.hand === "right"), rpLayout();
+  // src/data/v6/foes.js
+  var FOES6 = { cellar_rat: { n: "Cellar rat", role: "swarm", lv: [1, 2], home: 1, where: "Mallow's cellar (set-piece)", zone: "none", uses: "—", how: "runs at the nearest kobold in twos and threes; flees at low HP", drop: "—", by: { 1: { hp: 15, atk: 7.2, def: 0.5, sd: 0.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.42, xp: 1, gold: 1 }, 2: { hp: 17, atk: 9.2, def: 1, sd: 1, dodge: 15, init: 11, move: 5, res: 0, w: 0.409, xp: 2, gold: 2 } } }, guard_recruit: { n: "Guard recruit", role: "normal", lv: [2, 3], home: 2, where: "the castle yard drill (set-piece)", zone: "none", uses: "—", how: "guards (dodge +25) when hurt; a tutorial in cover", drop: "—", by: { 2: { hp: 43, atk: 15.3, def: 2, sd: 2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 5, gold: 4 }, 3: { hp: 49, atk: 18.8, def: 2.9, sd: 2.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 6, gold: 5 } } }, nettlenose_scout: { n: "Nettlenose scout", role: "quick", lv: [3, 30], home: 5, where: "every road as the story goes on", zone: "none", uses: "unseen in tall grass", how: "ambushes from grass, hits the most hurt kobold, slips away", drop: "moss or the zone's material", by: { 3: { hp: 34, atk: 16, def: 2, sd: 2.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 4, gold: 4 }, 4: { hp: 64, atk: 23.1, def: 2.7, sd: 3.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 7, gold: 5 }, 5: { hp: 71, atk: 26, def: 3.4, sd: 3.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.761, xp: 10, gold: 6 }, 6: { hp: 79, atk: 26.5, def: 4, sd: 4.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.757, xp: 11, gold: 6 }, 7: { hp: 85, atk: 30, def: 4.7, sd: 5.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 13, gold: 7 }, 8: { hp: 91, atk: 32.8, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 129, atk: 41.5, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 140, atk: 44.4, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 141, atk: 47.2, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 23, gold: 10 }, 12: { hp: 153, atk: 50.1, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 27, gold: 11 }, 13: { hp: 160, atk: 54.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.75, xp: 24, gold: 12 }, 14: { hp: 166, atk: 58.5, def: 9.3, sd: 10.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 27, gold: 13 }, 15: { hp: 215, atk: 70.2, def: 10, sd: 11.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 31, gold: 13 }, 16: { hp: 222, atk: 74.6, def: 10.7, sd: 12.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 34, gold: 14 }, 17: { hp: 237, atk: 77.9, def: 11.3, sd: 13, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 37, gold: 15 }, 18: { hp: 257, atk: 81.2, def: 12, sd: 13.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 41, gold: 16 }, 19: { hp: 265, atk: 86.7, def: 12.7, sd: 14.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.75, xp: 45, gold: 16 }, 20: { hp: 273, atk: 91.5, def: 13.3, sd: 15.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 48, gold: 17 }, 21: { hp: 327, atk: 93.7, def: 14, sd: 16, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 53, gold: 18 }, 22: { hp: 347, atk: 96.9, def: 14.7, sd: 16.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 57, gold: 19 }, 23: { hp: 355, atk: 102.7, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.746, xp: 53, gold: 19 }, 24: { hp: 363, atk: 106, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.746, xp: 57, gold: 20 }, 25: { hp: 371, atk: 110.8, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 61, gold: 21 }, 26: { hp: 392, atk: 114.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 65, gold: 22 }, 27: { hp: 452, atk: 130.2, def: 18, sd: 20.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 69, gold: 23 }, 28: { hp: 461, atk: 137, def: 18.7, sd: 21.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.746, xp: 73, gold: 23 }, 29: { hp: 469, atk: 142.6, def: 19.3, sd: 22.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 77, gold: 24 }, 30: { hp: 503, atk: 146.2, def: 20, sd: 22.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 82, gold: 25 } } }, nettlenose_slinger: { n: "Nettlenose slinger", role: "ranged", lv: [3, 30], home: 5, where: "every road", zone: "none", uses: "—", how: "keeps 5–6 tiles away behind cover; retreats when a kobold comes close", drop: "the zone's material", by: { 3: { hp: 39, atk: 17, def: 2.3, sd: 2.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 4, gold: 4 }, 4: { hp: 74, atk: 24.5, def: 3.1, sd: 3.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 7, gold: 5 }, 5: { hp: 81, atk: 27.5, def: 3.8, sd: 3.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.803, xp: 10, gold: 6 }, 6: { hp: 90, atk: 28.1, def: 4.6, sd: 4.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.8, xp: 11, gold: 7 }, 7: { hp: 97, atk: 31.8, def: 5.4, sd: 5.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 14, gold: 8 }, 8: { hp: 104, atk: 34.7, def: 6.1, sd: 6.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 14, gold: 8 }, 9: { hp: 148, atk: 43.9, def: 6.9, sd: 6.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 17, gold: 9 }, 10: { hp: 160, atk: 47, def: 7.6, sd: 7.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 20, gold: 10 }, 11: { hp: 162, atk: 50, def: 8.4, sd: 8.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 24, gold: 11 }, 12: { hp: 175, atk: 53.1, def: 9.2, sd: 9.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 27, gold: 12 }, 13: { hp: 183, atk: 57.7, def: 9.9, sd: 9.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 25, gold: 13 }, 14: { hp: 190, atk: 62, def: 10.7, sd: 10.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 28, gold: 13 }, 15: { hp: 246, atk: 74.4, def: 11.4, sd: 11.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 31, gold: 14 }, 16: { hp: 254, atk: 79, def: 12.2, sd: 12.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 34, gold: 15 }, 17: { hp: 271, atk: 82.5, def: 13, sd: 13, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 38, gold: 16 }, 18: { hp: 294, atk: 85.9, def: 13.7, sd: 13.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 42, gold: 17 }, 19: { hp: 303, atk: 91.8, def: 14.5, sd: 14.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 45, gold: 17 }, 20: { hp: 312, atk: 96.9, def: 15.2, sd: 15.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 49, gold: 18 }, 21: { hp: 374, atk: 99.3, def: 16, sd: 16, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 53, gold: 19 }, 22: { hp: 396, atk: 102.6, def: 16.8, sd: 16.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 58, gold: 20 }, 23: { hp: 406, atk: 108.8, def: 17.5, sd: 17.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.793, xp: 54, gold: 21 }, 24: { hp: 415, atk: 112.2, def: 18.3, sd: 18.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.793, xp: 58, gold: 22 }, 25: { hp: 424, atk: 117.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 62, gold: 22 }, 26: { hp: 448, atk: 120.8, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 66, gold: 23 }, 27: { hp: 516, atk: 137.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 70, gold: 24 }, 28: { hp: 526, atk: 145.1, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.793, xp: 74, gold: 25 }, 29: { hp: 536, atk: 151, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 78, gold: 26 }, 30: { hp: 574, atk: 154.8, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 83, gold: 26 } } }, snatchclaw_s_guard: { n: "Snatchclaw's guard", role: "normal", lv: [8, 30], home: 12, where: "roads, toll gates, barracks, castle", zone: "none", uses: "—", how: "shield wall: guards an ally beside it; taunts (threat ×2)", drop: "gold scrap", by: { 8: { hp: 130, atk: 38.6, def: 7.7, sd: 7.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 19, gold: 11 }, 9: { hp: 184, atk: 48.8, def: 8.6, sd: 8.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 22, gold: 12 }, 10: { hp: 200, atk: 52.2, def: 9.5, sd: 9.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 27, gold: 13 }, 11: { hp: 202, atk: 55.6, def: 10.5, sd: 10.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 31, gold: 14 }, 12: { hp: 219, atk: 59, def: 11.5, sd: 11.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 36, gold: 15 }, 13: { hp: 228, atk: 64.2, def: 12.4, sd: 12.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 32, gold: 16 }, 14: { hp: 238, atk: 68.9, def: 13.4, sd: 13.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 37, gold: 17 }, 15: { hp: 307, atk: 82.6, def: 14.3, sd: 14.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 41, gold: 18 }, 16: { hp: 317, atk: 87.8, def: 15.3, sd: 15.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 45, gold: 19 }, 17: { hp: 338, atk: 91.6, def: 16.2, sd: 16.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 50, gold: 20 }, 18: { hp: 368, atk: 95.5, def: 17.2, sd: 17.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 55, gold: 21 }, 19: { hp: 379, atk: 102, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 390, atk: 107.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 468, atk: 110.3, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 495, atk: 114, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 507, atk: 120.8, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 }, 24: { hp: 519, atk: 124.6, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 76, gold: 27 }, 25: { hp: 531, atk: 130.4, def: 23.8, sd: 23.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 81, gold: 28 }, 26: { hp: 560, atk: 134.3, def: 24.8, sd: 24.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 86, gold: 29 }, 27: { hp: 645, atk: 153.1, def: 25.7, sd: 25.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 91, gold: 30 }, 28: { hp: 658, atk: 161.2, def: 26.7, sd: 26.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 97, gold: 31 }, 29: { hp: 671, atk: 167.7, def: 27.6, sd: 27.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 103, gold: 32 }, 30: { hp: 718, atk: 172, def: 28.6, sd: 28.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 108, gold: 33 } } }, guard_sergeant: { n: "Guard sergeant", role: "elite", lv: [16, 30], home: 20, where: "R4, the castle, patrols", zone: "none", uses: "weaken (shout)", how: "leads a patrol; shouts weaken at the pack; calls a guard if alone", drop: "boss fang (10%)", by: { 16: { hp: 634, atk: 109.8, def: 19.8, sd: 18.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.928, xp: 117, gold: 36 }, 17: { hp: 677, atk: 114.6, def: 21.1, sd: 19.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.927, xp: 128, gold: 38 }, 18: { hp: 735, atk: 119.4, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.925, xp: 141, gold: 40 }, 19: { hp: 757, atk: 127.5, def: 23.5, sd: 21.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.93, xp: 154, gold: 42 }, 20: { hp: 779, atk: 134.6, def: 24.8, sd: 22.9, dodge: 25, init: 11, move: 4, res: 10, w: 1.929, xp: 167, gold: 44 }, 21: { hp: 935, atk: 137.9, def: 26, sd: 24, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 179, gold: 47 }, 22: { hp: 990, atk: 142.5, def: 27.2, sd: 25.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.937, xp: 193, gold: 49 }, 23: { hp: 1014, atk: 151, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.942, xp: 182, gold: 51 }, 24: { hp: 1038, atk: 155.8, def: 29.7, sd: 27.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.942, xp: 195, gold: 53 }, 25: { hp: 1061, atk: 163, def: 30.9, sd: 28.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.941, xp: 208, gold: 55 }, 26: { hp: 1121, atk: 167.8, def: 32.2, sd: 29.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.939, xp: 221, gold: 57 }, 27: { hp: 1291, atk: 191.4, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 234, gold: 59 }, 28: { hp: 1316, atk: 201.5, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.943, xp: 248, gold: 61 }, 29: { hp: 1341, atk: 209.7, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.941, xp: 263, gold: 63 }, 30: { hp: 1436, atk: 215, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.939, xp: 277, gold: 65 } } }, copper_beetle: { n: "Copper beetle", role: "brute", lv: [3, 8], home: 5, where: "R1, the mine", zone: "pebble", uses: "—", how: "charges in a line; curls up (defence ×2) for a turn when hurt", drop: "moss, gold scrap", by: { 3: { hp: 79, atk: 22.6, def: 4.6, sd: 2.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.499, xp: 10, gold: 8 }, 4: { hp: 147, atk: 32.6, def: 6.2, sd: 3.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.488, xp: 15, gold: 10 }, 5: { hp: 162, atk: 36.6, def: 7.7, sd: 4.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.497, xp: 21, gold: 11 }, 6: { hp: 181, atk: 37.5, def: 9.2, sd: 5.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.508, xp: 24, gold: 13 }, 7: { hp: 194, atk: 42.4, def: 10.7, sd: 6.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 31, gold: 14 }, 8: { hp: 207, atk: 46.3, def: 12.2, sd: 7.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.523, xp: 32, gold: 16 } } }, glow_grub: { n: "Glow grub", role: "caster", lv: [5, 8], home: 7, where: "the mine", zone: "pebble", uses: "slow (sticky spit)", how: "spits from range at the kobold with the lowest defence; lights the dark tiles", drop: "gold scrap", by: { 5: { hp: 76, atk: 33.6, def: 2.9, sd: 7.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.892, xp: 9, gold: 7 }, 6: { hp: 85, atk: 34.3, def: 3.5, sd: 9.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.891, xp: 10, gold: 8 }, 7: { hp: 91, atk: 38.9, def: 4, sd: 10.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 12, gold: 8 }, 8: { hp: 97, atk: 42.5, def: 4.6, sd: 12.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.886, xp: 12, gold: 9 } } }, sand_skink: { n: "Sand skink", role: "quick", lv: [8, 13], home: 10, where: "R2, the oasis", zone: "sun", uses: "poison (bite)", how: "darts in, bites, darts out; hides under sand (unseen) on sand tiles", drop: "sand glass", by: { 8: { hp: 91, atk: 32.8, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 129, atk: 41.5, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 140, atk: 44.4, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 141, atk: 47.2, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 23, gold: 10 }, 12: { hp: 153, atk: 50.1, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 27, gold: 11 }, 13: { hp: 160, atk: 54.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.75, xp: 24, gold: 12 } } }, cellar_bee: { n: "Cellar bee", role: "swarm", lv: [10, 13], home: 11, where: "the honey cellars", zone: "sun", uses: "poison (sting)", how: "flies over terrain in a cloud of three; goes for the healer", drop: "sand glass, reed", by: { 10: { hp: 80, atk: 31.3, def: 4.8, sd: 4.8, dodge: 15, init: 11, move: 5, res: 0, w: 0.391, xp: 10, gold: 5 }, 11: { hp: 81, atk: 33.3, def: 5.3, sd: 5.3, dodge: 15, init: 11, move: 5, res: 0, w: 0.389, xp: 12, gold: 5 }, 12: { hp: 88, atk: 35.4, def: 5.7, sd: 5.7, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 13, gold: 6 }, 13: { hp: 91, atk: 38.5, def: 6.2, sd: 6.2, dodge: 15, init: 11, move: 5, res: 0, w: 0.389, xp: 12, gold: 6 } } }, wax_golem: { n: "Wax golem", role: "brute", lv: [11, 13], home: 12, where: "the honey cellars", zone: "sun", uses: "slow (wax)", how: "plods, leaves wax tiles (slow) behind it; melts (defence ×0.5) when burned", drop: "sand glass", by: { 11: { hp: 323, atk: 66.7, def: 16.8, sd: 10.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 53, gold: 21 }, 12: { hp: 350, atk: 70.8, def: 18.3, sd: 11.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 61, gold: 22 }, 13: { hp: 365, atk: 77, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.525, xp: 56, gold: 24 } } }, rock_goat: { n: "Rock goat", role: "brute", lv: [13, 16], home: 14, where: "R3, the pass", zone: "ember", uses: "fall (charge)", how: "charges two tiles and knocks the target down (fall); butts kobolds off ledges", drop: "gold scrap", by: { 13: { hp: 365, atk: 77, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.525, xp: 56, gold: 24 }, 14: { hp: 380, atk: 82.7, def: 21.4, sd: 13.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.525, xp: 63, gold: 26 }, 15: { hp: 492, atk: 99.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 69, gold: 27 }, 16: { hp: 507, atk: 105.4, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 77, gold: 29 } } }, stoker: { n: "Stoker", role: "caster", lv: [13, 18], home: 15, where: "R3, the crater", zone: "ember", uses: "burn", how: "throws embers that burn; stokes hot tiles around itself", drop: "gold scrap", by: { 13: { hp: 171, atk: 70.6, def: 7.4, sd: 19.8, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 22, gold: 14 }, 14: { hp: 178, atk: 75.8, def: 8, sd: 21.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.887, xp: 25, gold: 15 }, 15: { hp: 230, atk: 90.9, def: 8.6, sd: 22.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.895, xp: 28, gold: 16 }, 16: { hp: 238, atk: 96.6, def: 9.2, sd: 24.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 31, gold: 17 }, 17: { hp: 254, atk: 100.8, def: 9.7, sd: 25.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 34, gold: 18 }, 18: { hp: 276, atk: 105, def: 10.3, sd: 27.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.894, xp: 37, gold: 19 } } }, magma_slug: { n: "Magma slug", role: "brute", lv: [15, 18], home: 17, where: "the crater", zone: "ember", uses: "burn (hot trail)", how: "leaves a trail of hot tiles (burn on entry); very slow", drop: "gold scrap, boss fang (5%)", by: { 15: { hp: 492, atk: 99.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 69, gold: 27 }, 16: { hp: 507, atk: 105.4, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 77, gold: 29 }, 17: { hp: 541, atk: 110, def: 25.9, sd: 16.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 85, gold: 30 }, 18: { hp: 588, atk: 114.6, def: 27.4, sd: 17.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 93, gold: 32 } } }, snow_beast: { n: "Snow beast", role: "brute", lv: [19, 22], home: 20, where: "R5, the snowfield", zone: "frost", uses: "fall (ice)", how: "stamps ice tiles around it (fall on entry); hugs (root) when adjacent", drop: "frost shard", by: { 19: { hp: 606, atk: 122.4, def: 29, sd: 18.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.521, xp: 102, gold: 33 }, 20: { hp: 623, atk: 129.2, def: 30.5, sd: 19.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.522, xp: 111, gold: 35 }, 21: { hp: 748, atk: 132.3, def: 32, sd: 20, dodge: 3, init: 8, move: 3, res: 0, w: 1.522, xp: 118, gold: 37 }, 22: { hp: 792, atk: 136.8, def: 33.5, sd: 21, dodge: 3, init: 8, move: 3, res: 0, w: 1.521, xp: 127, gold: 38 } } }, frost_guard: { n: "Frost guard", role: "normal", lv: [19, 23], home: 21, where: "R5, the draft outpost", zone: "frost", uses: "slow (frost spear)", how: "a guard with a frost spear: reach 2, slows on hit", drop: "frost shard", by: { 19: { hp: 379, atk: 102, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 390, atk: 107.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 468, atk: 110.3, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 495, atk: 114, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 507, atk: 120.8, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 } } }, ice_mite: { n: "Ice mite", role: "swarm", lv: [20, 23], home: 22, where: "the ice cellars", zone: "frost", uses: "fall (slick)", how: "skitters in fours; makes the floor slick where it dies", drop: "frost shard", by: { 20: { hp: 156, atk: 64.6, def: 9.5, sd: 9.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.39, xp: 24, gold: 9 }, 21: { hp: 187, atk: 66.2, def: 10, sd: 10, dodge: 15, init: 11, move: 5, res: 0, w: 0.397, xp: 26, gold: 10 }, 22: { hp: 198, atk: 68.4, def: 10.5, sd: 10.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.397, xp: 28, gold: 10 }, 23: { hp: 203, atk: 72.5, def: 11, sd: 11, dodge: 15, init: 11, move: 5, res: 0, w: 0.398, xp: 27, gold: 10 } } }, shore_crab: { n: "Shore crab", role: "brute", lv: [23, 27], home: 24, where: "R6, R7, the shipwreck", zone: "salt", uses: "—", how: "armoured (defence ×1.6); pinches and holds (root) the kobold in front", drop: "pearl, reed", by: { 23: { hp: 811, atk: 145, def: 35, sd: 21.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.526, xp: 120, gold: 40 }, 24: { hp: 830, atk: 149.6, def: 36.6, sd: 22.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.527, xp: 129, gold: 41 }, 25: { hp: 849, atk: 156.5, def: 38.1, sd: 23.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.527, xp: 138, gold: 43 }, 26: { hp: 897, atk: 161.1, def: 39.6, sd: 24.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.525, xp: 146, gold: 45 }, 27: { hp: 1033, atk: 183.7, def: 41.1, sd: 25.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.52, xp: 154, gold: 46 } } }, smuggler: { n: "Smuggler", role: "quick", lv: [23, 26], home: 24, where: "R6, the shipwreck", zone: "salt", uses: "unseen (hides)", how: "hides in crates (unseen), strikes, pockets gold (−1% of the pack's gold, given back on defeat)", drop: "reed, pearl", by: { 23: { hp: 355, atk: 102.7, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.746, xp: 53, gold: 19 }, 24: { hp: 363, atk: 106, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.746, xp: 57, gold: 20 }, 25: { hp: 371, atk: 110.8, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 61, gold: 21 }, 26: { hp: 392, atk: 114.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 65, gold: 22 } } }, sea_guard: { n: "Sea guard", role: "ranged", lv: [25, 27], home: 26, where: "R7, the islands", zone: "salt", uses: "—", how: "throws harpoons (steadiness 4); pulls a kobold one tile closer on hit", drop: "pearl", by: { 25: { hp: 424, atk: 117.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 62, gold: 22 }, 26: { hp: 448, atk: 120.8, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 66, gold: 23 }, 27: { hp: 516, atk: 137.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 70, gold: 24 } } }, cave_eel: { n: "Cave eel", role: "caster", lv: [26, 27], home: 27, where: "the island cave", zone: "salt", uses: "—", how: "storm bolts that chain to one more kobold; lives in water tiles (cover)", drop: "pearl", by: { 26: { hp: 420, atk: 147.7, def: 14.9, sd: 39.6, dodge: 10, init: 10, move: 4, res: 10, w: 0.897, xp: 59, gold: 26 }, 27: { hp: 484, atk: 168.4, def: 15.4, sd: 41.1, dodge: 10, init: 10, move: 4, res: 10, w: 0.901, xp: 63, gold: 27 } } }, royal_guard: { n: "Royal guard", role: "elite", lv: [27, 30], home: 29, where: "the castle", zone: "none", uses: "stun (shield bash)", how: "guards Snatchclaw's hall in pairs; shield-bash stun; never flees", drop: "boss fang (15%)", by: { 27: { hp: 1291, atk: 191.4, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 234, gold: 59 }, 28: { hp: 1316, atk: 201.5, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.943, xp: 248, gold: 61 }, 29: { hp: 1341, atk: 209.7, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.941, xp: 263, gold: 63 }, 30: { hp: 1436, atk: 215, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.939, xp: 277, gold: 65 } } }, castle_crossbow: { n: "Castle crossbow", role: "ranged", lv: [27, 30], home: 29, where: "the castle walls", zone: "none", uses: "—", how: "fires from the walls (full cover) at 8–10 tiles; steadiness 3", drop: "gold scrap", by: { 27: { hp: 516, atk: 137.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 70, gold: 24 }, 28: { hp: 526, atk: 145.1, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.793, xp: 74, gold: 25 }, 29: { hp: 536, atk: 151, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 78, gold: 26 }, 30: { hp: 574, atk: 154.8, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 83, gold: 26 } } } }, PLACES6 = [{ place: "R1 (the capital gate → Pebblebrook)", L: 4, target: 3.333, pool: ["nettlenose_scout", "nettlenose_slinger", "copper_beetle"] }, { place: "the mine (Pebblebrook)", L: 7, target: 4, pool: ["copper_beetle", "glow_grub", "nettlenose_scout"] }, { place: "R2 (→ Sunhaven)", L: 10, target: 4, pool: ["snatchclaw_s_guard", "sand_skink", "nettlenose_slinger"] }, { place: "the honey cellars (Sunhaven)", L: 12, target: 4, pool: ["cellar_bee", "wax_golem", "sand_skink"] }, { place: "R3 (→ Emberreach)", L: 15, target: 4.267, pool: ["rock_goat", "stoker", "nettlenose_slinger"] }, { place: "the crater (Emberreach)", L: 17, target: 4.267, pool: ["stoker", "magma_slug", "nettlenose_scout"] }, { place: "R4, the bun road", L: 17, target: 4.267, pool: ["snatchclaw_s_guard", "guard_sergeant", "nettlenose_slinger", "nettlenose_scout"] }, { place: "R5 (→ Frostwick)", L: 21, target: 4.267, pool: ["snow_beast", "frost_guard", "nettlenose_scout"] }, { place: "the ice cellars (Frostwick)", L: 22, target: 4.267, pool: ["ice_mite", "snow_beast", "frost_guard"] }, { place: "R6 (→ Saltspray)", L: 24, target: 4.267, pool: ["shore_crab", "smuggler", "snatchclaw_s_guard"] }, { place: "the shipwreck (Saltspray)", L: 25, target: 4.267, pool: ["shore_crab", "smuggler", "nettlenose_slinger"] }, { place: "R7 and the islands", L: 26, target: 4.267, pool: ["shore_crab", "sea_guard"] }, { place: "the island cave", L: 27, target: 4.267, pool: ["cave_eel", "shore_crab", "sea_guard"] }, { place: "the march and the castle", L: 29, target: 4.267, pool: ["royal_guard", "castle_crossbow", "snatchclaw_s_guard", "guard_sergeant"] }], BOSSES6 = { grubb: { id: "grubb", n: "Grubb", L: 5, R: 7, k: 34, hp: 860, atk: 36.9, def: 4.8, sd: 4.8, dodge: 5, init: 10, move: 3, res: 10, where: "the mill road", trick: "loud and easy to read: a big telegraphed swing every third round", adds: "2 Nettlenose scouts on round 4", drop: "Toll pot (helm, T2)", xp: 107, gold: 45 }, snipe: { id: "snipe", n: "Snipe", L: 8, R: 7, k: 35, hp: 1133, atk: 51.4, def: 7.6, sd: 7.6, dodge: 5, init: 10, move: 3, res: 10, where: "the mine", trick: "rides a copper cart behind cover (full cover against ranged); leaves it to throw", adds: "none", drop: "Copper-cart wheel (shield, T2)", xp: 162, gold: 63 }, sunhaven_guard_captain: { id: "sunhaven_guard_captain", n: "Sunhaven guard captain", L: 12, R: 8, k: 41, hp: 2242, atk: 73.4, def: 11.4, sd: 11.4, dodge: 5, init: 10, move: 3, res: 10, where: "the barracks by the oasis", trick: "drains the oasis tiles one by one (dry tiles slow); stands in the last wet one", adds: "2 guards", drop: "Drain-key (neck, T3)", xp: 364, gold: 88 }, emberreach_guard_captain: { id: "emberreach_guard_captain", n: "Emberreach guard captain", L: 16, R: 8, k: 42, hp: 3329, atk: 111, def: 15.3, sd: 15.3, dodge: 5, init: 10, move: 3, res: 10, where: "the seized ovens", trick: "seizes ovens: hot tiles around him burn on entry", adds: "1 stoker", drop: "Oven mitts (ring, T4)", xp: 475, gold: 113 }, snatchclaw_emberreach: { id: "snatchclaw_emberreach", n: "Snatchclaw (Emberreach)", L: 18, R: 10, k: 54, hp: 4963, atk: 106.2, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the forge square", trick: "talks the pack into standing down: a confuse on one kobold every third round instead of the big attack", adds: "2 guards", drop: "Captain's sash (cloak, T4)", xp: 738, gold: 126 }, bun_road_toll_captain: { id: "bun_road_toll_captain", n: "Bun-road toll captain", L: 18, R: 8, k: 43, hp: 3952, atk: 122.1, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the R4 toll gate", trick: "brings a guard every third round until the gate bell is rung", adds: "guards, one at a time", drop: "Bun satchel (armour, T4)", xp: 587, gold: 126 }, draft_sergeant_frostwick: { id: "draft_sergeant_frostwick", n: "Draft sergeant", L: 22, R: 8, k: 44, hp: 5447, atk: 161.9, def: 20.9, sd: 20.9, dodge: 5, init: 10, move: 3, res: 10, where: "the draft outpost on R5", trick: '"drafts" a kobold for three turns (it fights for him, a confuse)', adds: "1 frost guard", drop: "Sergeant's whistle (neck, T5)", xp: 828, gold: 150 }, pier_captain_saltspray: { id: "pier_captain_saltspray", n: "Pier captain", L: 26, R: 8, k: 46, hp: 6445, atk: 194.5, def: 24.8, sd: 24.8, dodge: 5, init: 10, move: 3, res: 10, where: "the harbour", trick: "fights from a boat at range (steadiness 3); the pack must bring him to the pier", adds: "2 sea guards", drop: "Net cloak (cloak, T6)", xp: 990, gold: 175 }, castle_commander: { id: "castle_commander", n: "Castle commander", L: 28, R: 10, k: 58, hp: 9541, atk: 203.9, def: 26.6, sd: 26.6, dodge: 5, init: 10, move: 3, res: 10, where: "the castle gate", trick: "a wall of royal guards that opens in phases (75 / 50 / 25%)", adds: "royal guards, two per phase", drop: "Marble gauntlets (ring, T6)", xp: 1405, gold: 188 }, snatchclaw_castle: { id: "snatchclaw_castle", n: "Snatchclaw (castle)", L: 29, R: 11, k: 64, hp: 10729, atk: 201.6, def: 27.6, sd: 27.6, dodge: 5, init: 10, move: 3, res: 10, where: "the throne room", trick: "runs for the tower fire; whoever has the most threat must hold him", adds: "2 royal guards", drop: "Throne splinter (helm, T6)", xp: 1640, gold: 194 }, glitterbeak: { id: "glitterbeak", n: "Glitterbeak", L: 30, R: 12, k: 70, hp: 12566, atk: 197.3, def: 28.5, sd: 28.5, dodge: 5, init: 10, move: 3, res: 10, where: "the castle roof", trick: "cold: heals when he eats buns (a telegraphed dive at the bun cart), loses it while the pack's embers glow; **luck 2** (a dragon's luck)", adds: "none", drop: "Warm scale (neck, T6)", xp: 1894, gold: 200 } }, TRIALS6 = { old_shellback: { id: "old_shellback", n: "Old Shellback", base: "copper_beetle", L: 8, area: "the mine, floor 3 (the flooded gallery)", trick: "curls up every second turn: it does not attack, and takes half damage until it uncurls", drop: "flour-dusted apron (Millers' set)", hp: 389, atk: 48.2, def: 9.9, sd: 9.2, dodge: 25, init: 11, move: 4, res: 10, xp: 72, gold: 31 }, the_queen_bee_s_comb: { id: "the_queen_bee_s_comb", n: "The queen bee's comb", base: "cellar_bee", L: 13, area: "the honey cellars, floor 3", trick: "calls two cellar bees every third turn", drop: "honey-silk cloak (Honey-glass set)", hp: 684, atk: 80.2, def: 16.1, sd: 14.9, dodge: 25, init: 11, move: 4, res: 10, xp: 126, gold: 46 }, the_magma_slug_s_mother: { id: "the_magma_slug_s_mother", n: "The magma slug's mother", base: "magma_slug", L: 18, area: "the crater, floor 3", trick: "leaves burning tiles where it moves", drop: "ember apron (Bakers' set)", hp: 1103, atk: 119.4, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, xp: 211, gold: 60 }, the_ice_wyrm_statue: { id: "the_ice_wyrm_statue", n: "The ice wyrm statue", base: "snow_beast", L: 23, area: "the ice cellars, floor 3", trick: "stands still until struck; then every hit on it slows the striker", drop: "ice slab (Fort set)", hp: 1521, atk: 151, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, xp: 272, gold: 76 }, the_ghost_ship_s_captain: { id: "the_ghost_ship_s_captain", n: "The ghost ship's captain", base: "sea_guard", L: 27, area: "the island cave", trick: "unseen every other turn (dodge halved does not apply: it is simply not there)", drop: "net cloak (Harbour set)", hp: 1936, atk: 191.4, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, xp: 351, gold: 88 } };
+
+  // src/battle/v6battle.js
+  var v6u = (u) => !!u && (u.m && u.m.v6 || u.E && u.E.v6), V6_WEAK = /* @__PURE__ */ new Set(["cleric", "druid", "bard"]), V6_ROLE_LOOK = { normal: "stick", brute: "club", quick: "spoon", ranged: "popgun", caster: "firewand", elite: "sword", swarm: "fish" };
+  function v6FoeKey(id, L) {
+    let F = FOES6[id];
+    if (!F) return null;
+    L = Math.max(F.lv[0], Math.min(F.lv[1], L));
+    let key = "v6:" + id + ":" + L;
+    if (!RP_E[key]) {
+      let s = F.by[L];
+      RP_E[key] = {
+        v6: 1,
+        id,
+        n: F.n,
+        role: F.role,
+        L,
+        w: V6_ROLE_LOOK[F.role] || "stick",
+        team: 1,
+        hp: s.hp,
+        atk: s.atk,
+        def: s.def,
+        sd: s.sd,
+        spd: 5 + 0.5 * (L - 1),
+        dodge: s.dodge,
+        init: s.init,
+        move: s.move,
+        res: s.res,
+        xp: s.xp,
+        gold: s.gold,
+        w6: s.w,
+        ranged: F.role === "ranged",
+        caster: F.role === "caster"
+      };
+    }
+    return key;
   }
-  function rpBuzz(p) {
-    if (!(rp.headless || !rpOpt.buzz))
-      try {
-        navigator.vibrate && navigator.vibrate(p);
-      } catch {
+  function v6Mix(place, rnd) {
+    rnd = rnd || Math.random;
+    let P = typeof place == "number" ? PLACES6[place] : place, keys = [], sum = 0;
+    for (let tries = 0; tries < 40 && sum < P.target * 0.95 && keys.length < 6; tries++) {
+      let id = P.pool[rnd() * P.pool.length | 0], k = v6FoeKey(id, P.L), w = RP_E[k].w6;
+      sum + w > P.target * 1.1 && keys.length >= 3 || (keys.push(k), sum += w);
+    }
+    return keys;
+  }
+  function v6FoeStat(u) {
+    let E = u.E;
+    return {
+      atk: u.atk,
+      spa: u.atk,
+      def: u.def,
+      sd: E.sd,
+      spd: u.spd,
+      hp: u.max,
+      mp: 0,
+      crit: 0.08,
+      critD: 1.5,
+      beta: 1,
+      dodge: E.dodge,
+      res: E.res,
+      init: E.init,
+      move: E.move,
+      steady: E.ranged ? 6 : 4,
+      magic: !!E.caster,
+      acc: 0,
+      luck: E.luck || 0,
+      threat: 1,
+      sight: 0,
+      stealth: 0,
+      v6: 1
+    };
+  }
+  function v6Kind(a, o) {
+    if (o && o.spell) return "spell";
+    let s = tcStat(a);
+    return a.m ? s.magic && !V6_WEAK.has(a.m.cls) ? "spell" : s.fam === "guns" ? "ranged" : "melee" : a.E.caster ? "spell" : a.E.ranged ? "ranged" : "melee";
+  }
+  var v6Light = (a) => a.m && ["daggers", "fists"].includes(tcStat(a).fam), v6Lvl = (u) => u.m ? u.m.lvl : u.E.L || 1;
+  function v6Buff(u, k) {
+    return (u.vb || []).filter((x) => x.k === k).reduce((a, x) => a + x.v, 0);
+  }
+  function v6Has(u, k) {
+    return !!(u.vs && u.vs[k] > 0);
+  }
+  function v6Hit(b, a, t, o) {
+    o = o || {};
+    let as = tcStat(a), ts = tcStat(t), kind = v6Kind(a, o), parts2 = [], [ax, ay] = tcNear(a, t), cv = kind === "ranged" ? tcCover(b, t, ax, ay) : { c: 0, fl: tcCover(b, t, ax, ay).fl };
+    kind === "ranged" && t.E && t.E.trick === "snipe" && (cv = { c: 2, fl: !1 }), o.flank && (cv = { c: 0, fl: !0 });
+    let tiles2 = Math.max(1, Math.round(tcEuc(a, t))), unseen = !tcSees(b, t, a), noDodge = v6Has(t, "stun") || v6Has(t, "root") || !!t.stun || t.side === 1 && !t.aware, acc = as.acc || 0;
+    a.m && V6_WEAK.has(a.m.cls) && !o.spell && (acc += 0), o.aim && (acc += o.aim, parts2.push((o.aim > 0 ? "skill +" : "skill ") + o.aim)), o.aoo && (acc -= 10, parts2.push("free hit −10")), o.watch && (acc -= 15, parts2.push("watch −15")), v6Has(a, "weaken") && (acc -= 10, parts2.push("weakened −10"));
+    let dodge = (ts.dodge || 0) + (t.guard ? 25 : 0) + (tcGrass(b, t) && tcCheb(a, t) > 1 ? 10 : 0) - (v6Has(t, "fall") ? 15 : 0);
+    noDodge ? parts2.push("cannot dodge") : (dodge && parts2.push("dodge −" + Math.round(dodge * (unseen ? 0.5 : 1))), unseen && parts2.push("unseen: dodge halved")), cv.c && parts2.push(cv.c === 2 ? "full cover −40" : "half cover −20");
+    let steady = kind === "ranged" ? as.steady || 6 : 0;
+    kind === "ranged" && tiles2 > 1 && parts2.push(tiles2 + " tiles −" + Math.round(steady * (tiles2 - 1)));
+    let i = a.atkN || 0;
+    i && parts2.push("attack " + (i + 1) + " −" + MAP(i, v6Light(a)));
+    let mercy = a.side === 0 && (a.misses || 0) >= 2;
+    mercy && parts2.push("mercy +15");
+    let p = hitChance({ kind, acc, dodge: Math.max(0, dodge), cover: cv.c === 2 ? 40 : cv.c === 1 ? 20 : 0, tiles: tiles2, steady, i, light: v6Light(a), unseen, noDodge, mercy, luck: (as.luck || 0) - (ts.luck || 0) });
+    return { h: Math.round(p * 100), p, parts: parts2, fl: cv.fl, cv: cv.c, unseen };
+  }
+  function v6Land(b, a, t, o) {
+    let as = tcStat(a), ts = tcStat(t), tiles2 = Math.max(1, Math.round(tcEuc(a, t)));
+    return spellLand({ res: ts.res || 0, lvlGap: v6Lvl(t) - v6Lvl(a), tiles: tiles2, steady: as.steady || 4, unseen: !tcSees(b, t, a), luck: (as.luck || 0) - (ts.luck || 0) });
+  }
+  function v6DmgRange(b, a, t, mul, o) {
+    o = o || {};
+    let as = tcStat(a), ts = tcStat(t), spell = v6Kind(a, o) === "spell", A = (spell ? as.spa : as.atk) * (1 + v6Buff(a, "atk") + v6Buff(a, "atkguard") + v6Buff(a, "rage") + v6Buff(a, "atkdodge")) * (v6Has(a, "weaken") || v6Has(a, "burn") ? 0.75 : 1), D = spell ? ts.sd : ts.def * (1 + v6Buff(t, "def") + v6Buff(t, "defsd")), M = (mul || 1) * (o.quick ? QUICK_MUL : 1) * (o.dark ? darkMul(a.m ? a.m.corr : 0) : 1);
+    return M *= (1 + v6Buff(t, "dmgtaken") - v6Buff(t, "atkguard")) * (v6Has(t, "hex") ? 1.25 : 1) * (t.mark && a.side === 0 ? 1.3 : 1) * (t.guard ? 0.75 : 1) * (t.curled ? 0.5 : 1), t.sz > 1 && o.area && (M *= 1), [Math.max(1, Math.round(damage(A, M, D, as.ap || 0, 0))), Math.max(1, Math.round(damage(A, M, D, as.ap || 0, 1)))];
+  }
+  function v6Crit(b, a, t, fl, unseen) {
+    let as = tcStat(a), ts = tcStat(t);
+    return critChance({ base: as.crit, D: as.critD, beta: as.beta, flank: fl, unseen, unaware: t.side === 1 && !t.aware, luck: (as.luck || 0) - (ts.luck || 0) });
+  }
+  function v6Strike(a, t, o) {
+    let b = rp.bt;
+    if (!t || !tcLive(t)) return;
+    o = o || {};
+    let sh = o.v6 || {}, kind = v6Kind(a, o), fl = !1, unseen = !1, landed = !0;
+    if (!o.mul && sh.st && !sh.mul) {
+      let p = statusLand({ lvlGap: v6Lvl(t) - v6Lvl(a), res: tcStat(t).res, cha: tcStat(a).cha || 0, kind: t.E && t.E.boss ? "boss" : t.E && t.E.role === "elite" ? "elite" : "normal", luck: (tcStat(a).luck || 0) - (tcStat(t).luck || 0) });
+      Math.random() < p ? v6Status(t, sh.st) : tcFloatU(t, "resisted", "#d7c9e3"), tcWake(b, t);
+      return;
+    }
+    if (kind === "spell")
+      landed = Math.random() < v6Land(b, a, t, o), rp.count && rp.count.push({ side: a.side, kind, tg: t, tiles: Math.max(1, Math.round(tcEuc(a, t))), cover: 0, p: 1 });
+    else if (!sh.sure) {
+      let H = v6Hit(b, a, t, o);
+      if (fl = H.fl, rp.count && rp.count.push({ side: a.side, kind, tg: t, tiles: Math.max(1, Math.round(tcEuc(a, t))), cover: H.cv || 0, p: H.p }), Math.random() >= H.p) {
+        a.misses = (a.misses || 0) + 1, tcFloatU(t, "miss", "#d7c9e3"), rp.headless || sfx("pop"), tcWake(b, t);
+        return;
       }
-  }
-
-  // src/core/layout.js
-  var RT = 32, RVW = 11, RVH = 11, RP_TILES = 10, RP_MAXTILE = 56, RPW = RT * RVW, RPH = RT * RVH;
-  function rpLoc(e, el2) {
-    let r = el2.getBoundingClientRect();
-    return rp.rot ? { x: e.clientY - r.top, y: r.right - e.clientX, w: r.height, h: r.width } : { x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height };
-  }
-  function rpVec(dx, dy) {
-    return rp.rot ? { x: dy, y: -dx } : { x: dx, y: dy };
-  }
-  var rpcv = document.getElementById("rpcv"), rpctx = rpcv.getContext("2d"), rpS = 1, rpDpr = 1;
-  function rpResize() {
-    let pe = rpcv.parentElement, box2 = { width: pe.clientWidth, height: pe.clientHeight };
-    if (!box2.width || !box2.height) return;
-    if (!(rp.mode === "battle" && rp.bt)) {
-      let side = Math.min(box2.width, box2.height), k = Math.max(RP_TILES, side / RP_MAXTILE) * RT / side;
-      RPW = Math.round(box2.width * k), RPH = Math.round(box2.height * k);
+      a.misses = 0;
     }
-    let VW = rpViewW(), VH = rpViewH(), sc = Math.min(box2.width / VW, box2.height / VH), w = Math.floor(VW * sc), h = Math.floor(VH * sc);
-    rpcv.style.width = w + "px", rpcv.style.height = h + "px", rpDpr = Math.min(2, window.devicePixelRatio || 1);
-    let cw = Math.round(w * rpDpr), ch = Math.round(h * rpDpr);
-    (rpcv.width !== cw || rpcv.height !== ch) && (rpcv.width = cw, rpcv.height = ch), rpS = w / VW, rp.mapImg = null, rp.bt && (rp.bt.img = null);
+    let [lo, hi] = v6DmgRange(b, a, t, o.mul || 1, o), d = lo + Math.random() * (hi - lo);
+    landed || (d *= 0.5, tcFloatU(t, "resisted", "#d7c9e3"));
+    let as = tcStat(a);
+    if (Math.random() < v6Crit(b, a, t, fl, unseen) ? (d *= as.critD || 1.5, tcFx(t, "CRIT!", "#ffb347", 14, 62)) : d *= as.beta == null ? 1 : as.beta, d = Math.max(1, Math.round(d)), t.hp = Math.max(0, t.hp - d), t.k.hurt = 0.3, t.k.squash = 1, tcFx(t, String(d), "#ffffff", 16, 48), netFx({ u: b.units.indexOf(t), h: 1 }), sh.fx === "drain" || sh.fx === "self_heal") {
+      let h = Math.round(d * (sh.v || 0.3));
+      a.m ? a.m.hp = Math.min(tcStat(a).hp, a.m.hp + h) : a.hp = Math.min(a.max, a.hp + h), tcFloatU(a, "+" + h, "#9af0a0");
+    }
+    if (sh.fx === "mark" && (t.mark = sh.hitsLeft || 3), t.mark && a.side === 0 && sh.fx !== "mark" && (t.mark--, t.mark <= 0 && (t.mark = 0)), t.hp > 0 && sh.st && landed && Math.random() < (sh.st.p == null ? 1 : sh.st.p) && v6Status(t, sh.st), t.hp > 0 && !sh.st && a.side === 1 && t.side === 0) {
+      let fs = v6FoeHitStatus(a);
+      fs && Math.random() < v6FoeStatusP(a, t) && v6Status(t, fs);
+    }
+    o.stun && t.hp > 0 && !(t.E && t.E.boss) && (t.stun = 1, tcFloatU(t, "stunned", "#ffe27a")), t.hp <= 0 ? (tcKo(t), v6OnFell(a, t)) : rp.headless || sfx("hit"), rp.headless || set_shake(Math.max(shake, 2)), tcWake(b, t);
   }
-  function rpLayout() {
-    let v = $("v-rpg");
-    if (!v || !v.classList) return;
-    let rot = innerHeight > innerWidth;
-    (rot !== rp.rot || !v.classList.contains("land")) && (rp.rot = rot, v.classList.toggle("rot", rot), v.classList.add("land"), typeof rpResize == "function" && requestAnimationFrame(rpResize));
+  function v6Status(t, st) {
+    if (st.k === "stun") {
+      if (t.E && t.E.boss && Math.random() >= 0.5) return;
+      t.stun = 1, tcFloatU(t, "stunned", "#ffe27a");
+      return;
+    }
+    t.vs = t.vs || {}, t.vs[st.k] = Math.max(t.vs[st.k] || 0, st.turns || 2), (st.k === "burn" || st.k === "poison") && (t.dot = { k: st.k, amt: dotAmount(st.k, t.max, v6StdHp(t), !1) }), tcFloatU(t, { slow: "slowed", root: "rooted", weaken: "weakened", hex: "hexed", confuse: "confused", fall: "down!", burn: "burning", poison: "poisoned" }[st.k] || st.k, "#e0c3ff");
   }
-  function rpGoFull(force) {
-    if (rpOpt.full === !1 && !force || !force && !(window.matchMedia && matchMedia("(pointer:coarse)").matches)) return;
-    let el2 = document.documentElement;
-    try {
-      let p = el2.requestFullscreen ? el2.requestFullscreen({ navigationUI: "hide" }) : el2.webkitRequestFullscreen ? el2.webkitRequestFullscreen() : null;
-      p && p.then && p.then(() => {
-        try {
-          screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {
-          });
-        } catch {
+  function v6StdHp(t) {
+    let L = v6Lvl(t), f = Object.values(FOES6).find((F) => F.role === "normal" && L >= F.lv[0] && L <= F.lv[1]);
+    return f ? f.by[L].hp : t.max;
+  }
+  function v6OnFell(a, t) {
+    if (!a.m) return;
+    let P = tcStat(a).pas || {};
+    if (P.killHeal) {
+      let h = Math.round(tcStat(a).hp * P.killHeal);
+      a.m.hp = Math.min(tcStat(a).hp, a.m.hp + h);
+    }
+    t.fleeing && a.m && (a.m.corr = (a.m.corr || 0) + 1);
+  }
+  function v6TurnStart(b, u) {
+    if (u.atkN = 0, u.m && u.side === 0) {
+      let M = v6PackMorale(b), p = moraleP(M);
+      M > 0 && Math.random() < p ? (u.ap++, tcFloatU(u, "+1 AP", "#ffe27a")) : M < 0 && Math.random() < p && (u.ap--, tcFloatU(u, "−1 AP", "#d7c9e3"));
+    }
+    if (u.dot && tcLive(u)) {
+      let d = Math.max(1, Math.round(u.dot.amt));
+      if (u.hp = Math.max(0, u.hp - d), tcFx(u, String(d), u.dot.k === "burn" ? "#ff8a3a" : "#9be36b", 13, 48), u.hp <= 0)
+        return tcKo(u), !0;
+    }
+    if (v6Has(u, "fall") && (u.ap = Math.min(u.ap, 1), tcFloatU(u, "gets up", "#e0c3ff")), u.vs) for (let k of Object.keys(u.vs))
+      u.vs[k]--, u.vs[k] <= 0 && (delete u.vs[k], (k === "burn" || k === "poison") && (u.dot = null));
+    return u.vb && (u.vb = u.vb.filter((x) => --x.turns > 0)), !1;
+  }
+  function v6PackMorale(b) {
+    let ks = b.units.filter((u) => u.side === 0 && u.m && u.m.v6);
+    if (!ks.length) return 0;
+    let bond = ks.reduce((a, u) => a + (u.m.bond || 0) + Math.min(STREAK_MAX, u.m.streak || 0), 0) / ks.length, corr = ks.reduce((a, u) => a + (u.m.corr || 0), 0) / ks.length, lead = (ks.find((u) => u.m.hero) || { m: {} }).m.leadership || 0;
+    return packMorale(bond, lead, corr);
+  }
+  function v6Move(u) {
+    let s = tcStat(u), mv = u.m ? s.move : u.E.move || 4;
+    return u.sz > 1 && mv--, v6Has(u, "root") ? 0 : (v6Has(u, "slow") && (mv = Math.ceil(mv / 2)), mv + v6Buff(u, "move"));
+  }
+  function v6Seat(b) {
+    b.units.forEach((u, i) => {
+      u.seat == null && (u.seat = i), u.init == null && (u.init = tcStat(u).init || 10);
+    });
+  }
+  function v6Queue(b) {
+    v6Seat(b);
+    let live = b.units.filter(tcLive);
+    for (let t = 0; t < 200; t++) {
+      let q = tick(live);
+      if (q.length) return q;
+    }
+    return live;
+  }
+  var v6PairKey = (a, c) => [a.name, c.name].sort().join("+");
+  function v6TogetherOpts(b, u) {
+    if (!b || !b.v6 || !u || u.side !== 0 || !u.m || u.ap < 1) return [];
+    let out = [];
+    return b.together = b.together || {}, b.units.forEach((f) => {
+      f === u || f.side !== 0 || !tcLive(f) || !f.m || b.together[v6PairKey(u, f)] || b.units.forEach((t) => {
+        t.side === 1 && tcLive(t) && tcShown(b, t) && tcCheb(u, t) <= 1 && tcCheb(f, t) <= 1 && out.push({ f, t });
+      });
+    }), out;
+  }
+  function v6Together(b, u, f, t) {
+    return u.ap += 1, v6TogetherOpts(b, u).some((o) => o.f === f && o.t === t) ? (u.ap -= 1, b.together[v6PairKey(u, f)] = 1, f.ct = (f.ct || 0) - 100, b.queue = b.queue.filter((x) => x !== f), b.msg = u.name + " and " + f.name + " strike together!", tcFloatU(u, "together!", "#ffd54a"), [u, f].forEach((a) => tcQ({ k: "atk", a, tg: t, o: { mul: 1, flank: 1, quick: !!tcStat(a).quick, name: "Together" } })), !0) : !1;
+  }
+  function v6Upcoming(b, n) {
+    v6Seat(b);
+    let out = [];
+    b.cur && tcLive(b.cur) && out.push(b.cur), b.queue.forEach((u) => {
+      tcLive(u) && out.length < n && out.push(u);
+    });
+    let c = b.units.filter(tcLive).map((u) => ({ ref: u, hp: 1, ct: u.ct || 0, init: u.init, side: u.side, seat: u.seat }));
+    for (let t = 0; t < 400 && out.length < n; t++) tick(c).forEach((x) => {
+      out.length < n && out.push(x.ref);
+    });
+    return out;
+  }
+  function v6InReach(b, a, t, rng) {
+    let s = tcStat(a);
+    if (rng != null && rng !== "w") return tcEuc(a, t) <= rng + 0.5 && tcLos(b, a, t);
+    let kind = v6Kind(a, {});
+    if (kind === "melee") return tcCheb(a, t) <= 1;
+    let max = kind === "ranged" ? 1 + (90 + (s.acc || 0)) / (s.steady || 6) : 1 + 90 / (s.steady || 4);
+    return tcEuc(a, t) <= max + 0.5 && tcLos(b, a, t);
+  }
+  function v6AtkCost(u) {
+    let s = tcStat(u);
+    return s.quick ? 1 : s.heavy ? 2 : "end";
+  }
+  function v6RegisterSkills() {
+    RP_SK.v6_bigswing = { n: "Big swing", mp: 0, t: "foes", mul: 0.6, d: "the telegraphed attack" }, RP_ST.v6_bigswing = { ap: "end", area: 1.5, chan: 1, v6: { sure: 1 } };
+    for (let [id, s] of Object.entries(SKILLS6)) {
+      let sk = { n: s.n, mp: s.mp, d: s.d, mul: s.mul ? s.mul * (s.hits || 1) : 0 }, st = { ap: s.ap, rng: s.rng == null ? "w" : s.rng, v6: s };
+      switch (s.kind === "spell" && (st.spell = 1), s.hit && (st.aim = s.hit), s.t) {
+        case "foe":
+          sk.t = "foe";
+          break;
+        case "area":
+          sk.t = "foes", st.area = s.r || 1;
+          break;
+        case "line":
+          sk.t = "foes", st.area = 1, st.line = s.len || 4;
+          break;
+        case "chain":
+          sk.t = "foe", st.chain = (s.n || 3) - 1;
+          break;
+        case "around":
+          sk.t = "foes", st.around = 1, st.aroundR = s.r || null;
+          break;
+        case "tile":
+          sk.t = "foes", st.area = s.r || 0.5, st.tile = 1;
+          break;
+        case "ally":
+          sk.t = "ally";
+          break;
+        case "allies":
+          sk.t = "allies", st.self = s.r || 1;
+          break;
+        case "pack":
+          sk.t = "allies", st.self = 99;
+          break;
+        case "self":
+          sk.t = "allies", st.self = 0.01;
+          break;
+        case "down":
+          sk.t = "down", sk.revive = s.heal || 0.4;
+          break;
+      }
+      s.heal && s.t !== "down" && (sk.heal = s.heal), s.buff && (sk.buff = "v6"), RP_SK[id] = sk, RP_ST[id] = st;
+    }
+  }
+  function v6DoSkill(b, u, act, S, T) {
+    let s = T.v6;
+    if (s.buff && (T.self || s.t === "ally")) {
+      let al = s.t === "ally" ? [act.t] : b.units.filter((t) => t.side === u.side && tcLive(t) && (T.self < 1 ? t === u : tcCheb(u, t) <= T.self));
+      return tcQ({ k: "fn", fn: () => {
+        al.forEach((t) => {
+          (t.vb = t.vb || []).push({ k: s.buff.k, v: s.buff.v, turns: s.buff.turns }), tcFloatU(t, S.n, "#ffe27a");
+        }), rp.headless || sfx("win");
+      } }), !0;
+    }
+    if (T.line) {
+      let dx = Math.sign(act.cx - u.x), dy = Math.sign(act.cy - u.y), hit = [];
+      for (let i = 1; i <= T.line; i++) {
+        let x = u.x + dx * i, y = u.y + dy * i, v = tcUnitAt(b, x, y, u);
+        v && v.side !== u.side && !hit.includes(v) && hit.push(v);
+      }
+      return hit.forEach((v) => tcQ({ k: "atk", a: u, tg: v, o: { mul: S.mul, spell: T.spell, name: S.n, v6: s, area: 1 } })), hit.length || tcFloatU(u, "nothing there", "#d7c9e3"), !0;
+    }
+    return T.tile ? (tcQ({ k: "fn", fn: () => v6TileSkill(b, u, act, s) }), !0) : !1;
+  }
+  function v6TileSkill(b, u, act, s) {
+    let x = act.cx, y = act.cy;
+    if (b.tiles6 = b.tiles6 || [], s.fx === "trap" || s.fx === "traps3" || !s.fx && s.st) {
+      b.tiles6.push({ x, y, k: "trap", side: u.side, by: u, s }), tcFloatU(u, "trap set", "#e0c3ff");
+      return;
+    }
+    if (s.fx === "cover") {
+      b.tiles6.push({ x, y, k: "cover", turns: s.turns || 3, old: b.g[y][x] }), tcUnitAt(b, x, y) || (b.g[y][x] = "h"), tcFloatU(u, "cover", "#9be36b");
+      return;
+    }
+    if (s.fx === "teleport" || s.fx === "leap") {
+      if (tcFits(b, u, x, y)) {
+        u.x = x, u.y = y;
+        let h = tcHome(u);
+        u.k.x = h.x, u.k.y = h.y;
+      }
+      s.fx === "leap" && b.units.filter((v) => v.side !== u.side && tcLive(v) && tcCheb(u, v) <= 1).forEach((v) => v6Strike(u, v, { mul: s.mul, v6: s }));
+      return;
+    }
+    tcFloatU(u, s.n + " (soon)", "#d7c9e3");
+  }
+  function v6LegalTiles(b, u, sk) {
+    let S = SKILLS6[sk], T = RP_ST[sk] || {};
+    if (!T.area) return null;
+    let rng = T.rng === "w" ? 1 : T.rng || S && S.rng || 1, out = [];
+    for (let y = 0; y < b.H; y++) for (let x = 0; x < b.W; x++)
+      if (!(b.vis[y * b.W + x] !== 2 || (T.tile && S && S.fx === "cover" ? Math.max(Math.abs(x - u.x), Math.abs(y - u.y)) : Math.hypot(x - u.x, y - u.y)) > rng + 0.5)) {
+        if (T.tile) {
+          if (tcT(b.g[y][x]).solid || tcUnitAt(b, x, y) || (b.tiles6 || []).some((t) => t.x === x && t.y === y)) continue;
+        } else if (!tcLosT(b, u.x, u.y, x, y)) continue;
+        out.push([x, y]);
+      }
+    return out;
+  }
+  function v6OnTile(b, u) {
+    if (!b.tiles6) return;
+    let tr = b.tiles6.find((t) => t.k === "trap" && t.side !== u.side && t.x === u.x && t.y === u.y);
+    tr && (b.tiles6 = b.tiles6.filter((t) => t !== tr), tcFloatU(u, "trap!", "#ffb347"), v6Strike(tr.by, u, { mul: tr.s.mul || 1, v6: tr.s }));
+  }
+  var v6Soft = (id) => Math.max(0.7, 1 - 0.1 * ((rp.s && rp.s.bossDefeats || {})[id] || 0));
+  function v6BossKey(id) {
+    let B = BOSSES6[id];
+    if (!B) return null;
+    let key = "v6b:" + id;
+    return RP_E[key] = {
+      v6: 1,
+      v6boss: 1,
+      boss: 1,
+      id,
+      n: B.n,
+      L: B.L,
+      w: id === "snipe" ? "popgun" : "club",
+      team: 3,
+      hp: Math.round(B.hp * v6Soft(id)),
+      atk: B.atk,
+      def: B.def,
+      sd: B.sd,
+      spd: 5 + 0.5 * (B.L - 1),
+      dodge: B.dodge,
+      init: B.init,
+      move: B.move,
+      res: B.res,
+      xp: B.xp,
+      gold: B.gold,
+      adds: B.adds,
+      ranged: id === "snipe",
+      trick: id,
+      acts: 4
+    }, key;
+  }
+  function v6TrialKey(id) {
+    let T = TRIALS6[id];
+    if (!T) return null;
+    let key = "v6t:" + id;
+    return RP_E[key] = { v6: 1, v6trial: 1, id, n: T.n, L: T.L, role: "elite", w: "club", team: 3, hp: T.hp, atk: T.atk, def: T.def, sd: T.sd, spd: 5 + 0.5 * (T.L - 1), dodge: T.dodge, init: T.init, move: T.move, res: T.res, xp: T.xp, gold: T.gold, trick: id, size: 1.4 }, key;
+  }
+  function v6AiTurn(b, u) {
+    let E = u.E;
+    if (v6Has(u, "confuse")) {
+      let own = b.units.filter((v) => v !== u && v.side === u.side && tcLive(v) && tcCheb(u, v) <= 1);
+      return own.length ? tcQ({ k: "atk", a: u, tg: own[0], o: { mul: 1, name: "Confused swing" } }) : tcFloatU(u, "confused", "#e0c3ff"), u.ap = 0, b.phase = "ai", !0;
+    }
+    if (E.v6trial && E.trick === "old_shellback" && (u.tt = (u.tt || 0) + 1, u.curled = u.tt % 2 === 0, u.curled))
+      return tcFloatU(u, "curls up", "#e0c3ff"), u.ap = 0, b.phase = "ai", !0;
+    if (E.v6boss) return v6BossTurn(b, u);
+    let pod = b.units.filter((v) => v.side === 1 && v.pod === u.pod), lost = pod.filter((v) => !tcLive(v)).length / Math.max(1, pod.length);
+    if (!E.boss && u.hp < u.max * 0.25 && lost >= 0.5 && (u.fleeing = !0), u.fleeing) {
+      if (u.y === 0)
+        return u.fled = !0, tcFloatU(u, "runs off", "#d7c9e3"), b.msg = u.name + " runs off!", u.ap = 0, b.phase = "ai", !0;
+      let R2 = tcReach(b, u, tcMov(u)), best = null, by = 1e9;
+      if (R2.dist.forEach((d, k) => {
+        let y = k / b.W | 0;
+        y < by && (by = y, best = k);
+      }), best != null) {
+        let p = tcPath(R2, best % b.W, best / b.W | 0);
+        p && p.length && tcDo(u, { k: "move", path: p, cost: 1 });
+      }
+      return u.ap = 0, b.phase = "ai", !0;
+    }
+    if (v6Habit(b, u)) return !0;
+    let seen = b.units.filter((v) => v.side === 0 && tcLive(v) && tcSideSees(b, 1, v));
+    return u.focus = v6HabitFocus(b, u, seen) || v6Focus(b, u, seen), !1;
+  }
+  function v6HabitFocus(b, u, list) {
+    if (!list.length) return null;
+    let E = u.E, F = FOES6[E.id] || {}, how = F.how || "", by = (f) => list.reduce((a, v) => f(v) < f(a) ? v : a);
+    if (/most hurt/.test(how)) return by((v) => v.hp / v.max);
+    if (/lowest defence/.test(how)) return by((v) => tcStat(v).def);
+    if (/healer/.test(how)) {
+      let h = list.find((v) => v.m && ["cleric", "druid"].includes(v.m.cls));
+      if (h) return h;
+    }
+    return E.role === "brute" ? by((v) => tcEuc(u, v)) : null;
+  }
+  function v6Habit(b, u) {
+    let E = u.E, F = FOES6[E.id] || {}, how = F.how || "";
+    if (u.tt = (u.tt || 0) + 1, /curls up/.test(how) && !u.curledOnce && u.hp < u.max * 0.5)
+      return u.curledOnce = 1, u.vb = (u.vb || []).concat([{ k: "def", v: 1, turns: 1 }]), tcFloatU(u, "curls up", "#e0c3ff"), b.msg = u.name + " curls up!", u.ap = 0, b.phase = "ai", !0;
+    if (/guards \(dodge/.test(how) && u.hp < u.max * 0.5 && !u.guard)
+      return u.guard = 1, tcFloatU(u, "guards", "#e0c3ff"), b.msg = u.name + " raises its guard.", u.ap = 0, b.phase = "ai", !0;
+    if (/calls a guard if alone/.test(how) && !u.called && !b.units.some((v) => v !== u && v.side === 1 && tcLive(v)))
+      return u.called = 1, b.msg = u.name + " shouts for help!", v6Spawn(b, u, 1, "guard recruit"), u.ap = 1, !1;
+    if (/shouts weaken/.test(how) && u.tt % 3 === 1) {
+      let ks = b.units.filter((v) => v.side === 0 && tcLive(v) && tcEuc(u, v) <= 4);
+      if (ks.length)
+        return b.msg = u.name + " bellows at the pack!", ks.forEach((v) => {
+          Math.random() < v6FoeStatusP(u, v) ? v6Status(v, { k: "weaken", turns: 2 }) : tcFloatU(v, "resisted", "#d7c9e3");
+        }), u.ap = 1, !1;
+    }
+    if (E.role === "ranged" && b.units.filter((v) => v.side === 0 && tcLive(v) && tcCheb(u, v) <= 1).length) {
+      let R2 = tcReach(b, u, tcMov(u)), best = null, bv = -1e9;
+      if (R2.dist.forEach((d, k) => {
+        let x = k % b.W, y = k / b.W | 0, dd = Math.min(...b.units.filter((v) => v.side === 0 && tcLive(v)).map((v) => Math.hypot(v.x - x, v.y - y)));
+        dd > bv && (bv = dd, best = [x, y]);
+      }), best && bv > 1.5) {
+        let p = tcPath(R2, best[0], best[1]);
+        p && p.length && (tcDo(u, { k: "move", path: p, cost: 1 }), b.msg = u.name + " backs away.");
+      }
+    }
+    return !1;
+  }
+  var V6_FOE_ST = { slow: "slow", poison: "poison", burn: "burn", fall: "fall", stun: "stun", weaken: "weaken", root: "root" };
+  function v6FoeStatusP(a, t) {
+    return statusLand({ lvlGap: v6Lvl(t) - v6Lvl(a), res: tcStat(t).res || 0, cha: 0, kind: "normal", luck: -(tcStat(t).luck || 0) });
+  }
+  function v6FoeHitStatus(a) {
+    let F = a && a.E && a.E.v6 && FOES6[a.E.id];
+    if (!F || !F.uses) return null;
+    let m = /^(\w+) \(([^)]+)\)/.exec(F.uses);
+    return !m || !V6_FOE_ST[m[1]] || /shout|ice|slick|hot trail|wax/.test(m[2]) ? null : { k: V6_FOE_ST[m[1]], turns: 2 };
+  }
+  function v6PosHabit(b, u, x, y, dn) {
+    let E = u.E;
+    if (!E || !E.v6 || E.v6boss) return 0;
+    if (E.role === "ranged" && dn < 3) return -6;
+    if (E.role === "caster") {
+      let ks = b.units.filter((v) => v.side === 0 && tcLive(v));
+      if (!ks.length) return 0;
+      let mine = Math.min(...ks.map((k) => Math.hypot(k.x - x, k.y - y)));
+      return b.units.some((v) => v !== u && v.side === 1 && tcLive(v) && Math.min(...ks.map((k) => tcEuc(k, v))) < mine) ? 3 : -3;
+    }
+    return 0;
+  }
+  function v6Focus(b, u, list) {
+    if (!list.length) return null;
+    let w = list.map((v) => Object.assign({}, v, { threat: (tcStat(v).threat || 1) * (v.guard ? 2 : 1) * (tcSees(b, u, v) ? 1 : 0.5) })), pickd = pickByThreat(w, Math.random());
+    return list[w.indexOf(pickd)];
+  }
+  function v6BossTurn(b, u) {
+    let E = u.E;
+    u.bt = (u.bt || 0) + 1;
+    let m = /(\d+) (.+?) on round (\d+)/.exec(E.adds || "");
+    if (m && u.bt === +m[3] && v6Spawn(b, u, +m[1], m[2]), u.bt % 3 === 0)
+      return b.msg = u.name + " brings down the big swing!", u.ap = 0, b.phase = "ai", !0;
+    let kob = () => b.units.filter((v) => v.side === 0 && tcLive(v)), reach = (v) => E.ranged ? tcEuc(u, v) <= 9 && tcLos(b, u, v) : tcCheb(u, v) <= 1;
+    if (!kob().some(reach)) {
+      let focus = v6Focus(b, u, kob());
+      focus && v6BossWalk(b, u, focus, reach);
+    }
+    return tcQ({ k: "fn", fn: () => {
+      if (tcLive(u)) {
+        for (let i = 0; i < (E.acts || 4); i++) {
+          let tg = v6Focus(b, u, kob().filter(reach));
+          tg && tcQ({ k: "atk", a: u, tg, o: { mul: 1, name: E.ranged ? "Copper toss" : "Swing" } });
         }
-      }).catch(() => {
-      });
-    } catch {
+        if (u.bt % 3 === 2) {
+          let ks = kob();
+          if (ks.length) {
+            let c = v6Focus(b, u, ks), ch = { u, sk: "v6_bigswing", cx: c.x, cy: c.y, area: 1.5, side: 1 };
+            u.chan = ch, b.chans.push(ch), b.msg = u.name + " winds up a big swing: get out of the circle!", tcFloatU(u, "winds up!", "#ffb347");
+          }
+        }
+      }
+    } }), u.ap = 0, b.phase = "ai", !0;
+  }
+  function v6BossWalk(b, u, focus, reach) {
+    let R2 = tcReach(b, u, 99), mov = tcMov(u), goal = null, gd = 1e9, ox = u.x, oy = u.y;
+    if (R2.dist.forEach((d, k) => {
+      d >= gd || (u.x = k % b.W, u.y = k / b.W | 0, reach(focus) && (gd = d, goal = [u.x, u.y]));
+    }), u.x = ox, u.y = oy, !goal) return;
+    let path = tcPath(R2, goal[0], goal[1]);
+    if (!path || !path.length) return;
+    let budget = gd <= mov ? mov : mov * 2, cut = path.filter(([x, y]) => R2.dist.get(y * b.W + x) <= budget);
+    cut.length && tcDo(u, { k: "move", path: cut, cost: gd <= mov ? 1 : 2 });
+  }
+  function v6Spawn(b, u, n, what) {
+    let id = Object.keys(FOES6).find((k) => what.toLowerCase().includes(FOES6[k].n.toLowerCase().split(" ").slice(-1)[0].replace(/s$/, ""))) || "nettlenose_scout";
+    for (let i = 0; i < n; i++) {
+      let key = v6FoeKey(id, u.E.L), E = RP_E[key], spot = null;
+      for (let r = 1; r < 4 && !spot; r++) for (let y = Math.max(0, u.y - r); y <= Math.min(b.H - 1, u.y + r) && !spot; y++) for (let x = Math.max(0, u.x - r); x <= Math.min(b.W - 1, u.x + r) && !spot; x++)
+        tcFits(b, { sz: 1 }, x, y) && !b.units.some((o) => tcLive(o) && x >= o.x && x < o.x + (o.sz || 1) && y >= o.y && y < o.y + (o.sz || 1)) && (spot = [x, y]);
+      if (!spot) return;
+      let v = { side: 1, E, key, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
+      v.k = makeK({ team: E.team, name: E.n, art: E.art || key, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v.k.face = -1;
+      let h = tcHome(v);
+      v.k.x = h.x, v.k.y = h.y, b.units.push(v), tcFloatU(v, "joins!", "#ffb347");
     }
   }
-  function rpExitFull() {
-    try {
-      document.fullscreenElement && document.exitFullscreen && document.exitFullscreen().catch(() => {
-      });
-    } catch {
+  var v6Lab = { pack: ["fighter", "cleric", "wizard", "rogue"], lvl: 5, place: 0, theme: "", msg: "" };
+  function v6PlaceTheme(where) {
+    return where = String(where || "").toLowerCase(), /flooded/.test(where) ? "flooded" : /dark|deep/.test(where) ? "dark" : /mine|cellar|cave|crater|wreck|tunnel/.test(where) ? "cave" : /castle|yard|town|hall|throne|pier|roof|oasis|oven|square|harbour|barracks/.test(where) ? "town" : /wood|forest/.test(where) ? "woods" : "meadow";
+  }
+  function v6LabStart() {
+    if (!rp.s) return;
+    let L = v6Lab.lvl, members = v6Lab.pack.filter(Boolean).map((c, i) => ({ m: v6Kobold(["Pip", "Wizzle", "Glint", "Bork"][i], c, L, { hero: i === 0 }), ctl: "me", own: "h" })), sel = String(v6Lab.place);
+    rp.mode = "map";
+    let th = (t) => v6Lab.theme || v6PlaceTheme(t);
+    if (sel.startsWith("b:")) {
+      let key = v6BossKey(sel.slice(2));
+      rpBattle([key], { members, boss: key, v6: 1, theme: th(BOSSES6[sel.slice(2)].where) });
+    } else if (sel.startsWith("t:")) {
+      let key = v6TrialKey(sel.slice(2));
+      rpBattle([key], { members, zone: ",", v6: 1, theme: th(TRIALS6[sel.slice(2)].where) });
+    } else {
+      let P = PLACES6[+sel], keys = v6Mix(Object.assign({}, P, { L: Math.max(1, L) }));
+      rpBattle(keys, { members, zone: ",", v6: 1, theme: th(P.place) });
     }
+    rp.bt.v6 = 1;
   }
-
-  // src/battle/view.js
-  var TT = 40, TVW = 9, TVH = 11, BVW = TT * TVW, BVH = TT * TVH;
-  function rpViewW() {
-    return rp.mode === "battle" && rp.bt ? BVW : RPW;
+  function v6LabHtml() {
+    let opt = (v, list) => list.map((x) => '<option value="' + x[0] + '"' + (String(x[0]) === String(v) ? " selected" : "") + ">" + x[1] + "</option>").join(""), cls = [["", "—"]].concat(Object.entries(CLASSES6).map(([k, c]) => [k, c.n]));
+    return '<div class="rpdlg"><div class="who">Fight lab (test)</div><p>Pick a pack, a level and a place; the fight uses the v6 rules.</p>' + v6Lab.pack.map((c, i) => "<label>Kobold " + (i + 1) + ' <select id="lab-p' + i + '">' + opt(c || "", cls) + "</select></label> ").join("") + '<label>Level <select id="lab-l">' + opt(v6Lab.lvl, Array.from({ length: 30 }, (_, i) => [i + 1, i + 1])) + '</select></label> <label>Fight <select id="lab-pl">' + opt(v6Lab.place, PLACES6.map((p, i) => [i, p.place + " (L" + p.L + ")"]).concat(Object.values(BOSSES6).map((B) => ["b:" + B.id, "Boss: " + B.n + " (L" + B.L + ")"]), Object.values(TRIALS6).map((T) => ["t:" + T.id, "Trial: " + T.n + " (L" + T.L + ")"]))) + '</select></label> <label>Board <select id="lab-th">' + opt(v6Lab.theme, [["", "by place"], ["meadow", "meadow"], ["woods", "woods"], ["cave", "cave"], ["town", "town"], ["dark", "dark"], ["flooded", "flooded"]]) + '</select></label></div><div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>';
   }
-  function rpViewH() {
-    return rp.mode === "battle" && rp.bt ? BVH : RPH;
-  }
+  feature({
+    id: "fightlab",
+    init() {
+      v6RegisterSkills();
+    },
+    panels: { lab: { sig: () => JSON.stringify(v6Lab), html: v6LabHtml } },
+    menu: [{ order: 90, html: () => '<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>' }],
+    actions: { lab: () => {
+      rp.mode = "lab";
+    }, labclose: () => {
+      rp.mode = "menu";
+    }, labgo: () => {
+      let g = (id) => {
+        let e = document.getElementById(id);
+        return e ? e.value : null;
+      };
+      for (let i = 0; i < 4; i++) {
+        let v = g("lab-p" + i);
+        v != null && (v6Lab.pack[i] = v || null);
+      }
+      let l = g("lab-l"), p = g("lab-pl"), th = g("lab-th");
+      th != null && (v6Lab.theme = th), l && (v6Lab.lvl = +l), p != null && p !== "" && (v6Lab.place = /^[bt]:/.test(p) ? p : +p), v6LabStart();
+    } }
+  });
 
   // src/battle/rules.js
   var rpTW = (w) => RP_TW[w] || { r: 1 }, tcT = (c) => RP_TT[c] || {};
@@ -5605,18 +6450,19 @@ button,.rpb,.pill{touch-action:manipulation}
     return u.m ? u.m.w : u.E.w;
   }
   function tcStat(u) {
-    return u.m ? rpStats(u.m) : { atk: u.atk, def: u.def, spd: u.spd, hp: u.max, mp: 0, crit: 0.08, dodge: 0, sight: u.E.sight || 0, stealth: 0 };
+    return u.m ? rpStats(u.m) : u.E && u.E.v6 ? v6FoeStat(u) : { atk: u.atk, def: u.def, spd: u.spd, hp: u.max, mp: 0, crit: 0.08, dodge: 0, sight: u.E.sight || 0, stealth: 0 };
   }
   function rpMoveOf(m) {
     let st = rpStats(m);
     return clamp(Math.round(2 + st.spd * 0.35), 3, 6) + (st.mov || 0);
   }
   function tcMov(u) {
+    if (v6u(u)) return v6Move(u);
     let st = tcStat(u);
     return clamp(Math.round(2 + st.spd * 0.35), 3, 6) + (st.mov || 0) - (u.sz > 1 ? 1 : 0);
   }
   function tcSight(b, u) {
-    return (b.theme === "cave" ? 5 : 7) + (tcStat(u).sight || 0);
+    return (b.dark ? 3 : b.theme === "cave" ? 5 : 7) + (tcStat(u).sight || 0);
   }
   function tcGrass(b, u) {
     return u.sz === 1 && !!tcT(tcAt(b, u.x, u.y)).grass;
@@ -5697,10 +6543,12 @@ button,.rpb,.pill{touch-action:manipulation}
     return !WEAPONS[tcW(u)].ranged;
   }
   function tcInReach(b, a, t, rng) {
+    if (v6u(a)) return v6InReach(b, a, t, rng);
     let w = tcW(a), TW = rpTW(w);
     return rng == null || rng === "w" ? tcMelee(a) ? tcCheb(a, t) <= TW.r && (TW.r < 2 || tcLos(b, a, t)) : tcEuc(a, t) <= TW.r + (tcStat(a).rng || 0) + 0.5 && tcLos(b, a, t) : tcEuc(a, t) <= rng + 0.5 && tcLos(b, a, t);
   }
   function tcHit(b, a, t, o) {
+    if (v6u(a) || v6u(t)) return v6Hit(b, a, t, o);
     o = o || {};
     let w = tcW(a), TW = rpTW(w), melee = tcMelee(a) && !o.spell, d = tcEuc(a, t), parts2 = [], h = melee ? 90 : 75;
     !melee && a.m && a.m.cls === "ranger" && (h += 10);
@@ -5720,19 +6568,21 @@ button,.rpb,.pill{touch-action:manipulation}
     return t.guard && (h -= 25, parts2.push("guarding −25")), t.side === 1 && !t.aware && (h += 20, parts2.push("surprise +20")), o.aim && (h += o.aim, parts2.push("aimed +" + o.aim)), o.aoo && (h -= 10, parts2.push("free hit −10")), o.watch && (h -= 15, parts2.push("watch −15")), { h: clamp(Math.round(h), 5, 95), parts: parts2, fl: cv.fl, cv: cv.c };
   }
   function tcDmg(b, a, t, mul, o) {
+    if (v6u(a) || v6u(t)) return v6DmgRange(b, a, t, mul, o);
     o = o || {};
     let as = tcStat(a), ts = tcStat(t), d = as.atk * mul;
     return a.buff.atk > 0 && (d *= 1.25), as.rage && a.m && a.m.hp < as.hp * 0.5 && (d *= 1 + as.rage), rpTW(tcW(a)).close && !o.spell && tcEuc(a, t) <= 2.5 && (d *= 1.2), o.spell && as.spellp && (d *= 1 + as.spellp), d -= ts.def * 0.5, t.buff.def > 0 && (d *= 0.7), t.guard && (d *= 0.75), d = Math.max(1, d), [Math.max(1, Math.round(d * 0.85)), Math.max(1, Math.round(d * 1.15))];
   }
   function tcCrit(b, a, t, fl) {
-    return tcStat(a).crit + (fl ? 0.15 : 0) + (t.side === 1 && !t.aware ? 0.1 : 0);
+    return v6u(a) || v6u(t) ? v6Crit(b, a, t, fl, !1) : tcStat(a).crit + (fl ? 0.15 : 0) + (t.side === 1 && !t.aware ? 0.1 : 0);
   }
   function tcActCost(u, act) {
+    if (act.k === "atk" && v6u(u)) return v6AtkCost(u);
     if (act.k === "atk") {
       let TW = rpTW(tcW(u));
       return TW.h ? 2 : TW.q || tcStat(u).quick ? 1 : "end";
     }
-    return act.k === "sk" ? (RP_ST[act.sk] || { ap: "end" }).ap : act.k === "it" || act.k === "leave" ? 1 : "end";
+    return act.k === "sk" ? (RP_ST[act.sk] || { ap: "end" }).ap : act.k === "it" || act.k === "leave" || act.k === "together" ? 1 : "end";
   }
   function tcCanPay(u, c) {
     return c === "end" ? u.ap >= 1 : u.ap >= c;
@@ -5760,19 +6610,19 @@ button,.rpb,.pill{touch-action:manipulation}
       let fm = tcMelee(F), reach = fm ? tcMov(F) * 2 + rpTW(tcW(F)).r : tcMov(F) + rpTW(tcW(F)).r;
       if (d <= reach + 0.5) {
         let cv = fm ? 0 : tcCover(b, u, F.x, F.y).c, h = (fm ? 0.9 : 0.75) - cv * 0.2 - (u.sz === 1 && tcT(tcAt(b, x, y)).grass ? 0.1 : 0);
-        threat += Math.max(0.05, h) * tcAvg(tcDmg(b, F, u, 1));
+        threat += Math.max(0.05, h) * tcAvg(tcDmg(b, F, u, 1)) * (b.v6 && F.E && F.E.boss ? 0.35 : 1);
       }
       F.x = fx, F.y = fy;
     });
     let s = -threat / Math.max(8, u.E && u.E.boss ? u.max : u.hp) * 30;
-    return foes.length && (melee && !(u.E && u.E.healer) ? s -= dn * 2.2 : u.E && u.E.healer ? s -= Math.max(0, 3 - dn) * 6 : (dn < 2 && (s -= 10), dn <= (TW.o || TW.r) + 0.5 ? s += 5 : s -= (dn - (TW.o || TW.r)) * 1.5)), u.sz === 1 && tcT(tcAt(b, x, y)).grass && (s += 1.5), b.chans.forEach((c) => {
+    return foes.length && (melee && !(u.E && u.E.healer) ? s -= dn * 2.2 : u.E && u.E.healer ? s -= Math.max(0, 3 - dn) * 6 : (dn < 2 && (s -= 10), dn <= (TW.o || TW.r) + 0.5 ? s += 5 : s -= (dn - (TW.o || TW.r)) * 1.5)), u.sz === 1 && tcT(tcAt(b, x, y)).grass && (s += 1.5), b.v6 && u.side === 1 && foes.length && (s += v6PosHabit(b, u, x, y, dn)), b.chans.forEach((c) => {
       c.side !== u.side && Math.hypot(x - c.cx, y - c.cy) <= c.area + 1.01 && (s -= 60);
     }), u.side === 0 && b.exits && (s += 0), u.x = ox, u.y = oy, s;
   }
   function tcOptions(b, u, apLeft) {
     let out = [], foes = tcFoes(b, u), w = tcW(u), pay = (c) => c === "end" ? apLeft >= 1 : apLeft >= c, val2 = (t, mul, o) => {
       let H = o && o.spell ? { h: 100, fl: !1 } : tcHit(b, u, t, o), dm = tcAvg(tcDmg(b, u, t, mul, o)) * (1 + tcCrit(b, u, t, H.fl) * 0.5);
-      return H.h / 100 * dm / Math.max(10, t.max) * 55 + (dm >= t.hp ? 22 * H.h / 100 : 0);
+      return H.h / 100 * dm / Math.max(10, b.v6 && t.E && t.E.boss ? Math.min(t.max, u.max || 100) : t.max) * 55 + (dm >= t.hp ? 22 * H.h / 100 : 0);
     };
     if (pay(tcActCost(u, { k: "atk" })) && foes.forEach((t) => {
       tcInReach(b, u, t) && out.push({ act: { k: "atk", t }, v: val2(t, 1, {}) + (rpTW(w).splash ? 4 : 0) });
@@ -5812,7 +6662,7 @@ button,.rpb,.pill{touch-action:manipulation}
           let o = { spell: T.spell, aim: T.aim }, v = val2(t, S.mul, o) - mpc;
           S.stun && !(t.E && t.E.boss) && (v += 6), T.chain && (v *= 1.8), out.push({ act: { k: "sk", sk, t }, v });
         });
-      }), ["potion", "feather"].forEach((k) => {
+      }), b.v6 && pay(1) && v6TogetherOpts(b, u).forEach(({ f, t }) => out.push({ act: { k: "together", f, t }, v: val2(t, 1, {}) + val2(t, 1, {}) * 0.8 })), ["potion", "feather"].forEach((k) => {
         !(rp.s.bag[k] > 0) || !pay(1) || b.units.forEach((t) => {
           t.side !== u.side || t.fled || tcCheb(u, t) > 1 || (k === "potion" && tcLive(t) && t.hp < t.max * 0.35 && out.push({ act: { k: "it", it: k, t }, v: 18 }), k === "feather" && t.hp <= 0 && out.push({ act: { k: "it", it: k, t }, v: 30 }));
         });
@@ -5833,7 +6683,10 @@ button,.rpb,.pill{touch-action:manipulation}
         }), foes.filter((x) => Math.hypot(x.x - t.x, x.y - t.y) <= 1.01).length > 1 && out.push({ act: { k: "eall", cx: t.x, cy: t.y }, v: v + 2 });
       });
     }
-    return out;
+    return u.focus && u.E && u.E.v6 && out.forEach((o) => {
+      let t = o.act && o.act.t;
+      t && t.side !== u.side && t !== u.focus && (o.v *= 0.25);
+    }), out;
   }
   function tcEnemyDo(u, act) {
     let b = rp.bt, E = u.E;
@@ -5857,6 +6710,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpAiTurn(u) {
     let b = rp.bt;
+    if (b.v6 && u.side === 1 && u.E && u.E.v6 && u.aware && v6AiTurn(b, u)) return;
     if (u.side === 1 && !u.aware) {
       if (Math.random() < 0.45) {
         let R3 = tcReach(b, u, 2), opts = [];
@@ -5941,6 +6795,91 @@ button,.rpb,.pill{touch-action:manipulation}
     return r;
   }
 
+  // src/battle/v6board.js
+  var V6_THEMES = { meadow: { base: "meadow" }, woods: { base: "woods" }, cave: { base: "cave" }, town: { base: "castle" }, dark: { base: "cave", dark: 1 }, flooded: { base: "cave", flood: 1 } };
+  function v6Theme(t) {
+    return V6_THEMES[t] || V6_THEMES.meadow;
+  }
+  function v6BigReach(g, W, H, sx, sy) {
+    let open = (x, y) => x >= 0 && y >= 0 && x + 1 < W && y + 1 < H && !tcT(g[y][x]).solid && !tcT(g[y][x + 1]).solid && !tcT(g[y + 1][x]).solid && !tcT(g[y + 1][x + 1]).solid, seen = /* @__PURE__ */ new Set();
+    if (!open(sx, sy)) return seen;
+    let q = [[sx, sy]];
+    for (seen.add(sy * W + sx); q.length; ) {
+      let [x, y] = q.pop();
+      for (let [dx, dy] of TC_DIR8) {
+        let nx = x + dx, ny = y + dy, k = ny * W + nx;
+        seen.has(k) || !open(nx, ny) || (seen.add(k), q.push([nx, ny]));
+      }
+    }
+    return seen;
+  }
+  function v6BossRoom(g, W, H, base) {
+    let sx = (W >> 1) - 1, sy = 1;
+    for (let it = 0; it < 200; it++) {
+      let R2 = v6BigReach(g, W, H, sx, sy), near = new Uint8Array(W * H);
+      R2.forEach((k) => {
+        let x = k % W, y = k / W | 0;
+        for (let j = -1; j <= 2; j++) for (let i = -1; i <= 2; i++) {
+          let X = x + i, Y = y + j;
+          X >= 0 && Y >= 0 && X < W && Y < H && (near[Y * W + X] = 1);
+        }
+      });
+      let lost = null;
+      for (let y = 0; y < H && !lost; y++) for (let x = 0; x < W; x++) if (!tcT(g[y][x]).solid && !near[y * W + x]) {
+        lost = [x, y];
+        break;
+      }
+      if (!lost) return it;
+      v6Carve(g, W, H, base, lost, R2, 2);
+    }
+    return -1;
+  }
+  function v6Carve(g, W, H, base, [x, y], R2, w) {
+    let goal = null, gd = 1e9;
+    if (R2.forEach((k) => {
+      let kx = k % W, ky = k / W | 0, d = Math.hypot(kx - x, ky - y);
+      d < gd && (gd = d, goal = [kx, ky]);
+    }), !goal) return;
+    let clear = (cx2, cy2) => {
+      for (let j = 0; j < w; j++) for (let i = 0; i < w; i++) {
+        let X = Math.min(W - 1, cx2 + i), Y = Math.min(H - 1, cy2 + j);
+        tcT(g[Y][X]).solid && (g[Y][X] = base);
+      }
+    }, cx = Math.min(x, W - w), cy = Math.min(y, H - w);
+    for (clear(cx, cy); cx !== goal[0] || cy !== goal[1]; )
+      cx !== goal[0] ? cx += Math.sign(goal[0] - cx) : cy += Math.sign(goal[1] - cy), clear(cx, cy);
+  }
+  function v6Reach(g, W, H, base) {
+    for (let it = 0; it < 200; it++) {
+      let seen = /* @__PURE__ */ new Set([(H - 1) * W + (W >> 1)]), q = [[W >> 1, H - 1]];
+      for (; q.length; ) {
+        let [x, y] = q.pop();
+        for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          let nx = x + dx, ny = y + dy, k = ny * W + nx;
+          nx < 0 || ny < 0 || nx >= W || ny >= H || seen.has(k) || tcT(g[ny][nx]).solid || (seen.add(k), q.push([nx, ny]));
+        }
+      }
+      let lost = null;
+      for (let y = 0; y < H && !lost; y++) for (let x = 0; x < W; x++) if (!tcT(g[y][x]).solid && !seen.has(y * W + x)) {
+        lost = [x, y];
+        break;
+      }
+      if (!lost) return it;
+      v6Carve(g, W, H, base, lost, seen, 1);
+    }
+    return -1;
+  }
+  function v6Gen(theme, W, H, boss, seed) {
+    let T = v6Theme(theme), g = tcGen(T.base, W, H, boss, seed), r = seeded(seed ^ 1540483477), base = tcBase(T.base);
+    if (T.flood)
+      for (let i = 0; i < 3; i++) {
+        let cx = r() * W | 0, cy = 2 + (r() * (H - 6) | 0), R0 = 1.5 + r() * 1.5;
+        for (let y = cy - 3; y <= cy + 3; y++) for (let x = cx - 3; x <= cx + 3; x++)
+          x >= 0 && y >= 0 && x < W && y < H - 3 && Math.hypot(x - cx, y - cy) <= R0 && !tcT(g[y][x]).solid && (g[y][x] = "~");
+      }
+    return boss && v6BossRoom(g, W, H, base), v6Reach(g, W, H, base), g;
+  }
+
   // src/battle/flow.js
   function rpEncounter(c) {
     let Z = RP_ZONE[c], lvl = rp.s.party[0].lvl, n = rp.s.party.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0);
@@ -5951,12 +6890,14 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpBattle(keys, opt) {
     opt = opt || {};
-    let s = rp.s, boss = opt.boss || null, duel = !!opt.duel, theme = duel ? "meadow" : tcTheme(opt.zone, boss), members = opt.members || s.party.map((m) => ({ m, ctl: "me", own: "h" })), foes = opt.foes || [], n = duel ? 3 : keys.length, W = boss ? 12 : n <= 2 ? 9 : n === 3 ? 10 : 11, H = boss ? boss === "vexx" ? 15 : 14 : n <= 2 ? 12 : n === 3 ? 13 : 14, b = {
+    let s = rp.s, boss = opt.boss || null, duel = !!opt.duel, T6 = opt.v6 && opt.theme ? v6Theme(opt.theme) : null, theme = duel ? "meadow" : T6 ? T6.base : tcTheme(opt.zone, boss), members = opt.members || s.party.map((m) => ({ m, ctl: "me", own: "h" })), foes = opt.foes || [], n = duel ? 3 : keys.length, W = boss ? 12 : n <= 2 ? 9 : n === 3 ? 10 : 11, H = boss ? boss === "vexx" ? 15 : 14 : n <= 2 ? 12 : n === 3 ? 13 : 14, b = {
       win: opt.win || null,
       W,
       H,
-      g: tcGen(theme, W, H, boss, Math.random() * 1e9 | 0),
+      g: T6 ? v6Gen(opt.theme, W, H, boss, Math.random() * 1e9 | 0) : tcGen(theme, W, H, boss, Math.random() * 1e9 | 0),
       theme,
+      dark: !!(T6 && T6.dark),
+      theme6: T6 ? opt.theme : null,
       units: [],
       vis: new Uint8Array(W * H),
       queue: [],
@@ -5980,9 +6921,10 @@ button,.rpb,.pill{touch-action:manipulation}
       placeSel: null,
       moveId: 0,
       t: 0,
-      duel
+      duel,
+      v6: !!opt.v6
     };
-    opt.net && (b.net = { role: "host", id: opt.nid, peer: opt.net, gParty: opt.gParty || [] }), rp.bt = b;
+    opt.net && (b.net = { role: "host", id: opt.nid, peer: opt.net, gParty: opt.gParty || [] }), rp.bt = b, v6Keep(b, keys, opt);
     let px = (W >> 1) - 1, addKob = (mem, i, side) => {
       let m = mem.m, st = rpStats(m), u = {
         side,
@@ -6035,7 +6977,7 @@ button,.rpb,.pill{touch-action:manipulation}
       centers.push(c || [W >> 1, 2]);
     }
     keys.forEach((key, i) => {
-      let E = RP_E[key], scale = E.boss ? Math.max(0.7, 1 + 0.25 * (members.length - 3)) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
+      let E = RP_E[key], scale = E.v6 ? 1 : E.boss ? Math.max(0.7, 1 + 0.25 * (members.length - 3)) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
         side: 1,
         E,
         key,
@@ -6043,9 +6985,9 @@ button,.rpb,.pill{touch-action:manipulation}
         x: 0,
         y: 0,
         sz,
-        hp: Math.round(E.hp * scale * BAL.ehp),
-        max: Math.round(E.hp * scale * BAL.ehp),
-        atk: E.atk * (E.boss ? 1 : Math.sqrt(scale)) * BAL.eatk,
+        hp: Math.round(E.hp * scale * (E.v6 ? 1 : BAL.ehp)),
+        max: Math.round(E.hp * scale * (E.v6 ? 1 : BAL.ehp)),
+        atk: E.atk * (E.boss ? 1 : Math.sqrt(scale)) * (E.v6 ? 1 : BAL.eatk),
         def: E.def,
         spd: E.spd,
         ap: 0,
@@ -6100,9 +7042,10 @@ button,.rpb,.pill{touch-action:manipulation}
       e.side === 1 && tcLive(e) && !e.aware && (b.units.forEach((p) => {
         p.side === 0 && tcLive(p) && tcSeen(b, p);
       }), tcAlert(b, e.pod, !1));
-    }), b.queue = b.units.filter(tcLive).map((u) => ({ u, s: tcStat(u).spd + Math.random() * 0.6 })).sort((x, y) => y.s - x.s).map((x) => x.u);
+    }), b.queue = b.v6 ? v6Queue(b) : b.units.filter(tcLive).map((u) => ({ u, s: tcStat(u).spd + Math.random() * 0.6 })).sort((x, y) => y.s - x.s).map((x) => x.u);
   }
   function tcUpcoming(b, n) {
+    if (b.v6) return v6Upcoming(b, n + 1);
     let out = [];
     if (b.cur && tcLive(b.cur) && out.push(b.cur), b.queue.forEach((u) => {
       tcLive(u) && out.push(u);
@@ -6127,7 +7070,9 @@ button,.rpb,.pill{touch-action:manipulation}
     b.queue.length || tcRound(b);
     let u = b.queue.shift();
     if (!u || !tcLive(u)) return tcNext();
-    if (b.cur = u, u.ap = 2, u.guard = 0, u.watch = 0, u.atkd = 0, b.pend = null, b.mode = "move", u.buff.atk > 0 && u.buff.atk--, u.buff.def > 0 && u.buff.def--, u.m) {
+    if (b.cur = u, u.ap = 2, u.guard = 0, u.watch = 0, u.atkd = 0, b.pend = null, b.mode = "move", b.v6 && v6TurnStart(b, u))
+      return b.cur = null, tcNext();
+    if (u.buff.atk > 0 && u.buff.atk--, u.buff.def > 0 && u.buff.def--, u.m) {
       let st = rpStats(u.m);
       if (st.regen && u.m.hp < st.hp) {
         let a = Math.max(1, Math.round(st.hp * st.regen));
@@ -6228,7 +7173,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function tcOnStep(u, prev, st) {
     let b = rp.bt, out = [];
-    return u.side === 0 && tcVis(b), b.units.forEach((o) => {
+    return u.side === 0 && tcVis(b), b.v6 && v6OnTile(b, u), b.units.forEach((o) => {
       if (!(o.side === u.side || !tcLive(o) || o.stun || o.side === 1 && !o.aware)) {
         if (tcMelee(o) && o.aooId !== st.id) {
           let r = rpTW(tcW(o)).r;
@@ -6302,10 +7247,14 @@ button,.rpb,.pill{touch-action:manipulation}
       let S = RP_SK[st.sk], T = RP_ST[st.sk] || {}, a = st.a;
       if (!tcLive(a) && !T.chan) return;
       let hit = b.units.filter((u) => tcLive(u) && (T.ff || u.side !== a.side) && tcTiles(u).some(([x, y]) => Math.hypot(x - st.cx, y - st.cy) <= T.area + 0.01));
-      rp.headless || (burst((st.cx + 0.5) * TT, (st.cy + 0.5) * TT, 14, ["#ff8a2b", "#ffe9a8", "#fff"], 150, "star"), set_shake(Math.max(shake, 3))), hit.forEach((u) => tcStrike(a, u, { mul: S.mul, spell: T.spell, stunP: S.stunP, slow: S.slow, name: S.n, area: 1 })), hit.length || rpFloat((st.cx + 0.5) * TT, (st.cy + 0.3) * TT, "nothing there", "#d7c9e3", 12);
+      rp.headless || (burst((st.cx + 0.5) * TT, (st.cy + 0.5) * TT, 14, ["#ff8a2b", "#ffe9a8", "#fff"], 150, "star"), set_shake(Math.max(shake, 3))), hit.forEach((u) => {
+        let n = b.v6 ? Math.max(1, tcTiles(u).filter(([x, y]) => Math.hypot(x - st.cx, y - st.cy) <= T.area + 0.01).length) : 1;
+        for (let i = 0; i < n; i++) tcStrike(a, u, { mul: S.mul, spell: T.spell, stunP: S.stunP, slow: S.slow, name: S.n, area: 1, v6: T.v6, dark: st.dark });
+      }), hit.length || rpFloat((st.cx + 0.5) * TT, (st.cy + 0.3) * TT, "nothing there", "#d7c9e3", 12);
     }
   }
   function tcStrike(a, t, o) {
+    if (rp.bt && rp.bt.v6 || v6u(a) || v6u(t)) return v6Strike(a, t, o);
     let b = rp.bt;
     if (!t || !tcLive(t)) return;
     o = o || {};
@@ -6334,7 +7283,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function tcKo(t) {
     let b = rp.bt;
-    t.k.state = "ko", t.k.rotT = (t.side ? 1 : -1) * Math.PI / 2, t.chan = null, b.chans = b.chans.filter((c) => c.u !== t), t.side === 0 && rpBuzz(70), rp.headless || (burst(t.k.x, t.k.y - 20, 10, ["#ffe27a", "#fff"], 130, "star"), sfx("ko"));
+    v6Fall(b, t), t.k.state = "ko", t.k.rotT = (t.side ? 1 : -1) * Math.PI / 2, t.chan = null, b.chans = b.chans.filter((c) => c.u !== t), t.side === 0 && rpBuzz(70), rp.headless || (burst(t.k.x, t.k.y - 20, 10, ["#ffe27a", "#fff"], 130, "star"), sfx("ko"));
   }
   function tcDo(u, act) {
     let b = rp.bt, c = tcActCost(u, act);
@@ -6348,6 +7297,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let TW = rpTW(tcW(u));
       return tcQ({ k: "atk", a: u, tg: act.t, o: {
         mul: 1,
+        quick: v6u(u) && !!tcStat(u).quick,
         splash: TW.splash,
         slow: TW.slow && Math.random() < TW.slow,
         stun: !!(u.E && u.E.stun && Math.random() < u.E.stun),
@@ -6360,14 +7310,17 @@ button,.rpb,.pill{touch-action:manipulation}
         if (u.m.mp < S.mp) return !1;
         u.m.mp -= S.mp;
       }
-      if (b.msg = u.name + " uses " + S.n + "!", T.chan) {
+      b.msg = u.name + " uses " + S.n + "!";
+      let dark = !!(u.m && u.m.v6 && u.m.dark && u.m.dark[act.sk]);
+      if (dark && (u.m.corr = (u.m.corr || 0) + 1, b.msg = u.name + " uses " + (T.v6 && T.v6.dark ? T.v6.dark.n : S.n) + "!"), act.dark = dark, T.v6 && v6DoSkill(b, u, act, S, T)) return !0;
+      if (T.chan) {
         let ch = { u, sk: act.sk, cx: act.cx, cy: act.cy, area: T.area, side: u.side };
         return u.chan = ch, b.chans.push(ch), u.ap = 0, b.msg = u.name + " starts casting " + S.n + "! It lands on " + u.name + "'s next turn.", rp.headless || sfx("drop"), !0;
       }
       if (T.area)
-        return tcQ({ k: "area", a: u, sk: act.sk, cx: act.cx, cy: act.cy }), !0;
+        return tcQ({ k: "area", a: u, sk: act.sk, cx: act.cx, cy: act.cy, dark: act.dark }), !0;
       if (T.around)
-        return b.units.filter((t) => t.side !== u.side && tcLive(t) && tcCheb(u, t) <= rpTW(tcW(u)).r).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul, name: S.n } })), !0;
+        return b.units.filter((t) => t.side !== u.side && tcLive(t) && tcCheb(u, t) <= (T.aroundR || rpTW(tcW(u)).r)).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul, name: S.n, spell: T.spell, v6: T.v6, dark: act.dark } })), !0;
       if (T.self) {
         let al = b.units.filter((t) => t.side === u.side && tcLive(t) && tcCheb(u, t) <= T.self);
         return S.heal ? al.forEach((t) => tcQ({ k: "heal", a: u, tg: t, o: { amt: S.heal } })) : S.buff && tcQ({ k: "fn", fn: () => {
@@ -6387,9 +7340,9 @@ button,.rpb,.pill{touch-action:manipulation}
           if (!nx) break;
           hit.push(nx), prev = nx;
         }
-        return hit.forEach((t, i) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul * (i ? 0.7 : 1), spell: 1, stunP: S.stunP, name: S.n } })), !0;
+        return hit.forEach((t, i) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul * (i ? 0.7 : 1), spell: 1, stunP: S.stunP, name: S.n, v6: T.v6, dark: act.dark } })), !0;
       }
-      return tcQ({ k: "atk", a: u, tg: act.t, o: { mul: S.mul, spell: T.spell, aim: T.aim, stun: S.stun, slow: S.slow, drain: S.drain, name: S.n } }), !0;
+      return tcQ({ k: "atk", a: u, tg: act.t, o: { mul: S.mul, spell: T.spell, aim: T.aim, stun: S.stun, slow: S.slow, drain: S.drain, name: S.n, v6: T.v6, dark: act.dark } }), !0;
     }
     if (act.k === "it") {
       let t = act.t, m = t.m, k = act.it;
@@ -6408,7 +7361,7 @@ button,.rpb,.pill{touch-action:manipulation}
         rp.headless || sfx("nom");
       } }), b.msg = u.name + " uses a " + RP_ITEMS[k].n.toLowerCase() + ".", !0;
     }
-    return act.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", rp.headless || sfx("pop"), !0) : !1;
+    return act.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act.k === "together" ? v6Together(b, u, act.f, act.t) : act.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", v6Leave(b, u), rp.headless || sfx("pop"), !0) : !1;
   }
   function rpBattleStep(dt) {
     let b = rp.bt;
