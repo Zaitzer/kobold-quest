@@ -285,7 +285,8 @@ classes (Berserker now belongs to the barbarian, Paladin to its own class).
 2. **Shared story moments:** a shared world with personal stories; group boss fights count for everyone who is ready,
    with level sync for helpers. *Decided.*
 3. **Pack:** Pip plus up to three others from a roster (a pack of four, decided 22 Oct). The roster is Pip and the seven companions.
-4. **Length:** long, 15+ hours, depth not padding. *Decided.*
+4. **Length:** what the content gives, counted, never padded (Joakim, 22 Oct; it replaces "15+ hours"). By count the main story is
+   about 7.5 hours (`balance.md` §2). *Decided.*
 5. **No story choices for the player.** *Decided 19 Oct.*
 
 ## 14. Decided (Claude's calls, Joakim said "you decide", 20 Oct 2026)
@@ -320,9 +321,11 @@ Joakim can overrule any of these at Gate 1.
     fighter (P23).
 13. **Morale is priced into the curve** (foes × g(L) for the expected bond); the clean-fight streak counts at most +3 (P24).
 14. **The monk keeps 12 ×6**, one modifier point ahead of the standard array, accepted (P25).
-15. **Fights with four kobolds take about 90 s**, accepted; the story is about 16.7 hours (P7).
+15. **Fights with four kobolds take about 90 s** (87 s by count), accepted (P7).
 16. **Corruption costs morale:** every 10 of the pack's total is −1 pack morale.
 17. **Quick weapons hit twice for the same damage:** a quick basic attack costs 1 AP and deals ×0.635, so two make one normal attack.
+18. **Design sets goals and counts; it does not measure.** Time and taps are counted from the content with unit goals (3 s a box, 4.5 s
+    a kobold turn), and the length is what the content gives (`tools/timecount.js`). Playtests check the build against the unit goals.
 
 ## 16. Gate 1 decisions (Joakim, 22 Oct)
 

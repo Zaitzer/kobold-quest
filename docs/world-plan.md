@@ -43,7 +43,7 @@ The towns follow the bun chain, and Hearthspire sits in the middle of it like a 
 
 ## Shape of a playthrough
 
-Level 1 to about 30 over 15+ hours.
+Level 1 to about 30; by count about 7.5 hours (`balance.md` §2: the length is what the content gives).
 
 | stretch | story beats | places, in order | levels | hours |
 |---|---|---|---|---|

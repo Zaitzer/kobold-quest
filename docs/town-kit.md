@@ -1,21 +1,41 @@
 # Kobold Quest: the town kit (22 Oct 2026)
 
-*Part of the design document (`design.md`); Gate 1 review B2. A town has to fill its stretch (about 2.5 hours on the main path,
-plus about an hour of optional content) without padding. This is the checklist every town fills, sized to the minutes in
-`balance.md` §2 and §6, with **Pebblebrook filled in completely** as the template. The story is `story-hatching.md` (v6) and is
+*Part of the design document (`design.md`); Gate 1 review B2. This is the checklist every town fills; its length is
+what the content gives, counted (`balance.md` §2, about an hour a town), never a target to pad to. It is with **Pebblebrook filled in completely** as the template. The story is `story-hatching.md` (v6) and is
 not changed here: the kit only decides where its beats happen and what the player does between them.*
 
-## 1. The budget a town has to fill
+## 1. What a town's stretch comes to (by count, 22 Oct)
 
-| part | minutes (a 2.5-hour stretch) | where it comes from |
-|---|---|---|
-| normal fights (about 25) | 25 | the fight budget: 4–5 kobolds, 3–4 rounds each |
-| bosses (1–2) | 5–10 | 5 minutes each |
-| the keeper's challenge | 25 | in 4–5 steps of 5–7 minutes, each a natural place to stop |
-| walking (route and town) | 10 | short routes, long content |
-| everything else (talk, scenes, menus, shops, looking around) | 80–85 | the story beats, the companion, the shops, the jokes |
-| **main path** | **about 150** | |
-| optional: 3 side quests, 2 route extras, 2 bounty hunts, a hidden trial, 5 chests | about 64 | `balance.md` §6 |
+*The length is what the content gives (Joakim, 22 Oct): the kit below says what a town must contain, and its time is counted from the
+script and the maps (`node tools/timecount.js`), never set as a target to fill. Pebblebrook, counted:*
+
+| what | count | seconds each (goal) | minutes |
+|---|---|---|---|
+| dialogue boxes (the script, main path) | 147 | 3.0 | 7.3 |
+| story beats played as animation | 32 | 2.0 | 1.1 |
+| normal fights | 19.3 | 87.0 | 28.0 |
+| boss fights (Grubb R 7, Snipe R 7) | 2 | 189.6 | 6.3 |
+| walking (steps, by the maps) | 1117 | 0.3 | 5.7 |
+| the rail puzzle | 1 | 90.0 | 1.5 |
+| talent picks | 5 | 20.0 | 1.7 |
+| equipping found or bought pieces | 10 | 30.0 | 5.0 |
+| shop visits | 4 | 60.0 | 4.0 |
+| inn stops (rest, roster, chats start) | 4 | 30.0 | 2.0 |
+| chests on the main path | 3 | 4.0 | 0.2 |
+| **counted main path** | | | **63** |
+
+**Optional content, counted:**
+
+| what | minutes |
+|---|---|
+| side-quest and route-extra talk (script §2.1, §3.14) | 0.6 |
+| bounty hunts: 2, one fight each (the named foe and its escort) | 2.9 |
+| the hidden trial: Old Shellback (elite × 1.5 HP, one fight) | 2.2 |
+| the goat walked home (R1 to the farms, by the maps) | 0.5 |
+| the ghost of the mill (the mill, a chick) | 0.2 |
+| the seed swap (moss tufts drop in fights already fought; one visit) | 0.2 |
+| five chests (about 20 steps off the path each) | 0.8 |
+| **optional, by count** | **7** |
 
 **The rule of stops:** a session may end every 5–15 minutes (vision: phone-first). Every kit item below ends at a fountain, an
 inn, a challenge step or a chest, never mid-scene.
@@ -95,19 +115,10 @@ waits.
 | pillars | exploring (the mine, the pond, the loft), battles (two bosses, the mine), together (the circle, co-op bosses), story and jokes (the twist): **all four** |
 | line budget | about 200 |
 
-### Minutes, checked
+### Minutes, counted
 
-| part | minutes |
-|---|---|
-| R1 there and back, fights and walking | 20 |
-| Grubb, Snipe | 10 |
-| the challenge's five steps | 25 |
-| the mine, three floors (fights included) | 30 |
-| scenes: arrival, Ruddle, Nugget, the twist, the circle, the tube | 25 |
-| shops, inn, campfire chats, the smith | 15 |
-| looking around, signs, the stable | 15 |
-| **main path** | **about 140** (the plan says 150; 10 minutes of slack for new players) |
-| optional: three side quests 30, route extras 10, hunts 8, trial 6, chests 10 | about 64 |
+See §1: **63 minutes** of main path and **7** of optional content, counted from the script and the maps (`tools/timecount.js`).
+The old table (140 minutes, "scenes 25", "looking around 15") was a target with nothing in it and is withdrawn.
 
 ## 4. The other towns, against the kit (to be filled like Pebblebrook when each is built)
 

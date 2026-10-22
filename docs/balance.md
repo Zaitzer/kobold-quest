@@ -12,7 +12,7 @@ here first, in writing). The tables were computed together (one model, one scrip
 
 1. **The boss budget and boss HP** (`T = 5.73 + 0.053 × level`, `k = R × (4.67 + 0.04 × level)`, a pack of four): ±20% moves a boss from 75% to 45% (or 93%) first-try. Softening on defeat is the safety net. *Question: does the third boss feel fair or cheap?*
 2. **Hit chances** (pack hits and foes' hits): −20% on the pack's hit chance drops bosses to 41%. *Question: do misses feel like bad luck or like the game cheating?*
-3. **"Everything else" is 60% of the play time** (560 of 932 minutes: talking, menus, looking around) and is a guess. ±20% there is ±1.9 hours of the 15.5. *Question: time a real session.*
+3. **The unit goals of play** (3 s a box, 4.5 s a kobold turn): they set the length; the build must meet them (`tools/timecount.js`).
 4. **The encounter rate** decides whether the player is ahead of or behind the bosses by about a level, and a level is worth about 20 points of win rate.
 5. **Mana pools** (±20% moves bosses 62–81%).
 6. **The low side of the boss curve** (two levels under an early boss is nearly a sure loss) and the **14-pack caster and support corner** (8 packs under 30%).
@@ -26,7 +26,7 @@ Every number below exists to produce one of these. If a number makes the anti-fe
 | **First fight** (minute 6–8) | "I can do this" | foes die in 2 rounds; a foe hit takes 16% of Pip's HP; nobody can die | confusion, a wall of rules |
 | **A normal fight** | a small puzzle solved in about a minute | 3–4 rounds; the pack loses about 25% of its HP; position matters more than numbers | a chore, a damage race |
 | **A boss** | an event | 8–12 rounds; the pack loses 40–55% of its HP; one telegraphed danger turn; 70% to win first try at the right level | an HP sponge; a coin flip |
-| **A level-up** | a small present | a level about every 30 minutes after the first two (see section 9); always a pick to make | a number going up with nothing to do |
+| **A level-up** | a small present | a level about every 13–19 minutes after act 1 (by count, section 9); always a pick to make | a number going up with nothing to do |
 | **A gear tier arrives** | "I look different, I hit harder" | +20–25% power in one step; the hat changes | gear as a spreadsheet |
 | **Gold** | "almost enough" | shops cover 70–85% of the next tier; drops and crafting fill the rest | broke on potions, or rich with nothing to buy |
 | **Potions** | a safety net | about a quarter of income; 1 to 2 used per 3 fights | a tax that stops you fighting |
@@ -48,36 +48,63 @@ foe, a story beat, a new place). Section 9 lists the cadence.
 
 ## 2. Time
 
-The main story is **15.5 hours**; everything optional adds about **6 hours**; the small post-game another 3.
+**The length is what the content gives (Joakim, 22 Oct).** Design sets goals and counts; it does not measure, and it does not pad. So
+time is not a target here: it is **counted** from the script, the maps and the fight budget, with one goal per unit of play (a box
+of dialogue 3 s, a kobold's turn 4.5 s, a foe's 1.2 s, a step 0.30 s, a shop visit 60 s, ...), and the length is the sum.
+`node tools/timecount.js` does the count; a playtest checks the build against the unit goals, not the other way round.
 
-| stretch | levels | target hours | cumulative |
+**The main story is about 7.5 hours** (stretches 1 and 2 counted, the rest projected from their fight budget and the town kit until
+their scripts are written); **a level comes about every 16 minutes**:
+
+| stretch | levels | minutes | minutes a level | cumulative (h) | how |
+|---|---|---|---|---|---|
+| 1 Hearthspire, act 1 | 1→3 | 17 | 8 | 0.3 | counted (script, maps) |
+| 2 R1 and Pebblebrook | 3→8 | 63 | 13 | 1.3 | counted (script, maps) |
+| 3 R2 and Sunhaven | 8→13 | 72 | 14 | 2.5 | projected (fight budget + the kit) |
+| 4 R3 and Emberreach | 13→18 | 79 | 16 | 3.8 | projected (fight budget + the kit) |
+| 5 R4, home, the Ordeal | 18→19 | 26 | 26 | 4.3 | projected (fight budget + half the kit) |
+| 6 R5 and Frostwick | 19→23 | 69 | 17 | 5.4 | projected (fight budget + the kit) |
+| 7 R6, R7 and Saltspray | 23→27 | 75 | 19 | 6.7 | projected (fight budget + the kit) |
+| 8 The march and the finale | 27→30 | 51 | 17 | 7.5 | projected (fight budget + half the kit) |
+| **main story** | 1→30 | **452** | **16** | **7.5** | |
+
+**Act 1, by count:**
+
+| what | count | seconds each (goal) | minutes |
 |---|---|---|---|
-| 1 Hearthspire, act 1 | 1→3 | 1.0 | 1.0 |
-| 2 R1 and Pebblebrook | 3→8 | 2.5 | 3.5 |
-| 3 R2 and Sunhaven | 8→13 | 2.5 | 6.0 |
-| 4 R3 and Emberreach | 13→18 | 2.5 | 8.5 |
-| 5 R4, home, the Ordeal | 18→19 | 1.5 | 10.0 |
-| 6 R5 and Frostwick | 19→23 | 2.0 | 12.0 |
-| 7 R6, R7 and Saltspray | 23→27 | 2.0 | 14.0 |
-| 8 The march and the finale | 27→30 | 1.5 | 15.5 |
+| dialogue boxes | 122 | 3.0 | 6.1 |
+| story beats | 32 | 2.0 | 1.1 |
+| set-piece fights: cellar ×2 and the drill ×2 (Pip alone, 3 and 2 foes) | 4 | 36.3 | 2.4 |
+| set-piece fight: outside the gate (four kobolds, 3 scouts) | 1 | 85.6 | 1.4 |
+| the class pick | 1 | 60.0 | 1.0 |
+| talent picks | 2 | 20.0 | 0.7 |
+| equipping (the first chest, the starter kit) | 3 | 30.0 | 1.5 |
+| the first shop visit | 1 | 60.0 | 1.0 |
+| the first inn stop | 1 | 30.0 | 0.5 |
+| walking | 229 | 0.3 | 1.2 |
+| **act 1, by count** | | | **17** |
 
-**Where the minutes go** (main path, 932 minutes):
+**Pebblebrook's stretch, by count** (the template every town follows):
 
-| what | minutes | share | note |
+| what | count | seconds each (goal) | minutes |
 |---|---|---|---|
-| normal fights | 129 | 14% | about 9 normal fights an hour, 1 minute each |
-| boss fights | 55 | 6% | 11 bosses, 5 minutes each |
-| keeper challenges | 125 | 13% | five of them, about 25 minutes |
-| walking between places | 63 | 7% | routes are short on purpose |
-| talk, story, exploring, shop, menus, side bits | 560 | 60% | this is the game |
+| dialogue boxes (the script, main path) | 147 | 3.0 | 7.3 |
+| story beats played as animation | 32 | 2.0 | 1.1 |
+| normal fights | 19.3 | 87.0 | 28.0 |
+| boss fights (Grubb R 7, Snipe R 7) | 2 | 189.6 | 6.3 |
+| walking (steps, by the maps) | 1117 | 0.3 | 5.7 |
+| the rail puzzle | 1 | 90.0 | 1.5 |
+| talent picks | 5 | 20.0 | 1.7 |
+| equipping found or bought pieces | 10 | 30.0 | 5.0 |
+| shop visits | 4 | 60.0 | 4.0 |
+| inn stops (rest, roster, chats start) | 4 | 30.0 | 2.0 |
+| chests on the main path | 3 | 4.0 | 0.2 |
+| **counted main path** | | | **63** |
 
-So in a typical hour: about 9 normal fights, 0.7 of a boss, 8 minutes of a challenge, 4 minutes of walking, and 36
-minutes of everything else. **Battle is about a fifth of the time**, in line with the four equal pillars of the vision.
-
-**Fight length with a pack of four (accepted 22 Oct, P7):** a normal fight is about **90 s**, not 60 (16 kobold turns at about 4.5 s,
-foes about 1.2 s each, 10 s in and out). Over 142 fights that adds about **70 minutes**: the main story is about **16.7 hours**, a
-level takes about 32 minutes, and battle is about a quarter of the time. Accepted as it is: the battles are a pillar, not a cost.
-The table above keeps the 60-second figure until a real session is timed (P7).
+So in Pebblebrook's hour: fights 45%, bosses 10%, menus (shop, equip, talents, inn) 23%, talk 13%, walking 9%. **Battle is
+over half of the designed time.** That is what the content gives; the vision's four pillars are kept by *kind* (every town touches at
+least three), not by minutes. The unit goals: a normal fight **87 s** (3.5 rounds, four kobold turns of 4.5 s and 3.3–4.3 foe turns of
+1.2 s, 10 s in and out), a boss **190 s** at R 7 and **304 s** at R 12.
 
 ## 3. Player power: the model
 
@@ -988,7 +1015,7 @@ runs from more falls behind, someone who does the optional content is ahead.
 | 8 The march + finale | 27→30 | 24 | 11.3 (3 bosses) | 12.8 | 14.8 | 1.16 | the march 2.8, 9 set-piece fights in the castle (mandatory), **+2 patrols** on the march |
 | **total** | 1→30 | **186** | 47 | 139 | **153.5** + 11 bosses | | |
 
-So the whole main story is about **142 normal fights and 11 boss fights**: one normal fight every 6.5 minutes of play.
+So the whole main story is about **142 normal fights and 11 boss fights**: one normal fight about every 3 minutes of play (by count, section 2).
 
 **A "visible patrol"** is a group of foes standing on the route you can see and avoid or walk up to. They give 1.5× XP and
 are the way a player who dislikes random fights can still keep pace (it is also why route fights can be lower than a pure
@@ -999,26 +1026,30 @@ random design would need).
 **There is no required grinding.** A player who fights about 85% of the random fights they meet and wins the bosses is
 within one level of the end level of every stretch.
 
-**Optional content** (what you do by choice, mostly the same fights with more reward):
+**Optional content** (what you do by choice), **by count** in Pebblebrook (22 Oct; every town fills the same kit):
 
-| per stretch | what | minutes |
-|---|---|---|
-| side quests | 3 per town, each a small story with a reward | 30 |
-| route extras | 2 per route (a chest hunt, a joke, a lost goat) | 10 |
-| the bounty board | 2 hunts (a named foe, 3 fights) | 8 |
-| a hidden trial | an optional mini-boss with a unique piece of gear | 6 |
-| exploring and chests | 5 chests per stretch | 10 |
-| **total** | | **about 64** |
+| what | minutes |
+|---|---|
+| side-quest and route-extra talk (script §2.1, §3.14) | 0.6 |
+| bounty hunts: 2, one fight each (the named foe and its escort) | 2.9 |
+| the hidden trial: Old Shellback (elite × 1.5 HP, one fight) | 2.2 |
+| the goat walked home (R1 to the farms, by the maps) | 0.5 |
+| the ghost of the mill (the mill, a chick) | 0.2 |
+| the seed swap (moss tufts drop in fights already fought; one visit) | 0.2 |
+| five chests (about 20 steps off the path each) | 0.8 |
+| **optional, by count** | **7** |
 
-Stretches 2, 3, 4, 6, 7 have the full set (about 5.3 hours); stretch 1 has 5 minutes, stretch 5 has 20, stretch 8 has 15:
-**about 6 hours in all.** A completionist's gain is **+20% XP and +35% gold**, which puts them about one level ahead and
-one tier piece richer. They are over-levelled a little, so fights are easier; that is the reward.
+**About 7 minutes a town stretch, under an hour in the whole game** (five full town stretches; act 1, the Ordeal stretch and the
+march have a little). The town kit's old "about 64 minutes" was a target with nothing in it; the count is what the content gives.
+**A bounty hunt is one fight** (the named foe and its escort, 1.5× XP), as the town kit and the board describe. Counted in fights' XP,
+a completionist gains about **+20% XP** (two hunts at 1.5×, the trial at about 2 fights, against 25 fights to level a stretch) and
+the trial's unique piece: about one level ahead, as designed.
 
 **If the pack is stuck** (two or more levels under a boss's level): the game says so (a warning mark on the goal bar, a
-villager's hint). A level takes 5–8 fights, about 6 to 8 minutes. **The worst-case top-up is about 15 minutes**, and the
-bounty board is the fastest way (3 named fights per hunt, 1.5× XP). We aim for an *average* top-up of zero.
+villager's hint). A level takes 5–8 fights, about 7 to 12 minutes at 87 s a fight. **The worst-case top-up is about 20 minutes**, and the
+bounty board is the fastest way (a named fight per hunt, 1.5× XP). We aim for an *average* top-up of zero.
 
-**Post-game (about 3 hours, small):** the islands' trials and Glitterbeak's hoard, level 30 gear, no new levels.
+**Post-game (small; its length will be what its content gives, counted when it is designed):** the islands' trials and Glitterbeak's hoard, level 30 gear, no new levels.
 
 ## 7. Gold
 
@@ -1045,7 +1076,8 @@ be softlocked by gold: potions are cheap, and half the gold is kept after losing
   shield 1.8F, neck 1.8F, helm, boots, cloak and rings 1.5F each, a potion 0.4F, an ether 0.5F, a Phoenix feather 2.5F,
   an inn bed 0.5F (never under 10). One kobold's full set of one tier is about 17.6F; a pack of four is 70 F₀. Prices are in F₀, the
   pack-of-three unit, while income F grows by 4/3 with the extra foes, so the coverage figures here hold for a pack of four.
-- **Income per hour (net of potions):** about 390 gold an hour in stretch 2 and about 1,830 an hour in stretch 7.
+- **Income per stretch (net of potions)** is the table's "net" column; per counted hour that is about 930 gold in stretch 2 and about
+  2,900 in stretch 7.
 - **Sinks:** potions and ethers (25%), gear (about 55%), the smith's crafting fee (40% of the shop price, plus materials),
   reforging (30 gold at tier 1, scaled by F), the moon shrine (reset talents: 4F), the inn (0.5F).
 - **Losing a fight** costs half the gold on hand. The player is encouraged to spend rather than hoard: a normal
@@ -1071,25 +1103,25 @@ quest reward.
 
 ## 9. Player progression: what unlocks when
 
-| story time | level | what arrives | why then |
+| story time (by count) | level | what arrives | why then |
 |---|---|---|---|
 | 0:00 | 1 | walk, talk, tap things; light the lamp from the tower fire | the first 5 minutes teach nothing else |
-| 0:06 | 1 | the first fight: move, basic attack, see the hit chance | one idea per screen |
-| 0:10 | 2 | the first talent pick (3 offered) | the first reward comes before the first boredom |
-| 0:15 | 2 | the class skill (first mana use) | after the basic attack is understood |
-| 0:30 | 2 | Wizzle and Glint join: a pack of three | a pack before the second idea |
-| 0:35 | 2 | the first chest, the equipment screen | a thing to equip first |
-| 0:45 | 3 | Bork at the gate; the shop and potions | |
-| 1:00 | 3 | leave Hearthspire; the first route; the world map in the inn | the world opens |
-| 1:30 | 4 | gear tier 2 appears in shops; materials start dropping | |
-| 2:00 | 5 | Nugget joins; the smith and crafting | |
-| 3:30 | 8 | **subclass choice**; the first Smiler piece; **raptors** | the end of stretch 2 |
-| 6:00 | 13 | the second piece; **fast travel**; gear tier 3 | after the early routes have been walked twice |
-| 8:30 | 18 | gear tier 4; the third piece; the bun-road toll opens | |
-| 10:00 | 19 | the Ordeal; the pack is empty on purpose | |
-| 12:00 | 23 | gear tier 5; Wizzle back; the fins (swap the pack at any fountain) | |
-| 14:00 | 27 | gear tier 6; the ember chamber; **boats** (given in stretch 7) | |
-| 15:30 | 30 | the Smiler | |
+| 0:02 | 1 | the first fight: move, basic attack, see the hit chance | one idea per screen |
+| 0:03 | 2 | the first talent pick (3 offered) | the first reward comes before the first boredom |
+| 0:04 | 2 | the class skill (first mana use) | after the basic attack is understood |
+| 0:08 | 2 | Wizzle and Glint join: a pack of three | a pack before the second idea |
+| 0:10 | 2 | the first chest, the equipment screen | a thing to equip first |
+| 0:13 | 3 | Bork at the gate; the shop and potions | |
+| 0:17 | 3 | leave Hearthspire; the first route; the world map in the inn | the world opens |
+| 0:30 | 4 | gear tier 2 appears in shops; materials start dropping | |
+| 0:42 | 5 | Nugget joins; the smith and crafting | |
+| 1:20 | 8 | **subclass choice**; the first Smiler piece; **raptors** | the end of stretch 2 |
+| 2:32 | 13 | the second piece; **fast travel**; gear tier 3 | after the early routes have been walked twice |
+| 3:51 | 18 | gear tier 4; the third piece; the bun-road toll opens | |
+| 4:17 | 19 | the Ordeal; the pack is empty on purpose | |
+| 5:26 | 23 | gear tier 5; Wizzle back; the fins (swap the pack at any fountain) | |
+| 6:41 | 27 | gear tier 6; the ember chamber; **boats** (given in stretch 7) | |
+| 7:32 | 30 | the Smiler | |
 
 **Talents:** one pick per level from level 2 (29 picks). Each offer shows three options, and about two in three offers
 include a skill. By level 30 a character has about **8 skills** (class, weapon, talent and subclass skills) and about
@@ -1101,20 +1133,16 @@ campfire, so choosing the four is part of the build (the monk's Adapt is the exc
 
 | something new every… | what |
 |---|---|
-| about 15 minutes (levels 1–2), then **30 minutes, flat** | a level-up and a talent pick |
-| ~12 minutes | a gear piece, found or bought |
-| ~8 minutes | a story beat or a joke worth reading |
+| about 8 minutes (act 1), then **13–19 minutes** (by count, `tools/timecount.js`) | a level-up and a talent pick |
+| ~6 minutes | a gear piece, found or bought (10 in Pebblebrook's 63 minutes) |
+| ~2 minutes | a story beat or a joke worth reading (32 beats and 147 boxes in 63 minutes) |
 | per route | a new foe type, a new landmark |
-| per stretch (about 2.5 hours) | a new town, a new companion or a piece, a gear tier |
-| ~40 minutes | a new skill |
+| per stretch (about 70 minutes) | a new town, a new companion or a piece, a gear tier |
+| ~55 minutes | a new skill (8 by level 30) |
 
-**Level pace (P10, derived 22 Oct from the stretch plan):** every stretch gives 5 levels in 2.5 hours or 4 in 2 hours, so a
-level takes **30 minutes, flat**, from level 3 to 30 (only the Ordeal stretch is slower: one level in 1.5 hours, on purpose). The
-"40 minutes late" figure came from an inconsistent average and is withdrawn. What rises is **combat density**: the fights a
-level needs go from 5 to 8, so needed random fights per hour rise from about 6 (Pebblebrook) to about 12 (Saltspray). That is
-kept (J): the early game leaves room for story and learning, the late game is for a pack that has its tools. Late progress is
-felt through Pip's leader points (every second level), subclass skills, uniques and sets, since each level adds a smaller share
-of power late (stats grow roughly linearly, so the relative gain per level falls like 1/level).
+**Level pace (P10, by count, 22 Oct):** a level is what its fights, scenes and menus take: about **8 minutes** in act 1 and **13 to 19
+minutes** after (the Ordeal stretch's single level takes about 26, on purpose), about 16 on average. The fights a level needs still rise
+from 5 to 8, so later levels take longer; late progress is also felt through Pip's leader points, subclass skills, uniques and sets.
 
 ## 10. What the simulator must report (the check list)
 
@@ -1161,7 +1189,8 @@ Base: **3.54 rounds, 22% HP lost, 75% boss win.**
 - **The XP exponent is cosmetic too**: ±20% on 1.6 changes the total XP from 30,597 to 11,812 or 80,456, but the *time* does not move, because the XP per foe is derived from the fights-per-level table (`need ÷ (0.8 × fights × foes)`). The table is the design; the exponent only sets how big the numbers on the screen are. 1.6 stays because it gives a gentle rise (level 29→30 needs 73× the XP of level 2→3), and the screen numbers stay readable.
 - **Pacing, by arithmetic (not simulated):**
   - minutes per fight, boss or challenge ±20%: ±26, ±11, ±25 minutes of 932 (3% each at most);
-  - "everything else" ±20%: **±112 minutes**, the single largest uncertainty in the 15.5 hours;
+  - ~~"everything else" ±20%: ±112 minutes, the single largest uncertainty in the 15.5 hours;~~ withdrawn 22 Oct: the length is
+    counted, not guessed (section 2);
   - encounter rate −20%: fights supplied fall to 0.84–0.96 of those needed (4–16% short, about 6–20 fights, roughly 15 minutes of optional top-up); +20%: 26–44% too many, the player is about a level ahead of the bosses (bosses about 20 points easier) unless they skip fights, which they may;
   - gold ±20%: coverage 68/72/84/46/66/84/83% becomes 54–101%: the weakest stretch (46%) is the one to watch.
 - **Not yet tested (still open):** a skipped gear tier; ranged hit chance on its own; the status resist formula; encounter rates against the real 600 × 340 map.

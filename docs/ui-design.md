@@ -118,25 +118,25 @@ battle taps an hour.**
 
 ## 4. How often things are used (from most to least)
 
-*An estimate for the average hour of the main path, used to decide where things go on the screen.*
+*Counted, not estimated (22 Oct, `node tools/timecount.js`): every tap in Pebblebrook's main path, from the script, the maps, the fight
+budget and the tap table in §3, over the stretch's counted 63 minutes. These are the **goals** the build is checked against.*
 
-| rank | thing | taps an hour | design consequence |
-|---|---|---|---|
-| 1 | advance dialogue | ~250 | tap anywhere; the whole screen is the button |
-| 2 | battle: move, attack | ~280 (skills and items bring battle to ~340) | the board is the interface; no extra buttons for these |
-| 3 | walk | ~100 | tap-to-walk with auto-path; never joystick-only |
-| 4 | interact (NPC, chest, door) | ~60 | tap the thing |
-| 5 | battle: skills | ~60 | **quick button for the last-used skill**; the rest in a list of five |
-| 6 | equip, talents, pack | ~25 | the "!" badge shows when something is worth a look |
-| 7 | shop | ~15 | one screen, two taps per purchase |
-| 8 | potions in battle | ~10 | three taps, but only for emergencies |
-| 9 | chat and yips | ~10 | one button, never in the way |
-| 10 | quest log, world map | ~6 | one button each |
-| 11 | crafting | ~4 | at the smith only |
-| 12 | fast travel | ~2 | after piece 2; lives in the map |
-| 13 | duels, gifts, the market, letters | ~0.5 | in the ☰ menu, not on the main screen |
-| 14 | the moon shrine (reset talents) | ~0.1 | at the shrine only |
-| 15 | admin | ~0 | hidden, for admins only |
+| thing | taps in the stretch | **goal: taps an hour** |
+|---|---|---|
+| battle: move and attack (kobold turns × 2.5) | 693 | **663** |
+| advance dialogue | 147 | **141** |
+| walk (one tap per 12 tiles) | 93 | **89** |
+| interact (NPCs, doors, chests, signs) | 58 | **55** |
+| battle: skills (one turn in six picks a skill: one extra tap) | 54 | **52** |
+| equip, talents, pack | 40 | **38** |
+| shop | 24 | **23** |
+| potions in battle (one a 3 fights, 3 taps) | 19 | **18** |
+| quest log, world map (about one look per scene change) | 10 | **10** |
+| inn | 8 | **8** |
+| **all** | 1147 | **1097** (one tap every 3.3 s) |
+
+What the count changed: dialogue is about **140** taps an hour, not 250; battle is about **730** (move, attack, skills, potions), well
+over half of all taps; walking about 90. **The board is the interface**, and the last-used-skill button is worth its corner.
 
 **Layout rule:** whatever is used more than ten times an hour is on the main screen. Whatever is used less than once an
 hour goes behind ☰. The bottom-right corner is the best spot on the screen and belongs to rank 1 and 2 only.
