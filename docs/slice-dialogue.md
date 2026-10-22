@@ -189,9 +189,9 @@ gold crumbs with a ribbon on it.*
 ### 1.11 The capital gate · `act 6` · the threshold
 
 **Gate guard:** Going out? One bun. New rule.
-**Pip:** I've only got one bun.
-**Gate guard:** Then you've got none. *(One ember-bun leaves the bag, never Mallow's.)*
-**Pip:** That was my lunch.
+**Pip:** I haven't got a bun.
+**Gate guard:** Then the next one you get is ours. *(Flavour only: nothing leaves the bag, `design.md` §2.)*
+**Pip:** That was going to be my lunch.
 **Gate guard:** It's the dragon's lunch now. He's a growing lad.
 *A kobold sits cross-legged by the gate, eyes shut.*
 **Bork:** Bork is meditating.
@@ -236,7 +236,7 @@ gold crumbs with a ribbon on it.*
 *A big kobold in a guard's helmet sits on a box across the mill road.*
 
 **Grubb:** HALT. Toll. One bun.
-**Pip:** The gate took my bun.
+**Pip:** The gate's already got my next one.
 **Grubb:** Then you owe one. I'm writing it down. *(He writes it down. It takes a while.)*
 **Grubb:** Go on in. And stay off my mill road on the way out.
 **Grubb:** Flour carts don't leave without paying.

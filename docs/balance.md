@@ -10,7 +10,7 @@ here first, in writing). The tables were computed together (one model, one scrip
 
 **The numbers I am least sure of** (full table in section 11; these get the first playtest questions):
 
-1. **The boss budget and boss HP** (`T = 4.3 + 0.04 × level`, `k = R × (3.5 + 0.03 × level)`): ±20% moves a boss from 75% to 45% (or 93%) first-try. Softening on defeat is the safety net. *Question: does the third boss feel fair or cheap?*
+1. **The boss budget and boss HP** (`T = 5.73 + 0.053 × level`, `k = R × (4.67 + 0.04 × level)`, a pack of four): ±20% moves a boss from 75% to 45% (or 93%) first-try. Softening on defeat is the safety net. *Question: does the third boss feel fair or cheap?*
 2. **Hit chances** (pack hits and foes' hits): −20% on the pack's hit chance drops bosses to 41%. *Question: do misses feel like bad luck or like the game cheating?*
 3. **"Everything else" is 60% of the play time** (560 of 932 minutes: talking, menus, looking around) and is a guess. ±20% there is ±1.9 hours of the 15.5. *Question: time a real session.*
 4. **The encounter rate** decides whether the player is ahead of or behind the bosses by about a level, and a level is worth about 20 points of win rate.
@@ -83,8 +83,7 @@ items, gold) is defined *relative* to it, so changing one number moves the rest 
 - **Gear** supplies about +80% of base attack (weapon 60%, the rest 20%), about +68% of base defence and +22% of base HP,
   at the level its tier arrives (see `items.md`; the level table below uses 70% and 25%, close enough to leave as is). Gear tiers arrive at levels **1, 5, 10, 16, 22, 28**.
 - **Talents** (one pick per level, about 30% of picks are stats): about +0.45 attack, +0.375 defence and +2.1 HP per level.
-  *This line is what the level table still uses; it is being replaced by "+1 to an ability score per stat pick" (below), and
-  the table must be re-derived when that lands (`number-audit.md` P14).*
+  *Retired 22 Oct: replaced by "+1 to an ability score per stat pick" (below), which gives the same growth, so the level table stands (P14).*
 - **Damage:** a hit does `0.39 × attack × skill multiplier × F`, ±15%, where F is HoMM3's attack-versus-defence factor (§4a,
   "Damage"; decided 22 Oct). It replaces `attack × multiplier − defence × 0.5`, which the level table was built on; the 0.39 keeps
   the table's basic hit within 1% at levels 1, 10 and 30, and the foe attack column must be re-derived (`number-audit.md` P20).
@@ -457,8 +456,7 @@ rules there).
 
 ## 4. Fights: the shape
 
-A fight is *four kobolds against foes* (a pack of four, decided 22 Oct; **the foe counts and every fight and boss number in this
-file were derived for three kobolds and must be re-derived for four**, `number-audit.md` P19) on a board of about 10 × 13 tiles (bosses 12 × 14, with a boss that
+A fight is *four kobolds against foes* (a pack of four, decided 22 Oct; the foe counts, fight and boss numbers were re-derived for four, `number-audit.md` P19) on a board of about 10 × 13 tiles (bosses 12 × 14, with a boss that
 takes up 2 × 2 tiles).
 
 **Big foes and area attacks (J, Joakim's rule, 21 Oct):** a foe that covers several tiles is **hit once for every one of its
@@ -917,7 +915,7 @@ The engine's current rate (6% a step on every route) is far too high for 160-ste
 | R7 | Saltspray → islands (boat) | 90 | 3.0% | 33 | **2.1** | 27 s | 25–27 |
 
 (One-way fights = (path length − 20 safe steps) × chance per step.) So **a route is 3 to 5 fights and under a minute of
-walking, about 4 to 6 minutes with the fights.** Routes are short in distance because the world is 600 × 340 tiles; they are
+walking, about 4 to 6 minutes with the fights.** Routes are short in distance because the world is 420 × 340 tiles; they are
 long in *content* because of the places beside them.
 
 ### The town areas (new, one per town)
@@ -933,7 +931,8 @@ rest of the stretch's fights happen:
 | Frostwick | **the ice cellars** | 3 | 45 | 6% | 9.9 (1.2 visits) | the flour store, the draft camp's outpost, a campfire |
 | Saltspray | **the shipwreck** (2 floors) and **the island cave** (by boat) | 2 and 3 | 45 | 6% | 6.0 and 4.8 | pearls, the ember-lantern |
 
-Hearthspire has no area; its fights are scripted set-pieces.
+Hearthspire has no area; its fights are scripted set-pieces. **They are the one exception to "tuned for four":** act 1's set-pieces
+(the cellar, the yard drill) are tuned for the pack the story gives at that moment (Pip alone, then three), since Bork only joins at the gate.
 
 ### The fight budget (the main path)
 

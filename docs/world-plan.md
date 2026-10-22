@@ -33,7 +33,7 @@ The towns follow the bun chain, and Hearthspire sits in the middle of it like a 
   the map opens exactly when the story wants it to.)
 - **Why the loop works:** every town is one route from the next, and the capital is one route from three of them.
   Raptors later turn the whole loop into quick travel.
-- **Size:** it all fits inside today's 60 × 34 block grid (600 × 340 tiles). The outer ring stays forest, cliffs and sea.
+- **Size:** ~~it all fits inside today's 60 × 34 block grid (600 × 340 tiles).~~ Now 420 × 340 (the P9 check below). The outer ring stays forest, cliffs and sea.
   If it feels empty we shrink the grid later; we don't pad it with routes.
 - **Check (P9, arithmetic, 22 Oct):** with routes winding about 1.3× their straight distance, the towns sit roughly at
   Hearthspire (300, 170), Pebblebrook (208, 170), Frostwick (300, 47), Saltspray (423, 170), Emberreach (300, 285), Sunhaven

@@ -24,8 +24,8 @@
 
 ## Milestones
 
-Each milestone ends with Joakim and friends playing it. Order matters; dates don't. The rebuild lives on a `v6` branch
-until the first merge (see `gate1-review.md`, A1).
+Each milestone ends with Joakim and friends playing it. Order matters; dates don't. The rebuild is built on `main` (Gate 1, `design.md` §16.1);
+`release/` and the Claude page are not rebuilt from it until the slice is ready.
 
 | # | milestone | what's in it | gate |
 |---|---|---|---|

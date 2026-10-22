@@ -88,6 +88,22 @@ These are choices in the numbers that change how the game feels. I made them; Jo
 | ability scores | the D&D six on top of the class table; standard array 15/14/13/12/10/8 (the monk 12 ×6); +1 per stat pick; one governing score per stat | no scores; or point-buy |
 | UI | three taps for anything frequent; a quick-skill button | a bigger menu |
 
+## Design review (22 Oct, after the slice's maps, script and the model update)
+
+Fixed in the docs (no decision needed): bosses attack four times a round, not three (`design.md` §3); the gate's bun is flavour
+only, so the slice script no longer takes an ember-bun; the vision's rival, key items and sparks; the map's 600 × 340 in two places;
+the boss rules in `balance.md`'s "least sure" list; the retired talent line and the pack-of-four note; the scope's `v6` branch; the
+`seals` save flag kept in the rename list; UI principle 8 against "everything on the sheet"; act 1's set-pieces tuned for the pack
+the story gives.
+
+Open (each one a question for Joakim):
+1. **Morale is unpriced** (P24): +26% actions by the finale, +34% with a streak. Price the bond into the curve and cap the streak at +3?
+2. **The monk's start** (P25): 13, 12, 12, 12, 12, 11 instead of 12 ×6?
+3. **Fight length** (P7): about 90 s with four kobolds, +70 minutes of play. Foes move at once, and an Auto button for easy fights?
+4. **Corruption has no cost.** It unlocks stronger dark skills and a discount and takes nothing away, so it is free power for whoever
+   chases it. A cost that fits the theme: **each 10 corruption is −1 morale for the whole pack** (the companions don't like it), so
+   dark power trades against the pack's bond, one system feeding another.
+
 ## Decided at Gate 1 (Joakim, 22 Oct; full list in `design.md` §16)
 
 1. **A1:** build on `main` (not a `v6` branch). Keep `release/` and the Claude page on the old game until the slice is ready.

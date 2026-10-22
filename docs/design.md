@@ -68,7 +68,7 @@ Where this file and those disagree, **those win** for numbers and screens; this 
     a quarter of a spell's power.
   - **Crit builds are rewarded for their risk**: no cap on crit damage; anything that lowers normal damage must raise crit
     damage to the rewarded value.
-  - **Bosses** come from two rules (length and a damage budget), attack three times a round, telegraph every third round,
+  - **Bosses** come from two rules (length and a damage budget), attack once per kobold slot (four times) a round, telegraph every third round,
     and soften 10% after each defeat.
 - **Foes by place** (every one, with stats, in `bestiary.md`): Nettlenose scouts and slingers (Snatchclaw's, spreading along the roads as the story goes on),
   Snatchclaw's guards (a strong version later), and the land's own creatures (beetles, sand skinks, rock goats, stokers,

@@ -84,7 +84,7 @@ or removed in one pass, at the progress reset, then `node tools/imports.js` and 
 | warrior | **fighter** (shown) | class; save key kept | `data/classes.js`, `game/stats.js`, `core/state.js`, `net/lobby.js`, `data/dialogue.js` |
 | mage | **wizard** (shown) | class; save key kept | `data/classes.js`, `game/stats.js`, `data/items.js`, `data/dialogue.js` |
 | level-8 promotions | **subclasses** | class rule | `data/classes.js` |
-| sparks (`seals`) | **Smiler pieces** (`pieces`) | quest item and flag | `data/dialogue.js`, `data/quests.js`, `game/npcs.js`, `game/jingles.js`, `battle/flow.js`, `engine/audio.js`, `core/state.js` |
+| sparks | **Smiler pieces** (shown); the save flag `seals` is kept (`design.md` §7) | quest item | `data/dialogue.js`, `data/quests.js`, `game/npcs.js`, `game/jingles.js`, `battle/flow.js`, `engine/audio.js`, `core/state.js` |
 | bandits | **the guards** (Snatchclaw's) | foes and lines | `data/monsters.js`, `data/quests.js`, `data/dialogue.js` |
 | Mossback (monsters) | **Nettlenose** scouts | foes and gear names | `data/monsters.js`, `data/gear.js` (Mossback stays as the farmers' name) |
 | Burrowhome | **Hearthspire** | the start town | `data/overworld.js`, `data/dialogue.js`, `game/world.js`, `game/play.js`, `game/npcs.js`, `ui/worldmap.js`, `engine/music.js`, `battle/flow.js` |

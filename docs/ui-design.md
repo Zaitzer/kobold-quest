@@ -17,7 +17,8 @@ current screens. At Gate 2 every row of the tap table is counted in the real gam
 6. **One idea per screen, one primary button, one colour for "go".** The primary button is always bottom-right.
 7. **Undo is cheap, mistakes are cheap.** A move can be undone before an action is taken. Nothing destructive happens
    without a confirmation (selling a unique, discarding, spending a talent).
-8. **Every number you see answers a question you have.** If a screen shows a stat nobody uses to decide, remove it.
+8. **Every number you see answers a question you have.** If a screen shows a stat nobody uses to decide, remove it. *The kobold
+   sheet is the exception (Gate 1, `design.md` §16.8): it shows every stat, grouped; the overworld and battle screens follow this rule.*
 9. **Cozy.** Rounded, warm colours, a soft sound on every tap, short animations (under 200 ms) that can be turned off.
 
 ## 2. Layout (held sideways)
