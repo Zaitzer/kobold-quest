@@ -22,6 +22,7 @@ function rpStats(m){
   st.hp=Math.round(st.hp);st.mp=Math.round(st.mp);return st;
 }
 function rpMemSkills(m){
+  if(m&&m.v6)return(m.skills||[]).slice();   // v6: the four equipped skills
   const out=(RP_CLS[m.cls]||{sk:[]}).sk.slice();
   rpSkills(m.w).forEach(k=>{if(!out.includes(k))out.push(k)});
   (m.tal||[]).forEach(t=>{const T=(RP_TAL[m.cls]||{})[t];if(T&&T.sk&&!out.includes(T.sk))out.push(T.sk)});

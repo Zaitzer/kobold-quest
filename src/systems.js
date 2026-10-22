@@ -48,6 +48,8 @@ import './battle/flow.js';
 import './battle/ai.js';
 import './battle/draw.js';
 import './battle/input.js';
+import './battle/v6rules.js';
+import './battle/v6battle.js';
 import './net/core.js';
 import './net/draw.js';
 import './net/ui.js';

@@ -1,6 +1,7 @@
 import {rpAiTurn,tcPosScore} from './ai.js';
 import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
+import {v6DoSkill,v6OnTile,v6Queue,v6Strike,v6TurnStart,v6u} from './v6battle.js';
 import {TT} from './view.js';
 import {emit} from '../core/bus.js';
 import {rpInputReset} from '../core/input.js';
@@ -40,7 +41,7 @@ function rpBattle(keys,opt){
   const members=opt.members||s.party.map(m=>({m,ctl:'me',own:'h'})),foes=opt.foes||[];
   const n=duel?3:keys.length,W=boss?12:n<=2?9:n===3?10:11,H=boss?(boss==='vexx'?15:14):n<=2?12:n===3?13:14;
   const b={win:opt.win||null,W,H,g:tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
-    seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel};
+    seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel,v6:!!opt.v6};
   if(opt.net)b.net={role:'host',id:opt.nid,peer:opt.net,gParty:opt.gParty||[]};
   rp.bt=b;
   const px=(W>>1)-1;
@@ -57,8 +58,8 @@ function rpBattle(keys,opt){
   const lvl=s.party[0].lvl,pods=boss?1:keys.length>=3&&Math.random()<.7?2:1,centers=[];
   for(let p=0;p<pods;p++){let c=null;for(let tries=0;tries<60&&!c;tries++){const x=1+(Math.random()*(W-2)|0),y=1+(Math.random()*Math.max(2,H*.42-1)|0);
       if(centers.every(o=>Math.hypot(o[0]-x,o[1]-y)>=4))c=[x,y]}centers.push(c||[W>>1,2])}
-  keys.forEach((key,i)=>{const E=RP_E[key],scale=E.boss?Math.max(.7,1+.25*(members.length-3)):1+.08*Math.max(0,lvl-3),sz=E.boss?2:1,pod=boss?0:i%pods;
-    const u={side:1,E,key,name:E.n,x:0,y:0,sz,hp:Math.round(E.hp*scale*BAL.ehp),max:Math.round(E.hp*scale*BAL.ehp),atk:E.atk*(E.boss?1:Math.sqrt(scale))*BAL.eatk,def:E.def,spd:E.spd,
+  keys.forEach((key,i)=>{const E=RP_E[key],scale=E.v6?1:E.boss?Math.max(.7,1+.25*(members.length-3)):1+.08*Math.max(0,lvl-3),sz=E.boss?2:1,pod=boss?0:i%pods;
+    const u={side:1,E,key,name:E.n,x:0,y:0,sz,hp:Math.round(E.hp*scale*(E.v6?1:BAL.ehp)),max:Math.round(E.hp*scale*(E.v6?1:BAL.ehp)),atk:E.atk*(E.boss?1:Math.sqrt(scale))*(E.v6?1:BAL.eatk),def:E.def,spd:E.spd,
       ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!boss,pod,turns:0,fled:false,own:'e',ctl:'ai'};
     let spot=null;
     if(E.boss)spot=[(W>>1)-1,1];
@@ -85,7 +86,7 @@ function tcRound(b){b.round++;
   const seen=b.units.some(e=>e.side===1&&tcLive(e)&&tcShown(b,e))||b.units.some(p=>p.side===0&&tcLive(p)&&tcSideSees(b,1,p));b.quiet=seen?0:(b.quiet||0)+1;
   if(b.quiet>=3){b.quiet=0;b.units.forEach(p=>{if(p.side===0&&tcLive(p))tcSeen(b,p)});const es=b.units.filter(e=>e.side===1&&tcLive(e));b.pings=es.map(e=>({x:e.x,y:e.y,r:b.round}));
     if(es.length){const e=es[0],c=b.units.find(p=>p.side===0&&tcLive(p))||e;b.msg='You hear something to the '+(Math.abs(e.y-c.y)>=Math.abs(e.x-c.x)?(e.y<c.y?'north':'south'):(e.x<c.x?'west':'east'))+'…'}}
-  if(b.pings)b.pings=b.pings.filter(p=>b.round-p.r<2);if(b.round>=5)b.units.forEach(e=>{if(e.side===1&&tcLive(e)&&!e.aware){b.units.forEach(p=>{if(p.side===0&&tcLive(p))tcSeen(b,p)});tcAlert(b,e.pod,false)}});b.queue=b.units.filter(tcLive).map(u=>({u,s:tcStat(u).spd+Math.random()*.6})).sort((x,y)=>y.s-x.s).map(x=>x.u)}
+  if(b.pings)b.pings=b.pings.filter(p=>b.round-p.r<2);if(b.round>=5)b.units.forEach(e=>{if(e.side===1&&tcLive(e)&&!e.aware){b.units.forEach(p=>{if(p.side===0&&tcLive(p))tcSeen(b,p)});tcAlert(b,e.pod,false)}});b.queue=b.v6?v6Queue(b):b.units.filter(tcLive).map(u=>({u,s:tcStat(u).spd+Math.random()*.6})).sort((x,y)=>y.s-x.s).map(x=>x.u)}
 function tcUpcoming(b,n){const out=[];if(b.cur&&tcLive(b.cur))out.push(b.cur);b.queue.forEach(u=>{if(tcLive(u))out.push(u)});
   if(out.length<n){const nx=b.units.filter(tcLive).slice().sort((x,y)=>tcStat(y).spd-tcStat(x).spd);for(let i=0;out.length<n&&i<nx.length*2;i++)out.push(nx[i%nx.length])}return out.slice(0,n)}
 function tcCheckEnd(){const b=rp.bt;if(!b||b.over)return true;
@@ -100,6 +101,7 @@ function tcNext(){
   if(!b.queue.length)tcRound(b);
   const u=b.queue.shift();if(!u||!tcLive(u))return tcNext();
   b.cur=u;u.ap=2;u.guard=0;u.watch=0;u.atkd=0;b.pend=null;b.mode='move';
+  if(b.v6&&v6TurnStart(b,u)){b.cur=null;return tcNext()}
   if(u.buff.atk>0)u.buff.atk--;if(u.buff.def>0)u.buff.def--;
   if(u.m){const st=rpStats(u.m);
     if(st.regen&&u.m.hp<st.hp){const a=Math.max(1,Math.round(st.hp*st.regen));u.m.hp=Math.min(st.hp,u.m.hp+a);tcFloatU(u,'+'+a,'#9af0a0')}
@@ -151,6 +153,7 @@ function tcStepRun(dt){
 function tcOnStep(u,prev,st){
   const b=rp.bt,out=[];
   if(u.side===0)tcVis(b);
+  if(b.v6)v6OnTile(b,u);
   b.units.forEach(o=>{
     if(o.side===u.side||!tcLive(o)||o.stun||(o.side===1&&!o.aware))return;
     if(tcMelee(o)&&o.aooId!==st.id){const r=rpTW(tcW(o)).r;if(tcCheb(o,prev)<=r&&tcCheb(o,u)>r&&tcSees(b,o,u)){o.aooId=st.id;out.push({k:'atk',a:o,tg:u,o:{mul:1,aoo:1,name:'Free hit'}})}}
@@ -194,10 +197,12 @@ function tcResolve(st){
     if(!tcLive(a)&&!T.chan)return;
     const hit=b.units.filter(u=>tcLive(u)&&(T.ff||u.side!==a.side)&&tcTiles(u).some(([x,y])=>Math.hypot(x-st.cx,y-st.cy)<=T.area+.01));
     if(!rp.headless){burst((st.cx+.5)*TT,(st.cy+.5)*TT,14,['#ff8a2b','#ffe9a8','#fff'],150,'star');set_shake(Math.max(shake,3))}
-    hit.forEach(u=>tcStrike(a,u,{mul:S.mul,spell:T.spell,stunP:S.stunP,slow:S.slow,name:S.n,area:1}));
+    hit.forEach(u=>{const n=b.v6?Math.max(1,tcTiles(u).filter(([x,y])=>Math.hypot(x-st.cx,y-st.cy)<=T.area+.01).length):1;   // a big foe: once per overlapped tile (balance.md §4)
+      for(let i=0;i<n;i++)tcStrike(a,u,{mul:S.mul,spell:T.spell,stunP:S.stunP,slow:S.slow,name:S.n,area:1,v6:T.v6,dark:st.dark})});
     if(!hit.length)rpFloat((st.cx+.5)*TT,(st.cy+.3)*TT,'nothing there','#d7c9e3',12)}
 }
 function tcStrike(a,t,o){
+  if((rp.bt&&rp.bt.v6)||v6u(a)||v6u(t))return v6Strike(a,t,o);
   const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};
   let fl=false;
   if(!o.spell){const H=tcHit(b,a,t,o);fl=H.fl;if(Math.random()*100>=H.h){tcFloatU(t,'miss','#d7c9e3');if(!rp.headless)sfx('pop');tcWake(b,t);return}}
@@ -219,21 +224,23 @@ function tcDo(u,act){
   const b=rp.bt,c=tcActCost(u,act);if(!tcCanPay(u,c))return false;
   if(act.k==='move'){const cost=act.cost;if(u.ap<cost)return false;u.ap-=cost;tcQ({k:'move',u,path:act.path,i:0,id:++b.moveId});b.msg=u.name+(cost>1?' dashes.':' moves.');return true}
   tcPay(u,c);
-  if(act.k==='atk'){u.atkd=1;const TW=rpTW(tcW(u));tcQ({k:'atk',a:u,tg:act.t,o:{mul:1,splash:TW.splash,slow:TW.slow&&Math.random()<TW.slow,
+  if(act.k==='atk'){u.atkd=1;const TW=rpTW(tcW(u));tcQ({k:'atk',a:u,tg:act.t,o:{mul:1,quick:v6u(u)&&!!tcStat(u).quick,splash:TW.splash,slow:TW.slow&&Math.random()<TW.slow,
       stun:!!(u.E&&u.E.stun&&Math.random()<u.E.stun),name:WEAPONS[tcW(u)].n}});b.msg=u.name+' attacks '+act.t.name+'.';return true}
   if(act.k==='sk'){const S=RP_SK[act.sk],T=RP_ST[act.sk]||{};if(u.m){if(u.m.mp<S.mp)return false;u.m.mp-=S.mp}
     b.msg=u.name+' uses '+S.n+'!';
+    const dark=!!(u.m&&u.m.v6&&u.m.dark&&u.m.dark[act.sk]);if(dark){u.m.corr=(u.m.corr||0)+1;b.msg=u.name+' uses '+(T.v6&&T.v6.dark?T.v6.dark.n:S.n)+'!'}act.dark=dark;
+    if(T.v6&&v6DoSkill(b,u,act,S,T))return true;
     if(T.chan){const ch={u,sk:act.sk,cx:act.cx,cy:act.cy,area:T.area,side:u.side};u.chan=ch;b.chans.push(ch);u.ap=0;b.msg=u.name+' starts casting '+S.n+'! It lands on '+u.name+'\'s next turn.';if(!rp.headless)sfx('drop');return true}
-    if(T.area){tcQ({k:'area',a:u,sk:act.sk,cx:act.cx,cy:act.cy});return true}
-    if(T.around){b.units.filter(t=>t.side!==u.side&&tcLive(t)&&tcCheb(u,t)<=rpTW(tcW(u)).r).forEach(t=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul,name:S.n}}));return true}
+    if(T.area){tcQ({k:'area',a:u,sk:act.sk,cx:act.cx,cy:act.cy,dark:act.dark});return true}
+    if(T.around){b.units.filter(t=>t.side!==u.side&&tcLive(t)&&tcCheb(u,t)<=(T.aroundR||rpTW(tcW(u)).r)).forEach(t=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul,name:S.n,spell:T.spell,v6:T.v6,dark:act.dark}}));return true}
     if(T.self){const al=b.units.filter(t=>t.side===u.side&&tcLive(t)&&tcCheb(u,t)<=T.self);
       if(S.heal)al.forEach(t=>tcQ({k:'heal',a:u,tg:t,o:{amt:S.heal}}));
       else if(S.buff)tcQ({k:'fn',fn:()=>{al.forEach(t=>{t.buff[S.buff]=3;tcFloatU(t,S.buff==='atk'?'ATK up!':'DEF up!','#ffe27a')});if(!rp.headless)sfx('win')}});return true}
     if(S.heal){tcQ({k:'heal',a:u,tg:act.t,o:{amt:S.heal}});return true}
     if(S.revive){tcQ({k:'heal',a:u,tg:act.t,o:{revive:S.revive}});return true}
     if(T.chain){let prev=act.t;const hit=[prev];for(let i=0;i<T.chain;i++){const nx=b.units.filter(x=>x.side===prev.side&&tcLive(x)&&!hit.includes(x)&&tcCheb(x,prev)<=2).sort((x,y)=>tcCheb(x,prev)-tcCheb(y,prev))[0];if(!nx)break;hit.push(nx);prev=nx}
-      hit.forEach((t,i)=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul*(i?.7:1),spell:1,stunP:S.stunP,name:S.n}}));return true}
-    tcQ({k:'atk',a:u,tg:act.t,o:{mul:S.mul,spell:T.spell,aim:T.aim,stun:S.stun,slow:S.slow,drain:S.drain,name:S.n}});return true}
+      hit.forEach((t,i)=>tcQ({k:'atk',a:u,tg:t,o:{mul:S.mul*(i?.7:1),spell:1,stunP:S.stunP,name:S.n,v6:T.v6,dark:act.dark}}));return true}
+    tcQ({k:'atk',a:u,tg:act.t,o:{mul:S.mul,spell:T.spell,aim:T.aim,stun:S.stun,slow:S.slow,drain:S.drain,name:S.n,v6:T.v6,dark:act.dark}});return true}
   if(act.k==='it'){const t=act.t,m=t.m,k=act.it;if(u.ctl!=='remote')rp.s.bag[k]--;
     tcQ({k:'fn',fn:()=>{const st=rpStats(m);
       if(k==='bun'){const a=st.hp-m.hp;m.hp=st.hp;m.mp=st.mp;tcFloatU(t,'+'+a+' · full MP','#ffcf6a')}

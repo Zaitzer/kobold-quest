@@ -1,3 +1,4 @@
+import {v6AtkCost,v6Crit,v6DmgRange,v6FoeStat,v6Hit,v6InReach,v6Move,v6u} from './v6battle.js';
 import {TT} from './view.js';
 import {RP_ST,RP_TT,RP_TW,TC_DIR8} from '../data/battle.js';
 import {RP_ZONE} from '../data/monsters.js';
@@ -47,9 +48,9 @@ function tcLos(b,a,c){for(const [x0,y0] of tcTiles(a))for(const [x1,y1] of tcTil
 function tcNear(a,c){let best=null,bd=1e9;for(const [x,y] of tcTiles(a)){const d=Math.hypot(x-c.x,y-c.y);if(d<bd){bd=d;best=[x,y]}}return best}
 /* ---------- units ---------- */
 function tcW(u){return u.m?u.m.w:u.E.w}
-function tcStat(u){if(u.m)return rpStats(u.m);return{atk:u.atk,def:u.def,spd:u.spd,hp:u.max,mp:0,crit:.08,dodge:0,sight:u.E.sight||0,stealth:0}}
+function tcStat(u){if(u.m)return rpStats(u.m);if(u.E&&u.E.v6)return v6FoeStat(u);return{atk:u.atk,def:u.def,spd:u.spd,hp:u.max,mp:0,crit:.08,dodge:0,sight:u.E.sight||0,stealth:0}}
 function rpMoveOf(m){const st=rpStats(m);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)}
-function tcMov(u){const st=tcStat(u);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)-(u.sz>1?1:0)}
+function tcMov(u){if(v6u(u))return v6Move(u);const st=tcStat(u);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)-(u.sz>1?1:0)}
 function tcSight(b,u){return(b.theme==='cave'?5:7)+(tcStat(u).sight||0)}
 function tcGrass(b,u){return u.sz===1&&!!tcT(tcAt(b,u.x,u.y)).grass}
 function tcSees(b,a,c){
@@ -87,10 +88,11 @@ function tcCover(b,t,ax,ay){
   return{c,fl:!!any&&!c};
 }
 function tcMelee(u){return!WEAPONS[tcW(u)].ranged}
-function tcInReach(b,a,t,rng){const w=tcW(a),TW=rpTW(w);
+function tcInReach(b,a,t,rng){if(v6u(a))return v6InReach(b,a,t,rng);const w=tcW(a),TW=rpTW(w);
   if(rng==null||rng==='w'){if(tcMelee(a))return tcCheb(a,t)<=TW.r&&(TW.r<2||tcLos(b,a,t));return tcEuc(a,t)<=TW.r+(tcStat(a).rng||0)+.5&&tcLos(b,a,t)}
   return tcEuc(a,t)<=rng+.5&&tcLos(b,a,t)}
 function tcHit(b,a,t,o){
+  if(v6u(a)||v6u(t))return v6Hit(b,a,t,o);
   o=o||{};const w=tcW(a),TW=rpTW(w),melee=tcMelee(a)&&!o.spell,d=tcEuc(a,t),parts=[];
   let h=melee?90:75;
   if(!melee&&a.m&&a.m.cls==='ranger'){h+=10}
@@ -106,14 +108,15 @@ function tcHit(b,a,t,o){
   if(o.aim){h+=o.aim;parts.push('aimed +'+o.aim)}if(o.aoo){h-=10;parts.push('free hit −10')}if(o.watch){h-=15;parts.push('watch −15')}
   return{h:clamp(Math.round(h),5,95),parts,fl:cv.fl,cv:cv.c};
 }
-function tcDmg(b,a,t,mul,o){o=o||{};const as=tcStat(a),ts=tcStat(t);let d=as.atk*mul;
+function tcDmg(b,a,t,mul,o){if(v6u(a)||v6u(t))return v6DmgRange(b,a,t,mul,o);o=o||{};const as=tcStat(a),ts=tcStat(t);let d=as.atk*mul;
   if(a.buff.atk>0)d*=1.25;if(as.rage&&a.m&&a.m.hp<as.hp*.5)d*=1+as.rage;
   if(rpTW(tcW(a)).close&&!o.spell&&tcEuc(a,t)<=2.5)d*=1.2;if(o.spell&&as.spellp)d*=1+as.spellp;
   d-=ts.def*.5;if(t.buff.def>0)d*=.7;if(t.guard)d*=.75;d=Math.max(1,d);
   return[Math.max(1,Math.round(d*.85)),Math.max(1,Math.round(d*1.15))]}
-function tcCrit(b,a,t,fl){return tcStat(a).crit+(fl?.15:0)+(t.side===1&&!t.aware?.1:0)}
+function tcCrit(b,a,t,fl){if(v6u(a)||v6u(t))return v6Crit(b,a,t,fl,false);return tcStat(a).crit+(fl?.15:0)+(t.side===1&&!t.aware?.1:0)}
 /* ---------- action costs ---------- */
 function tcActCost(u,act){
+  if(act.k==='atk'&&v6u(u))return v6AtkCost(u);
   if(act.k==='atk'){const TW=rpTW(tcW(u));return TW.h?2:(TW.q||tcStat(u).quick)?1:'end'}
   if(act.k==='sk')return(RP_ST[act.sk]||{ap:'end'}).ap;
   if(act.k==='it'||act.k==='leave')return 1;
