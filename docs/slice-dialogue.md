@@ -35,12 +35,14 @@ mine, and the slice's campfire chats. Written from `story-hatching.md` (v6), pla
 **Pip:** It's a very good stick.
 **Mallow:** It's a stick, dear.
 
-### 1.2 The cellar (the bakery cellar) · `act 1` · tutorial fight: rats
+### 1.2 The cellar (the bakery cellar) · `act 1` · set-piece fights 1 and 2: rats (Pip alone, no class yet: his stick)
 
 *Pip goes down the hatch. Three rats are in the flour sacks. Moving and attacking are taught here.*
 
 **Pip:** Out. This flour is for buns, and the buns are for me.
-*After the fight Pip notices the old door in the cellar wall, boarded over.*
+*A bigger rat noses out from behind the boarded door in the wall, with two friends. The hit chance on each foe is taught here.*
+**Pip:** You're the boss rat, aren't you. You've got a boss face.
+*After the second fight Pip looks at the old door, boarded over.*
 **Mallow:** *(from the hatch)* That's the flour tunnel. The carts used to come in under my bakery, before the roads.
 **Pip:** Why doesn't anyone use it?
 **Mallow:** It's full of rats.
@@ -69,7 +71,7 @@ mine, and the slice's campfire chats. Written from `story-hatching.md` (v6), pla
 **Bib:** I'd help, but I'm sitting. You can't help AND sit. I've tried.
 **Bib:** The fountain's nice today. It was nice yesterday too.
 
-### 1.4 The castle yard (the drill) · `act 2` · tutorial fight: the recruits; **the class is picked here**
+### 1.4 The castle yard (the drill) · `act 2` · set-piece fights 3 and 4: the recruits, then the sergeant; **the class is picked here**
 
 *The castle gate. Two guards, yawning.*
 
@@ -78,8 +80,13 @@ mine, and the slice's campfire chats. Written from `story-hatching.md` (v6), pla
 *In the yard, a sergeant is shouting at recruits. Snatchclaw watches from the wall.*
 **Sergeant:** YOU. Small one. Pick up something and show me what you are.
 *The class picker opens: fighter, barbarian, paladin, ranger, rogue, monk, cleric, druid, bard, wizard, sorcerer, warlock
-(wave 1 offers the six that are built). Then a short drill against two recruits teaches skills and mana.*
-**Sergeant:** Not bad. For a kobold who eats that many buns.
+(wave 1 offers its eight: fighter, ranger, wizard, cleric, monk, sorcerer, bard, rogue). Then a short drill against two recruits
+teaches skills and mana.*
+**Sergeant:** Not bad. For a kobold who eats that many buns. Now try ME.
+*The second bout: the sergeant and one recruit. It teaches the telegraphed big swing ("he's winding up, step away").*
+**Sergeant:** *(winding up)* AND... SWING.
+*After the bout:*
+**Sergeant:** Hm. You moved. Most of them just stand there and take it.
 **Snatchclaw:** *(from the wall)* Up early, bun boy? Good. Somebody should be.
 **Pip:** Who's that?
 **Guard:** The captain. Twenty winters on that wall. Never seen him sleep.
@@ -201,7 +208,17 @@ gold crumbs with a ribbon on it.*
 **Pip:** We're going for flour. Nothing more.
 **Bork:** Bork likes flour. *(nods off; Wizzle pokes him; he joins)*
 
-*Bork joins. Sets `act 7`: the gate opens onto R1.*
+*Bork joins. Outside the gate, three Nettlenose scouts are pulling at a flour cart that isn't there any more.*
+
+### 1.12 Outside the gate · `act 6`, after Bork joins · set-piece fight 5: Nettlenose scouts (the first fight with a pack of four; R1's newest foe)
+
+**Nettlenose scout:** Oi! Toll! Snatchclaw's orders! ...Have you got flour?
+**Pip:** We're GOING for flour.
+**Nettlenose scout:** Then we'll toll you on the way back!
+*After the fight they scamper off down R1.*
+**Glint:** They had shiny buttons. Did anyone else see the buttons?
+
+*Sets `act 7`: R1 is open.*
 
 ## 2. R1 (the capital gate → Pebblebrook)
 
@@ -545,15 +562,15 @@ and once, when he holds up the tube at the mill (§3.12), Wizzle looks at his po
 
 | part | lines |
 |---|---|
-| 1. Act 1: Hearthspire | 98 |
+| 1. Act 1: Hearthspire | 105 |
 | 2. R1 (the capital gate → Pebblebrook) | 13 |
 | 3. Pebblebrook | 120 |
 | 6. The slice's campfire chats | 42 |
-| **all** | **273** |
+| **all** | **280** |
 
 | stretch | lines | the kit's budget |
 |---|---|---|
-| hearthspire | 115 | none (act 1 is the story itself) |
+| hearthspire | 122 | none (act 1 is the story itself) |
 | pebblebrook | 158 | 150–250 (in) |
 
 Every line fits one box (90 characters).

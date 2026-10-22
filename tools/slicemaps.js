@@ -83,14 +83,16 @@ const mark=(M,x,y,label)=>M.marks.push([x,y,label]);
  const ok=(x,y)=>{const i=road.findIndex(p=>p[0]===x&&p[1]===y);return true};
  for(const [x,y,w,h] of [[14,8,6,3],[24,9,5,4],[40,9,5,5],[48,10,6,3],[58,16,5,4],[68,10,8,3],[76,5,6,3],[84,11,5,3]])m.rect(x,y,w,h,'"');
  m.line(road,',');m.set(55,16,'=');
+ // the road crosses tall grass for 40% of its middle (balance.md §5: encounters only on tall grass, at the route's chance ÷ 0.4)
+ for(const [a,b] of [[14,21],[30,37],[50,56],[71,77],[86,91],[98,101]])for(let i=a;i<=b;i++){const [x,y]=road[i];if(m.get(x,y)===',')m.set(x,y,'"')}
  // trees, rocks, the lookout hill, the raptor stable (mill road), the mill road sign
  for(const [x,y] of [[10,5],[11,4],[12,18],[27,4],[38,3],[43,20],[52,4],[60,21],[70,18],[80,16],[90,4],[92,15],[18,20],[8,16]])m.set(x,y,'T');
  m.rect(86,3,6,4,'B');m.set(88,6,'D');            // the raptor stable (shut until the first piece)
  m.set(13,11,'o');m.set(66,8,'o');m.set(95,8,'o');
  m.rect(72,19,3,2,'r');m.set(73,18,'c');           // the lookout's rocks and a chest
  for(const [x,y,l] of [[0,12,'the capital gate'],[99,9,'→ Pebblebrook (the mill road)'],[33,20,'chest behind the pond'],[73,18,'chest on the lookout'],[88,6,'raptor stable (shut until the first piece)'],[55,16,'the brook bridge'],[13,11,'sign: "PEBBLEBROOK 120 steps. Beetles."'],[66,8,'Grubb\'s toll sign'],[60,18,'the runaway goat\'s meadow']])mark(M,x,y,l);
- M.route={road,ends:10};
- M.notes='Grubb\'s toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters 3% a step on tall grass; none within 10 steps of either end.';
+ M.route={road,ends:10,grassShare:.40};
+ M.notes='Grubb\'s toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.';
  MAPS.r1=M}
 
 /* ================================================================== Pebblebrook (32 × 24) */
@@ -196,6 +198,8 @@ for(const [k,M] of Object.entries(MAPS)){const D=bfs(M.grid,...M.entry);
   if(M.stairs){const [a,b]=M.stairs;const Da=bfs(M.grid,...a);let d=Da.get(b[0]+','+b[1]);if(d===undefined)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const v=Da.get((b[0]+dx)+','+(b[1]+dy));if(v!==undefined)d=v+1}
     report.push(`${k}: stairs to stairs ${d} steps (plan: about 45)`);if(d===undefined||d<30||d>60)problems.push(`${k}: stairs to stairs is ${d} steps`)}
   if(M.route){const L=M.route.road.length-1;report.push(`${k}: the road is ${L} steps (plan: 120)`);if(L!==120)problems.push(`${k}: road is ${L} steps, not 120`);
+    const mid=M.route.road.slice(11,L-10),onGrass=mid.filter(([x,y])=>M.grid.get(x,y)==='"').length;report.push(`${k}: the road crosses tall grass for ${onGrass} of its ${mid.length} middle steps (plan: ${Math.round(M.route.grassShare*mid.length)})`);
+    if(Math.abs(onGrass-M.route.grassShare*mid.length)>3)problems.push(`${k}: ${onGrass} grass steps on the road`);
     const near=M.route.road.filter((p,i)=>i<=10||i>=L-10);for(const [x,y] of near)for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]])if(M.grid.get(x+dx,y+dy)==='"')problems.push(`${k}: tall grass within 10 steps of an end at ${x+dx},${y+dy}`)}}
 for(const [k,R] of Object.entries(ROOMS)){const w=R.rows[0].length;R.rows.forEach((r,i)=>{if(r.length!==w)problems.push(`room ${k}: row ${i} is ${r.length} wide, not ${w}`)});
   if(!R.rows.some(r=>r.includes('e')))problems.push(`room ${k}: no way out`)}

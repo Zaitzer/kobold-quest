@@ -6,7 +6,7 @@ slice to load; the `.png` files are previews (one square a tile; a dark dot is a
 mark can be reached; R1 is exactly 120 steps with no encounter grass within 10 steps of either end; each mine floor is about 45
 steps stair to stair.*
 
-**Checks:** all pass. r1: the road is 120 steps (plan: 120); mine1: stairs to stairs 51 steps (plan: about 45); mine2: stairs to stairs 51 steps (plan: about 45); mine3: stairs to stairs 42 steps (plan: about 45).
+**Checks:** all pass. r1: the road is 120 steps (plan: 120); r1: the road crosses tall grass for 40 of its 99 middle steps (plan: 40); mine1: stairs to stairs 51 steps (plan: about 45); mine2: stairs to stairs 51 steps (plan: about 45); mine3: stairs to stairs 42 steps (plan: about 45).
 
 ## Hearthspire (the capital)
 
@@ -43,7 +43,7 @@ No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits)
 
 `T` tree (solid) · `.` grass · `~` water (solid) · `B` building (solid) · `"` tall grass (encounters) · `D` door · `,` path · `o` board or sign (solid) · `=` bridge · `c` chest (solid) · `r` rock (solid)
 
-Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters 3% a step on tall grass; none within 10 steps of either end.
+Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.
 
 | x, y | what |
 |---|---|

@@ -721,7 +721,8 @@ status spells alike:
   points more often (never over 40%). Every town's foes have one weakness and one resistance (Emberreach: weak to frost,
   resistant to fire; Frostwick the reverse), so bringing the right caster is a real choice.
 - **Bosses resist damage spells no more than other foes** (only their statuses are harder to land), so the boss tables
-  stand. The resistance is shown as "likely / unlikely" on the skill, like a hit chance.
+  stand. A damage spell shows the chance it lands as a number, "78%, else half", like any hit (22 Oct: one formula, one way of showing
+  it); only *pure status* skills keep "likely / maybe / unlikely", because a boss's status resistance is the one hidden number.
 - *Not simulated: arithmetic only. The model's spells still never miss, about an 11% difference in caster damage at the
   average distance; rerun the class and boss checks when the rule reaches the engine (casters may need slightly more
   power, or shorter average distances on the boards).*
@@ -901,15 +902,19 @@ no misses at all and about 9% have five or more.
 
 ## 5. Encounters, routes and the distance walked
 
-**How encounters work:** each step on a route tile rolls for a fight. The number is the *chance per step*.
+**How encounters work (22 Oct, matched to the maps):** on routes, **only tall grass rolls** (the desert's dunes and the snowfield's
+drifts are their kinds of tall grass), so the player can always see where a fight can start and choose to walk round it. **Every
+route's road crosses tall grass for 40% of its middle** (`tools/slicemaps.js` checks it), and a grass step rolls at the route's
+chance ÷ 0.4, so the averages below still hold for a player who keeps to the road. Off-road grass rolls the same, so a player who wants
+more fights wades in. Dungeon floors roll on every step (caves have no grass).
 
-| ground | chance per step | one fight about every |
-|---|---|---|
-| town | 0 | never |
-| grass route | 3.0% | 33 steps |
-| desert, pass, snow | 3.5% | 29 steps |
-| the march (R6, backwards) | 2.0% | 50 steps |
-| dungeon floor | 6.0% | 17 steps |
+| ground | chance per road step (average) | per tall-grass step | one fight about every |
+|---|---|---|---|
+| town | 0 | 0 | never |
+| grass route | 3.0% | 7.5% | 33 steps |
+| desert, pass, snow | 3.5% | 8.75% | 29 steps |
+| the march (R6, backwards) | 2.0% | 5.0% | 50 steps |
+| dungeon floor | 6.0% (every step) | | 17 steps |
 
 The engine's current rate (6% a step on every route) is far too high for 160-step routes and is replaced by the table above.
 
@@ -957,7 +962,7 @@ Hearthspire has no area; its fights are scripted set-pieces. **They are the one 
 ### The fight budget (the main path)
 
 This is the check that the levels, the XP and the places add up. *Needed* = the fights the pack must win to reach the
-stretch's end level, after bosses and challenges are counted. **XP is paid per basic hit of foe HP defeated (P4, D, 22 Oct)**, one rule for every foe,
+stretch's end level, after bosses and challenges are counted. **XP is paid per basic hit of foe HP defeated, counted before the bond factor g(L) (P4, D, 22 Oct)**, one rule for every foe,
 so a boss is worth its HP: 2.2 to 4.1 fights' XP (Snipe 2.2 … Glitterbeak 4.1; 32 in all, against the old flat 4 each = 44).
 Challenges stay at 3 fights' XP (J). The share of XP from random fights becomes **0.75** (was 0.8), and the XP per foe formula
 uses it. *Planned* = what the
@@ -966,7 +971,7 @@ runs from more falls behind, someone who does the optional content is ahead.
 
 | stretch | levels | fights to level | from bosses and challenges | fights needed | fights planned | planned ÷ needed | planned fights come from |
 |---|---|---|---|---|---|---|---|
-| 1 Hearthspire act 1 | 1→3 | 5 | 0 | 5 | 5.9 | 1.18 | 5 set-pieces (cellar, yard drill, gate) and R1 start (0.9) |
+| 1 Hearthspire act 1 | 1→3 | 5 | 0 | 5 | 5.9 | 1.18 | 5 set-pieces (the cellar ×2, the yard drill ×2, outside the gate; `slice-dialogue.md` §1) and R1 start (0.9) |
 | 2 R1 + Pebblebrook | 3→8 | 25 | 7.7 (Grubb, Snipe, 1 challenge) | 17.3 | 19.3 | 1.12 | R1 ×2 passes 6.0, mill road 2.4, the mine 6.9, 1 lookout, **+2 patrols** |
 | 3 R2 + Sunhaven | 8→13 | 30 | 5.6 (1 boss, 1 challenge) | 24.4 | 26.7 | 1.09 | R2 ×2 9.8, the cellars 8.3, the oasis 2.1, 6 patrols |
 | 4 R3 + Emberreach | 13→18 | 35 | 8.6 (2 bosses, 1 challenge) | 26.4 | 28.4 | 1.08 | R3 ×2 10.5, the crater 8.3, the fields 2.1, 7 patrols |
@@ -1081,7 +1086,8 @@ quest reward.
 
 **Talents:** one pick per level from level 2 (29 picks). Each offer shows three options, and about two in three offers
 include a skill. By level 30 a character has about **8 skills** (class, weapon, talent and subclass skills) and about
-20 stat picks. The battle menu shows five skills at once; more go behind a "more" button.
+20 stat picks. **Four skills are equipped** (`skills.md`): the battle menu shows them beside Attack, and the kit is changed at a fountain, an inn or a
+campfire, so choosing the four is part of the build (the monk's Adapt is the exception, mid-fight).
 **Gear tiers** arrive at levels 1, 5, 10, 16, 22 and 28. **Subclass** at level 8.
 
 ### The cadence of rewards (the 10-minute rule)

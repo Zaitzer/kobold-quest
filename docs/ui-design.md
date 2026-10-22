@@ -32,7 +32,7 @@ OVERWORLD                                        BATTLE
 |              the world                   |     |                                          |
 |                                          |     |        the board (10×13)                 |
 |                                          |     |                                          |
-| (friends' names, chat bubble)            |     | [Pip 60%♥ 20✦] [Wizzle..] [Bork..]       |
+| (friends' names, chat bubble)            |     | [Pip 60%♥ 20✦] [Wizzle][Glint][Bork]     |
 |  [pack ▣]                  [💬] [talk/E] |     |  [Move] [Attack] [Skills ▾] [Item] [End] |
 +------------------------------------------+     +------------------------------------------+
   left thumb: pack, chat       right thumb: talk / primary
@@ -42,7 +42,7 @@ OVERWORLD                                        BATTLE
   matter, so they are always visible).
 - **Left thumb zone:** pack (hero sheets), chat. **Right thumb zone:** the primary action (talk, open, enter, and in
   battle the action buttons).
-- **Battle bottom bar:** one row. The three pack members' health and mana on the left, the actions on the right.
+- **Battle bottom bar:** one row. The four pack members' health and mana on the left, the actions on the right.
 - **Desktop:** the same screen with keys: WASD (move), E (talk), I (pack), M (map), Esc (menu), 1–9 (battle actions).
 
 ## 3. Taps per action (the budget)
@@ -193,7 +193,8 @@ shape badge as well as a colour. The game works in a colourblind palette.
 2. **A kobold's turn.** The active kobold is lit; its reach shows in blue. It has **two action points**: a move and an
    action, or two moves. Tap the destination (a move) and then the foe or a skill. The action bar shows only what is possible
    (a greyed skill says why: "needs 5 mana", "no line of sight").
-3. **Targeting.** One tap on a foe in reach attacks; the hit chance sits on the foe. Skills with an area show the area
+3. **Targeting.** One tap on a foe in reach attacks; the hit chance sits on the foe (for a damage spell, the chance it lands, with
+   "else half" beside it: the one formula, shown as a number like any hit). Skills with an area show the area
    (a circle or a line) and **the second tap confirms**, so an area skill never fires by accident.
 4. **Tile targets (new).** Traps, plant cover and a few others need a tile: tap the skill, tap the tile (the legal tiles glow),
    done. The same two-tap pattern as an area skill.
@@ -209,7 +210,7 @@ shape badge as well as a colour. The game works in a colourblind palette.
 | new thing | what it needs on screen |
 |---|---|
 | **Eight classes at the start** | the class pick screen (above) |
-| **More skills** | the battle menu shows five skills at a time; "more" opens the rest |
+| **Skill kit** | four skills equipped, shown beside Attack (`skills.md`); the kit is changed at a fountain, an inn or a campfire, not in a fight (the monk's Adapt swaps one mid-fight) |
 | **Tile-targeting** | the glowing legal tiles and the two-tap pattern |
 | **Smiler pieces** | the diagram on the pause menu; a short ceremony animation when a piece is won |
 | **Seven companions** | a campfire chat screen at inns (portraits side by side); the roster screen with pins ("away: caught in the draft camp") |
