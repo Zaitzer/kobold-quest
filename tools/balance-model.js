@@ -16,7 +16,10 @@ const P={
   foeDefSlope:.95,                                 // J  foe defence 1 + slope*(L-1)
   foeHpMult:4,                                     // J  standard foe HP = foeHpMult * (fighter basic hit)
   foeHitShare:l=>l<=5?.16:l<=20?.14:.12,           // J  share of fighter HP one foe hit takes
-  foesPerFight:l=>l<=5?2.5:l<=12?3:3.2,            // J
+  packSize:4,                                      // J  a pack of four (decided 22 Oct); all fights tuned for four kobolds
+  foesPerFight:l=>(l<=5?2.5:l<=12?3:3.2)*4/3,      // D  the pack-of-three figures x 4/3: foes scale with the pack
+  dmgC:.39,                                        // D  fitted so the level table's basic hit holds under the HoMM3 factor
+  spellResist:.10,                                 // J  base chance a spell is resisted (half damage); no distance in this model
   hit:{melee:.90, ranged:.66, spell:1.0},          // J  ranged includes average cover and range (balance.md 4a)
   foeHit:.80,                                      // J  foes' average chance to hit a pack member
   crit:.08, critMul:1.5,                           // B/J
@@ -26,7 +29,7 @@ const P={
   mercy:.15,                                       // J  after two misses
   etaUtility:1.0,                                  // J  1 point of utility share = 1 point of power
   bossTiles:4, bossOverlap:3,                      // J  a boss covers 2x2 tiles; an area attack overlaps on average 3 of the 4, and every overlapped tile is one hit
-  bossT:[4.3,.04], bossK:[3.5,.03],                // D/J boss rules (balance.md s4): damage budget in fighter-HPs and HP multiple per round
+  bossT:[5.73,.053], bossK:[4.67,.04],                            // D/J boss rules (balance.md s4): damage budget in fighter-HPs and HP multiple per round
   phaseBreak:0,                                    // J  rounds a boss loses when first brought to half HP (0 = off)
   buffGuard:.25,                                    // J  Rousing song also cuts damage taken by this share
   buffFree:false,                                  // J  true: singing costs mana but not the action
@@ -47,8 +50,12 @@ const foeDef=l=>1+P.foeDefSlope*(l-1);
 /* the reference fighter (every other class is a multiple of this) */
 function ref(l){const t=P.tiers[tierAt(l)];
   return{atk:bAtk(l)+P.gear.atk*bAtk(t)+P.talents.atk*(l-1), def:bDef(l)+P.gear.def*bDef(t)+P.talents.def*(l-1), hp:bHp(l)+P.gear.hp*bHp(t)+P.talents.hp*(l-1)}}
-function foe(l){const r=ref(l),D=r.atk-foeDef(l)/2;                     // D = the fighter's basic hit on an on-level foe
-  return{D,hp:P.foeHpMult*D,def:foeDef(l),atk:P.foeHitShare(l)*r.hp+r.def/2}}
+/* HoMM3 attack-versus-defence factor (balance.md 4a, decided 22 Oct) */
+function HF(A,D){const d=40*(A-D)/Math.max(1e-9,A+D);return d>=0?1+0.05*d:Math.max(0.3,1+0.025*d)}
+function hitDmg(A,M,D){return Math.max(1,P.dmgC*A*M*HF(A,D))}
+function atkFor(target,D){let lo=0,hi=1e6;for(let i=0;i<100;i++){const m=(lo+hi)/2;hitDmg(m,1,D)<target?lo=m:hi=m}return hi}   // the attack that lands `target` on defence D
+function foe(l){const r=ref(l),D=hitDmg(r.atk,1,foeDef(l));                // D = the fighter's basic hit on an on-level foe
+  return{D,hp:P.foeHpMult*D,def:foeDef(l),atk:atkFor(P.foeHitShare(l)*r.hp,r.def)}}
 
 /* ---------------------------------------------------------------- classes: derived, not guessed
    Each class has a power budget split into damage d, durability h, utility u (d+h+u=1).
@@ -77,7 +84,7 @@ const NAMES=Object.keys(SPLIT);
 function dprOf(cls,L,atkMult,M,R,single){const k=KIT[cls],r=ref(L),f=foe(L),atk=r.atk*atkMult,n=P.foesPerFight(L);
   const hitBase=k.style==='melee'?P.hit.melee:k.style==='ranged'?P.hit.ranged:P.hit.spell;
   const cf=1+P.crit*(P.critMul-1);
-  const one=(mul,spell,hitAdj,tg)=>{const h=spell?1:clamp(hitBase+(k.hitMod||0)+(hitAdj||0),.15,.95);return h*cf*Math.max(1,atk*mul-f.def/2)*(single?((tg||1)>1?P.bossOverlap:1):Math.min(tg||1,n))};
+  const one=(mul,spell,hitAdj,tg)=>{const h=spell?1:clamp(hitBase+(k.hitMod||0)+(hitAdj||0),.15,.95);return h*(k.style==='spell'||spell?(1-P.spellResist/2):1)*cf*hitDmg(atk,mul,f.def)*(single?((tg||1)>1?P.bossOverlap:1):Math.min(tg||1,n))};
   const basicMul=k.weak?.6:1;                                              // healers/bards' weapon attacks are weak (items.md: holy, instruments x0.6)
   const basic=one(basicMul,k.style==='spell'&&!k.weak?1:0,k.weak?-.10:0,1);
   if(!k.atk)return basic;                                                  // pure support: attacks with the weapon
@@ -117,7 +124,7 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
   pack.forEach(u=>u.front=false);const fr=pack.reduce((a,b)=>b.def*b.max>a.def*a.max?b:a);fr.front=true;
   const roll=(p)=>rand()<p;
   const hurt=(t,d)=>{if(t.hp<=0)return;if(t.side===0&&buff>0)d*=(1-P.buffGuard);t.hp-=d;if(t.hp<=0){t.hp=0;if(t.side===0)falls++}};
-  const dmg=(atk,mul,def)=>Math.max(1,atk*mul-def/2)*(1+P.dmgSpread*(2*rand()-1));
+  const dmg=(atk,mul,def)=>hitDmg(atk,mul,def)*(1+P.dmgSpread*(2*rand()-1));
   let bigPhase=0;const stats=opt.stats||{oneshot:0,minhp:1};
   const pickT=()=>{const live=pack.filter(x=>x.hp>0),w=live.map(x=>x.front?P.frontWeight:1),tw=w.reduce((a,b)=>a+b,0);let rr=rand()*tw;for(let i=0;i<live.length;i++){rr-=w[i];if(rr<=0)return live[i]}return live[0]};
   while(pack.some(u=>u.hp>0)&&foes.some(u=>u.hp>0)&&rounds<80){
@@ -159,8 +166,9 @@ function fight(pack,foes,rand,policy,opt){opt=opt||{};const careless=policy==='c
       if(useSkill&&skill.area&&!careless){targets.length=Math.min(targets.length,lf.length)}
       const rolls=useSkill&&skill.rolls?skill.rolls:1;
       for(const tg of targets){const reps=(useSkill&&skill.area&&tg.tiles>1)?tg.overlap:1;for(let rp=0;rp<reps;rp++)for(let i=0;i<rolls;i++){
-        let p=spell?1:clamp(base+hitMod,.15,.95);if(!spell&&u.misses>=2&&!careless){p=clamp(p+P.mercy,.15,.95)}
-        if(roll(p)){u.misses=0;let m=useSkill&&skill.rolls?mul/skill.rolls:mul;let d=dmg(u.atk*(buff>0?P.buffMul:1),m*(tg.hex>0?1.25:1),tg.def);if(roll(P.crit))d*=P.critMul;const dd=Math.min(d,tg.hp);dealt+=dd;hurt(tg,d)}else if(!spell)u.misses++}}
+        const light=(u.cls==='monk'||u.cls==='rogue'),map=i===0?0:(light?(i===1?.04:.08):(i===1?.05:.10));   // multiple-attack penalty (Pathfinder)
+        let p=spell?1:clamp(base+hitMod-map,0,1);if(!spell&&u.misses>=2&&!careless){p=clamp(p+P.mercy,0,1)}
+        if(roll(p)){u.misses=0;let m=useSkill&&skill.rolls?mul/skill.rolls:mul;let d=dmg(u.atk*(buff>0?P.buffMul:1),m*(tg.hex>0?1.25:1),tg.def);if(spell&&roll(P.spellResist))d*=0.5;/* resisted: half */if(roll(P.crit))d*=P.critMul;const dd=Math.min(d,tg.hp);dealt+=dd;hurt(tg,d)}else if(!spell)u.misses++}}
     }
   }
   const endhp=pack.reduce((a,u)=>a+u.hp,0)/pack.reduce((a,u)=>a+u.max,0);
@@ -174,7 +182,7 @@ function runFights(names,Lp,Lf,N,policy,seed,opt){const rand=rng(seed||1),res={w
     res.win+=r.win;res.rounds+=r.rounds;res.lost+=r.lost;res.falls+=r.falls;res.dealt+=r.dealt;res.clean+=(r.win&&r.falls===0)}
   Object.keys(res).forEach(k=>res[k]/=N);return res}
 const f2=x=>x.toFixed(2),pc=x=>(x*100).toFixed(0)+'%';
-module.exports={P,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
+module.exports={P,HF,hitDmg,atkFor,need,ref,foe,classes,KIT,SPLIT,NAMES,makePack,makeFoes,fight,runFights,rng,tierAt,manaPool,dprOf,bAtk,bDef,bHp,foeDef};
 
 if(require.main===module){
   const what=process.argv[2]||'all';
@@ -191,14 +199,14 @@ if(require.main===module){
 
 /* ---------------------------------------------------------------- bosses: HP multiple k vs rounds and win rate */
 function bossFight(names,L,k,rand,delta,opt){opt=opt||{};const f=foe(L),r=ref(L),D=f.D;
-  const b={cls:'boss',side:1,boss:true,hp:k*D*(opt.players||1),max:k*D*(opt.players||1),def:f.def,noBig:!!opt.noBig,acts:opt.acts||1,tiles:P.bossTiles,overlap:P.bossOverlap,atk:(opt.hit||.20)*r.hp+r.def/2,spd:5+.5*(L-1),weak:0,hex:0};
+  const b={cls:'boss',side:1,boss:true,hp:k*D*(opt.players||1),max:k*D*(opt.players||1),def:f.def,noBig:!!opt.noBig,acts:opt.acts||P.packSize,tiles:P.bossTiles,overlap:P.bossOverlap,atk:atkFor((opt.hit||.20)*r.hp,r.def),spd:5+.5*(L-1),weak:0,hex:0};
   const Lp=L+delta;const pack=makePack(names,Lp);
   return fight(pack,[b],rand,opt.policy||'competent',{potions:P.potionsPerFight})}
 function bossRun(names,L,k,delta,N,opt){const rand=rng(11),s={win:0,rounds:0,falls:0,oneshot:0,close:0};
   for(let i=0;i<N;i++){const r=bossFight(names,L,k,rand,delta||0,opt);s.win+=r.win;s.rounds+=r.rounds;s.falls+=r.falls;s.oneshot+=r.oneshot;s.close+=(r.win&&r.endhp<.4)}
   Object.keys(s).forEach(x=>s[x]/=N);return s}
 module.exports.bossRun=bossRun;
-module.exports.bossRule=(L,R)=>({k:Math.round(R*(P.bossK[0]+P.bossK[1]*L)),hit:(P.bossT[0]+P.bossT[1]*L)/(3*R)});
+module.exports.bossRule=(L,R)=>({k:Math.round(R*(P.bossK[0]+P.bossK[1]*L)),hit:(P.bossT[0]+P.bossT[1]*L)/(P.packSize*R)});   // one boss attack per kobold slot
 module.exports.resetClasses=()=>{CLS=null};
 if(require.main===module&&(process.argv[2]==='bosses'||process.argv[2]==='all')){
   const pk=['fighter','cleric','wizard'];

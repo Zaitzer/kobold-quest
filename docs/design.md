@@ -199,11 +199,11 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Mana (the monk's is **ki**) | ℝ, [0, +∞] | pays for skills | §3 |
 | | Attack | ℝ, [0, +∞] | weapon damage | §3 |
 | | Defence | ℝ, [0, +∞] | reduces weapon damage | §3 |
-| | Special attack | ℝ, [0, +∞] | spell damage and healing | *open: the spell damage rule still uses attack* |
-| | Special defence | ℝ, [0, +∞] | reduces spell damage | *open* |
-| | Speed | ℝ, [0, +∞] | movement and part of turn order | §3 |
+| | Special attack | ℝ, [0, +∞] | spell damage and healing | §3, the new stats |
+| | Special defence | ℝ, [0, +∞] | reduces spell damage | §3, the new stats |
+| | Speed | ℝ, [0, +∞] | movement (turn order is initiative) | §3 |
 | | Action points (AP) | ℕ, [0, +∞] | actions per turn | §3 (skill AP costs) |
-| | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP | *open (formula proposed in chat)* |
+| | Morale | ℤ, (−∞, +∞) | positive: a chance of +1 AP; negative: a chance of −1 AP | §3, the new stats |
 | | Corruption | ℝ, [0, +∞] | grows with dark magic and dark deeds, never falls by itself; **combat only**, no story effect (decided 22 Oct) | §3 (thresholds) |
 | scores | STR, DEX, CON, INT, WIS, CHA | ℤ, [1, +∞] | each governs a fixed set of stats | §3, ability scores and the score-to-stat mapping |
 | | Balance † | ℝ, [0, 1] | how even the six scores are; all monk abilities scale on it | §3, the monk |
@@ -212,21 +212,21 @@ a probability, a count). How each one feeds the fight is in `balance.md`; what i
 | | Resistance | ℝ, [0, +∞] | lowers the chance spells and statuses land | §3, §4a |
 | | Crit chance | ℝ, [0, 1] | a probability | §4a, crits |
 | | Crit damage | ℝ, [1, +∞] | the crit multiplier; no upper limit | §4a, crit builds |
-| | Armour piercing | ℝ, [0, 1] | the share of the target's defence a hit ignores | *open* |
+| | Armour piercing | ℝ, [0, 1] | the share of the target's defence a hit ignores | §3, §4a |
 | weapon | Damage multiplier | ℝ, [0, +∞] | the weapon family's power | `items.md` |
 | | Steadiness | ℝ, [0, +∞], points per tile | how fast hit chance falls with distance | §4a |
 | | Reach | ℕ, [0, +∞], tiles | how far a melee attack reaches | §3 |
-| tempo | Initiative | ℝ, (−∞, +∞) | turn order, apart from speed | *open* |
-| | Threat | ℝ, [0, +∞] | how likely foes are to attack this kobold | *open* |
+| tempo | Initiative | ℝ, (−∞, +∞) | turn order | §3, the new stats |
+| | Threat | ℝ, [0, +∞] | how likely foes are to attack this kobold | §3, the new stats |
 | | HP regen | ℝ, [0, +∞], a share of max HP per turn | healing over time | `items.md` |
-| world | Luck | ℤ, (−∞, +∞) | streaks of fortune for the pack | *open (may replace the mercy rule)* |
+| world | Luck | ℤ, (−∞, +∞) | multiplies the odds of the kobold's own hits | §3, the new stats |
 | | Fame | ℝ, [0, +∞] | greetings and shop prices; never combat | §3 |
 | progress | Level | ℕ, [1, +∞] | | §3 |
 | | XP | ℕ, [0, +∞] | | §3 |
-| leader \* | Might \* | ℝ, [0, +∞] | the whole pack's attack and defence | *open (rule); name decided 22 Oct* |
-| | Wits \* | ℝ, [0, +∞] | the whole pack's special attack and special defence | *open (rule); name decided 22 Oct* |
-| | Leadership \* | ℝ, [0, +∞] | raises the pack's morale | *open* |
-| | Pack morale \* | ℤ, (−∞, +∞) | the companions' morale plus Leadership | *open* |
+| leader \* | Might \* | ℝ, [0, +∞] | the whole pack's attack and defence | §3, the new stats |
+| | Wits \* | ℝ, [0, +∞] | the whole pack's special attack and special defence | §3, the new stats |
+| | Leadership \* | ℝ, [0, +∞] | raises the pack's morale | §3, the new stats |
+| | Pack morale \* | ℝ, (−∞, +∞) | the kobolds' mean morale plus Leadership ÷ 5 | §3, the new stats |
 | status | turns left on each condition | ℕ, [0, +∞] | | §4a, statuses |
 
 On screen, **everything is on the sheet** (decided 22 Oct): every stat, grouped, with its total, and no press-and-hold

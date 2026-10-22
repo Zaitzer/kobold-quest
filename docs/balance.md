@@ -172,7 +172,8 @@ class's identity (like a hit die); the scores add to it.
 This table is the summary of the score-to-stat mapping below; if they ever disagree, the mapping wins. What each stat *is* is
 in `design.md` §8 (the character sheet).
 
-- **One point of modifier = 5 power points (J)**, split inside its score (CON: +5% HP; STR: +5% attack; DEX: +2.5 dodge points and +2.5 accuracy; INT/WIS/CHA: +5% of the casting or status effect they govern). It uses the same price as gear (`items.md`), so a ring that gives +1 to a score costs 5 pp.
+- **One point of modifier = 5 power points (J)**, split inside its score (CON: +5% HP; STR: +5% attack; DEX: +2.5 dodge points and +2.5 accuracy; INT/WIS/CHA: +5% of the casting or status effect they govern). It uses the same price as gear (`items.md`). Since +2 to a score is +1 to its modifier, **+1 to a score costs 2.5 pp** and
+  +2 costs 5 pp (corrected 22 Oct).
 - **Modifier = (score − 10) ÷ 2, rounded down.** A score of 10 is average and adds nothing.
 - **Every class starts with the same six numbers, 15, 14, 13, 12, 10 and 8** (the D&D standard array), handed out in the class's own priority order, so every class has the same total (modifiers +2, +2, +1, +1, 0, −1: 5 modifier points, 25 power points) and the budget stays equal by construction:
 
@@ -273,9 +274,10 @@ uses 0.
 
 **Resistance feeds the spell formula (D).** The resist chance becomes
 
-$$r = \operatorname{clamp}\!\left(0.10 + 0.01\,\max(0,\,L_t - L_c) + 0.01\,(d-1) - 0.01\,\text{Res}_t,\; 0.05,\; 0.40\right)$$
+$$r = \operatorname{clamp}\!\left(0.10 + 0.01\,\max(0,\,L_t - L_c) + 0.01\,(d-1) + 0.01\,\text{Res}_t,\; 0.05,\; 0.40\right)$$
 
-so each point of the target's resistance lowers the resist chance by one point, and the resistance stat is no longer decorative.
+so each point of the target's resistance **raises** its chance to resist by one point (corrected 22 Oct: the first version had the sign
+backwards), and the resistance stat is no longer decorative.
 
 **Reach (D).** A melee attack can hit every target within `reach` tiles, but the damage falls off with distance: the target at
 tile $j$ takes $\text{dmg} \cdot (1 - 0.25\,\max(0,\,j-1))$, so the extra tiles of a long weapon cost nothing at the front and hurt
@@ -293,6 +295,81 @@ touches combat.
   story effect beyond the reactions at 25.
 
 *Open, not simulated:* these mappings and steps are proposals. The numbers (5% per point, 2% per threshold, the steps of 10, 25 and 50) are J and need the playtest to settle them.
+
+#### The new stats: their rules (P15, by arithmetic, 22 Oct)
+
+Each rule below is derived where it can be (D) and priced in power points so gear can carry it (`items.md` §1). Base AP is 2 a turn
+and movement is `2 + 0.35 × speed` tiles (3 to 6), both borrowed from the engine (B).
+
+**Special attack and special defence.** Spells use the same damage rule with SpA against SpD:
+`dmg = 0.39 × SpA × M × F(SpA, SpD × (1 − piercing))`. Every class splits its attack multiplier between the two by archetype, and
+its special defence is its defence times a ward factor (martial 0.8, half-caster 1.0, caster 1.6). About a quarter of the damage
+foes deal is magical (J), so the ward factor moves durability only a little; it mostly lets casters stand up to caster foes.
+
+| class | attack | special attack | defence | special defence |
+|---|---|---|---|---|
+| Fighter | ×1.00 | ×0.50 | ×1.00 | ×0.80 |
+| Barbarian | ×1.15 | ×0.50 | ×0.80 | ×0.64 |
+| Rogue | ×1.05 | ×0.50 | ×0.60 | ×0.48 |
+| Paladin | ×0.90 | ×0.70 | ×1.10 | ×1.10 |
+| Ranger | ×1.05 | ×0.60 | ×0.60 | ×0.60 |
+| Monk | ×0.90 | ×0.90 | ×0.90 | ×0.90 |
+| Cleric | ×0.60 | ×0.70 | ×0.70 | ×1.12 |
+| Druid | ×0.60 | ×0.75 | ×0.70 | ×1.12 |
+| Bard | ×0.60 | ×0.70 | ×0.60 | ×0.96 |
+| Wizard | ×0.60 | ×1.00 | ×0.40 | ×0.64 |
+| Sorcerer | ×0.60 | ×1.10 | ×0.45 | ×0.72 |
+| Warlock | ×0.60 | ×0.95 | ×0.70 | ×1.12 |
+
+The casters' special attack is their old attack multiplier, so their damage is unchanged; their weapon attack is ×0.6 (the
+weapon is an afterthought, as `items.md` already prices holy and instruments). Foes: special defence = defence, and caster
+foes use their attack as special attack.
+
+**Initiative (turn order).** `I = 10 + DEX modifier + class bonus (ranger +2, rogue +2, monk +1) + gear`; foes have 10 (quick
+foes 12, brutes 8). Each round every unit rolls `I + d6`, highest first; speed is movement only. A gap of +1, +2, +3, +5 acts
+first 65%, 78%, 88%, 99% of the time. Acting first in round one is worth about half an action of a seven-action fight, so
+**+1 initiative ≈ +1.1% output (1 pp)**.
+
+**Threat (who the foes go for).** A foe picks kobold *i* with probability `threat_i ÷ Σ threat`. **The base threat is the class's
+effective HP relative to the fighter (D)**, because attacks spread in proportion to what each kobold can take make the whole
+pack last longest (everyone runs out at the same time):
+
+| fighter | barbarian | paladin | ranger | rogue | monk | cleric | druid | bard | wizard | sorcerer | warlock |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1.00 | 0.95 | 1.02 | 0.60 | 0.56 | 0.84 | 0.68 | 0.68 | 0.56 | 0.42 | 0.47 | 0.64 |
+
+Then `× (1 + 0.1 × CHA modifier)`, ×2 while guarding or taunting, ×0.5 while unseen. Threat only moves damage between kobolds
+(the total is the same), so **threat on gear costs 0 pp**: it is a choice about who takes the hits, not power.
+
+**Armour piercing.** The share of the target's defence a hit ignores, inside the factor. 10% piercing adds +2.4% damage against a
+normal foe, +5.5% against a boss and +8.5% against a heavy foe (defence 80% of the attack): weighted (70% normal, 30% heavy) +4.2%,
+so **1 pp = 2.4% piercing**. It is a stat that rewards picking your target.
+
+**Morale and AP.** Each kobold has a morale score (an integer): **+1 for its companion quest done and +1 per campfire chat with
+it** (its bond, kept), **+1 for each fight won with nobody falling and −1 each time it falls** (its streak, back to zero at an
+inn). Pack morale is the mean plus Pip's Leadership:
+
+$$M_{\text{pack}} = \overline{M} + \frac{\text{Leadership}}{5}, \qquad p = \frac{|M_{\text{pack}}|}{|M_{\text{pack}}| + 6}$$
+
+Each turn each kobold gains 1 AP with chance `p` if morale is positive, or loses 1 with chance `p` if it is negative. On a base of
+2 AP that is +7% actions at morale 1, +12.5% at 2, +17% at 3, +25% at 6, +33% at 12: it keeps growing but never runs away.
+**+1 morale on one kobold ≈ 7 pp** (the first point; later points are worth less).
+
+**Luck.** A kobold's luck (from gear and rare finds) multiplies the odds of its own hits: `h' = h·q ÷ (h·q + 1 − h)`, `q = 1.1^luck`.
++1 luck turns 80% into 81.5% and 50% into 52.4%; +5 turns 50% into 61.7%. It never touches crit chance, so jackpots stay rare,
+and the mercy rule stays as it is. **+1 luck ≈ 2 pp.**
+
+**Pip's leader stats (Might, Wits, Leadership).** Pip gains **one leader point every second level** (15 by level 30) to put in:
+- **Might:** the whole pack's attack and defence × (1 + 0.01 × Might): **5.6 pp per point** across four kobolds.
+- **Wits:** the whole pack's special attack and special defence × (1 + 0.01 × Wits): 5.6 pp per point.
+- **Leadership:** pack morale + Leadership ÷ 5: **6.5 pp for each of the first five points**, less after (the morale curve
+  saturates), so a Leadership Pip is strong early and a Might or Wits Pip strong late.
+
+Fifteen points are worth about +7% to the pack whatever the split, so **foe HP and foe attack carry × (1 + 0.0025 × (L − 1))**
+(+7% at level 30): the curve expects Pip to lead.
+
+*All of this is arithmetic, not simulated; the 25% magical share, the ward factors, the class initiative bonuses and the morale
+sources are **J**, and the prices are **U** until playtested.*
 
 - **Why the mana numbers:** a caster should be able to cast about six times per fight for two fights before an ether, a
   fountain or an inn. With an average skill cost of 5.5 that is 66 mana; the L30 figures are that. The engine's current
@@ -589,7 +666,8 @@ Everything the player can change by moving or choosing:
 A status applied *by a damaging skill* happens if the hit lands. A *pure* status skill (Lullaby, Vine snare, Hex, Rumour)
 rolls a **resist check**:
 
-**chance = 80% − 2 per level the target is above the caster (never under 40%)**, then
+**chance = 80% − 2 per level the target is above the caster − the target's resistance + 2 × the caster's CHA modifier (never
+under 40%)**, then
 **normal foe ×1.0, elite ×0.8, boss ×0.5**.
 
 | target | stun, root, confuse chance (same level) | duration |

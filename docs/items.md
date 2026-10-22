@@ -18,6 +18,19 @@ not what the engine holds today. The current item tables in the code are replace
 | +⅓ speed | 3 pp = 1 speed |
 | +0.25% HP regen per turn | |
 | +1% mana | of base mana |
+| +1% special attack | like attack (spell damage) |
+| +2.5% special defence | like defence |
+| +1 accuracy, +1 dodge | 1 point each (accuracy also adds reach) |
+| +1 initiative | acting first is worth about 1.1% of a fight's output (`balance.md` §3, the new stats) |
+| +2.4% armour piercing | 10% piercing is +4.2% damage, weighted over normal and heavy foes |
+| +5 resistance | one point of resistance cuts spell damage taken by about 0.12% and statuses landing by 1 point |
+| −1 steadiness (a point per tile) | about +5% ranged damage at the average distance; **5 pp per point** |
+| +0.5 luck | +1 luck ≈ +1.5 to +2.4 points of hit chance |
+| +1 to an ability score = **2.5 pp** | +2 to a score is +1 modifier (5 pp) |
+| +1 morale on one kobold = **7 pp** | the first point; the morale curve saturates |
+| threat ±any | **0 pp**: it only moves the foes' attacks between kobolds |
+| +1 reach | **10 pp** (J): an extra tile at 75% damage, used about a third of the time |
+| Pip only: +1 Might or Wits = 5.6 pp; +1 Leadership = 6.5 pp | pack-wide stats, four kobolds each |
 
 **Slot budgets** (the same in every tier; the *numbers* grow with the tier because pp are percentages of the base stats at
 the level the tier arrives):
