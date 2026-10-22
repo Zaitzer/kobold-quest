@@ -89,6 +89,7 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
   if(sh.fx==='mark')t.mark=sh.hitsLeft||3;
   if(t.mark&&a.side===0&&sh.fx!=='mark'){t.mark--;if(t.mark<=0)t.mark=0}
   if(t.hp>0&&sh.st&&landed&&Math.random()<(sh.st.p==null?1:sh.st.p))v6Status(t,sh.st);
+  if(t.hp>0&&!sh.st&&a.side===1&&t.side===0){const fs=v6FoeHitStatus(a);if(fs&&Math.random()<v6FoeStatusP(a,t))v6Status(t,fs)}
   if(o.stun&&t.hp>0&&!(t.E&&t.E.boss)){t.stun=1;tcFloatU(t,'stunned','#ffe27a')}
   if(t.hp<=0){tcKo(t);v6OnFell(a,t)}else if(!rp.headless)sfx('hit');
   if(!rp.headless)set_shake(Math.max(shake,2));
@@ -181,7 +182,37 @@ function v6AiTurn(b,u){const E=u.E;
   if(u.fleeing){if(u.y===0){u.fled=true;tcFloatU(u,'runs off','#d7c9e3');b.msg=u.name+' runs off!';u.ap=0;b.phase='ai';return true}
     const R=tcReach(b,u,tcMov(u));let best=null,by=1e9;R.dist.forEach((d,k)=>{const y=(k/b.W)|0;if(y<by){by=y;best=k}});
     if(best!=null){const p=tcPath(R,best%b.W,(best/b.W)|0);if(p&&p.length)tcDo(u,{k:'move',path:p,cost:1})}u.ap=0;b.phase='ai';return true}
-  u.focus=v6Focus(b,u,b.units.filter(v=>v.side===0&&tcLive(v)&&tcSideSees(b,1,v)));return false}
+  if(v6Habit(b,u))return true;
+  const seen=b.units.filter(v=>v.side===0&&tcLive(v)&&tcSideSees(b,1,v));u.focus=v6HabitFocus(b,u,seen)||v6Focus(b,u,seen);return false}
+/* role habits (systems.md §3, bestiary.md "how it fights"): each changes whom the foe picks or adds one move; the AI's choice is otherwise the one rule */
+function v6HabitFocus(b,u,list){if(!list.length)return null;const E=u.E,F=FOES6[E.id]||{},how=F.how||'';
+  const by=f=>list.reduce((a,v)=>f(v)<f(a)?v:a);
+  if(/most hurt/.test(how))return by(v=>v.hp/v.max);
+  if(/lowest defence/.test(how))return by(v=>tcStat(v).def);
+  if(/healer/.test(how)){const h=list.find(v=>v.m&&['cleric','druid'].includes(v.m.cls));if(h)return h}
+  if(E.role==='brute')return by(v=>tcEuc(u,v));
+  return null}
+function v6Habit(b,u){const E=u.E,F=FOES6[E.id]||{},how=F.how||'';u.tt=(u.tt||0)+1;
+  if(/curls up/.test(how)&&!u.curledOnce&&u.hp<u.max*0.5){u.curledOnce=1;u.vb=(u.vb||[]).concat([{k:'def',v:1,turns:1}]);tcFloatU(u,'curls up','#e0c3ff');b.msg=u.name+' curls up!';u.ap=0;b.phase='ai';return true}
+  if(/guards \(dodge/.test(how)&&u.hp<u.max*0.5&&!u.guard){u.guard=1;tcFloatU(u,'guards','#e0c3ff');b.msg=u.name+' raises its guard.';u.ap=0;b.phase='ai';return true}
+  if(/calls a guard if alone/.test(how)&&!u.called&&!b.units.some(v=>v!==u&&v.side===1&&tcLive(v))){u.called=1;b.msg=u.name+' shouts for help!';v6Spawn(b,u,1,'guard recruit');u.ap=1;return false}
+  if(/shouts weaken/.test(how)&&u.tt%3===1){const ks=b.units.filter(v=>v.side===0&&tcLive(v)&&tcEuc(u,v)<=4);if(ks.length){b.msg=u.name+' bellows at the pack!';
+    ks.forEach(v=>{if(Math.random()<v6FoeStatusP(u,v))v6Status(v,{k:'weaken',turns:2});else tcFloatU(v,'resisted','#d7c9e3')});u.ap=1;return false}}
+  if(E.role==='ranged'){const near=b.units.filter(v=>v.side===0&&tcLive(v)&&tcCheb(u,v)<=1);if(near.length){const R=tcReach(b,u,tcMov(u));let best=null,bv=-1e9;
+    R.dist.forEach((d,k)=>{const x=k%b.W,y=(k/b.W)|0,dd=Math.min(...b.units.filter(v=>v.side===0&&tcLive(v)).map(v=>Math.hypot(v.x-x,v.y-y)));if(dd>bv){bv=dd;best=[x,y]}});
+    if(best&&bv>1.5){const p=tcPath(R,best[0],best[1]);if(p&&p.length){tcDo(u,{k:'move',path:p,cost:1});b.msg=u.name+' backs away.'}}}}
+  return false}
+/* a foe's status rides on its hits and lands by the status rule (balance.md §4a), as a kobold's skill does */
+const V6_FOE_ST={slow:'slow',poison:'poison',burn:'burn',fall:'fall',stun:'stun',weaken:'weaken',root:'root'};
+function v6FoeStatusP(a,t){return statusLand({lvlGap:v6Lvl(t)-v6Lvl(a),res:tcStat(t).res||0,cha:0,kind:'normal',luck:-(tcStat(t).luck||0)})}
+function v6FoeHitStatus(a){const F=a&&a.E&&a.E.v6&&FOES6[a.E.id];if(!F||!F.uses)return null;const m=/^(\w+) \(([^)]+)\)/.exec(F.uses);if(!m||!V6_FOE_ST[m[1]])return null;
+  if(/shout|ice|slick|hot trail|wax/.test(m[2]))return null;   // these come from tiles or shouts, not from the hit
+  return{k:V6_FOE_ST[m[1]],turns:2}}
+function v6PosHabit(b,u,x,y,dn){const E=u.E;if(!E||!E.v6||E.v6boss)return 0;
+  if(E.role==='ranged'&&dn<3)return -6;
+  if(E.role==='caster'){const ks=b.units.filter(v=>v.side===0&&tcLive(v));if(!ks.length)return 0;const mine=Math.min(...ks.map(k=>Math.hypot(k.x-x,k.y-y)));
+    const friend=b.units.some(v=>v!==u&&v.side===1&&tcLive(v)&&Math.min(...ks.map(k=>tcEuc(k,v)))<mine);return friend?3:-3}
+  return 0}
 function v6Focus(b,u,list){if(!list.length)return null;const w=list.map(v=>Object.assign({},v,{threat:(tcStat(v).threat||1)*(v.guard?2:1)*(tcSees(b,u,v)?1:0.5)}));
   const pickd=pickByThreat(w,Math.random());return list[w.indexOf(pickd)]}
 function v6BossTurn(b,u){const E=u.E;u.bt=(u.bt||0)+1;
@@ -224,4 +255,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},on:{'battle:lost':b=>v6BossLos
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{const g=id=>{const e=document.getElementById(id);return e?e.value:null};
     for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl');if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p;v6LabStart()}}});
-export {V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeKey,v6FoeStat,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6OpenArena,v6PackMorale,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossLost,v6BossTurn,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabStart,v6Land,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6OpenArena,v6PackMorale,v6PosHabit,v6Queue,v6RegisterSkills,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6TrialKey,v6TurnStart,v6u};

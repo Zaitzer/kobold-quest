@@ -1,7 +1,7 @@
 /* ---------- AI (enemies, and the party when a test bot plays) ---------- */
 import {tcDo,tcQ} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCheb,tcCover,tcCrit,tcDmg,tcEuc,tcHit,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcReach,tcSideSees,tcT,tcW} from './rules.js';
-import {v6AiTurn} from './v6battle.js';
+import {v6AiTurn,v6PosHabit} from './v6battle.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
@@ -26,6 +26,7 @@ function tcPosScore(b,u,x,y){
     else if(u.E&&u.E.healer)s-=Math.max(0,3-dn)*6;
     else{if(dn<2)s-=10;if(dn<=(TW.o||TW.r)+.5)s+=5;else s-=(dn-(TW.o||TW.r))*1.5}}
   if(u.sz===1&&tcT(tcAt(b,x,y)).grass)s+=1.5;
+  if(b.v6&&u.side===1&&foes.length)s+=v6PosHabit(b,u,x,y,dn);
   b.chans.forEach(c=>{if(c.side!==u.side&&Math.hypot(x-c.cx,y-c.cy)<=c.area+1.01)s-=60});
   if(u.side===0&&b.exits)s+=0;
   u.x=ox;u.y=oy;return s;

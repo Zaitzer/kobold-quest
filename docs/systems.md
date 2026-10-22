@@ -91,7 +91,10 @@ The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules wr
 - **AI, one rule for every foe:** on its turn a foe picks, among the actions it can pay for, the one with the highest expected damage
   to the pack (or healing to its side, for healers), with **the target drawn by threat** (`balance.md` §3: probability ∝ threat among
   the kobolds it can reach this turn). Its role adds one habit (the bestiary's "how it fights"): brutes charge the nearest, ranged foes
-  keep 3+ tiles and seek cover, casters stay behind a friend, quick foes flank, elites call their pod. **Fleeing:** a normal foe
+  keep 3+ tiles and seek cover, casters stay behind a friend, quick foes flank, elites call their pod.
+  A foe's own line in the bestiary refines its pick ("the most hurt kobold", "the lowest defence", "the healer"). **A foe's status**
+  (the bestiary's "uses", e.g. the grub's sticky spit) rides on each of its hits and lands by the status rule (`balance.md` §4a), as a
+  kobold's skill does; statuses that come from tiles or shouts are separate actions. **Fleeing:** a normal foe
   under 25% HP whose pod has lost half its members turns to run for its edge (a fleeing foe is deed 2 in `corruption.md`).
 - **Bosses** follow the two boss rules and their own trick (`bestiary.md` §5); four attacks a turn, the telegraph every third boss
   turn, at least seven turns, 10% softer after each defeat.

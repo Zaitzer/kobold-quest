@@ -34,10 +34,10 @@ for(const id of Object.keys(X.SKILLS6)){checks++;if(!X.RP_SK[id]||!X.RP_ST[id])b
 {const key=X.v6BossKey('grubb'),E=X.RP_E[key],B=X.BOSSES6.grubb;checks++;if(E.hp!==B.hp||E.atk!==B.atk||E.acts!==4)bad('Grubb should carry the boss table\'s stats and four attacks');
  X.rp.s=X.rpNewState();X.rp.s.bossDefeats={grubb:2};checks++;if(X.RP_E[X.v6BossKey('grubb')].hp!==Math.round(B.hp*0.8))bad('two defeats soften Grubb by 20%');
  X.rp.s.bossDefeats={grubb:9};checks++;if(X.RP_E[X.v6BossKey('grubb')].hp!==Math.round(B.hp*0.7))bad('softening stops at 70%')}
-{let wins=0,losses=0,swings=0,adds=0;for(let k=0;k<6;k++){const b=seeded(100+k,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=5;X.v6Lab.place='b:grubb';X.v6LabStart();
+{let wins=0,losses=0,swings=0,adds=0;for(let k=0;k<10;k++){const b=seeded(100+k,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=k<6?5:3;X.v6Lab.place='b:grubb';X.v6LabStart();
    const b=X.rp.bt;let s=0,last='';while(b&&!b.over&&s<80000){X.rpBattleStep(1/30);s++;if(b.chans.some(c=>c.sk==='v6_bigswing')&&b.msg!==last){last=b.msg;swings++}}return b});
-   if(b.over==='win')wins++;else losses++;if(b.units.some(u=>u.side===1&&u.E&&u.E.id==='nettlenose_scout'))adds++}
- checks++;if(!wins||!losses)bad('Grubb should be both won and lost by a level-5 pack: '+wins+' wins, '+losses+' losses');
+   if(k<6&&b.over==='win')wins++;if(k>=6&&b.over!=='win')losses++;if(b.units.some(u=>u.side===1&&u.E&&u.E.id==='nettlenose_scout'))adds++}
+ checks++;if(!wins||!losses)bad('Grubb should be both won and lost (won at level 5, lost at level 3): '+wins+' wins, '+losses+' losses');
  checks++;if(!swings)bad('Grubb never telegraphed his big swing');checks++;if(adds<3)bad('Grubb\'s scouts should join on round 4 in most fights: '+adds+'/6')}
 {const b=lab(['fighter','cleric','wizard','rogue'],8,'b:snipe',5);checks++;if(!b.over)bad('the Snipe fight did not end');
  const sn=b.units.find(u=>u.E&&u.E.trick==='snipe'),r=b.units.find(u=>u.side===0);sn.hp=sn.max;r.hp=r.max;
@@ -45,4 +45,19 @@ for(const id of Object.keys(X.SKILLS6)){checks++;if(!X.RP_SK[id]||!X.RP_ST[id])b
 {const b=lab(['fighter','cleric','wizard','rogue'],8,'t:old_shellback',9);checks++;if(b.over!=='win'&&b.over!=='lose')bad('the Old Shellback trial did not end');
  const sh=b.units.find(u=>u.E&&u.E.trick==='old_shellback'),f=b.units.find(u=>u.side===0);sh.hp=sh.max;sh.curled=false;const a=X.v6DmgRange(b,f,sh,1,{})[1];sh.curled=true;const c=X.v6DmgRange(b,f,sh,1,{})[1];
  checks++;if(Math.abs(c/a-0.5)>0.05)bad('a curled Shellback takes half damage: '+c+' vs '+a)}
+// role habits (systems.md §3): a hurt beetle curls up (defence ×2 for a turn), the scout picks the most hurt kobold, the grub the lowest
+// defence, a brute the nearest; a foe's status rides on its hits (the grub's sticky spit slows)
+seeded(11,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','cleric','wizard','rogue'];X.v6Lab.lvl=5;X.v6Lab.place=0;X.v6LabStart();const b=X.rp.bt,ks=b.units.filter(u=>u.side===0);
+  const mk=id=>{const key=X.v6FoeKey(id,5),E=X.RP_E[key];return{side:1,E,key,name:E.n,x:5,y:1,sz:1,hp:E.hp,max:E.hp,ap:2,vs:{},vb:[],buff:{atk:0,def:0},aware:true,pod:9,k:{x:0,y:0}}};
+  const beetle=mk('copper_beetle');b.units.push(beetle);beetle.hp=Math.floor(beetle.max*0.4);const d0=X.v6DmgRange(b,ks[0],beetle,1,{})[1];X.v6Habit(b,beetle);const d1=X.v6DmgRange(b,ks[0],beetle,1,{})[1];
+  checks++;if(Math.abs(d1/d0-0.5)>0.15)bad('a curled beetle (defence ×2) should take much less: '+d1+' vs '+d0);
+  ks[2].hp=5;const sc=mk('nettlenose_scout');checks++;if(X.v6HabitFocus(b,sc,ks)!==ks[2])bad('the scout should pick the most hurt kobold');
+  const gr=mk('glow_grub'),low=ks.reduce((a,v)=>X.tcStat(v).def<X.tcStat(a).def?v:a);checks++;if(X.v6HabitFocus(b,gr,ks)!==low)bad('the grub should pick the lowest defence');
+  checks++;const st=X.v6FoeHitStatus(gr);if(!st||st.k!=='slow')bad('the grub\'s spit should carry slow');
+  checks++;if(X.v6FoeHitStatus(mk('cellar_rat')))bad('a rat carries no status');
+  const p=X.v6FoeStatusP(gr,ks[0]);checks++;if(!(p>=0.4&&p<=0.8))bad('a foe\'s status lands by the status rule: '+p)});
+// a crash scan: every slice place, boss and trial runs to its end without errors
+{let errs=0,stuck=0;const sels=X.PLACES6.map((p,i)=>i).filter(i=>X.PLACES6[i].L<=8).concat(['b:grubb','b:snipe','t:old_shellback']);
+ for(const sel of sels){try{const b=lab(['ranger','monk','bard','sorcerer'],sel==='b:snipe'||sel==='t:old_shellback'?8:5,sel,77);if(!b.over)stuck++}catch(e){errs++;console.log(sel,e.stack.split('\n').slice(0,3).join(' | '))}}
+ checks++;if(errs||stuck)bad('crash scan: '+errs+' errors, '+stuck+' stuck')}
 console.log(fails?fails+' failures':'v6 battles: '+checks+' checks');process.exitCode=fails?1:0;
