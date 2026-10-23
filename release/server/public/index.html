@@ -592,8 +592,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   function heartPath(c, x, y, s) {
     c.beginPath(), c.moveTo(x, y + s * 0.35), c.bezierCurveTo(x - s, y - s * 0.3, x - s * 0.5, y - s, x, y - s * 0.45), c.bezierCurveTo(x + s * 0.5, y - s, x + s, y - s * 0.3, x, y + s * 0.35), c.closePath();
   }
-  var $ = (id) => document.getElementById(id);
-  var esc2 = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  var $ = (id) => document.getElementById(id), esc2 = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
   // src/engine/audio.js
   var soundOn = !1, quiet = !1, ac = null, duckT = 0, lastSfx = {};
@@ -1165,11 +1164,8 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       fam: G.famId,
       balance: balanceOf(sc),
       corr: m.corr || 0,
-      // the old engine's names, so code that has not moved yet keeps working
-      sight: 0,
-      stealth: 0,
-      rage: 0,
-      mov: 0
+      sight: X.sight || 0,
+      stealth: X.stealth || 0
     };
     return m.cls === "monk" && (S.kiMul = 0.5 + S.balance), S;
   }
@@ -1183,9 +1179,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   function rpClsName(m) {
     return (CLASSES6[m.cls] || { n: m.cls }).n;
-  }
-  function rpHat() {
-    return "none";
   }
 
   // src/game/v6talent.js
@@ -1592,28 +1585,23 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     { name: "Frosties", body: "#5ec6dc", dark: "#2f8ca6", belly: "#e0f7fc", acc: "#a6e8f6" },
     { name: "Grapes", body: "#ac86ec", dark: "#7653bb", belly: "#efe3ff", acc: "#d2bcff" }
   ], WEAPONS = {
-    stick: { n: "Stick", w: "a stick", dmg: [3, 6], cd: 0.85, wind: 0.26, range: 28, say: "bonk!" },
-    spoon: { n: "Big spoon", w: "a big spoon", dmg: [2, 5], cd: 0.6, wind: 0.18, range: 27, say: "boop!" },
-    sword: { n: "Tiny sword", w: "a tiny sword", dmg: [4, 8], cd: 1.05, wind: 0.32, range: 32, say: "shing!" },
-    pan: { n: "Frying pan", w: "a frying pan", dmg: [3, 6], cd: 0.95, wind: 0.3, range: 28, say: "clang!", stun: !0 },
-    bone: { n: "Bone", w: "a bone", dmg: [3, 7], cd: 0.8, wind: 0.24, range: 29, say: "thwack!" },
-    fish: { n: "Fish", w: "a fish", dmg: [2, 4], cd: 0.55, wind: 0.16, range: 28, say: "slap!" },
-    popgun: { n: "Pop gun", w: "a pop gun", dmg: [2, 4], cd: 1.1, wind: 0.2, range: 125, say: "pop!", ranged: !0, proj: "cork", spd: 300 },
-    blunder: { n: "Blunderbuss", w: "a blunderbuss", dmg: [2, 4], cd: 1.5, wind: 0.4, range: 115, say: "BOOM!", ranged: !0, proj: "pellet", spd: 260, spread: 3 },
-    squirt: { n: "Water pistol", w: "a water pistol", dmg: [1, 2], cd: 0.5, wind: 0.1, range: 105, say: "splat!", ranged: !0, proj: "water", spd: 280 },
-    firewand: { n: "Fire wand", w: "a fire wand", dmg: [4, 7], cd: 1.3, wind: 0.35, range: 130, say: "FWOOSH!", ranged: !0, magic: !0, proj: "fire", spd: 200, aoe: 32 },
-    frostrod: { n: "Frost staff", w: "a frost staff", dmg: [2, 4], cd: 1, wind: 0.3, range: 140, say: "brr!", ranged: !0, magic: !0, proj: "ice", spd: 240, slow: !0 },
-    club: { n: "Great club", w: "a great club", dmg: [6, 11], cd: 1.1, wind: 0.36, range: 35, say: "WHUMP!" },
-    cannon: { n: "Hand cannon", w: "a hand cannon", dmg: [8, 13], cd: 2.3, wind: 0.5, range: 150, say: "KABOOM!", ranged: !0, proj: "pellet", spd: 300 },
-    archstaff: { n: "Archmage staff", w: "an archmage staff", dmg: [7, 11], cd: 1.7, wind: 0.4, range: 150, say: "KRAKOOM!", ranged: !0, magic: !0, proj: "fire", spd: 220, aoe: 46 },
-    healwand: { n: "Heal wand", w: "a heal wand", dmg: [1, 2], cd: 2, wind: 0.3, range: 150, say: "sparkle!", ranged: !0, magic: !0, heal: !0, spd: 230 },
-    spear: { n: "Spear", w: "a spear", dmg: [4, 7], cd: 1, wind: 0.3, range: 40, say: "poke!" }
-  }, FAC = [
-    { hp: 0.97, dmg: 1.1, dmgBrawl: 1, spd: 1, magCd: 1, chill: 0, shroom: 1, disc: { firewand: 2 } },
-    { hp: 1.07, dmg: 1, dmgBrawl: 1, spd: 0.93, magCd: 1, chill: 0, shroom: 1.5, disc: { bone: 1, healwand: 3 } },
-    { hp: 1.03, dmg: 0.95, dmgBrawl: 1, spd: 1, magCd: 1, chill: 0.4, shroom: 1, disc: { squirt: 1 } },
-    { hp: 1, dmg: 1, dmgBrawl: 0.95, spd: 1, magCd: 0.9, chill: 0, shroom: 1, disc: { magician: 2 } }
-  ];
+    stick: { n: "Stick" },
+    spoon: { n: "Big spoon" },
+    sword: { n: "Tiny sword" },
+    pan: { n: "Frying pan" },
+    bone: { n: "Bone" },
+    fish: { n: "Fish" },
+    popgun: { n: "Pop gun", ranged: !0, proj: "cork" },
+    blunder: { n: "Blunderbuss", ranged: !0, proj: "pellet" },
+    squirt: { n: "Water pistol", ranged: !0, proj: "water" },
+    firewand: { n: "Fire wand", ranged: !0, magic: !0, proj: "fire" },
+    frostrod: { n: "Frost staff", ranged: !0, magic: !0, proj: "ice" },
+    club: { n: "Great club" },
+    cannon: { n: "Hand cannon", ranged: !0, proj: "pellet" },
+    archstaff: { n: "Archmage staff", ranged: !0, magic: !0, proj: "fire" },
+    healwand: { n: "Heal wand", ranged: !0, magic: !0 },
+    spear: { n: "Spear" }
+  };
   function makeK(e, x, y, pop) {
     let k = {
       e,
@@ -1622,65 +1610,36 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       art: e.art || null,
       weapon: e.weapon,
       W: WEAPONS[e.weapon],
-      hat: e.hat,
-      pers: e.pers,
       x,
       y,
-      kx: 0,
-      ky: 0,
       z: 0,
       vz: 0,
       hp: e.cur != null ? e.cur : e.hp,
       max: e.hp,
       size: e.size || 1,
-      dmgMul: (e.dmgMul || 1) * FAC[e.team].dmg * (WEAPONS[e.weapon].ranged ? 1 : FAC[e.team].dmgBrawl),
-      spd: (e.speed || 1) * FAC[e.team].spd,
-      cdMul: WEAPONS[e.weapon].magic ? FAC[e.team].magCd : 1,
-      chill: Math.max(FAC[e.team].chill, e.chill || 0),
       boss: !!e.boss,
       face: x < 240 ? 1 : -1,
       state: "idle",
       st: 0,
-      cd: R(0, 0.6),
       stun: 0,
       hurt: 0,
-      happy: 0,
-      munch: 0,
-      target: null,
-      retarget: 0,
-      wander: { x, y, t: 0, wait: 0 },
       phase: R(0, 6),
       bob: R(0, 6),
       walk: 0,
       moving: !1,
       pop: pop ? 0 : 1,
-      kos: 0,
-      fleeT: 0,
-      fleeCd: 0,
       slow: 0,
       squash: 0,
       rot: 0,
       rotT: 0,
-      koT: 0,
-      dead: !1,
       blink: R(2, 5),
       wa: 0.35,
       t: 0,
-      dmgDone: 0,
-      dmgTaken: 0,
-      healDone: 0,
-      koAt: -1,
-      regen: 0,
-      regenT: 0,
-      focus: null,
-      focusT: 0,
-      focusMark: 0,
-      fx: {},
-      perk: e.perk || null
+      fx: {}
     };
     return (e.fx || []).forEach((f) => {
       k.fx[f] = 1;
-    }), e.pers === "scaredy" && e.lvl && (k.spd *= 1.15), k.perk === "sniper" && (k.W = Object.assign({}, k.W, { range: Math.round(k.W.range * 1.25) })), k.perk === "rapid" && (k.cdMul *= 0.8), k.perk === "swift" && (k.spd *= 1.2, k.cdMul *= 0.9), k;
+    }), k;
   }
   function el(x, y, rx, ry, fill) {
     ctx.fillStyle = fill, ctx.beginPath(), ctx.ellipse(x, y, rx, ry, 0, 0, 7), ctx.fill();
@@ -1698,32 +1657,11 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       ctx.beginPath(), ctx.arc(p[0], p[1], 2.7, 0, 7), ctx.fill();
     })) : name === "firewand" ? (ctx.strokeStyle = "#7a4a2a", ctx.lineWidth = 3, ctx.beginPath(), ctx.moveTo(0, 5), ctx.lineTo(0, -14), ctx.stroke(), el(0, -18, 4.6, 4.6, "#ff8a2b"), el(0, -18, 2.6, 2.6, "#ffd777")) : name === "frostrod" ? (ctx.strokeStyle = "#9fc6e8", ctx.lineWidth = 3, ctx.beginPath(), ctx.moveTo(0, 6), ctx.lineTo(0, -15), ctx.stroke(), ctx.fillStyle = "#cfefff", ctx.strokeStyle = "#7fc4ec", ctx.lineWidth = 1.2, ctx.beginPath(), ctx.moveTo(0, -27), ctx.lineTo(4.4, -20), ctx.lineTo(0, -13), ctx.lineTo(-4.4, -20), ctx.closePath(), ctx.fill(), ctx.stroke()) : name === "healwand" ? (ctx.strokeStyle = "#fff0f5", ctx.lineWidth = 2.6, ctx.beginPath(), ctx.moveTo(0, 5), ctx.lineTo(0, -14), ctx.stroke(), ctx.fillStyle = "#ff7aa8", heartPath(ctx, 0, -19, 5.2), ctx.fill()) : name === "spear" ? (ctx.strokeStyle = "#8a5a30", ctx.lineWidth = 2.6, ctx.beginPath(), ctx.moveTo(0, 8), ctx.lineTo(0, -26), ctx.stroke(), ctx.fillStyle = "#e5ecf5", ctx.strokeStyle = "#8f97a8", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(0, -36), ctx.lineTo(3.6, -26), ctx.lineTo(-3.6, -26), ctx.closePath(), ctx.fill(), ctx.stroke(), ctx.fillStyle = "#ff6b6b", ctx.fillRect(-2.4, -25, 4.8, 2.4)) : name === "popgun" ? (ctx.fillStyle = "#8a5a30", rr(ctx, 0, -4, 8, 4.4, 1.6), ctx.fill(), ctx.fillStyle = "#4fb8c9", rr(ctx, -3.2, -12, 6.4, 11, 2), ctx.fill(), ctx.fillStyle = "#d9d3e0", ctx.fillRect(-2, -18, 4, 7), el(0, -19.2, 2.4, 2, "#d9a066")) : name === "blunder" ? (ctx.fillStyle = "#8a5a30", rr(ctx, 0, -4, 9, 4.6, 1.6), ctx.fill(), ctx.fillStyle = "#b9822e", rr(ctx, -2.6, -12, 5.2, 10, 2), ctx.fill(), ctx.fillStyle = "#d9a83f", ctx.beginPath(), ctx.moveTo(-2, -11), ctx.lineTo(-6.6, -22), ctx.lineTo(6.6, -22), ctx.lineTo(2, -11), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#4a2f12", ctx.beginPath(), ctx.ellipse(0, -22, 6, 1.8, 0, 0, 7), ctx.fill(), ctx.fillStyle = "#7a5416", ctx.fillRect(-3, -9, 6, 1.8)) : name === "squirt" ? (ctx.fillStyle = "#ffd54a", rr(ctx, 0, -4, 7, 4.4, 1.6), ctx.fill(), ctx.fillStyle = "#4aa3ff", rr(ctx, -3.6, -14, 7.2, 13, 2.4), ctx.fill(), el(5, -8, 4.4, 4.4, "#a9dcff"), el(5, -8, 2.2, 2.2, "#e6f5ff"), ctx.fillStyle = "#ffd54a", ctx.fillRect(-1.6, -19, 3.2, 6)) : name === "club" ? (ctx.strokeStyle = "#7a4a2a", ctx.lineWidth = 4.6, ctx.beginPath(), ctx.moveTo(0, 5), ctx.lineTo(0, -14), ctx.stroke(), el(0, -21, 7.4, 9, "#8a5a30"), el(0, -21, 5.6, 7.2, "#a46d3a"), [[-3, -24], [3, -24], [0, -18], [-3, -19]].forEach((q) => el(q[0], q[1], 1.3, 1.3, "#d8d2c4"))) : name === "cannon" ? (ctx.save(), ctx.scale(1.3, 1.3), drawWeapon("blunder"), ctx.restore(), el(0, -27, 2.3, 2.3, "#ffd54a")) : name === "archstaff" ? (ctx.save(), ctx.scale(1.25, 1.25), ctx.strokeStyle = "#5a3d99", ctx.lineWidth = 3.2, ctx.beginPath(), ctx.moveTo(0, 6), ctx.lineTo(0, -16), ctx.stroke(), el(0, -20, 6, 6, "#ff6a1f"), el(0, -20, 3.6, 3.6, "#ffd777"), el(0, -20, 1.6, 1.6, "#fff"), ctx.restore()) : name === "fish" && (ctx.fillStyle = "#4f93c4", ctx.beginPath(), ctx.moveTo(0, 1), ctx.lineTo(-4.5, -6), ctx.lineTo(4.5, -6), ctx.closePath(), ctx.fill(), el(0, -13, 5, 8.6, "#6fb3e0"), el(1, -11.5, 2.6, 5.6, "#bfe3f7"), el(-1.6, -18, 1.5, 1.5, "#fff"), el(-1.6, -18, 0.7, 0.7, "#1d1a28"));
   }
-  function drawHat(h) {
-    if (h === "pot")
-      ctx.fillStyle = "#98a1b2", ctx.beginPath(), ctx.arc(1, -38, 9, Math.PI, 0), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#6f7889", ctx.fillRect(-9, -38.5, 20, 2.6), el(1, -47.4, 1.8, 1.6, "#6f7889");
-    else if (h === "bucket")
-      ctx.fillStyle = "#7da1c9", ctx.beginPath(), ctx.moveTo(-6, -48), ctx.lineTo(8, -48), ctx.lineTo(10, -38), ctx.lineTo(-8, -38), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#5b81ad", ctx.fillRect(-8, -41, 18, 2.2);
-    else if (h === "cone")
-      ctx.fillStyle = "#ff8a2a", ctx.beginPath(), ctx.moveTo(1, -55), ctx.lineTo(9, -38), ctx.lineTo(-7, -38), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#fff3e0", ctx.beginPath(), ctx.moveTo(-4.65, -43), ctx.lineTo(6.65, -43), ctx.lineTo(4.76, -47), ctx.lineTo(-2.76, -47), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#e8701a", ctx.fillRect(-9, -39, 20, 2);
-    else if (h === "leaf")
-      ctx.strokeStyle = "#4f9040", ctx.lineWidth = 1.8, ctx.lineCap = "round", ctx.beginPath(), ctx.moveTo(1, -39), ctx.lineTo(3, -45), ctx.stroke(), ctx.save(), ctx.translate(5.5, -47), ctx.rotate(-0.5), el(0, 0, 6.4, 3.2, "#8be16c"), ctx.strokeStyle = "#5ab34a", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(-5, 0), ctx.lineTo(5, 0), ctx.stroke(), ctx.restore();
-    else if (h === "wizard")
-      ctx.fillStyle = "#5a3d99", ctx.beginPath(), ctx.ellipse(1, -38.5, 13.5, 3.2, 0, 0, 7), ctx.fill(), ctx.fillStyle = "#6c4bb8", ctx.beginPath(), ctx.moveTo(-7, -39), ctx.quadraticCurveTo(-1, -52, 8, -60), ctx.quadraticCurveTo(10, -50, 9, -39), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#ffd54a", ctx.fillRect(-7.2, -42.4, 16.6, 2.4), ctx.fillStyle = "#ffe27a", starPath(ctx, 2.5, -48, 2.6, 0), ctx.fill();
-    else if (h === "crown")
-      ctx.fillStyle = "#ffd54a", ctx.beginPath(), ctx.moveTo(-8, -38), ctx.lineTo(-8, -48), ctx.lineTo(-4, -43), ctx.lineTo(1, -50), ctx.lineTo(6, -43), ctx.lineTo(10, -48), ctx.lineTo(10, -38), ctx.closePath(), ctx.fill(), ctx.fillStyle = "#e0a63a", ctx.fillRect(-8, -40.4, 18, 2.4), el(1, -44.4, 1.3, 1.3, "#ff5a7a"), el(-4, -41.6, 0.9, 0.9, "#6fd3ee"), el(6, -41.6, 0.9, 0.9, "#6fd3ee");
-    else if (h === "flower") {
-      for (let i = 0; i < 5; i++) {
-        let a = i * 1.2566;
-        el(8 + Math.cos(a) * 3.1, -40 + Math.sin(a) * 3.1, 2.5, 2.5, "#ff9ec7");
-      }
-      el(8, -40, 1.9, 1.9, "#ffe066");
-    }
-  }
   var OL = "#140a35";
   function drawKobold(k) {
     let T = TEAMS[k.team], ko = k.state === "ko", pop = k.pop < 1 ? eob(k.pop) : 1, zf = Math.max(0.25, 1 - k.z / 90), lying = ko && k.z < 2;
     ctx.fillStyle = "rgba(10,5,16," + (0.38 * zf).toFixed(3) + ")", ctx.beginPath(), ctx.ellipse(k.x, k.y + 1, (lying ? 18 : 13) * k.size * zf * pop, (lying ? 5.2 : 4.5) * k.size * zf * pop, 0, 0, 7), ctx.fill(), selected === k && (ctx.strokeStyle = "rgba(255,255,255,.85)", ctx.lineWidth = 2, ctx.setLineDash([4, 4]), ctx.beginPath(), ctx.ellipse(k.x, k.y + 1, 19, 7, 0, 0, 7), ctx.stroke(), ctx.setLineDash([]));
-    let c = k.hurt > 0 && (k.hurt * 40 | 0) % 2 === 0 ? "#ffffff" : T.body, d = T.dark, b = T.belly, atk = k.state === "windup" || k.state === "strike", scared = !ko && (k.fleeT > 0 || k.pers === "scaredy" && k.hp < k.max * 0.35), happy = !ko && (k.state === "cheer" || k.happy > 0 || k.munch > 0), moving = k.moving && !ko, m = moving ? 1 : 0, bob = ko ? 0 : moving ? -Math.abs(Math.sin(k.walk)) * 2.4 : Math.sin(k.t * 3 + k.bob) * 0.7, sq = k.squash;
+    let c = k.hurt > 0 && (k.hurt * 40 | 0) % 2 === 0 ? "#ffffff" : T.body, d = T.dark, b = T.belly, atk = k.state === "windup" || k.state === "strike", happy = !ko && k.state === "cheer", moving = k.moving && !ko, m = moving ? 1 : 0, bob = ko ? 0 : moving ? -Math.abs(Math.sin(k.walk)) * 2.4 : Math.sin(k.t * 3 + k.bob) * 0.7, sq = k.squash;
     ctx.save(), ctx.translate(k.x + (k.hurt > 0 ? Math.sin(k.hurt * 90) * 1.6 : 0), k.y - k.z);
     let sh = k.sheetFn && k.sheetFn();
     if (ctx.translate(0, -12), ctx.rotate(sh ? 0 : k.rot), ctx.translate(0, 12), ctx.scale(pop * (1 + 0.2 * sq) * k.face * k.size, pop * (1 - 0.2 * sq) * k.size), ctx.translate(0, bob), !(sh && drawSheet(ctx, sh, k, { colour: k.colour6, map: k.onMap }))) {
@@ -1743,47 +1681,22 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       }), el(0, -12, 12.7, 11.7, OL), el(0, -12, 11, 10, c), el(2, -10.5, 6.6, 7, b), ctx.strokeStyle = "rgba(60,25,40,.16)", ctx.lineWidth = 1, [-15, -12, -9].forEach((yy) => {
         ctx.beginPath(), ctx.moveTo(-1.6, yy), ctx.quadraticCurveTo(3, yy + 1.2, 7, yy), ctx.stroke();
       }), el(-6, -16, 1.4, 1.1, d), el(-4, -9.5, 1.3, 1, d), el(-7, -12, 1.2, 1, d);
-      let ew = Math.sin(k.t * 4 + k.phase) * 1.2, droop = k.hurt > 0 || scared || ko ? 7 : 0;
-      if (ctx.fillStyle = d, ctx.strokeStyle = OL, ctx.lineWidth = 2.4, ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.fill(), ctx.fillStyle = c, ctx.beginPath(), ctx.moveTo(-8.5, -31.5), ctx.lineTo(-16.5, -35.4 + droop * 0.7 + ew), ctx.lineTo(-9.4, -28), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9.4, -27), ctx.lineTo(-18.5, -28.3 + droop * 0.5 + ew * 0.6), ctx.lineTo(-10, -23.4), ctx.closePath(), ctx.fill(), (k.hat === "none" || k.hat === "leaf" || k.hat === "flower") && (ctx.strokeStyle = OL, ctx.lineWidth = 2.6, ctx.lineJoin = "round", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.stroke(), ctx.fillStyle = "#fff0d2", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.fill(), ctx.fillStyle = "rgba(120,80,50,.35)", ctx.beginPath(), ctx.moveTo(-15.6, -47.4), ctx.lineTo(-19.5, -49), ctx.lineTo(-13.6, -44), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-5.5, -49.6), ctx.lineTo(-9, -51.4), ctx.lineTo(-3.8, -46), ctx.closePath(), ctx.fill()), el(1, -28, 14.5, 12.7, OL), el(10, -25.4, 10.5, 7.5, OL), el(1, -28, 12.8, 11, c), el(10, -25.4, 8.8, 5.8, c), el(9.4, -22.6, 7.4, 3.3, b), el(-4.5, -35.4, 1, 1, d), el(-0.5, -37.2, 1, 1, d), el(-8, -31, 1.1, 1, d), el(2.5, -34.5, 0.9, 0.9, d), el(17.6, -27.4, 2.1, 1.6, "#33202c"), el(17, -27.9, 0.6, 0.5, "#ffffff"), ctx.strokeStyle = "rgba(40,20,30,.55)", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(14.4, -26.2), ctx.quadraticCurveTo(15.2, -25.4, 16, -26.2), ctx.stroke(), atk)
-        el(11, -21.3, 5.2, 3.4, "#5a1a2a"), el(11, -19.9, 3.2, 1.4, "#ff7a8a"), ctx.fillStyle = "#ffffff", [8, 11.4, 14.6].forEach((tx2) => {
-          ctx.beginPath(), ctx.moveTo(tx2 - 1.3, -23.6), ctx.lineTo(tx2 + 1.3, -23.6), ctx.lineTo(tx2, -21), ctx.closePath(), ctx.fill();
-        });
-      else if (k.munch > 0) {
-        let o = Math.sin(k.munch * 32) > 0 ? 2.6 : 0.8;
-        el(11, -21.7, 4.4, o, "#5a1a2a");
-      } else ko ? (el(11, -20.4, 3.4, 2, "#ff8a9a"), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(8.6, -23), ctx.lineTo(10.4, -23), ctx.lineTo(9.5, -20.6), ctx.closePath(), ctx.fill()) : (ctx.strokeStyle = "#4a2a38", ctx.lineWidth = 1.4, ctx.beginPath(), ctx.moveTo(4.2, -22.6), ctx.quadraticCurveTo(10.5, -20.2, 17, -23.4), ctx.stroke(), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(9.4, -21.6), ctx.lineTo(11.6, -21.4), ctx.lineTo(10.6, -19), ctx.closePath(), ctx.fill());
+      let ew = Math.sin(k.t * 4 + k.phase) * 1.2, droop = k.hurt > 0 || ko ? 7 : 0;
+      ctx.fillStyle = d, ctx.strokeStyle = OL, ctx.lineWidth = 2.4, ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(-8, -33), ctx.lineTo(-20, -39 + droop * 0.8 + ew), ctx.lineTo(-10, -27), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9, -28), ctx.lineTo(-23, -30 + droop * 0.6 + ew * 0.6), ctx.lineTo(-10.5, -22), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-8, -24), ctx.lineTo(-19, -21 + droop * 0.3), ctx.lineTo(-7, -19), ctx.closePath(), ctx.fill(), ctx.fillStyle = c, ctx.beginPath(), ctx.moveTo(-8.5, -31.5), ctx.lineTo(-16.5, -35.4 + droop * 0.7 + ew), ctx.lineTo(-9.4, -28), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-9.4, -27), ctx.lineTo(-18.5, -28.3 + droop * 0.5 + ew * 0.6), ctx.lineTo(-10, -23.4), ctx.closePath(), ctx.fill(), ctx.strokeStyle = OL, ctx.lineWidth = 2.6, ctx.lineJoin = "round", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.stroke(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.stroke(), ctx.fillStyle = "#fff0d2", ctx.beginPath(), ctx.moveTo(-9, -35.5), ctx.quadraticCurveTo(-8, -46, -19.5, -49), ctx.quadraticCurveTo(-12.4, -41.5, -2.6, -36.5), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(0.4, -37.6), ctx.quadraticCurveTo(1.6, -48, -9, -51.4), ctx.quadraticCurveTo(-2.6, -43.6, 7.4, -37.4), ctx.closePath(), ctx.fill(), ctx.fillStyle = "rgba(120,80,50,.35)", ctx.beginPath(), ctx.moveTo(-15.6, -47.4), ctx.lineTo(-19.5, -49), ctx.lineTo(-13.6, -44), ctx.closePath(), ctx.fill(), ctx.beginPath(), ctx.moveTo(-5.5, -49.6), ctx.lineTo(-9, -51.4), ctx.lineTo(-3.8, -46), ctx.closePath(), ctx.fill(), el(1, -28, 14.5, 12.7, OL), el(10, -25.4, 10.5, 7.5, OL), el(1, -28, 12.8, 11, c), el(10, -25.4, 8.8, 5.8, c), el(9.4, -22.6, 7.4, 3.3, b), el(-4.5, -35.4, 1, 1, d), el(-0.5, -37.2, 1, 1, d), el(-8, -31, 1.1, 1, d), el(2.5, -34.5, 0.9, 0.9, d), el(17.6, -27.4, 2.1, 1.6, "#33202c"), el(17, -27.9, 0.6, 0.5, "#ffffff"), ctx.strokeStyle = "rgba(40,20,30,.55)", ctx.lineWidth = 1, ctx.beginPath(), ctx.moveTo(14.4, -26.2), ctx.quadraticCurveTo(15.2, -25.4, 16, -26.2), ctx.stroke(), atk ? (el(11, -21.3, 5.2, 3.4, "#5a1a2a"), el(11, -19.9, 3.2, 1.4, "#ff7a8a"), ctx.fillStyle = "#ffffff", [8, 11.4, 14.6].forEach((tx2) => {
+        ctx.beginPath(), ctx.moveTo(tx2 - 1.3, -23.6), ctx.lineTo(tx2 + 1.3, -23.6), ctx.lineTo(tx2, -21), ctx.closePath(), ctx.fill();
+      })) : ko ? (el(11, -20.4, 3.4, 2, "#ff8a9a"), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(8.6, -23), ctx.lineTo(10.4, -23), ctx.lineTo(9.5, -20.6), ctx.closePath(), ctx.fill()) : (ctx.strokeStyle = "#4a2a38", ctx.lineWidth = 1.4, ctx.beginPath(), ctx.moveTo(4.2, -22.6), ctx.quadraticCurveTo(10.5, -20.2, 17, -23.4), ctx.stroke(), ctx.fillStyle = "#ffffff", ctx.beginPath(), ctx.moveTo(9.4, -21.6), ctx.lineTo(11.6, -21.4), ctx.lineTo(10.6, -19), ctx.closePath(), ctx.fill());
       let ex = [-3, 6.5], ey = -30;
-      if (ctx.strokeStyle = "#2c1a2a", ctx.lineWidth = 1.8, ko)
-        ex.forEach((x) => {
-          ctx.beginPath(), ctx.moveTo(x - 2.6, ey - 2.6), ctx.lineTo(x + 2.6, ey + 2.6), ctx.moveTo(x + 2.6, ey - 2.6), ctx.lineTo(x - 2.6, ey + 2.6), ctx.stroke();
-        });
-      else if (k.hurt > 0)
-        ctx.beginPath(), ctx.moveTo(ex[0] - 2.5, ey - 3), ctx.lineTo(ex[0] + 2, ey), ctx.lineTo(ex[0] - 2.5, ey + 3), ctx.stroke(), ctx.beginPath(), ctx.moveTo(ex[1] + 2.5, ey - 3), ctx.lineTo(ex[1] - 2, ey), ctx.lineTo(ex[1] + 2.5, ey + 3), ctx.stroke();
-      else if (happy)
-        ex.forEach((x) => {
-          ctx.beginPath(), ctx.moveTo(x - 3, ey + 1.6), ctx.quadraticCurveTo(x, ey - 4, x + 3, ey + 1.6), ctx.stroke();
-        });
-      else if (k.blink < 0)
-        ex.forEach((x) => {
-          ctx.beginPath(), ctx.moveTo(x - 3, ey + 0.5), ctx.lineTo(x + 3, ey + 0.5), ctx.stroke();
-        });
-      else {
-        let lkx = 1, lky = 0, t = k.target;
-        if (t && t.state !== "ko") {
-          let dx = t.x - k.x, dy = t.y - k.y, dd = Math.hypot(dx, dy) || 1;
-          lkx = dx / dd * k.face, lky = dy / dd;
-        }
-        ex.forEach((x) => {
-          ctx.fillStyle = "#ffe27a", ctx.strokeStyle = "rgba(44,26,42,.6)", ctx.lineWidth = 1, ctx.beginPath(), ctx.arc(x, ey, 4.3, 0, 7), ctx.fill(), ctx.stroke();
-          let px = x + lkx * 1.1, py = ey + lky * 0.9 + 0.2;
-          el(px, py, scared ? 0.9 : 1.5, scared ? 2.7 : 3.4, "#2c1a2a"), el(px - 1.1, py - 1.5, 0.9, 0.9, "#ffffff"), ctx.strokeStyle = d, ctx.lineWidth = 1.7, ctx.beginPath(), ctx.moveTo(x - 4.4, ey - 2.6), ctx.quadraticCurveTo(x, ey - 5.6, x + 4.4, ey - 3), ctx.stroke();
-        });
-      }
-      if (atk && (ctx.strokeStyle = "#3a2030", ctx.lineWidth = 2, ctx.beginPath(), ctx.moveTo(-7.5, -36), ctx.lineTo(-1, -33.8), ctx.stroke(), ctx.beginPath(), ctx.moveTo(10.5, -36), ctx.lineTo(4, -33.8), ctx.stroke()), scared) {
-        let sy = -38 + Math.sin(k.t * 8);
-        ctx.fillStyle = "#8fd8ff", ctx.beginPath(), ctx.moveTo(-14, sy - 4), ctx.quadraticCurveTo(-18, sy + 1, -14, sy + 3), ctx.quadraticCurveTo(-10, sy + 1, -14, sy - 4), ctx.fill();
-      }
-      if (drawHat(k.hat), !ko) {
+      if (ctx.strokeStyle = "#2c1a2a", ctx.lineWidth = 1.8, ko ? ex.forEach((x) => {
+        ctx.beginPath(), ctx.moveTo(x - 2.6, ey - 2.6), ctx.lineTo(x + 2.6, ey + 2.6), ctx.moveTo(x + 2.6, ey - 2.6), ctx.lineTo(x - 2.6, ey + 2.6), ctx.stroke();
+      }) : k.hurt > 0 ? (ctx.beginPath(), ctx.moveTo(ex[0] - 2.5, ey - 3), ctx.lineTo(ex[0] + 2, ey), ctx.lineTo(ex[0] - 2.5, ey + 3), ctx.stroke(), ctx.beginPath(), ctx.moveTo(ex[1] + 2.5, ey - 3), ctx.lineTo(ex[1] - 2, ey), ctx.lineTo(ex[1] + 2.5, ey + 3), ctx.stroke()) : happy ? ex.forEach((x) => {
+        ctx.beginPath(), ctx.moveTo(x - 3, ey + 1.6), ctx.quadraticCurveTo(x, ey - 4, x + 3, ey + 1.6), ctx.stroke();
+      }) : k.blink < 0 ? ex.forEach((x) => {
+        ctx.beginPath(), ctx.moveTo(x - 3, ey + 0.5), ctx.lineTo(x + 3, ey + 0.5), ctx.stroke();
+      }) : ex.forEach((x) => {
+        ctx.fillStyle = "#ffe27a", ctx.strokeStyle = "rgba(44,26,42,.6)", ctx.lineWidth = 1, ctx.beginPath(), ctx.arc(x, ey, 4.3, 0, 7), ctx.fill(), ctx.stroke();
+        let px = x + 1.1, py = ey + 0.2;
+        el(px, py, 1.5, 3.4, "#2c1a2a"), el(px - 1.1, py - 1.5, 0.9, 0.9, "#ffffff"), ctx.strokeStyle = d, ctx.lineWidth = 1.7, ctx.beginPath(), ctx.moveTo(x - 4.4, ey - 2.6), ctx.quadraticCurveTo(x, ey - 5.6, x + 4.4, ey - 3), ctx.stroke();
+      }), atk && (ctx.strokeStyle = "#3a2030", ctx.lineWidth = 2, ctx.beginPath(), ctx.moveTo(-7.5, -36), ctx.lineTo(-1, -33.8), ctx.stroke(), ctx.beginPath(), ctx.moveTo(10.5, -36), ctx.lineTo(4, -33.8), ctx.stroke()), !ko) {
         let hp = handPos(k.wa);
         ctx.strokeStyle = OL, ctx.lineWidth = 7.4, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.strokeStyle = d, ctx.lineWidth = 4.6, ctx.beginPath(), ctx.moveTo(6, -15), ctx.lineTo(hp[0], hp[1]), ctx.stroke(), ctx.save(), ctx.translate(hp[0], hp[1]), ctx.rotate(k.wa), drawWeapon(k.weapon), ctx.restore(), el(hp[0], hp[1], 4.5, 4.5, OL), el(hp[0], hp[1], 2.9, 2.9, c);
       }
@@ -1821,75 +1734,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   function set_shake(v2) {
     return shake = rpOpt.calm ? 0 : v2;
-  }
-
-  // src/core/save6.js
-  var SAVE6_VERSION = 1, SAVE6_EPOCH = 3, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass", "w"];
-  function v6NewSave(opt) {
-    opt = opt || {};
-    let name = v6HeroName(opt.name) || "Pip";
-    return {
-      v: SAVE6_VERSION,
-      epoch: SAVE6_EPOCH,
-      created: opt.now || 0,
-      savedAt: 0,
-      played: 0,
-      hero: { name, colour: opt.colour || "orange", renamed: !1 },
-      q: { act: 0 },
-      seals: [],
-      // the story's flags (act, pb, grubb, miner_*, side quests, bounties); seals: the Smiler pieces (the old key)
-      party: [],
-      roster: [],
-      // the pack (the old key) and every companion who has joined; kobolds as KOBOLD_KEYS
-      gold: 0,
-      bag: {},
-      buns: 3,
-      inv: [],
-      // gold, consumables, the backpack; ember-buns left (three in the whole game)
-      fountains: [],
-      stables: [],
-      respawn: null,
-      // fountains drunk from, stables visited, where a loss sends you
-      bossDefeats: {},
-      chests: [],
-      patrols: 0,
-      fame: 0,
-      // softening, chests opened, patrols beaten since the last rest, fame
-      place: { map: "hearthspire", x: 0, y: 0, face: "down" }
-    };
-  }
-  function v6HeroName(n) {
-    return n = String(n || "").trim(), /^[A-Za-zÆØÅæøåÄÖÜäöüé' -]{2,12}$/.test(n) ? n : null;
-  }
-  function v6PackKobold(m) {
-    let o = {};
-    for (let k of KOBOLD_KEYS) m[k] !== void 0 && (o[k] = JSON.parse(JSON.stringify(m[k])));
-    return o;
-  }
-  function v6SaveOf(s) {
-    let o = JSON.parse(JSON.stringify(Object.assign({}, s, { party: [], roster: [] })));
-    return o.party = (s.party || []).map(v6PackKobold), o.roster = (s.roster || []).map(v6PackKobold), o.v = SAVE6_VERSION, o.epoch = SAVE6_EPOCH, o;
-  }
-  var MIGRATIONS6 = {};
-  function v6Load(o) {
-    if (!o || typeof o != "object") return null;
-    for (o = JSON.parse(JSON.stringify(o)), o.v = o.v || 1; o.v < SAVE6_VERSION; ) {
-      let f = MIGRATIONS6[o.v];
-      if (!f) return null;
-      f(o), o.v++;
-    }
-    if (o.v !== SAVE6_VERSION || (o.epoch || 0) < SAVE6_EPOCH) return null;
-    let d = v6NewSave({ name: o.hero && o.hero.name });
-    for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
-    return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
-  }
-  var key6 = (acct2, slot) => "kq6:" + (acct2 || "guest") + ":" + slot;
-  function v6Fetch(acct2, slot) {
-    try {
-      return v6Load(store.get(key6(acct2, slot), null));
-    } catch {
-      return null;
-    }
   }
 
   // src/data/monsters.js
@@ -2031,6 +1875,68 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       }
     }
   });
+
+  // src/core/save6.js
+  var KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass", "w"];
+  function v6NewSave(opt) {
+    opt = opt || {};
+    let name = v6HeroName(opt.name) || "Pip";
+    return {
+      v: 1,
+      epoch: 3,
+      created: opt.now || 0,
+      savedAt: 0,
+      played: 0,
+      hero: { name, colour: opt.colour || "orange", renamed: !1 },
+      q: { act: 0 },
+      seals: [],
+      // the story's flags (act, pb, grubb, miner_*, side quests, bounties); seals: the Smiler pieces (the old key)
+      party: [],
+      roster: [],
+      // the pack (the old key) and every companion who has joined; kobolds as KOBOLD_KEYS
+      gold: 0,
+      bag: {},
+      buns: 3,
+      inv: [],
+      // gold, consumables, the backpack; ember-buns left (three in the whole game)
+      fountains: [],
+      stables: [],
+      respawn: null,
+      // fountains drunk from, stables visited, where a loss sends you
+      bossDefeats: {},
+      chests: [],
+      patrols: 0,
+      fame: 0,
+      // softening, chests opened, patrols beaten since the last rest, fame
+      place: { map: "hearthspire", x: 0, y: 0, face: "down" }
+    };
+  }
+  function v6HeroName(n) {
+    return n = String(n || "").trim(), /^[A-Za-zÆØÅæøåÄÖÜäöüé' -]{2,12}$/.test(n) ? n : null;
+  }
+  function v6PackKobold(m) {
+    let o = {};
+    for (let k of KOBOLD_KEYS) m[k] !== void 0 && (o[k] = JSON.parse(JSON.stringify(m[k])));
+    return o;
+  }
+  function v6SaveOf(s) {
+    let o = JSON.parse(JSON.stringify(Object.assign({}, s, { party: [], roster: [] })));
+    return o.party = (s.party || []).map(v6PackKobold), o.roster = (s.roster || []).map(v6PackKobold), o.v = 1, o.epoch = 3, o;
+  }
+  var MIGRATIONS6 = {};
+  function v6Load(o) {
+    if (!o || typeof o != "object") return null;
+    for (o = JSON.parse(JSON.stringify(o)), o.v = o.v || 1; o.v < 1; ) {
+      let f = MIGRATIONS6[o.v];
+      if (!f) return null;
+      f(o), o.v++;
+    }
+    if (o.v !== 1 || (o.epoch || 0) < 3) return null;
+    let d = v6NewSave({ name: o.hero && o.hero.name });
+    for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
+    return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
+  }
+  var key6 = (acct2, slot) => "kq6:" + (acct2 || "guest") + ":" + slot;
 
   // src/game/move.js
   var RP_SPEED = 4.6, RP_R = 0.28, RP_DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -2911,7 +2817,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       lv: m.lvl,
       cl: m.cls,
       w: m.w,
-      h: rpHat(m),
       op: net.lob && net.lob.host && !net.lob.duel && !net.lob.g && rp.mode === "lobby" ? net.lob.id : null,
       nm: "",
       pn: s.party.length
@@ -3005,7 +2910,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T17:38:22Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T20:19:37Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
@@ -3498,7 +3403,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   function s6Npcs() {
     let p = rp.s && rp.s.w6;
-    return p ? NPCS6.filter((n) => n.place === p && !n.door && test(n.show || null) && !(n.id === "bork_gate" && rp.s.q.bork)).map((n) => ({ id: "v6:" + n.id, v6id: n.id, name: n.n, x: n.x, y: n.y, team: 2, art: n.id, sheet: n.sheet, w: "stick", hat: "none", col: n.colour })) : [];
+    return p ? NPCS6.filter((n) => n.place === p && !n.door && test(n.show || null) && !(n.id === "bork_gate" && rp.s.q.bork)).map((n) => ({ id: "v6:" + n.id, v6id: n.id, name: n.n, x: n.x, y: n.y, team: 2, art: n.id, sheet: n.sheet, w: "stick", col: n.colour })) : [];
   }
   function s6NpcAt(x, y, withDoors) {
     let p = rp.s.w6;
@@ -3554,10 +3459,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     let s = rp.s, h = v6Kobold(name || "Pip", "fighter", 1, { hero: 1, skills: [], known: [], passives: [] });
     h.noclass = 1, h.colour = colour || "orange", s.q = { act: 0, pb: 0 }, s.buns = 0, s.hero = { name: h.name, colour: h.colour }, w6Start([h], { map: "room:bakery", at: [6, 5], gold: 30, bag: { potion: 2 } }), s.w6st.seen = {}, story.busy = !1, play("1.1");
   }
-  function s6Continue() {
-    let s = v6Fetch("guest", 0);
-    return s ? (rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, !0) : !1;
-  }
   function shopHtml() {
     let town = rp.w6shop, tab = rp.w6tab || "buy", s = rp.s, h = '<div class="rpcmd">' + [["buy", "Buy"], ["sell", "Sell"]].concat(v6Recipes(town).length ? [["smith", "Smith"]] : []).map(([k, n]) => '<button class="rpb' + (k === tab ? " on" : "") + '" type="button" data-rp="w6tab" data-v="' + k + '">' + n + "</button>").join("") + '<button class="rpb x" type="button" data-rp="w6back">Leave</button></div><p><b>' + Math.floor(s.gold) + " gold</b></p>", fits = (it) => it.k === "use" ? "" : s.party.filter((m) => v6CanWear(m, it)).map((m) => m.name).join(", ");
     if (tab === "buy") return h + '<div class="rpcmd">' + v6ShopStock(town).map((it, i) => {
@@ -3591,9 +3492,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       w6craft: (d) => {
         let it = v6Craft(rp.w6shop, +d.v);
         it && rpToast("The smith made " + it.n + "!");
-      },
-      w6cont: () => {
-        s6Continue() || rpToast("No story saved yet.");
       },
       w6cls: (d) => {
         V6S.cls === d.v ? (V6S.cls = null, pickClass(d.v)) : V6S.cls = d.v;
@@ -3643,10 +3541,8 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       let pr = P.presence;
       if (pr.m === "battle" || !netHere(P)) return;
       let E = net.pks[P.peer];
-      (!E || E.k.weapon !== pr.w) && (E = net.pks[P.peer] = { k: makeK({ team: 0, name: netName(P), art: "pip", weapon: WEAPONS[pr.w] ? pr.w : "stick", hat: pr.h || "none", pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1), pos: null });
-      let k = E.k;
-      k.hat = pr.h || "none";
-      let tx = (+pr.x || 0) * RT, ty = (+pr.y || 0) * RT + 10;
+      (!E || E.k.weapon !== pr.w) && (E = net.pks[P.peer] = { k: makeK({ team: 0, name: netName(P), art: "pip", weapon: WEAPONS[pr.w] ? pr.w : "stick", hp: 30, size: 0.72 }, 0, 0, !1), pos: null });
+      let k = E.k, tx = (+pr.x || 0) * RT, ty = (+pr.y || 0) * RT + 10;
       (!E.pos || Math.hypot(E.pos.x - tx, E.pos.y - ty) > RT * 6) && (E.pos = { x: tx, y: ty });
       let dx = tx - E.pos.x, dy = ty - E.pos.y;
       E.pos.x += dx * Math.min(1, dt * 10), E.pos.y += dy * Math.min(1, dt * 10), k.x = E.pos.x, k.y = E.pos.y, k.t += dt, k.blink -= dt, k.blink < -0.12 && (k.blink = R(2, 5)), k.moving = Math.hypot(dx, dy) > 1, k.moving && (k.walk += dt * 12), Math.abs(dx) > 0.5 && (k.face = dx > 0 ? 1 : -1), k.wa += ((WEAPONS[k.weapon].ranged && !WEAPONS[k.weapon].magic ? 1.45 : 0.35) - k.wa) * Math.min(1, dt * 10), E.peer = P, out.push(k);
@@ -3847,7 +3743,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   function rpNpcK(n) {
     let k = rp.npcK[n.id];
-    return k || (k = makeK({ team: n.team, name: n.name, art: artName(n.art || n.id), weapon: n.w, hat: n.hat, pers: "brave", speed: 1, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face || 1, String(n.id).startsWith("v6:") && (k.sheetFn = () => sheetOfNpc(n.id, n.sheet), k.onMap = 1), rp.npcK[n.id] = k), k;
+    return k || (k = makeK({ team: n.team, name: n.name, art: artName(n.art || n.id), weapon: n.w, hp: 30, size: (n.size || 1) * 0.72 }, 0, 0, !1), k.face = n.face || 1, String(n.id).startsWith("v6:") && (k.sheetFn = () => sheetOfNpc(n.id, n.sheet), k.onMap = 1), rp.npcK[n.id] = k), k;
   }
   function rpDrawMap(dt) {
     let s = rp.s, ctx0 = ctx;
@@ -3863,8 +3759,8 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     let ents = rpNpcs().map((n) => {
       let kk = rpNpcK(n);
       return kk.x = n.x * RT + 16, kk.y = n.y * RT + 26, kk.t += dt, kk.blink -= dt, kk.blink < -0.12 && (kk.blink = R(2, 5)), kk.moving = !1, kk.wa = 0.35 + Math.sin(kk.t * 2 + kk.phase) * 0.4, Math.abs(s.x - n.x) + Math.abs(s.y - n.y) <= 2 && (kk.face = s.x > n.x ? 1 : s.x < n.x ? -1 : kk.face), kk;
-    }), P0 = s.party[0] && WEAPONS[s.party[0].w] ? s.party[0] : Object.assign({}, s.party[0] || {}, { w: "stick" }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", art: "pip", weapon: P0.w, hat: P0.hat, pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1));
-    if (pk.weapon !== P0.w && (pk.weapon = P0.w, pk.W = WEAPONS[pk.weapon]), pk.hat = rpHat(P0), pk.x = px * RT + 16, pk.y = py * RT + 26, pk.t += dt, pk.blink -= dt, pk.blink < -0.12 && (pk.blink = R(2, 5)), pk.moving = rp.moving, rp.moving && (pk.walk += dt * 12), s.face === "left" ? pk.face = -1 : s.face === "right" && (pk.face = 1), s.w6) {
+    }), P0 = s.party[0] && WEAPONS[s.party[0].w] ? s.party[0] : Object.assign({}, s.party[0] || {}, { w: "stick" }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", art: "pip", weapon: P0.w, hp: 30, size: 0.72 }, 0, 0, !1));
+    if (pk.weapon !== P0.w && (pk.weapon = P0.w, pk.W = WEAPONS[pk.weapon]), pk.x = px * RT + 16, pk.y = py * RT + 26, pk.t += dt, pk.blink -= dt, pk.blink < -0.12 && (pk.blink = R(2, 5)), pk.moving = rp.moving, rp.moving && (pk.walk += dt * 12), s.face === "left" ? pk.face = -1 : s.face === "right" && (pk.face = 1), s.w6) {
       let H = s.party.find((m) => m.hero) || s.party[0];
       pk.sheetFn = () => sheetOfKobold(H), pk.onMap = 1, pk.dir6 = s.face, pk.colour6 = s.hero && s.hero.colour;
     } else pk.sheetFn = null;
@@ -4063,12 +3959,12 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
           m.hp = v2;
         }, get max() {
           return rpStats(m).hp;
-        } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: u.max, size: 0.62 }, 0, 0, !0);
+        } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hp: u.max, size: 0.62 }, 0, 0, !0);
       } else {
         d.v6 && !RP_E[o.k] && /^v6/.test(String(o.k)) && o.E && typeof o.E == "object" && (RP_E[o.k] = netClean6E(o.E));
         let E = RP_E[o.k];
         if (!E) return;
-        u = { side, E, key: o.k, name: E.n, x: o.x, y, sz: o.z, hp: o.hp, max: o.mx, atk: o.a, def: o.d, spd: o.sp, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !!o.aw, pod: o.pd, turns: 0, fled: !1, own: "e", ctl: "ai" }, u.k = makeK({ team: E.team, name: E.n, art: E.art || o.k, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !0);
+        u = { side, E, key: o.k, name: E.n, x: o.x, y, sz: o.z, hp: o.hp, max: o.mx, atk: o.a, def: o.d, spd: o.sp, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !!o.aw, pod: o.pd, turns: 0, fled: !1, own: "e", ctl: "ai" }, u.k = makeK({ team: E.team, name: E.n, art: E.art || o.k, weapon: E.w, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !0);
       }
       d.v6 && (u.ct = +o.ct || 0, u.seat = o.se), u.m && u.m.v6 ? u.k.sheetFn = () => sheetOfKobold(u.m) : u.E && u.E.v6 && (u.k.sheetFn = () => sheetOfFoe(u.E)), u.k.face = side === 0 ? 1 : -1;
       let hh = tcHome(u);
@@ -4566,7 +4462,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     switch (ADM.tab) {
       case "server": {
         let S = D.status;
-        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T17:38:22Z" ? " (this page: " + esc2("2026-10-23T17:38:22Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T20:19:37Z" ? " (this page: " + esc2("2026-10-23T20:19:37Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
         break;
       }
       case "players": {
@@ -4686,7 +4582,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   var errN = 0, errSeen = /* @__PURE__ */ new Set();
   function adminReportError(msg, where) {
-    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T17:38:22Z" })));
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T20:19:37Z" })));
   }
   async function adminReport(peer) {
     if (!(!online || !online.account.loggedIn))
@@ -5894,7 +5790,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
         tcFits(b, { sz: 1 }, x, y) && !b.units.some((o) => tcLive(o) && x >= o.x && x < o.x + (o.sz || 1) && y >= o.y && y < o.y + (o.sz || 1)) && (spot = [x, y]);
       if (!spot) return;
       let v2 = { side: 1, E, key: key2, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
-      v2.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v2.k.face = -1;
+      v2.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v2.k.face = -1;
       let h = tcHome(v2);
       v2.k.x = h.x, v2.k.y = h.y, b.units.push(v2), tcFloatU(v2, "joins!", "#ffb347");
     }
@@ -6512,7 +6408,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
           return rpStats(m).hp;
         }
       };
-      u.k = makeK({ team: side === 1 ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: st.hp, size: 0.62 }, 0, 0, !rp.headless), u.k.face = side ? -1 : 1, u.k.sheetFn = () => sheetOfKobold(m), u.k.colour6 = m.hero && rp.s.hero ? rp.s.hero.colour : null, m.hp <= 0 && (u.k.state = "ko", u.k.rot = -Math.PI / 2);
+      u.k = makeK({ team: side === 1 ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hp: st.hp, size: 0.62 }, 0, 0, !rp.headless), u.k.face = side ? -1 : 1, u.k.sheetFn = () => sheetOfKobold(m), u.k.colour6 = m.hero && rp.s.hero ? rp.s.hero.colour : null, m.hp <= 0 && (u.k.state = "ko", u.k.rot = -Math.PI / 2);
       let y0 = side ? 0 : H - 3, yc = side ? 1 : H - 2, spot = null, bd = 1e9;
       for (let y = y0; y < y0 + 3; y++) for (let x = 0; x < W; x++) {
         if (!tcFits(b, u, x, y)) continue;
@@ -6571,7 +6467,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
           sc > best && (best = sc, spot = [x, y]);
         }
       }
-      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, u.k.sheetFn = () => sheetOfFoe(E), b.units.push(u);
+      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, u.k.sheetFn = () => sheetOfFoe(E), b.units.push(u);
     }), b.units.forEach((u) => {
       let h = tcHome(u);
       u.k.x = h.x, u.k.y = h.y;
@@ -7187,7 +7083,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   feature({ id: "music", frame: () => rpMusicTick() });
 
   // src/ui/chars6.js
-  var DAY = 864e5, KEEP = 7 * DAY, LOCK_MS = 6e4, RENEW_MS = 3e4, C6_COLOURS = ["orange", "green", "blue", "pink", "gold", "purple"], C6 = { slot: null, cloud: {}, form: { name: "Pip", colour: "orange", slot: 0 }, del: null, lockT: 0, dev: null, ask: null }, acct = () => net.me || "guest", key = (a, i) => "kq6:" + a + ":" + i, devId = () => C6.dev || (C6.dev = store.get("kq6:dev", null) || (() => {
+  var DAY = 864e5, KEEP = 7 * DAY, LOCK_MS = 6e4, RENEW_MS = 3e4, C6_COLOURS = ["orange", "green", "blue", "pink", "gold", "purple"], C6 = { slot: null, cloud: {}, form: { name: "Pip", colour: "orange", slot: 0 }, del: null, lockT: 0, dev: null, ask: null }, acct = () => net.me || "guest", key = key6, devId = () => C6.dev || (C6.dev = store.get("kq6:dev", null) || (() => {
     let d = "d" + Math.random().toString(36).slice(2, 10);
     return store.set("kq6:dev", d), d;
   })());
@@ -7206,7 +7102,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   async function cloudLoad() {
     if (!(!net.db || !net.me)) {
-      for (let i = 0; i < SLOTS6; i++)
+      for (let i = 0; i < 6; i++)
         try {
           let sn = await cloudRef(i).get();
           C6.cloud[i] = sn.exists ? sn.data() : null;
@@ -7333,7 +7229,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   function guestHeroes() {
     if (acct() === "guest") return [];
     let out = [];
-    for (let i = 0; i < SLOTS6; i++) {
+    for (let i = 0; i < 6; i++) {
       let d = store.get(key("guest", i), null);
       d && !d.deletedAt && out.push(i);
     }
@@ -7353,9 +7249,9 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     return d < 1 / 24 ? "just now" : d < 1 ? Math.round(d * 24) + " h ago" : Math.round(d) + " d ago";
   }, hm = (s) => (s = Math.floor((s || 0) / 60), Math.floor(s / 60) + " h " + s % 60 + " min"), C6_SWATCH = { orange: "#f08a2a", green: "#5fb04a", blue: "#3f8fe0", pink: "#e05aa8", gold: "#e8c13a", purple: "#8a5ae0" }, C6_NAMES = ["Pip", "Wick", "Nib", "Fizz", "Scrap", "Cobble", "Tinder", "Spark", "Kip", "Twig", "Rook", "Sooty", "Pebble", "Dot", "Ash", "Moss", "Clink", "Puff"], heroCv = (cls, colour, big) => '<canvas class="c6hero' + (big ? " big" : "") + '" width="' + (big ? 96 : 48) + '" height="' + (big ? 192 : 96) + '" data-hero="' + (cls || "") + '" data-colour="' + (colour || "orange") + '"></canvas>';
   function selectHtml() {
-    for (let i = 0; i < SLOTS6; i++) purge(i);
+    for (let i = 0; i < 6; i++) purge(i);
     let h = '<div class="c6screen"><div class="c6head"><h2>Your heroes</h2><p>' + (net.me ? "Six heroes on your account. Pick one to play, or make a new one." : "Playing on this device as a guest. Log in to keep your heroes everywhere.") + '</p></div><div class="c6grid">';
-    for (let i = 0; i < SLOTS6; i++) {
+    for (let i = 0; i < 6; i++) {
       let x = slotInfo(i);
       if (!x) {
         h += '<button class="c6card new" type="button" data-rp="c6new" data-v="' + i + '"><span class="plus">+</span><b>New hero</b><small>slot ' + (i + 1) + "</small></button>";
@@ -7475,16 +7371,16 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
 
   // src/core/boot.js
   var TITLE_KS = [
-    { team: 0, weapon: "stick", hat: "leaf", x: 70, y: 112, face: 1 },
-    { team: 0, weapon: "frostrod", hat: "wizard", x: 130, y: 106, face: 1 },
-    { team: 3, weapon: "sword", hat: "crown", x: 228, y: 112, face: -1, size: 1.3, state: "windup" }
+    { team: 0, weapon: "stick", x: 70, y: 112, face: 1 },
+    { team: 0, weapon: "frostrod", x: 130, y: 106, face: 1 },
+    { team: 3, weapon: "sword", x: 228, y: 112, face: -1, size: 1.3, state: "windup" }
   ], titleKs = null;
   function drawTitle(dt) {
     let c = $("title-cv");
     if (!c || !c.getContext) return;
     let g = c.getContext("2d");
     titleKs || (titleKs = TITLE_KS.map((o) => {
-      let k = makeK({ team: o.team, name: "", weapon: o.weapon, hat: o.hat, pers: "brave", speed: 1, hp: 30, size: o.size || 1 }, o.x, o.y, !1);
+      let k = makeK({ team: o.team, name: "", weapon: o.weapon, hp: 30, size: o.size || 1 }, o.x, o.y, !1);
       return k.face = o.face, o.state && (k.state = o.state), k;
     })), g.setTransform(1, 0, 0, 1, 0, 0), g.clearRect(0, 0, c.width, c.height);
     let main = ctx;

@@ -1,7 +1,7 @@
 /* ---------- Kobold Quest v6: the slice's world (build step 11; systems.md §6, §9; world/) ----------
    The maps and rooms of world/ (made in the map editor; MAPS6, ROOMS6, LINKS6, TILES6) walked with the engine's movement. A v6 game has rp.s.w6 set to
    the place it stands in ('hearthspire', 'r1', ..., or 'room:bakery'); the engine's grid, solids, tiles, encounters and drawing ask
-   this module while it is set, and the old world is untouched otherwise. */
+   this module. */
 import {v6EliteKey,v6Mix} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';

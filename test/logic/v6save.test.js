@@ -15,5 +15,4 @@ ok(!('junk' in p2),'runtime fields are not saved');ok(JSON.stringify(X.v6Stats(p
 // a save missing fields takes the defaults; a broken one is refused; an old-epoch one is ignored
 const thin=JSON.parse(json);delete thin.stables;delete thin.fame;const t2=X.v6Load(thin);ok(t2&&Array.isArray(t2.stables)&&t2.fame===0,'missing fields take their defaults');
 ok(X.v6Load({party:'x'})===null||X.v6Load({party:'x'}).party.length===0,'a broken save gives nothing to play');ok(X.v6Load(Object.assign(JSON.parse(json),{epoch:1}))===null,'a save from before the reset is ignored');
-ok(X.v6Slots('acct').length===6&&X.v6Slots('acct').every(x=>x===null),'six empty slots');
 console.log(fails?fails+' failures':'v6 save: '+checks+' checks');process.exitCode=fails?1:0;

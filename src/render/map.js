@@ -1,11 +1,10 @@
-/* tile letter → drawing name in art/sprites (see art/WANTED.md) */
+/* Drawing the map: its tiles (render/map6.js), the people standing on it, Pip, friends, and the "!" over someone with a scene */
 import {RPH,RPW,RT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {rp} from '../core/state.js';
 import {OL,WEAPONS,ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {sheetOfKobold,sheetOfNpc} from '../engine/sheets6.js';
 import {artName} from '../engine/sprites.js';
 import {R,clamp,rr} from '../engine/util.js';
-import {rpHat} from '../game/stats.js';
 import {s6Marker} from '../game/story6.js';
 import {rpNpcs} from '../game/world.js';
 import {netDrawTags,netPartnerK} from '../net/draw.js';
@@ -27,7 +26,7 @@ function rpChunk(cx,cy){const M=rp.mapImg,key=cx+','+cy;let c=M.chunks.get(key);
 function rpDrawChunks(cx,cy){const k=rpS*rpDpr,size=CHUNK*RT,W=rp.grid[0].length,H=rp.grid.length;
   const a=Math.max(0,Math.floor(cx/size)),b=Math.min(Math.ceil(W/CHUNK)-1,Math.floor((cx+RPW)/size)),c=Math.max(0,Math.floor(cy/size)),d=Math.min(Math.ceil(H/CHUNK)-1,Math.floor((cy+RPH)/size));
   for(let j=c;j<=d;j++)for(let i=a;i<=b;i++){const im=rpChunk(i,j);ctx.drawImage(im,Math.round((i*size-cx)*k),Math.round((j*size-cy)*k),Math.round(im.width/rp.mapImg.k*k),Math.round(im.height/rp.mapImg.k*k))}}
-function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,art:artName(n.art||n.id),weapon:n.w,hat:n.hat,pers:'brave',speed:1,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face||1;   /* never undefined: a scale of NaN is skipped by the canvas, which drew people a third too big until Pip came near */
+function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,art:artName(n.art||n.id),weapon:n.w,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face||1;   /* never undefined: a scale of NaN is skipped by the canvas, which drew people a third too big until Pip came near */
   if(String(n.id).startsWith('v6:')){k.sheetFn=()=>sheetOfNpc(n.id,n.sheet);k.onMap=1}rp.npcK[n.id]=k}return k}
 function rpDrawMap(dt){
   const s=rp.s,ctx0=ctx;set_ctx(rpctx);
@@ -45,8 +44,8 @@ function rpDrawMap(dt){
   const ents=rpNpcs().map(n=>{const kk=rpNpcK(n);kk.x=n.x*RT+16;kk.y=n.y*RT+26;kk.t+=dt;kk.blink-=dt;if(kk.blink<-.12)kk.blink=R(2,5);kk.moving=false;kk.wa=.35+Math.sin(kk.t*2+kk.phase)*.4;
     if(Math.abs(s.x-n.x)+Math.abs(s.y-n.y)<=2){kk.face=s.x>n.x?1:s.x<n.x?-1:kk.face}return kk});
   const P0=s.party[0]&&WEAPONS[s.party[0].w]?s.party[0]:Object.assign({},s.party[0]||{},{w:'stick'});   // the heroes screen has nobody yet; a save without a weapon look draws a stick
-  const pk=rp.pk||(rp.pk=makeK({team:0,name:'Pip',art:'pip',weapon:P0.w,hat:P0.hat,pers:'brave',speed:1,hp:30,size:.72},0,0,false));
-  if(pk.weapon!==P0.w){pk.weapon=P0.w;pk.W=WEAPONS[pk.weapon]}pk.hat=rpHat(P0);
+  const pk=rp.pk||(rp.pk=makeK({team:0,name:'Pip',art:'pip',weapon:P0.w,hp:30,size:.72},0,0,false));
+  if(pk.weapon!==P0.w){pk.weapon=P0.w;pk.W=WEAPONS[pk.weapon]}
   pk.x=px*RT+16;pk.y=py*RT+26;pk.t+=dt;pk.blink-=dt;if(pk.blink<-.12)pk.blink=R(2,5);pk.moving=rp.moving;if(rp.moving)pk.walk+=dt*12;
   if(s.face==='left')pk.face=-1;else if(s.face==='right')pk.face=1;
   if(s.w6){const H=s.party.find(m=>m.hero)||s.party[0];pk.sheetFn=()=>sheetOfKobold(H);pk.onMap=1;pk.dir6=s.face;pk.colour6=s.hero&&s.hero.colour}else pk.sheetFn=null;pk.wa+=((WEAPONS[pk.weapon].ranged&&!WEAPONS[pk.weapon].magic?1.45:.35)-pk.wa)*Math.min(1,dt*10);

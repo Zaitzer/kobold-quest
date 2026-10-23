@@ -77,8 +77,7 @@ function v6StatsCalc(m){
     burnP:X.burnP||0,poisonP:X.poisonP||0,goldP:X.goldP||0,rangedTaken:X.rangedTaken||0,morale:X.morale||0,
     steady:Math.max(1,G.steady+(X.steady||0)+(G.magic?(P.steadySpell||0):(P.steady||0))),magic:G.magic,quick:G.quick,heavy:G.heavy,fam:G.famId,
     balance:balanceOf(sc),corr:m.corr||0,
-    // the old engine's names, so code that has not moved yet keeps working
-    sight:0,stealth:0,rage:0,mov:0};
+    sight:X.sight||0,stealth:X.stealth||0};   // gear's sight (of the Owl) and stealth, read by the battle's line of sight
   if(m.cls==='monk')S.kiMul=0.5+S.balance;
   return S}
 export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};

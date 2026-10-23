@@ -2,7 +2,6 @@
    One document per character (a hero and everything that belongs to it). The account's shared part and the slot list are a
    separate document (build step 14). This module builds, checks, upgrades and stores saves.
    Server paths (step 14): data/users/<account>/char<slot>, data/users/<account>/lock<slot>. */
-import {store} from '../adapters/storage.js';
 
 const SAVE6_VERSION=1,SAVE6_EPOCH=3,SLOTS6=6;
 /* the kobold fields a save keeps (systems.md §11: level, XP, scores, talents, skills equipped and known, dark or plain, gear, HP, mana,
@@ -31,9 +30,6 @@ function v6Load(o){if(!o||typeof o!=='object')return null;o=JSON.parse(JSON.stri
   const d=v6NewSave({name:o.hero&&o.hero.name});for(const k of Object.keys(d))if(o[k]===undefined||(d[k]!==null&&(typeof o[k]!==typeof d[k]||Array.isArray(o[k])!==Array.isArray(d[k]))))o[k]=d[k];
   if(!v6HeroName(o.hero.name))o.hero.name='Pip';
   o.party=o.party.filter(m=>m&&m.v6&&m.cls&&m.lvl>=1&&m.lvl<=30);o.roster=o.roster.filter(m=>m&&m.v6&&m.cls);return o}
-/* this browser's copies (the server's are step 14): one key per account and slot */
+/* this browser's copy of a character: one key per account and slot (ui/chars6.js keeps them, beside the server's) */
 const key6=(acct,slot)=>'kq6:'+(acct||'guest')+':'+slot;
-function v6Store(acct,slot,s){if(slot<0||slot>=SLOTS6)return false;s.savedAt=Date.now();store.set(key6(acct,slot),v6SaveOf(s));return true}
-function v6Fetch(acct,slot){try{return v6Load(store.get(key6(acct,slot),null))}catch(e){return null}}
-function v6Slots(acct){const out=[];for(let i=0;i<SLOTS6;i++){const s=v6Fetch(acct,i);out.push(s?{slot:i,name:s.hero.name,cls:s.party[0]&&s.party[0].cls,lvl:s.party[0]?s.party[0].lvl:1,seals:s.seals.length,played:s.played,savedAt:s.savedAt,where:s.respawn}:null)}return out}
-export {KOBOLD_KEYS,MIGRATIONS6,SAVE6_EPOCH,SAVE6_VERSION,SLOTS6,key6,v6Fetch,v6HeroName,v6Load,v6NewSave,v6PackKobold,v6SaveOf,v6Slots,v6Store};
+export {KOBOLD_KEYS,MIGRATIONS6,SAVE6_EPOCH,SAVE6_VERSION,SLOTS6,key6,v6HeroName,v6Load,v6NewSave,v6PackKobold,v6SaveOf};

@@ -8,7 +8,6 @@ function seeded(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Mat
 function starPath(c,x,y,r,rot){c.beginPath();for(let i=0;i<10;i++){const a=rot+i*Math.PI/5-Math.PI/2,q=i%2?r*.45:r;c.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}c.closePath()}
 function heartPath(c,x,y,s){c.beginPath();c.moveTo(x,y+s*.35);c.bezierCurveTo(x-s,y-s*.3,x-s*.5,y-s,x,y-s*.45);c.bezierCurveTo(x+s*.5,y-s,x+s,y-s*.3,x,y+s*.35);c.closePath()}
 const $=id=>document.getElementById(id);
-const wpick=o=>{const ks=Object.keys(o);let t=0;ks.forEach(k=>t+=o[k]);let r=Math.random()*t;for(const k of ks){r-=o[k];if(r<0)return k}return ks[0]};
 /* UI panel */
 const esc2=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-export {$,R,RM,clamp,eob,esc2,heartPath,pick,rr,seeded,starPath,wpick};
+export {$,R,RM,clamp,eob,esc2,heartPath,pick,rr,seeded,starPath};

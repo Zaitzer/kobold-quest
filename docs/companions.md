@@ -134,4 +134,4 @@ watches; the last load she hands out herself. Talent card: **Shared table** (her
 | the feast | the last chat of each, and Saffi reads her last page | everyone |
 
 Counting the pairs for both, that is 4–5 chats per companion; the rest of the 30 are the feast and the march's walking lines.
-Today's engine has 5 chats for the old cast (`src/data/banter.js`); these replace them at the progress reset.
+The old cast's chats (`src/data/banter.js`) are gone (23 Oct); the slice's chats are wired in `world/scenes.json`.

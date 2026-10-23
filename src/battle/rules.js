@@ -99,5 +99,4 @@ function tcActCost(u,act){
 function tcCanPay(u,c){return c==='end'?u.ap>=1:u.ap>=c}
 function tcPay(u,c){u.ap=c==='end'?0:u.ap-c}
 /* ---------- building a battle ---------- */
-const rpAlive=u=>u.hp>0;
-export {rpAlive,rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcCrit,tcDmg,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcLos,tcLosT,tcMelee,tcMov,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTiles,tcUnitAt,tcVis,tcW};
+export {rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcCrit,tcDmg,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcLos,tcLosT,tcMelee,tcMov,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTiles,tcUnitAt,tcVis,tcW};

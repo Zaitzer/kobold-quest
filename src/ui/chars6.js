@@ -7,7 +7,7 @@ import {store} from '../adapters/storage.js';
 import {show} from '../core/app.js';
 import {rpLayout,rpResize} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
-import {SLOTS6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
+import {SLOTS6,key6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
 import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {SHEET6,byBase,recolour} from '../engine/sheets6.js';
@@ -22,7 +22,7 @@ import {rpUI} from './hud.js';
 const DAY=864e5,KEEP=7*DAY,LOCK_MS=60000,RENEW_MS=30000,C6_COLOURS=['orange','green','blue','pink','gold','purple'];
 const C6={slot:null,cloud:{},form:{name:'Pip',colour:'orange',slot:0},del:null,lockT:0,dev:null,ask:null};
 const acct=()=>net.me||'guest';
-const key=(a,i)=>'kq6:'+a+':'+i;
+const key=key6;
 const devId=()=>C6.dev||(C6.dev=store.get('kq6:dev',null)||(()=>{const d='d'+Math.random().toString(36).slice(2,10);store.set('kq6:dev',d);return d})());
 /* ------------------------------------------------------------------ reading and writing slots (newest copy wins, as before) */
 function raw(i){const a=acct(),L=store.get(key(a,i),null),R=C6.cloud[i]||null;return(L&&R)?((R.savedAt||0)>(L.savedAt||0)?R:L):(L||R)}

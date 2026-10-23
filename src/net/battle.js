@@ -16,7 +16,7 @@ import {sheetOfFoe,sheetOfKobold} from '../engine/sheets6.js';
 import {artName} from '../engine/sprites.js';
 import {clamp} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
-import {rpHat,rpMemSkills,rpStats} from '../game/stats.js';
+import {rpMemSkills,rpStats} from '../game/stats.js';
 import {s6SharedWin} from '../game/story6.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
 import {netCleanParty,netLobFix,netLobSend,netParty} from './lobby.js';
@@ -26,7 +26,6 @@ const NET_TURN_MS=20000,NET_LOST_MS=8000;
 const turnMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqTurnMs)||NET_TURN_MS,lostMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqLostMs)||NET_LOST_MS;
 /* a v6 foe's entry sent with the start (v6 keys are made at run time): numbers and short strings only */
 function netClean6E(E){const o={};for(const [k,v] of Object.entries(E))if(typeof v==='number'||typeof v==='boolean'||(typeof v==='string'&&v.length<80)||(v&&typeof v==='object'&&JSON.stringify(v).length<2000))o[k]=v;o.v6=1;o.n=String(E.n||'Foe').slice(0,30);return o}
-function netUnitIdx(b,u){return b.units.indexOf(u)}
 function netSendStart(b){
   const units=b.units.map(u=>{const o={s:u.side,o:u.own,x:u.x,y:u.y,z:u.sz,hp:u.hp,mx:u.max,aw:u.aware?1:0,pd:u.pod||0};
     if(u.own==='h')o.m=netParty()[rp.s.party.indexOf(u.m)];else if(u.own==='g')o.gi=u.gi!=null?u.gi:b.net.gParty.indexOf(u.m);else{o.k=u.key;o.a=Math.round(u.atk*100)/100;o.d=u.def;o.sp=u.spd;if(b.v6)o.E=RP_E[u.key]}if(b.v6){o.ct=u.ct||0;o.se=u.seat}return o});
@@ -44,9 +43,9 @@ function netBuildMirror(d,hostPeer){
   d.u.forEach(o=>{const side=flip?1-o.s:o.s,y=flip?H-o.z-o.y:o.y;let u;
     if(o.o==='g'||o.o==='h'){const m=o.o==='g'?s.party[o.gi]:netCleanParty([o.m])[0];if(!m)return;
       u={side,m,name:m.name,x:o.x,y,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,own:o.o,ctl:o.o==='g'?'me':'remote',get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
-      u.k=makeK({team:o.o==='g'?0:(flip?3:0),name:m.name,art:artName(m.name),weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:u.max,size:.62},0,0,true)}
+      u.k=makeK({team:o.o==='g'?0:(flip?3:0),name:m.name,art:artName(m.name),weapon:m.w,hp:u.max,size:.62},0,0,true)}
     else{if(d.v6&&!RP_E[o.k]&&/^v6/.test(String(o.k))&&o.E&&typeof o.E==='object')RP_E[o.k]=netClean6E(o.E);const E=RP_E[o.k];if(!E)return;u={side,E,key:o.k,name:E.n,x:o.x,y,sz:o.z,hp:o.hp,max:o.mx,atk:o.a,def:o.d,spd:o.sp,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!o.aw,pod:o.pd,turns:0,fled:false,own:'e',ctl:'ai'};
-      u.k=makeK({team:E.team,name:E.n,art:E.art||o.k,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
+      u.k=makeK({team:E.team,name:E.n,art:E.art||o.k,weapon:E.w,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
     if(d.v6){u.ct=+o.ct||0;u.seat=o.se}
     if(u.m&&u.m.v6)u.k.sheetFn=()=>sheetOfKobold(u.m);else if(u.E&&u.E.v6)u.k.sheetFn=()=>sheetOfFoe(u.E);
     u.k.face=side===0?1:-1;const hh=tcHome(u);u.k.x=hh.x;u.k.y=hh.y;b.units.push(u)});
@@ -154,4 +153,4 @@ feature({id:'net-battle-io',
     duelok(d,msg){const b=rp.bt,L=net.lob;if(L&&L.host&&L.duel&&L.id===d.id&&!L.g){{const gp=netCleanParty(d.party);L.g={peer:msg.peer,by:msg.by,party:gp,sel:[Math.max(0,gp.findIndex(m=>m.hp>0))]}}netLobFix(L,'g');netLobSend();rp.sig=''}}},
   actions:{
     'net:duel'(d){netDuelAsk()}}});
-export {NET_LOST_MS,NET_TURN_MS,lostMs,netApplySnap,netBuildMirror,netClean6E,netDuelAccept,netDuelAsk,netFx,netGuestEnd,netGuestFrame,netHostAct,netHostFrame,netOver,netSendAct,netSendSnap,netSendStart,netSerAct,netSnapSig,netUnitIdx,turnMs};
+export {NET_LOST_MS,NET_TURN_MS,lostMs,netApplySnap,netBuildMirror,netClean6E,netDuelAccept,netDuelAsk,netFx,netGuestEnd,netGuestFrame,netHostAct,netHostFrame,netOver,netSendAct,netSendSnap,netSendStart,netSerAct,netSnapSig,turnMs};

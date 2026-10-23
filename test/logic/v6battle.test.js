@@ -61,7 +61,7 @@ seeded(11,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','c
  for(const sel of sels){try{const b=lab(['ranger','monk','bard','sorcerer'],sel==='b:snipe'||sel==='t:old_shellback'?8:5,sel,77);if(!b.over)stuck++}catch(e){errs++;console.log(sel,e.stack.split('\n').slice(0,3).join(' | '))}}
  checks++;if(errs||stuck)bad('crash scan: '+errs+' errors, '+stuck+' stuck')}
 // the turn-order bar (step 6): eight turns, and it never lies: whenever the same units are alive, the eight it shows are the eight that come
-{let windows=0,wrong=0;for(const [sel,L,seed] of [[0,6,3],[1,8,4],['b:grubb',7,5],['b:snipe',10,6]]){const turns=[];
+{let windows=0,wrong=0;for(const [sel,L,seed] of [[0,6,3],[1,8,4],['b:grubb',7,5],['b:snipe',10,6],[0,7,8],[1,7,9]]){const turns=[];
   seeded(seed,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter','ranger',null,null];X.v6Lab.lvl=L;X.v6Lab.place=sel;X.v6Lab.theme='';X.v6Lab.ks=null;X.v6LabStart();const b=X.rp.bt;b.together={'Pip+Wizzle':1};let s=0,last=null;
     while(!b.over&&s<40000){X.rpBattleStep(1/30);s++;if(b.cur&&b.cur!==last&&b.phase!=='place'){last=b.cur;turns.push({u:b.cur,bar:X.tcUpcoming(b,7),live:b.units.filter(X.tcLive).length,n:b.units.length,tog:Object.keys(b.together||{}).length,stun:b.units.filter(u=>u.stun).length})}}});
   for(let i=0;i+8<=turns.length;i++){const w=turns.slice(i,i+8);if(w.some(t=>t.live!==w[0].live||t.n!==w[0].n||t.tog!==w[0].tog))continue;windows++;   // (a death, an add or a Together changes the clock)

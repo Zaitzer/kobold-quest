@@ -1,4 +1,4 @@
-/* Test hooks (only in the test build): the same window handles the old test scripts use. */
+/* Test hooks (only in the test build): window handles (__rp, __v6, __rpB...) the browser tests drive the game with. */
 import {rpBattle} from '../battle/flow.js';
 import {rpTacBtn,rpTacTap} from '../battle/input.js';
 import {tcMov,tcReach} from '../battle/rules.js';

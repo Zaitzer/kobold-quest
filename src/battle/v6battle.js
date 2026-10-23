@@ -19,7 +19,6 @@ import {v6Kobold,v6Stats} from '../game/v6sheet.js';
 import {w6Start} from '../game/world6.js';
 import {netFx} from '../net/battle.js';
 
-const v6u=u=>!!u&&((u.m&&u.m.v6)||(u.E&&u.E.v6));
 const V6_WEAK=new Set(['cleric','druid','bard']);           // their basic attack is a melee bonk with the focus (−10 accuracy)
 const V6_ROLE_LOOK={normal:'stick',brute:'club',quick:'spoon',ranged:'popgun',caster:'firewand',elite:'sword',swarm:'fish'};
 
@@ -277,7 +276,7 @@ function v6BossWalk(b,u,focus,reach){const R=tcReach(b,u,99),mov=tcMov(u);let go
 function v6Spawn(b,u,n,what){const id=Object.keys(FOES6).find(k=>what.toLowerCase().includes(FOES6[k].n.toLowerCase().split(' ').slice(-1)[0].replace(/s$/,'')))||'nettlenose_scout';
   for(let i=0;i<n;i++){const key=v6FoeKey(id,u.E.L),E=RP_E[key];let spot=null;for(let r=1;r<4&&!spot;r++)for(let y=Math.max(0,u.y-r);y<=Math.min(b.H-1,u.y+r)&&!spot;y++)for(let x=Math.max(0,u.x-r);x<=Math.min(b.W-1,u.x+r)&&!spot;x++){const t={sz:1};if(tcFits(b,t,x,y)&&!b.units.some(o=>tcLive(o)&&x>=o.x&&x<o.x+(o.sz||1)&&y>=o.y&&y<o.y+(o.sz||1)))spot=[x,y]}
     if(!spot)return;const v={side:1,E,key,name:E.n,x:spot[0],y:spot[1],sz:1,hp:E.hp,max:E.hp,atk:E.atk,def:E.def,spd:E.spd,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,pod:u.pod,turns:0,fled:false,own:'e',ctl:'ai'};
-    v.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:'none',pers:'brave',speed:1,hp:E.hp,size:.62},0,0,!rp.headless);v.k.face=-1;const h=tcHome(v);v.k.x=h.x;v.k.y=h.y;b.units.push(v);tcFloatU(v,'joins!','#ffb347')}}
+    v.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hp:E.hp,size:.62},0,0,!rp.headless);v.k.face=-1;const h=tcHome(v);v.k.x=h.x;v.k.y=h.y;b.units.push(v);tcFloatU(v,'joins!','#ffb347')}}
 
 /* ---------------------------------------------------------------- the fight lab (checkpoint A): any classes and level against any place or foe */
 const v6Lab={pack:['fighter','cleric','wizard','rogue'],lvl:5,place:0,theme:'',msg:''};
@@ -306,4 +305,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()},labwalk:()=>{v6LabRead();const ks=v6LabKobolds().filter(Boolean);ks.forEach(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp});w6Start(ks)}}});
 function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
   for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStat0,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Revive,v6ReviveOK,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStat0,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Revive,v6ReviveOK,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming};
