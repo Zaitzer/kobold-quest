@@ -7,6 +7,7 @@ import {v6BossKey,v6EliteKey,v6FoeKey} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
+import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
@@ -155,7 +156,7 @@ function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div clas
 feature({id:'story6',
   menu:[{order:4,html:()=>rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="w6log">What now<small>'+esc2(s6GoalLine()||'the quest log')+'</small></button>':''}],
   panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6class:{sig:()=>'c'+V6S.cls,html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
-  actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v))rpToast('Bought!')},w6sell:d=>{if(v6Sell(d.v))rpToast('Sold.')},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it)rpToast('The smith made '+it.n+'!')},
+  actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v)){rpToast('Bought!');rpSave()}},w6sell:d=>{if(v6Sell(d.v)){rpToast('Sold.');rpSave()}},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it){rpToast('The smith made '+it.n+'!');rpSave()}},
     w6cls:d=>{if(V6S.cls===d.v){V6S.cls=null;pickClass(d.v)}else V6S.cls=d.v},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
   on:{'w6:enter':p=>{if(rp.s.w6st&&rp.s.w6st.seen)s6Enter(p)},
     'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}b.got6=got;if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},

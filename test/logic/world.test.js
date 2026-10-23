@@ -21,6 +21,7 @@ broke(B=>{B.scenes.scenes.find(s=>s.id==='1.2').steps[0][2]='no such words anywh
 broke(B=>{B.places['room:inn'].rows[1]='wHqqqsss!qqow'},/"!" is not a room tile/,'a letter that is not a tile');
 broke(B=>{B.scenes.scenes.find(s=>s.id==='1.3').at.npc='nobody'},/nobody called "nobody"/,'a scene for someone who is not there');
 broke(B=>{B.scenes.scenes.find(s=>s.id==='1.2').steps.find(s=>s[0]==='fight')[1]='nope'},/no set piece "nope"/,'a fight that does not exist');
+broke(B=>{B.places.hearthspire.patrols=[{x:3,y:3,face:'east',name:'t'}]},/patrols but no encounters/,'patrols on a map with no encounters');
 /* the game's data keeps its shape */
 const G=KW.toGame(W,script);
 ok(G.MAPS6.r1&&G.MAPS6.r1.enc&&G.MAPS6.r1.theme==='meadow'&&G.ROOMS6.inn&&G.ROOMS6.inn.solid.includes('w'),'maps and rooms for the game, with encounters and solids');

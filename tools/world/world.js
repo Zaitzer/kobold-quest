@@ -90,6 +90,7 @@ function check(W,opt){opt=opt||{};const problems=[],notes=[],report=[],bad=(wher
       if(n.from&&opt.script){const S=opt.script[n.from];if(!S)bad(where,`${n.id}: no scene ${n.from} in the script`);else(n.lines||[]).forEach(a=>{if(findLine(S.items,a,0)<0)bad(where,`${n.id}: the line "${a}" is not in ${n.from}`)})}}
     for(const c of P.chests||[])if(c.x!=null&&!inside(c.x,c.y))bad(where,`the chest "${c.name}" is off the map`);
     for(const p of P.patrols||[])if(!inside(p.x,p.y))bad(where,`the patrol "${p.name}" is off the map`);
+    if((P.patrols||[]).length&&!P.encounters)bad(where,'it has patrols but no encounters (a patrol is made of the map\'s foes)');
     for(const s of P.stables||[])if(!inside(...s))bad(where,'a stable is off the map');
     if(P.encounters&&opt.places6&&!opt.places6.includes(P.encounters.place))bad(where,`encounters: "${P.encounters.place}" is not a place in the bestiary`);
     for(const g of P.goals||[]){
@@ -125,7 +126,7 @@ function check(W,opt){opt=opt||{};const problems=[],notes=[],report=[],bad=(wher
     walk(sc.steps)}
   for(const P of Object.values(places))for(const n of P.npcs||[])flagsOf(n.show,read,n.id);
   for(const c of S.chats||[])flagsOf(c.when,read,'chat '+c.id);
-  for(const P of Object.values(places))for(const L of P.links||[])if(L.flag&&L.flag!=='never')flagsOf(typeof L.flag==='string'?{[L.flag]:1}:L.flag,read,'a link');
+  for(const P of Object.values(places))for(const L of P.links||[])if(L.flag&&L.flag!=='never')flagsOf(typeof L.flag==='string'?{[L.flag]:1}:L.flag,read,'a link');   // a name: open once that flag is set
   for(const [f,who] of set)if(!read.has(f))notes.push(`the flag "${f}" is set (${who}) but nothing waits for it`);
   for(const [f,who] of read)if(!set.has(f)&&!sceneIds.has(f)&&f!=='act'&&f!=='pb')notes.push(`"${f}" is waited for (${who}) but no scene sets it`);
   return{problems,notes,report}}

@@ -7,6 +7,7 @@ import {store} from '../adapters/storage.js';
 import {show} from '../core/app.js';
 import {rpLayout,rpResize} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
+import {rpSave} from '../core/save.js';
 import {SLOTS6,key6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
 import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
@@ -31,10 +32,14 @@ function slotInfo(i){const s=raw(i);if(!s)return null;const h=(s.party||[]).find
 function cloudRef(i){return net.db&&net.me?net.db.doc('data/users/'+net.me+'/char'+i):null}
 async function cloudLoad(){if(!net.db||!net.me)return;for(let i=0;i<SLOTS6;i++){try{const sn=await cloudRef(i).get();C6.cloud[i]=sn.exists?sn.data():null}catch(e){}}
   rp.sig=''}
-let saveT=0;
-function chars6Save(s){if(C6.slot==null)return;const a=acct(),d=v6SaveOf(s);store.set(key(a,C6.slot),d);const ref=cloudRef(C6.slot);if(!ref)return;
-  clearTimeout(saveT);saveT=setTimeout(()=>{ref.set(JSON.parse(JSON.stringify(d))).then(()=>{C6.cloud[C6.slot]=d}).catch(()=>{})},2500)}
-function write(i,d){store.set(key(acct(),i),d);const ref=cloudRef(i);if(ref)ref.set(JSON.parse(JSON.stringify(d))).catch(()=>{});C6.cloud[i]=net.me?d:C6.cloud[i]}
+/* saving: this device's copy at once, the server's a moment later (one write for a burst of saves). Every save is stamped, so the newest
+   copy wins wherever the hero is opened next; the waiting write belongs to its own slot and goes out at once when the hero changes or the
+   page is left. */
+let saveT=0,cloudPending=null;
+function chars6Save(s){if(C6.slot==null)return;const a=acct(),slot=C6.slot;s.savedAt=Date.now();const d=v6SaveOf(s);store.set(key(a,slot),d);const ref=cloudRef(slot);if(!ref)return;
+  clearTimeout(saveT);cloudPending={ref,d,slot};saveT=setTimeout(cloudFlush,2500)}
+function cloudFlush(){clearTimeout(saveT);const P=cloudPending;cloudPending=null;if(!P)return;P.ref.set(JSON.parse(JSON.stringify(P.d))).then(()=>{C6.cloud[P.slot]=P.d}).catch(()=>{});C6.cloud[P.slot]=P.d}
+function write(i,d){d.savedAt=Date.now();store.set(key(acct(),i),d);const ref=cloudRef(i);if(ref)ref.set(JSON.parse(JSON.stringify(d))).catch(()=>{});C6.cloud[i]=net.me?d:C6.cloud[i]}
 /* ------------------------------------------------------------------ the lock: one device at a time (systems.md §16) */
 function lockRef(i){return net.db&&net.me?net.db.doc('data/users/'+net.me+'/lock'+i):null}
 async function lockFree(i){const r=lockRef(i);if(!r)return true;try{const sn=await r.get();const L=sn.exists&&sn.data();return!L||L.dev===devId()||L.until<Date.now()}catch(e){return true}}
@@ -42,7 +47,7 @@ function lockTake(i){const r=lockRef(i);if(r)r.set({dev:devId(),until:Date.now()
 async function lockCheck(){const i=C6.slot,r=lockRef(i);if(i==null||!r)return;try{const sn=await r.get();const L=sn.exists&&sn.data();
     if(L&&L.dev!==devId()&&L.until>Date.now()){chars6Save(rp.s);C6.slot=null;rpToast('This hero is being played on another device now.');openSelect();return}}catch(e){}lockTake(i)}
 /* ------------------------------------------------------------------ playing, making, deleting */
-async function c6Play(i,force){const s=v6Load(raw(i));if(!s){rpToast('That save could not be read.');return}
+async function c6Play(i,force){cloudFlush();const s=v6Load(raw(i));if(!s){rpToast('That save could not be read.');return}
   if(!force&&!(await lockFree(i))){C6.ask=i;rp.mode='c6busy';rpUI(true);return}
   /* what an admin left in the server's copy (systems.md §17): fixes, and whether it is a test hero */
   const R=C6.cloud[i];const lines=R?adminApplyFixes(s,R.fix):[];if(R)s.test=R.test?1:0;
@@ -98,10 +103,13 @@ function delHtml(){const x=slotInfo(C6.del.i);return'<div class="c6screen c6ask"
   '<div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div></div>'}
 function busyHtml(){const x=slotInfo(C6.ask);return'<div class="c6screen c6ask">'+(x?heroCv(x.cls,x.colour,true):'')+'<div class="rpdlg"><div class="who">'+esc2(x?x.name:'This hero')+' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div></div>'}
 /* the select screen sits over Hearthspire, with nobody in it */
-function openSelect(){rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountains:[],stables:[],chests:[],patrols:{},enc:{},switches:{},campfire:{},seen:{}};rp.s.party=[];rp.s.x=19;rp.s.y=17;rpApplyWorld();
+function openSelect(){cloudFlush();rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountains:[],stables:[],chests:[],patrols:{},enc:{},switches:{},campfire:{},seen:{}};rp.s.party=[];rp.s.x=19;rp.s.y=17;rpApplyWorld();
   rp.bt=null;rp.dlg=null;rp.pk=null;rp.npcK={};C6.slot=null;rp.mode='c6';show('rpg');rpLayout();requestAnimationFrame(()=>{rpResize();rpUI(true)});cloudLoad().then(()=>rpUI(true))}
 function readName(){const e=typeof document!=='undefined'&&document.getElementById('c6-new');if(e)C6.form.name=e.value}
-feature({id:'chars6',on:{save6:s=>chars6Save(s)},frame:()=>paintHeroes(),
+/* the moments worth saving at once: a scene played out, a chest, a new place, a Smiler piece */
+const saveNow=()=>{if(rp.s&&rp.s.w6&&C6.slot!=null)rpSave()};
+if(typeof document!=='undefined'&&document.addEventListener){document.addEventListener('visibilitychange',()=>{if(document.hidden){saveNow();cloudFlush()}});window.addEventListener('pagehide',()=>{saveNow();cloudFlush()})}
+feature({id:'chars6',on:{save6:s=>chars6Save(s),'w6:scene':saveNow,'w6:chest':saveNow,'w6:enter':saveNow,'w6:piece':saveNow},frame:()=>paintHeroes(),
   init(){adminSetHooks(()=>chars6Save(rp.s),c6FixNow);adminSetTestFight(id=>s6TestFight(id));},
   panels:{c6:{sig:()=>JSON.stringify([C6.cloud,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
   menu:[{order:3,html:()=>rp.s&&rp.s.w6&&C6.slot!=null?'<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>':''}],
@@ -110,4 +118,4 @@ feature({id:'chars6',on:{save6:s=>chars6Save(s)},frame:()=>paintHeroes(),
     c6menu:()=>{chars6Save(rp.s);openSelect()}}});
 /* the lock is renewed while a hero is played, and played time is counted */
 let c6tick=0;frames.push(dt=>{if(C6.slot==null||!rp.s||!rp.s.w6)return;rp.s.played=(rp.s.played||0)+dt;c6tick+=dt;if(c6tick*1000>=RENEW_MS){c6tick=0;lockCheck()}});
-export {C6,C6_COLOURS,C6_NAMES,C6_SWATCH,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6FixNow,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,heroCv,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,paintHeroes,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};
+export {C6,C6_COLOURS,C6_NAMES,C6_SWATCH,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6FixNow,c6NewHtml,c6Play,c6tick,chars6Save,cloudFlush,cloudLoad,cloudPending,cloudRef,delHtml,devId,doDelete,guestHeroes,heroCv,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,paintHeroes,purge,raw,readName,restore,saveNow,saveT,selectHtml,slotInfo,write};

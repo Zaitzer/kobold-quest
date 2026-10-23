@@ -48,7 +48,8 @@ function w6Start(pack,opt){opt=opt||{};const s=rp.s;s.party=pack;s.w6=null;s.w6s
 
 /* ------------------------------------------------------------------ patrols (systems.md §6): visible groups on the road */
 const W6_DIR={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]};
-function w6Patrols(p){const P=MAPS6[p];if(!P||!P.patrols)return[];const st=rp.s.w6st;return P.patrols.map((t,i)=>Object.assign({id:p+':'+i},t)).filter(t=>!st.patrols[t.id])}
+function w6Patrols(p){const P=MAPS6[p];if(!P||!P.patrols||!P.enc)return[];   // a patrol is drawn from the map's encounters: none without them
+ const st=rp.s.w6st;return P.patrols.map((t,i)=>Object.assign({id:p+':'+i},t)).filter(t=>!st.patrols[t.id])}
 /* the patrol's sight: the 3 tiles straight ahead and the ones beside them (a 3 × 3 box in front) */
 function w6InSight(t,x,y){const [dx,dy]=W6_DIR[t.face]||[1,0];for(let k=1;k<=3;k++)for(let s=-1;s<=1;s++){const px=t.x+dx*k+(dy?s:0),py=t.y+dy*k+(dx?s:0);if(px===x&&py===y)return true}return false}
 /* the patrol's strength word, by its level against the pack's (balance.md §9: Few, Several, Pack, Lots, Overwhelming) */
@@ -82,12 +83,15 @@ function w6Flooded(p,x,y){const F=MAPS6[p]&&MAPS6[p].flood;return!!(F&&!w6Dry()&
 function w6Step(x,y,c){const s=rp.s,p=s.w6,st=s.w6st;st.since=(st.since||0)+1;
   const L=w6LinkAt(p,x,y,'step');if(L)return w6Follow(L);
   if(w6StableAt(p,x,y))return w6Stable(p,x,y);
+  if(w6ChestAt(p,x,y)&&!st.chests.includes(p+':'+x+','+y))return w6Chest(p,x,y);   // a chest on open ground opens as you step on it
   if(s6Step(x,y))return true;
   if(w6PatrolCheck(x,y,c))return true;
   const E=w6Enc(p);if(!E||rp.grace>0||st.since<W6_GAP)return false;
   const chance=c==='"'?E.grass||0:E.floor&&!w6Solid(c)?E.floor:0;if(!chance||Math.random()>=chance)return false;
   st.since=0;w6Fight(p,E);return true}
-function w6Follow(L){const [, , ,to,tx,ty,,flag]=L;if(flag&&!test(flag)){rpToast(flag==='never'?'That way is for later.':'The way is shut.');rp.path=null;rp.held=null;return true}
+/* a link's flag: 'never' (shut for now), a flag's name (open once it is set) or a condition (core/rules.js) */
+const linkOpen=f=>!f||(f==='never'?false:typeof f==='string'?test({[f]:{gte:1}}):test(f));
+function w6Follow(L){const [, , ,to,tx,ty,,flag]=L;if(!linkOpen(flag)){rpToast(flag==='never'?'That way is for later.':'The way is shut.');rp.path=null;rp.held=null;return true}
   return w6Go(to,tx,ty)}
 function w6Fight(p,E){const P=PLACES6[E.place],L=Math.max(1,Math.round(rp.s.party.reduce((a,m)=>a+m.lvl,0)/rp.s.party.length)),first=!(rp.s.w6st.enc[p]);
   /* the foes' level: the place's, nudged toward the pack (levels 3–6 on R1, 6–8 in the mine; balance.md §5) */
@@ -99,7 +103,7 @@ function w6Bump(x,y){const s=rp.s,p=s.w6,c=(rp.grid[y]||[])[x];
   const L=w6LinkAt(p,x,y,'bump');if(L){w6Follow(L);return true}
   if(!isRoom(p)&&c==='F'||isRoom(p)&&c==='H'&&p==='room:tower')return w6Fountain(p);
   if(!isRoom(p)&&c==='o'){const m=w6MarkNear(p,x,y);rpSay([{who:'',text:m?m.replace(/^sign: /,''):'A board. Nothing on it yet.'}]);return true}
-  if(c==='c'||(!isRoom(p)&&w6ChestAt(p,x,y)))return w6Chest(p,x,y);
+  if(w6ChestAt(p,x,y)||c==='c')return w6Chest(p,x,y);
   if(!isRoom(p)&&c==='x'&&p==='mine1')return w6Cart();
   if(w6Flooded(p,x,y)){rpSay([{who:'',text:'The road south is under the brook. Somebody shut the dam and sent the water over it.'}]);return true}
   if(w6StableAt(p,x,y))return w6Stable(p,x,y);
@@ -122,7 +126,8 @@ function w6Campfire(p){const st=rp.s.w6st,k=p+':'+(rp.s.w6visit||0);if(st.campfi
   st.campfire[k]=1;w6HealAll();rpSay([{who:'',text:'You sit by the campfire for a while. Everyone is patched up.'}]);return true}
 
 /* ------------------------------------------------------------------ chests (systems.md §8's table, opened by items6.js) */
-function w6ChestAt(p,x,y){const P=w6Place(p);return!!(P&&P.marks&&P.marks.some(([mx,my,l])=>mx===x&&my===y&&/chest/.test(l)))}
+/* a chest stands where the world puts one (world/: a place's chests, made in the map editor) */
+function w6ChestAt(p,x,y){return CHESTS6.some(c=>c.place===p&&c.x===x&&c.y===y)}
 function w6Chest(p,x,y){const st=rp.s.w6st,k=p+':'+x+','+y;if(st.chests.includes(k)){rpToast('Empty.');return true}st.chests.push(k);emit('w6:chest',p,x,y);
   const C=CHESTS6.find(c=>c.place===p&&c.x===x&&c.y===y),got=C?v6OpenChest(C.name):[];
   rpSay([{who:'',text:got.length?'You open the chest: '+got.join(', ')+'.':'You open the chest. Dust, and a spider who looks offended.'}]);return true}
@@ -151,4 +156,4 @@ feature({id:'world6',panels:{w6travel:{sig:()=>rp.w6travel+JSON.stringify(rp.s&&
   on:{'battle:end':b=>{if(!rp.s||!rp.s.w6||!b||!b.v6)return;
     if(b.patrol&&b.over==='win')rp.s.w6st.patrols[b.patrol]=1;
     if(b.over==='lose'){const st=rp.s.w6st;const p=st.respawn||'hearthspire';w6HealAll();rp.s.gold=Math.floor(rp.s.gold/2);w6Go(p,...MAPS6[p].entry)}}}});
-export {W6_DIR,W6_GAP,W6_RAIL,isRoom,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Enc,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6SolidIn,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Theme,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};
+export {W6_DIR,W6_GAP,W6_RAIL,isRoom,linkOpen,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Enc,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6SolidIn,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Theme,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};

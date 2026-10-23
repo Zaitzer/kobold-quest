@@ -1736,6 +1736,11 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     return shake = rpOpt.calm ? 0 : v2;
   }
 
+  // src/core/save.js
+  function rpSave() {
+    rp.headless || !rp.s || !rp.s.w6 || emit("save6", rp.s);
+  }
+
   // src/data/monsters.js
   var RP_E = {};
 
@@ -1786,11 +1791,6 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       }
     }
     return null;
-  }
-
-  // src/core/save.js
-  function rpSave() {
-    rp.headless || !rp.s || !rp.s.w6 || emit("save6", rp.s);
   }
 
   // src/net/gift.js
@@ -2910,7 +2910,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T21:25:35Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T21:33:24Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
@@ -3484,14 +3484,14 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
         rp.w6tab = d.v;
       },
       w6buy: (d) => {
-        v6Buy(rp.w6shop, +d.v) && rpToast("Bought!");
+        v6Buy(rp.w6shop, +d.v) && (rpToast("Bought!"), rpSave());
       },
       w6sell: (d) => {
-        v6Sell(d.v) && rpToast("Sold.");
+        v6Sell(d.v) && (rpToast("Sold."), rpSave());
       },
       w6craft: (d) => {
         let it = v6Craft(rp.w6shop, +d.v);
-        it && rpToast("The smith made " + it.n + "!");
+        it && (rpToast("The smith made " + it.n + "!"), rpSave());
       },
       w6cls: (d) => {
         V6S.cls === d.v ? (V6S.cls = null, pickClass(d.v)) : V6S.cls = d.v;
@@ -4462,7 +4462,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     switch (ADM.tab) {
       case "server": {
         let S = D.status;
-        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T21:25:35Z" ? " (this page: " + esc2("2026-10-23T21:25:35Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T21:33:24Z" ? " (this page: " + esc2("2026-10-23T21:33:24Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
         break;
       }
       case "players": {
@@ -4582,7 +4582,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   }
   var errN = 0, errSeen = /* @__PURE__ */ new Set();
   function adminReportError(msg, where) {
-    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T21:25:35Z" })));
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T21:33:24Z" })));
   }
   async function adminReport(peer) {
     if (!(!online || !online.account.loggedIn))
@@ -4984,7 +4984,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
   var W6_DIR = { east: [1, 0], west: [-1, 0], north: [0, -1], south: [0, 1] };
   function w6Patrols(p) {
     let P = MAPS6[p];
-    if (!P || !P.patrols) return [];
+    if (!P || !P.patrols || !P.enc) return [];
     let st = rp.s.w6st;
     return P.patrols.map((t, i) => Object.assign({ id: p + ":" + i }, t)).filter((t) => !st.patrols[t.id]);
   }
@@ -5077,15 +5077,17 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     let L = w6LinkAt(p, x, y, "step");
     if (L) return w6Follow(L);
     if (w6StableAt(p, x, y)) return w6Stable(p, x, y);
+    if (w6ChestAt(p, x, y) && !st.chests.includes(p + ":" + x + "," + y)) return w6Chest(p, x, y);
     if (s6Step(x, y) || w6PatrolCheck(x, y, c)) return !0;
     let E = w6Enc(p);
     if (!E || rp.grace > 0 || st.since < W6_GAP) return !1;
     let chance = c === '"' ? E.grass || 0 : E.floor && !w6Solid(c) ? E.floor : 0;
     return !chance || Math.random() >= chance ? !1 : (st.since = 0, w6Fight(p, E), !0);
   }
+  var linkOpen = (f) => !f || (f === "never" ? !1 : typeof f == "string" ? test({ [f]: { gte: 1 } }) : test(f));
   function w6Follow(L) {
     let [, , , to, tx, ty, , flag] = L;
-    return flag && !test(flag) ? (rpToast(flag === "never" ? "That way is for later." : "The way is shut."), rp.path = null, rp.held = null, !0) : w6Go(to, tx, ty);
+    return linkOpen(flag) ? w6Go(to, tx, ty) : (rpToast(flag === "never" ? "That way is for later." : "The way is shut."), rp.path = null, rp.held = null, !0);
   }
   function w6Fight(p, E) {
     let P = PLACES6[E.place], L = Math.max(1, Math.round(rp.s.party.reduce((a, m) => a + m.lvl, 0) / rp.s.party.length)), first = !rp.s.w6st.enc[p], lv = Math.max(P.L - 1, Math.min(P.L + 2, L)), keys = v6Mix(Object.assign({}, P, { L: lv }));
@@ -5100,7 +5102,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       let m = w6MarkNear(p, x, y);
       return rpSay([{ who: "", text: m ? m.replace(/^sign: /, "") : "A board. Nothing on it yet." }]), !0;
     }
-    return c === "c" || !isRoom(p) && w6ChestAt(p, x, y) ? w6Chest(p, x, y) : !isRoom(p) && c === "x" && p === "mine1" ? w6Cart() : w6Flooded(p, x, y) ? (rpSay([{ who: "", text: "The road south is under the brook. Somebody shut the dam and sent the water over it." }]), !0) : w6StableAt(p, x, y) ? w6Stable(p, x, y) : isRoom(p) && c === "p" ? w6Rest(p) : !1;
+    return w6ChestAt(p, x, y) || c === "c" ? w6Chest(p, x, y) : !isRoom(p) && c === "x" && p === "mine1" ? w6Cart() : w6Flooded(p, x, y) ? (rpSay([{ who: "", text: "The road south is under the brook. Somebody shut the dam and sent the water over it." }]), !0) : w6StableAt(p, x, y) ? w6Stable(p, x, y) : isRoom(p) && c === "p" ? w6Rest(p) : !1;
   }
   function w6Use(x, y) {
     let s = rp.s, p = s.w6, c = (rp.grid[y] || [])[x];
@@ -5132,8 +5134,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     return st.campfire[k] ? (rpToast("The fire is low. It will be warm again on your next visit."), !0) : (st.campfire[k] = 1, w6HealAll(), rpSay([{ who: "", text: "You sit by the campfire for a while. Everyone is patched up." }]), !0);
   }
   function w6ChestAt(p, x, y) {
-    let P = w6Place(p);
-    return !!(P && P.marks && P.marks.some(([mx, my, l]) => mx === x && my === y && /chest/.test(l)));
+    return CHESTS6.some((c) => c.place === p && c.x === x && c.y === y);
   }
   function w6Chest(p, x, y) {
     let st = rp.s.w6st, k = p + ":" + x + "," + y;
@@ -7111,21 +7112,26 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
       rp.sig = "";
     }
   }
-  var saveT = 0;
+  var saveT = 0, cloudPending = null;
   function chars6Save(s) {
     if (C6.slot == null) return;
-    let a = acct(), d = v6SaveOf(s);
-    store.set(key(a, C6.slot), d);
-    let ref = cloudRef(C6.slot);
-    ref && (clearTimeout(saveT), saveT = setTimeout(() => {
-      ref.set(JSON.parse(JSON.stringify(d))).then(() => {
-        C6.cloud[C6.slot] = d;
-      }).catch(() => {
-      });
-    }, 2500));
+    let a = acct(), slot = C6.slot;
+    s.savedAt = Date.now();
+    let d = v6SaveOf(s);
+    store.set(key(a, slot), d);
+    let ref = cloudRef(slot);
+    ref && (clearTimeout(saveT), cloudPending = { ref, d, slot }, saveT = setTimeout(cloudFlush, 2500));
+  }
+  function cloudFlush() {
+    clearTimeout(saveT);
+    let P = cloudPending;
+    cloudPending = null, P && (P.ref.set(JSON.parse(JSON.stringify(P.d))).then(() => {
+      C6.cloud[P.slot] = P.d;
+    }).catch(() => {
+    }), C6.cloud[P.slot] = P.d);
   }
   function write(i, d) {
-    store.set(key(acct(), i), d);
+    d.savedAt = Date.now(), store.set(key(acct(), i), d);
     let ref = cloudRef(i);
     ref && ref.set(JSON.parse(JSON.stringify(d))).catch(() => {
     }), C6.cloud[i] = net.me ? d : C6.cloud[i];
@@ -7163,6 +7169,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     }
   }
   async function c6Play(i, force) {
+    cloudFlush();
     let s = v6Load(raw(i));
     if (!s) {
       rpToast("That save could not be read.");
@@ -7302,7 +7309,7 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     return '<div class="c6screen c6ask">' + (x ? heroCv(x.cls, x.colour, !0) : "") + '<div class="rpdlg"><div class="who">' + esc2(x ? x.name : "This hero") + ' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div></div>';
   }
   function openSelect() {
-    rp.s = rpNewState(), rp.s.w6 = "hearthspire", rp.s.w6st = { fountains: [], stables: [], chests: [], patrols: {}, enc: {}, switches: {}, campfire: {}, seen: {} }, rp.s.party = [], rp.s.x = 19, rp.s.y = 17, rpApplyWorld(), rp.bt = null, rp.dlg = null, rp.pk = null, rp.npcK = {}, C6.slot = null, rp.mode = "c6", show("rpg"), rpLayout(), requestAnimationFrame(() => {
+    cloudFlush(), rp.s = rpNewState(), rp.s.w6 = "hearthspire", rp.s.w6st = { fountains: [], stables: [], chests: [], patrols: {}, enc: {}, switches: {}, campfire: {}, seen: {} }, rp.s.party = [], rp.s.x = 19, rp.s.y = 17, rpApplyWorld(), rp.bt = null, rp.dlg = null, rp.pk = null, rp.npcK = {}, C6.slot = null, rp.mode = "c6", show("rpg"), rpLayout(), requestAnimationFrame(() => {
       rpResize(), rpUI(!0);
     }), cloudLoad().then(() => rpUI(!0));
   }
@@ -7310,9 +7317,17 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
     let e = typeof document < "u" && document.getElementById("c6-new");
     e && (C6.form.name = e.value);
   }
+  var saveNow = () => {
+    rp.s && rp.s.w6 && C6.slot != null && rpSave();
+  };
+  typeof document < "u" && document.addEventListener && (document.addEventListener("visibilitychange", () => {
+    document.hidden && (saveNow(), cloudFlush());
+  }), window.addEventListener("pagehide", () => {
+    saveNow(), cloudFlush();
+  }));
   feature({
     id: "chars6",
-    on: { save6: (s) => chars6Save(s) },
+    on: { save6: (s) => chars6Save(s), "w6:scene": saveNow, "w6:chest": saveNow, "w6:enter": saveNow, "w6:piece": saveNow },
     frame: () => paintHeroes(),
     init() {
       adminSetHooks(() => chars6Save(rp.s), c6FixNow), adminSetTestFight((id) => s6TestFight(id));

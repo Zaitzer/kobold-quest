@@ -239,7 +239,7 @@ function hereTab(){const P=place();if(!E.sel)return[h('p',{class:'dim'},'Click a
       field('to',l,'to',{type:'select',list:[['','(shut: for later)']].concat(placeIds().map(i=>[i,i]))}),
       h('div',{class:'row'},h('label',{},'arrive at'),num('',l,'tx').lastChild,num('',l,'ty').lastChild,btn('Pick',()=>pickTile('Click where you arrive on '+(l.to||'?'),(a,b)=>{l.tx=a;l.ty=b},l.to))),
       field('how',l,'how',{type:'select',list:[['step','walk onto it'],['bump','walk into it (a solid tile)']]}),
-      flags('needs',l,'flag',{fmt:v=>v==null?'':typeof v==='string'?v:flagsText(v),parse:v=>!String(v).trim()?undefined:/^[a-z]+$/i.test(String(v).trim())?String(v).trim():textFlags(v),ph:'nothing ("never" = shut for now)'}),
+      flags('needs',l,'flag',{fmt:v=>v==null?'':typeof v==='string'?v:flagsText(v),parse:v=>!String(v).trim()?undefined:/^[a-z]+$/i.test(String(v).trim())?String(v).trim():textFlags(v),ph:'nothing · a flag (open once it is set) · never (shut)'}),
       h('div',{class:'btns'},T?btn('Go there',()=>goPlace(l.to,l.tx,l.ty)):null,
         T&&!(T.links||[]).some(b=>b.to===E.cur&&Math.abs(b.x-l.tx)+Math.abs(b.y-l.ty)<=1)?btn('Make the way back',()=>change(()=>{T.links=T.links||[];T.links.push({x:l.tx,y:l.ty,to:E.cur,tx:l.x,ty:l.y,how:'step'})}),'go'):null)],
       btn('✕',()=>change(()=>{P.links.splice(P.links.indexOf(l),1)}),'bad','Delete this link')))}
@@ -354,7 +354,7 @@ function tilesTab(){const kind=place().kind,L=E.W.tiles[kind];
 /* ---------------------------------------------------------------- scenes */
 const STEPS=[['say','say lines'],['fight','a set-piece fight'],['class','the class pick'],['join','a companion joins'],['give','give an item'],['set','set flags'],['deed','a dark deed (corruption)'],['kind','a kind deed'],
   ['choice','a choice'],['chest','open a chest'],['goto','move the hero'],['scene','play another scene'],['tint','tint the screen'],['piece','a Smiler piece'],['chat','a campfire chat'],['cart','push the cart (mine)']];
-const TRIG=[['npc','talk to someone'],['area','walk near a spot'],['tile','step on a tile'],['bump','bump into something near a spot'],['enter','come into the place'],['start','a new game'],['none','only from another scene']];
+const TRIG=[['npc','talk to someone'],['area','walk near a spot'],['tile','bump into a tile'],['bump','bump into something near a spot'],['enter','come into the place'],['start','a new game'],['none','only from another scene']];
 function trigKind(a){return a.start?'start':a.none?'none':a.npc?'npc':a.area?'area':a.tile?'tile':a.bump?'bump':a.enter?'enter':'none'}
 function sectionOf(sc){return sc.from||sc.id}
 /* the shortest start of a line that finds it (from `after` on) */

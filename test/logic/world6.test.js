@@ -75,4 +75,10 @@ for(const [k,M] of Object.entries(X.MAPS6)){fresh();X.rp.s.q.pb=6;X.w6Go(k,...M.
  X.rp.w6travel='fountain';X.w6Travel(1);ok(s.w6==='pebblebrook'&&!X.rpSolid(s.x,s.y),'to the Pebblebrook fountain')}
 // the flooded south road: under water while pb < 6, dry after
 {const s=fresh({map:'pebblebrook'});s.q.pb=0;ok(X.rpSolid(14,18),'the south road is flooded');s.q.pb=6;ok(!X.rpSolid(14,18),'and dry when the wheel turns')}
+/* found in the code review (23 Oct): a chest from the world's list on open ground opens as you step on it; a link that needs a flag
+   by name opens once it is set; a map with patrols but no encounters has none (instead of breaking the map) */
+{const s=fresh({map:'r1'});X.CHESTS6.push({name:'test chest',place:'r1',x:5,y:12,where:'',items:[{gold:7}]});const g0=s.gold;X.rp.s.w6st.since=-999;
+ X.rp.s.x=4;X.rp.s.y=12;X.rpEnterTile(5,12);while(X.rp.mode==='dialog')X.rpDlgNext();ok(s.w6st.chests.includes('r1:5,12')&&s.gold===g0+7,'a chest on open ground opens: '+(s.gold-g0)+' gold');X.CHESTS6.pop();
+ const L=['r1',3,3,'pebblebrook',31,12,'step','lamp'];ok(X.w6Follow(L)===true&&s.w6==='r1','a link that needs "lamp" is shut before');s.q.lamp=1;X.w6Follow(L);ok(s.w6==='pebblebrook','and open once the flag is set');
+ const P=X.MAPS6.hearthspire;P.patrols=[{x:3,y:3,face:'east',name:'t'}];ok(X.w6Patrols('hearthspire').length===0,'patrols need the map\'s encounters');P.patrols=[]}
 console.log(fails?fails+' failures':'v6 world: '+checks+' checks');process.exitCode=fails?1:0;
