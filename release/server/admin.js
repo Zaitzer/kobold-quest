@@ -2,7 +2,7 @@
    private message or a token. Roles: the owner (config.json "admins") does everything; a moderator (granted in the game by the owner,
    kept in the server's data) does the jobs marked (m) in the table. Chat is kept in memory for 24 hours only, so it never reaches
    the data file or its backups. */
-const crypto=require('crypto');
+const crypto=require('crypto');const {isOwner}=require('./owners.js');
 const DAY=864e5,YEAR=365*DAY,KEEP=7*DAY,CHAT_KEEP=DAY,MAX_REASON=200;
 const sha=t=>crypto.createHash('sha256').update(String(t)).digest('hex');
 const rid=(n=4)=>crypto.randomBytes(n).toString('hex');
@@ -18,9 +18,9 @@ const MUTE={hour:3600e3,day:DAY,week:7*DAY},BAN={day:DAY,week:7*DAY,ever:EVER};
 
 class Admin{
   constructor(world,store,config,opt={}){this.w=world;this.store=store;this.config=config;this.now=world.now;this.chat=[];this.gifts=[];this.dir=opt.dir||null;this.fs=opt.fs||null}
-  owner(u){return!!u&&(this.config.admins||[]).map(s=>s.toLowerCase()).includes(u.lname)}
+  async owner(u){return isOwner(this.store,this.config,u)}
   async mods(){return(await this.store.get('config/mods'))||[]}
-  async role(u){if(!u)return null;if(this.owner(u))return'owner';return(await this.mods()).includes(u.lname)?'mod':null}
+  async role(u){if(!u)return null;if(await this.owner(u))return'owner';return(await this.mods()).includes(u.lname)?'mod':null}
   async log(by,tool,on,why,extra){const t=this.now();await this.store.put('adminlog/'+t.toString(36).padStart(9,'0')+rid(),Object.assign({at:t,by:by.lname,tool,on:on||null,why:clean(why)||null},extra||{}))}
   /* once on start: the year-old log lines, purged accounts and expired resets go */
   async tidy(){const t=this.now();for(const r of await this.store.list('adminlog/'))if(t-r.val.at>YEAR)await this.store.del(r.key);
@@ -31,7 +31,7 @@ class Admin{
   /* ---------- what the rest of the server asks ---------- */
   async canLogin(u,isNew){const t=this.now();if(u.deletedAt)return'That account was deleted.';
     if(u.ban&&u.ban.until>t)return'This account is banned'+(u.ban.until>t+50*YEAR?' for good':' until '+new Date(u.ban.until).toISOString().slice(0,10))+'. Reason: '+(u.ban.why||'none given')+'.';
-    const M=await this.store.get('config/maint');if(M&&M.on&&!this.owner(u)&&!(await this.mods()).includes(u.lname))return'The server is being looked after. Try again in a little while.';
+    const M=await this.store.get('config/maint');if(M&&M.on&&!(await this.owner(u))&&!(await this.mods()).includes(u.lname))return'The server is being looked after. Try again in a little while.';
     return null}
   /* what a player is told at login: their role, the message of the day, the festival, warnings not yet seen */
   async greet(u){const t=this.now(),motd=await this.store.get('config/motd'),fest=await this.store.get('config/festival'),warns=(u.warns||[]).filter(w=>!w.seen);
@@ -121,13 +121,13 @@ class Admin{
         const cur=await this.store.get(k);if(cur)await this.store.put('docs/data/users/'+u.id+'/copy'+m.slot,Object.assign({},cur,{copiedAt:t}));   // the current save is kept first
         await this.store.put(k,old);return{ok:true,on:u.name+'#'+m.slot,logx:{day}}}
       case'delacct':{const u=await U();if(!u)return{ok:false,err:'no such account'};if(String(m.typed||'').trim().toLowerCase()!==u.lname)return{ok:false,err:'type the account name'};
-        if(this.owner(u))return{ok:false,err:'not the owner'};u.deletedAt=t;await this.store.put('users/'+u.lname,u);for(const c of this.online(u)){c.send({k:'autherr',why:'This account was deleted.',stale:true});c.end()}return{ok:true,on:u.name}}
+        if(await this.owner(u))return{ok:false,err:'not the owner'};u.deletedAt=t;await this.store.put('users/'+u.lname,u);for(const c of this.online(u)){c.send({k:'autherr',why:'This account was deleted.',stale:true});c.end()}return{ok:true,on:u.name}}
       /* moderation */
       case'reports':{const rows=(await this.store.list('reports/')).filter(r=>m.all||r.val.status==='open').slice(-50).reverse();return{ok:true,val:rows.map(r=>Object.assign({id:r.key.slice(8)},r.val,{aboutL:undefined}))}}
       case'closereport':{const k='reports/'+String(m.id||'').replace(/[^\w]/g,''),R=await this.store.get(k);if(!R)return{ok:false,err:'no such report'};const how=['none','warn','mute','ban'].includes(m.how)?m.how:'none';
         if(how!=='none'){const r=await this.run(how,{name:R.aboutL,for:m.for||(how==='mute'?'day':'day')},me,role,why||R.why||'reported');if(!r.ok)return r}
         R.status='closed';R.closed={by:me.name,how,at:t};await this.store.put(k,R);return{ok:true,on:R.about,logx:{how}}}
-      case'warn':case'mute':case'ban':{const u=await U();if(!u)return{ok:false,err:'no such account'};if(this.owner(u))return{ok:false,err:'not the owner'};if(!why)return{ok:false,err:'say why'};
+      case'warn':case'mute':case'ban':{const u=await U();if(!u)return{ok:false,err:'no such account'};if(await this.owner(u))return{ok:false,err:'not the owner'};if(!why)return{ok:false,err:'say why'};
         if(tool==='warn'){(u.warns=u.warns||[]).push({at:t,why,seen:false,by:me.name});this.tell(u,{k:'warned',why})}
         else if(tool==='mute'){const d=MUTE[m.for];if(!d)return{ok:false,err:'hour, day or week'};u.mute={until:t+d,why,by:me.name};this.tell(u,{k:'muted',until:u.mute.until})}
         else{const d=BAN[m.for];if(!d)return{ok:false,err:'day, week or ever'};u.ban={until:d===EVER?EVER:t+d,why,by:me.name};

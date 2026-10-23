@@ -1,14 +1,15 @@
 /* The messenger: letters from whitelisted players become GitHub issues on the game's repository, so the developer
    (and Claude) can read them. Every letter is kept on the server first and retried until GitHub takes it.
    The GitHub token is set by an admin in the game and stays in the server's data, never in the repository. */
+const {isOwner}=require('./owners.js');
 const API=process.env.KQ_GITHUB_API||'https://api.github.com';
 const PER_HOUR=5,MAX_LEN=1000;
 function clean(t){return String(t||'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g,'').trim().slice(0,MAX_LEN)}
 class Mail{
   constructor(store,config,now){this.store=store;this.config=config;this.now=now||(()=>Date.now());this.sent=new Map();this.timer=setInterval(()=>this.flush().catch(()=>{}),10*60e3);if(this.timer.unref)this.timer.unref()}
   async whitelist(){const extra=(await this.store.get('config/messengers'))||[];return[...new Set([...(this.config.messengers||[]),...extra].map(s=>String(s).toLowerCase()))]}
-  isAdmin(user){return(this.config.admins||[]).map(s=>s.toLowerCase()).includes(user.lname)}
-  async canSend(user){return this.isAdmin(user)||(await this.whitelist()).includes(user.lname)}
+  async isAdmin(user){return isOwner(this.store,this.config,user)}
+  async canSend(user){return(await this.isAdmin(user))||(await this.whitelist()).includes(user.lname)}
   async token(){const t=await this.store.get('secrets/github');return t&&t.token||null}
   /* a player sends a letter */
   async send(user,text,where){
@@ -28,7 +29,7 @@ class Mail{
     if(!res.ok)throw new Error('github '+res.status);const j=await res.json();L.issue=j.number;L.url=j.html_url;await this.store.put('mailbox/'+id,L);return{url:j.html_url}}
   async flush(){for(const r of await this.store.list('mailbox/'))if(!r.val.issue)await this.deliver(r.key.slice(8)).catch(()=>{})}
   /* admin: set the token (checked against GitHub first), see the state, edit the whitelist */
-  async admin(user,m){if(!this.isAdmin(user))return{ok:false,err:'not an admin'};
+  async admin(user,m){if(!(await this.isAdmin(user)))return{ok:false,err:'not an admin'};
     if(m.op==='token'){const tok=String(m.token||'').trim();if(!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(tok))return{ok:false,err:'that does not look like a GitHub token'};
       const res=await fetch(API+'/repos/'+this.config.repo,{headers:{authorization:'Bearer '+tok,accept:'application/vnd.github+json','user-agent':'kobold-quest-server'}}).catch(()=>null);
       if(!res||!res.ok)return{ok:false,err:'GitHub did not accept that token'+(res?' ('+res.status+')':'')};

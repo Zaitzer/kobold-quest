@@ -2,22 +2,30 @@
    - accounts: username + password (scrypt hash with salt), login tokens (only their hash is stored)
    - the room: who is online, their presence, game messages relayed between players
    - the database: private saves under data/users/<id>/..., the shared market, short leases against double-buys */
-const crypto=require('crypto');
+const crypto=require('crypto');const {reserved}=require('./owners.js');
 
 const NAME_RE=/^[\p{L}\p{N}_-]{3,16}$/u;
-const MAX_MSG=4096,MAX_DOC=64*1024,MAX_MARKET_DOC=2048,SESSION_DAYS=180;
+const MAX_MSG=4096,MAX_DOC=64*1024,MAX_MARKET_DOC=2048,SESSION_DAYS=180,MAX_LISTINGS=20;
+/* how fast one connection may talk: [per second, burst]. Anything faster is dropped, so one player (or a script) can't flood the
+   others or the server. Generous for play: a co-op fight sends a few messages a second, chat a line now and then. */
+const RATE={all:[30,120],emit:[15,60],pres:[10,30],chat:[1,5]};
+/* the documents a player's page may keep under data/users/<id>/: a hero per slot and its one-device lock (ui/chars6.js) */
+const PRIVATE_DOC=/^(char|lock)[0-5]$/;
 const scrypt=(pass,salt)=>new Promise((ok,no)=>crypto.scrypt(pass,salt,32,{N:16384,r:8,p:1},(e,k)=>e?no(e):ok(k.toString('hex'))));
 const sha=t=>crypto.createHash('sha256').update(t).digest('hex');
 const rid=(n=8)=>crypto.randomBytes(n).toString('hex');
 
 class World{
-  constructor(store,opt={}){this.store=store;this.conns=new Set();this.leases=new Map();this.tries=new Map();this.now=opt.now||(()=>Date.now());this.build=opt.build||'dev';this.mail=opt.mail||null;this.admin=null}
+  constructor(store,opt={}){this.store=store;this.conns=new Set();this.leases=new Map();this.tries=new Map();this.now=opt.now||(()=>Date.now());this.build=opt.build||'dev';this.mail=opt.mail||null;this.admin=null;this.opt=opt}
   nameOk(n){return NAME_RE.test(String(n||''))}
 
   /* public numbers for /status (no names) */
   stats(){const keys=Object.keys(this.store.data||{});return{accounts:keys.filter(k=>k.startsWith('users/')).length,listings:keys.filter(k=>k.startsWith('docs/market/')).length}}
   /* ---------- connections ---------- */
-  open(conn){conn.peer='p_'+rid(5);conn.user=null;conn.presence={};this.conns.add(conn)}
+  open(conn){conn.peer='p_'+rid(5);conn.user=null;conn.presence={};conn.buckets=this.opt.rate?{}:null;this.conns.add(conn)}   // rate limits: on in the real server (main.js), off in tests that replay fast
+  /* a token bucket per connection and kind: true when the message may pass */
+  allow(conn,kind){const [per,burst]=RATE[kind],t=this.now()/1000,b=conn.buckets[kind]||(conn.buckets[kind]={n:burst,t});
+    b.n=Math.min(burst,b.n+(t-b.t)*per);b.t=t;if(b.n<1)return false;b.n-=1;return true}
   close(conn){if(!this.conns.delete(conn))return;if(conn.user)this.broadcast({k:'gone',peer:conn.peer},conn)}
   authed(){return[...this.conns].filter(c=>c.user)}
   broadcast(msg,except){const s=JSON.stringify(msg);for(const c of this.authed())if(c!==except)c.sendRaw(s)}
@@ -25,6 +33,7 @@ class World{
 
   async message(conn,raw){
     if(typeof raw!=='string'||raw.length>MAX_DOC+1024)return conn.send({k:'err',why:'too big'});
+    if(conn.buckets&&!this.allow(conn,'all'))return;
     let m;try{m=JSON.parse(raw)}catch(e){return}
     if(!m||typeof m!=='object')return;
     try{
@@ -63,7 +72,7 @@ class World{
     if(pass.length<6||pass.length>200)return conn.send({k:'autherr',why:'Passwords need at least 6 characters.'});
     const lname=name.toLowerCase();let u=await this.store.get('users/'+lname);
     if(m.k==='register'){
-      if(u)return conn.send({k:'autherr',why:'That name is taken.'});
+      if(u||await reserved(this.store,this.opt.config||{},lname))return conn.send({k:'autherr',why:'That name is taken.'});
       {const M=await this.store.get('config/maint');if(M&&M.on)return conn.send({k:'autherr',why:'The server is being looked after. Try again in a little while.'})}
       const salt=rid(16);u={id:'u_'+rid(6),name,lname,salt,hash:await scrypt(pass,salt),created:this.now()};
       await this.store.put('users/'+lname,u);await this.store.put('ids/'+u.id,{lname})}
@@ -75,16 +84,17 @@ class World{
     const token=rid(24);await this.store.put('sessions/'+sha(token),{lname,until:this.now()+SESSION_DAYS*864e5});
     return this.welcome(conn,u,token)}
   async welcome(conn,u,token){
-    conn.user={id:u.id,name:u.name,lname:u.lname};const canMail=this.mail?await this.mail.canSend(conn.user):false,G=this.admin?await this.admin.greet(u):{},admin=!!(G.role||(this.mail&&this.mail.isAdmin(conn.user)));
+    conn.user={id:u.id,name:u.name,lname:u.lname};const canMail=this.mail?await this.mail.canSend(conn.user):false,G=this.admin?await this.admin.greet(u):{},admin=!!(G.role||(this.mail&&await this.mail.isAdmin(conn.user)));
     conn.send({k:'authok',id:u.id,name:u.name,token,build:this.build,canMail,admin,role:G.role||null,motd:G.motd||null,festival:G.festival||null,warns:G.warns||[],mute:G.mute||0,peer:conn.peer,peers:this.authed().filter(c=>c!==conn).map(c=>this.peerOf(c))});
     this.broadcast({k:'pres',...this.peerOf(conn)},conn)}
   async profiles(ids){const out={};for(const id of [].concat(ids||[]).slice(0,50)){const r=await this.store.get('ids/'+id);const u=r&&await this.store.get('users/'+r.lname);if(u)out[id]={id,name:u.name}}return out}
 
   /* ---------- the room ---------- */
-  presence(conn,p){if(!p||typeof p!=='object'||JSON.stringify(p).length>MAX_MSG)return;
+  presence(conn,p){if(!p||typeof p!=='object'||JSON.stringify(p).length>MAX_MSG)return;if(conn.buckets&&!this.allow(conn,'pres'))return;
     const next=Object.assign({},conn.presence,p);for(const k in next)if(next[k]===null)delete next[k];conn.presence=next;
     this.broadcast({k:'pres',...this.peerOf(conn)},conn)}
   async emit(conn,m){let data=m.data;const s=JSON.stringify(data);if(!s||s.length>MAX_MSG)return;
+    if(conn.buckets&&(!this.allow(conn,'emit')||(data&&data.t==='chat'&&!this.allow(conn,'chat'))))return;
     if(this.admin&&data&&data.t==='chat'){data=await this.admin.chatLine(conn,data);if(!data)return}
     if(this.admin&&data&&data.t==='gift')this.admin.gift(conn,data,this.authed().find(c=>c.peer===data.to));
     const msg=JSON.stringify({k:'emit',topic:String(m.topic||''),data,peer:conn.peer,by:conn.user.id});
@@ -94,7 +104,7 @@ class World{
   /* who may touch a path: your own saves, and the shared market */
   access(conn,path){const p=String(path||'').split('/');
     if(p.some(x=>!x||x.length>80||!/^[\w.-]+$/.test(x)))return null;
-    if(p[0]==='data'&&p[1]==='users'&&p[2]===conn.user.id&&p.length>=4)return'private';
+    if(p[0]==='data'&&p[1]==='users'&&p[2]===conn.user.id&&p.length===4&&PRIVATE_DOC.test(p[3]))return'private';
     if(p[0]==='market'&&p.length<=2)return'market';
     return null}
   async db(conn,m){const kind=this.access(conn,m.path);if(!kind)return{ok:false,err:'not allowed'};
@@ -109,7 +119,8 @@ class World{
         const size=JSON.stringify(data).length;if(size>(kind==='market'?MAX_MARKET_DOC:MAX_DOC))return{ok:false,err:'too big'};
         const cur=await this.store.get('docs/'+path);
         if(m.op==='upd'&&!cur)return{ok:false,err:'missing'};
-        if(kind==='market'){const bad=this.marketRule(me,cur,data,m.op);if(bad)return{ok:false,err:bad}}
+        if(kind==='market'){const bad=this.marketRule(me,cur,data,m.op);if(bad)return{ok:false,err:bad}
+          if(!cur&&(await this.store.list('docs/market/')).filter(r=>r.val.seller===me).length>=MAX_LISTINGS)return{ok:false,err:'too many listings'}}
         const val=m.op==='upd'?Object.assign({},cur,data):data;
         await this.store.put('docs/'+path,val);this.changed(path,kind,me);return{ok:true}}
       case 'del':{if(!docPath)return{ok:false,err:'not a document'};const cur=await this.store.get('docs/'+path);

@@ -6,17 +6,18 @@ const CONFIG=JSON.parse(fs.readFileSync(path.join(__dirname,'config.json'),'utf8
 const PORT=+process.env.PORT||8080,DATA=process.env.DATA||path.join(__dirname,'data'),PUB=process.env.PUBLIC||path.join(__dirname,'public');
 /* which version of the game this server hands out; players on an older page are told to reload */
 let BUILD=process.env.KQ_BUILD||'dev';if(!process.env.KQ_BUILD)try{BUILD=fs.readFileSync(path.join(__dirname,'BUILD'),'utf8').trim()}catch(e){}
-const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG)});
+const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG),config:CONFIG,rate:true});
 const {Admin}=require('./admin.js');world.admin=new Admin(world,store,CONFIG,{dir:DATA,fs});world.admin.tidy().catch(e=>console.error('admin tidy',e));
 require('./reset.js').resetWorld(store,CONFIG.epoch).then(r=>{if(r)console.log('progress reset to epoch '+r.epoch+': '+r.saves+' saves and '+r.market+' market listings cleared')}).catch(e=>console.error('reset',e));
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon','.webmanifest':'application/manifest+json','.json':'application/json'};
-const server=http.createServer((req,res)=>{
-  const u=decodeURIComponent((req.url||'/').split('?')[0]);if(u==='/health'){res.end('ok');return}
+const server=http.createServer((req,res)=>{try{serve(req,res)}catch(e){console.error('http',e);try{res.writeHead(500);res.end()}catch(_){}}});
+/* one request: a bad address is answered with 400, never thrown (a thrown error used to stop the whole server) */
+function serve(req,res){let u;try{u=decodeURIComponent((req.url||'/').split('?')[0])}catch(e){res.writeHead(400);res.end('bad address');return}if(u==='/health'){res.end('ok');return}
   if(u==='/robots.txt'){res.writeHead(200,{'content-type':'text/plain'});res.end('User-agent: *\nAllow: /\n');return}
   if(u==='/status'){res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(Object.assign({ok:true,build:BUILD,up:Math.round(process.uptime()),online:world.authed().length,connections:world.conns.size,node:process.version},world.stats())));return}
   let f=path.normalize(path.join(PUB,u==='/'?'index.html':u));if(!f.startsWith(PUB)||!fs.existsSync(f)||fs.statSync(f).isDirectory())f=path.join(PUB,'index.html');
   res.writeHead(200,{'content-type':TYPES[path.extname(f)]||'application/octet-stream','cache-control':f.endsWith('index.html')||f.endsWith('manifest.json')?'no-store, max-age=0':'max-age=3600','x-content-type-options':'nosniff'});
-  fs.createReadStream(f).pipe(res)});
+  fs.createReadStream(f).on('error',()=>{try{res.end()}catch(_){}}).pipe(res)}
 const wss=new WebSocketServer({server,path:'/ws',maxPayload:96*1024});
 wss.on('connection',(ws,req)=>{
   const conn={ip:(req.headers['x-forwarded-for']||req.socket.remoteAddress||'').split(',')[0].trim(),
@@ -25,4 +26,6 @@ wss.on('connection',(ws,req)=>{
   ws.on('message',d=>world.message(conn,d.toString()));ws.on('close',()=>world.close(conn));ws.on('error',()=>{})});
 setInterval(()=>{for(const ws of wss.clients){if(!ws.alive){ws.terminate();continue}ws.alive=false;ws.ping()}},25000).unref();
 const stop=()=>{store.flush();process.exit(0)};process.on('SIGTERM',stop);process.on('SIGINT',stop);
+/* an error nothing caught: log it and keep the world running (the store saves on its own timer) */
+process.on('uncaughtException',e=>console.error('uncaught',e));process.on('unhandledRejection',e=>console.error('unhandled',e));
 server.listen(PORT,()=>console.log('Kobold Quest server on :'+PORT));

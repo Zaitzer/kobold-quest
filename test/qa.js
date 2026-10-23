@@ -28,5 +28,5 @@ module.exports=[
   [24,'time and taps',['logic/qa6','browser/ttaps6']],
   [25,'what is measured on purpose (the numbers; the feel is played)',['logic/v6rules']],
   [26,'the small things: team attacks, the Book, stamps',['logic/v6battle','logic/qa6']],
-  [27,'accounts and characters',['logic/chars6','browser/tchars']],
+  [27,'accounts and characters',['logic/chars6','browser/tchars','logic/server']],
   [28,'admin tools',['logic/admin','browser/tsite']]];
