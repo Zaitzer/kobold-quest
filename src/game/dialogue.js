@@ -5,6 +5,7 @@ import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
 
 function rpSay(lines,choices,after){if(typeof rpInputReset==='function')rpInputReset();rp.dlg={lines:lines.map(l=>typeof l==='string'?{who:'',text:l}:l),i:0,choices:choices||null,after:after||null};rp.mode='dialog';rpBlip();rpUI(true)}
@@ -18,6 +19,6 @@ function rpToast(t){rp.toast={t,life:2.6};if(!rp.headless)sfx('drop')}
 feature({id:'dialogue',
   panels:{dialog:{sig:()=>rp.dlg?rp.dlg.i+'|'+rp.dlg.lines[rp.dlg.i].text:'',html(){const d=rp.dlg;if(!d)return null;const l=d.lines[d.i];
     return '<div class="rpdlg">'+(l.who?'<div class="who">'+esc2(l.who)+'</div>':'')+'<p>'+esc2(l.text)+'</p><div class="rpch">'+
-      (d.i<d.lines.length-2?'<button class="pill" type="button" data-rp="dlgskip">Skip ▸▸</button>':'')+(d.i<d.lines.length-1||!d.choices?'<button class="pill go" type="button" data-rp="next">Next ▸</button>':d.choices.map((c,i)=>'<button class="pill'+(i?'':' go')+'" type="button" data-rp="choose" data-i="'+i+'"'+(c.ok&&!c.ok()?' disabled':'')+'>'+esc2(c.t)+'</button>').join(''))+'</div></div>'}}},
+      (d.i<d.lines.length-2?button('dlgskip','Skip ▸▸',{pill:1}):'')+(d.i<d.lines.length-1||!d.choices?button('next','Next ▸',{cls:'go',pill:1}):d.choices.map((c,i)=>button('choose',esc2(c.t),{cls:i?'':'go',pill:1,data:{'i':i},disabled:c.ok&&!c.ok(),raw:1})).join(''))+'</div></div>'}}},
   actions:{dlgskip:()=>{const d=rp.dlg;if(d){d.i=d.lines.length-1;if(!d.choices)rpDlgNext();rpUI(true)}},next:()=>rpDlgNext(),choose:d=>rpChoose(+d.i)}});
 export {blipPitch,rpBlip,rpChoose,rpDlgNext,rpSay,rpToast};

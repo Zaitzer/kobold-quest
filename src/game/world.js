@@ -12,9 +12,10 @@ import {PLACES6} from '../data/v6/foes.js';
 import {LINKS6,MAPS6,ROOMS6,TILES6} from '../data/v6/maps.js';
 import {CHESTS6} from '../data/v6/story.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {rpSay,rpToast} from './dialogue.js';
 import {v6OpenChest} from './items.js';
-import {v6Stats} from './sheet.js';
+import {packMeanLevel,v6Stats} from './sheet.js';
 import {s6Npcs,s6Step} from './story.js';
 
 /* ------------------------------------------------------------------ places and tiles */
@@ -58,7 +59,7 @@ function w6InSight(t,x,y){const [dx,dy]=W6_DIR[t.face]||[1,0];for(let k=1;k<=3;k
 /* the patrol's strength word, by its level against the pack's (balance.md §9: Few, Several, Pack, Lots, Overwhelming) */
 function w6PatrolLevel(p){const P=PLACES6[w6Enc(p).place];return P.L+1}
 function w6Strength(p){const d=w6PatrolLevel(p)-w6PackLevel();return d<=-3?'Few':d<=-1?'Several':d===0?'Pack':d<=2?'Lots':'Overwhelming'}
-function w6PackLevel(){const P=rp.s.party;return Math.max(1,Math.round(P.reduce((a,m)=>a+m.lvl,0)/P.length))}
+function w6PackLevel(){return Math.max(1,Math.round(packMeanLevel(rp.s.party)))}
 function w6PatrolCheck(x,y,c){const p=rp.s.w6;for(const t of w6Patrols(p)){const near=Math.abs(t.x-x)<=1&&Math.abs(t.y-y)<=1;const seen=w6InSight(t,x,y)&&c!=='"';
     if(seen||near){w6PatrolFight(p,t,seen);return true}}return false}
 function w6PatrolFight(p,t,aware){const E=w6Enc(p),P=PLACES6[E.place],L=w6PatrolLevel(p),keys=[v6EliteKey(P.pool[0],L)].concat(v6Mix(Object.assign({},P,{L,target:P.target-1})));
@@ -96,7 +97,7 @@ function w6Step(x,y,c){const s=rp.s,p=s.w6,st=s.w6st;st.since=(st.since||0)+1;
 const linkOpen=f=>!f||(f==='never'?false:typeof f==='string'?test({[f]:{gte:1}}):test(f));
 function w6Follow(L){const [, , ,to,tx,ty,,flag]=L;if(!linkOpen(flag)){rpToast(flag==='never'?'That way is for later.':'The way is shut.');rp.path=null;rp.held=null;return true}
   return w6Go(to,tx,ty)}
-function w6Fight(p,E){const P=PLACES6[E.place],L=Math.max(1,Math.round(rp.s.party.reduce((a,m)=>a+m.lvl,0)/rp.s.party.length)),first=!(rp.s.w6st.enc[p]);
+function w6Fight(p,E){const P=PLACES6[E.place],L=w6PackLevel(),first=!(rp.s.w6st.enc[p]);
   /* the foes' level: the place's, nudged toward the pack (levels 3–6 on R1, 6–8 in the mine; balance.md §5) */
   const lv=Math.max(P.L-1,Math.min(P.L+2,L)),keys=v6Mix(Object.assign({},P,{L:lv}));
   rp.s.w6st.enc[p]=(rp.s.w6st.enc[p]||0)+1;rp.path=null;rp.held=null;
@@ -148,7 +149,7 @@ function w6Cart(){const st=rp.s.w6st;if(st.cart==='done'){rpToast('The cart is h
   if(r==='home'){st.cart='done';emit('w6:cart')}rpSay([{who:'',text:say}]);return true}
 
 function w6TravelHtml(){const L=w6TravelList(rp.w6travel);return'<div class="rpdlg"><div class="who">'+(rp.w6travel==='stable'?'Ride a raptor':'Travel to a fountain')+'</div><p>'+(L.length?'Where to?':'Nowhere yet.')+'</p></div><div class="rpcmd">'+
-  L.map((t,i)=>'<button class="rpb go" type="button" data-rp="w6go" data-v="'+i+'">'+t.n+'</button>').join('')+'<button class="rpb x" type="button" data-rp="w6stay">Stay</button></div>'}
+  L.map((t,i)=>button('w6go',t.n,{cls:'go',v:i,raw:1})).join('')+button('w6stay','Stay',{cls:'x'})+'</div>'}
 /* ------------------------------------------------------------------ the dark floor (systems.md §9): sight 3, glow grubs and the campfire light tiles */
 function w6Lit(p,x,y){const R=w6Rows(p);if(!R)return true;if(R[y]&&R[y][x]!=='d')return true;
   for(let j=-4;j<=4;j++)for(let i=-4;i<=4;i++){const c=R[y+j]&&R[y+j][x+i];if(c==='C'&&Math.hypot(i,j)<=4)return true}

@@ -65,6 +65,10 @@ feature({
 })
 ```
 
+Screens are built with `button(action,label,{sub,cls,v,disabled})`, `buttons([...])` and `panel(title,body)` from `engine/html.js`:
+they escape the text, route the action (`'w6buy'` to a feature's action, `'net:give'`, `'tac:ok'` to theirs) and keep one look.
+The pack's hero and its mean level are `packHero(save)` and `packMeanLevel(party)` (`game/sheet.js`).
+
 Put it in a new module, add one line to `src/systems.js`, run `node tools/imports.js`. Adding `fishing:false` to `FLAGS` in `core/registry.js`
 switches the whole feature off. `test/logic/wiring.test.js` fails if a button or mode has no handler.
 

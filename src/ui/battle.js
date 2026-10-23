@@ -13,6 +13,7 @@ import {RP_SK} from '../data/classes.js';
 import {RP_ITEMS} from '../data/items.js';
 import {WEAPONS} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpMemSkills,v6Stats} from '../game/sheet.js';
 import {netSendAct,netSerAct} from '../net/battle.js';
@@ -125,26 +126,26 @@ function rpTacPanel(){
   let h='<div class="tq">'+up.map((x,i)=>{const hid=x.side===1&&!tcShown(b,x);return '<span class="'+(x.side?'foe':'pal')+(b.net&&x.side===0?(x.own==='g'?' og':' oh'):'')+(i===0&&b.phase!=='place'?' now':'')+'">'+(hid?'?':esc2(x.name.split(' ').pop().slice(0,6)))+(i===0&&left!=null?' <i>'+left+'s</i>':'')+'</span>'}).join('')+'</div>';
   h+='<div class="tparty">'+b.units.filter(x=>x.side===0).map(x=>{const st=v6Stats(x.m);return '<div class="tpm'+(x.hp<=0?' down':'')+(x.fled?' gone':'')+(x===u?' on':'')+(x.ctl==='remote'?' fr':'')+'"><b>'+esc2(x.name)+(x.ctl==='remote'?' <i>'+esc2(netName())+'</i>':'')+'</b>'+rpBar(Math.max(0,x.hp),st.hp,x.hp>st.hp*.5?'#7ad67a':x.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>'+Math.max(0,x.hp)+' HP · '+x.m.mp+' MP'+(x===u&&b.phase!=='place'?' · '+'●'.repeat(Math.max(0,x.ap))+'○'.repeat(Math.max(0,2-x.ap)):'')+'</small></div>'}).join('')+'</div>';
   h+='<div class="rpmsg tmsg">'+(b.pend?b.pend.info:esc2(b.msg))+'</div>';
-  if(b.phase==='place'&&!(b.net&&b.net.role==='guest'))h+='<div class="tbar two"><button class="pill" type="button" data-tac="auto">Auto<small>as they stand</small></button><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';
-  else if(b.phase==='place')h+=b.net&&b.net.role==='guest'?'<div class="tbar"><p class="rptip">Tap one of your kobolds, then a blue tile to move it. '+esc2(netName())+' starts the battle.</p></div>':'<div class="tbar"><p class="rptip">Tap a kobold, then a blue tile to move it. '+(b.net?esc2(netName())+' can place theirs too.':'Enemies hide in the fog.')+'</p><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';
+  if(b.phase==='place'&&!(b.net&&b.net.role==='guest'))h+='<div class="tbar two">'+button('tac:auto','Auto',{pill:1,sub:'as they stand'})+button('tac:start','Start battle ▸',{cls:'go big',pill:1})+'</div>';
+  else if(b.phase==='place')h+=b.net&&b.net.role==='guest'?'<div class="tbar"><p class="rptip">Tap one of your kobolds, then a blue tile to move it. '+esc2(netName())+' starts the battle.</p></div>':'<div class="tbar"><p class="rptip">Tap a kobold, then a blue tile to move it. '+(b.net?esc2(netName())+' can place theirs too.':'Enemies hide in the fog.')+'</p>'+button('tac:start','Start battle ▸',{cls:'go big',pill:1})+'</div>';
   else if(b.phase==='end'){   /* the result (ui-design.md §7.8): one card, one button */
     const W=b.over==='win',lines=W?['+'+(b.xp6||0)+' XP each · +'+(b.gold6||0)+' gold'].concat((b.got6||[]).length?['Found: '+b.got6.join(', ')]:[],b.ups6||[]):[b.over==='lose'?'The pack fell. A friendly goat carries everyone to the fountain; half your gold stays behind.':b.over==='run'?'You slipped away.':esc2(b.msg)];
     h=h.replace('<div class="rpmsg tmsg">'+(b.pend?b.pend.info:esc2(b.msg))+'</div>','')+'<div class="rpdlg result'+(W?' win':'')+'"><div class="who">'+(W?'Victory!':b.over==='lose'?'Defeat':'The fight is over')+'</div>'+lines.map(t=>'<p>'+esc2(t)+'</p>').join('')+'</div>'+
-      '<div class="tbar">'+(v6CanRetry(b)?'<button class="pill big" type="button" data-tac="retry">Try again</button>':'')+'<button class="pill go big" type="button" data-tac="cont">Onward ▸</button></div>'}
+      '<div class="tbar">'+(v6CanRetry(b)?button('tac:retry','Try again',{cls:'big',pill:1}):'')+button('tac:cont','Onward ▸',{cls:'go big',pill:1})+'</div>'}
   else if(b.phase==='turn'&&u&&u.side===0){
-    if(b.pend)h+='<div class="tbar two"><button class="rpb x" type="button" data-tac="cancel">✕ Cancel</button><button class="rpb go" type="button" data-tac="ok">✓ Confirm<small>or tap the same spot again</small></button></div>';
+    if(b.pend)h+='<div class="tbar two">'+button('tac:cancel','✕ Cancel',{cls:'x'})+button('tac:ok','✓ Confirm',{cls:'go',sub:'or tap the same spot again'})+'</div>';
     else{const m=u.m,w=m.w,TW=rpTW(w),ac=tcActCost(u,{k:'atk'}),on=x=>b.mode===x?' on':'';
       h+='<div class="rpcmd tcmd">'+
         '<button class="rpb go'+on('atk')+'" type="button" data-tac="mode" data-v="atk"'+(tcCanPay(u,ac)?'':' disabled')+'>Attack<small>'+WEAPONS[w].n+' · '+(TW.r>1?'range '+TW.r:'reach 1')+' · '+(ac==='end'?'ends turn':ac+' AP')+'</small></button>'+
-        (b.undo&&b.undo.u===u&&!b.net?'<button class="rpb" type="button" data-tac="undo">Undo<small>take the move back</small></button>':'')+
+        (b.undo&&b.undo.u===u&&!b.net?button('tac:undo','Undo',{sub:'take the move back'}):'')+
         rpMemSkills(m).map(k=>{const S=RP_SK[k],T=RP_ST[k]||{ap:'end'},dk=!!(m.dark&&m.dark[k]);return '<button class="rpb sk'+(dk?' dark':'')+on('sk:'+k)+'" type="button" data-tac="mode" data-v="sk:'+k+'"'+(m.mp<S.mp||!tcCanPay(u,T.ap)?' disabled':'')+'>'+(dk&&T.v6&&T.v6.dark?T.v6.dark.n:S.n)+'<small>'+S.mp+' MP · '+(T.ap==='end'?'ends turn':T.ap+' AP')+(T.chan?' · next turn':'')+(dk?' · +1 corruption':'')+'</small></button>'}).join('')+
         Object.keys(RP_ITEMS).filter(k=>s.bag[k]>0).map(k=>'<button class="rpb it'+on('it:'+k)+'" type="button" data-tac="mode" data-v="it:'+k+'">'+RP_ITEMS[k].n+' ×'+s.bag[k]+'<small>1 AP · self or adjacent</small></button>').join('')+
-        (TW.r>1&&!tcMelee(u)?'<button class="rpb" type="button" data-tac="mode" data-v="watch">Watch<small>Shoot the first mover</small></button>':'')+
+        (TW.r>1&&!tcMelee(u)?button('tac:mode','Watch',{v:'watch',sub:'Shoot the first mover'}):'')+
         (v6TogetherOpts(b,u).length?'<button class="rpb go'+on('tog')+'" type="button" data-tac="mode" data-v="tog">Together<small>'+[...new Set(v6TogetherOpts(b,u).map(o=>esc2(o.f.name)))].join(', ')+' · 1 AP · both attack</small></button>':'')+
-        '<button class="rpb" type="button" data-tac="mode" data-v="guard">Guard<small>Harder to hit</small></button>'+
-        (b.exits&&u.y===b.H-1?'<button class="rpb" type="button" data-tac="mode" data-v="leave">Leave<small>Escape the fight</small></button>':'')+
-        '<button class="rpb x" type="button" data-tac="mode" data-v="end">End turn</button></div>'}}
-  else h+='<div class="tbar"><p class="rptip">'+(u&&u.ctl==='remote'?esc2(netName())+'\'s turn…':u&&u.side===1?'Enemy turn…':'…')+'</p><button class="pill" type="button" data-tac="spd">⏩ Enemy speed '+(rpOpt.bspd||1)+'×</button></div>';
+        button('tac:mode','Guard',{v:'guard',sub:'Harder to hit'})+
+        (b.exits&&u.y===b.H-1?button('tac:mode','Leave',{v:'leave',sub:'Escape the fight'}):'')+
+        button('tac:mode','End turn',{cls:'x',v:'end'})+'</div>'}}
+  else h+='<div class="tbar"><p class="rptip">'+(u&&u.ctl==='remote'?esc2(netName())+'\'s turn…':u&&u.side===1?'Enemy turn…':'…')+'</p>'+button('tac:spd','⏩ Enemy speed '+(rpOpt.bspd||1)+'×',{pill:1,raw:1})+'</div>';
   return{sig,h};
 }
 feature({id:'battle-input',init(){

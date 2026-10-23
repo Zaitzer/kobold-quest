@@ -55,7 +55,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  /* ---------- battle ---------- */
  const fight=async()=>{await E(()=>{__rp.mode='map';__rp.s.party.forEach(m=>{m.hp=999;m.mp=99});__v6.fight([['nettlenose_scout',4],['nettlenose_scout',4],['copper_beetle',4]])});await until(()=>__rp.mode==='battle')};
  /* make the given kobold's turn: it acts now with 2 AP; a foe stands beside it (or not) */
- const turn=async(i,near)=>{await until(()=>__rp.bt&&(__rp.bt.phase==='turn'||__rp.bt.over),null,20000);return E(([i,near])=>{const b=__rp.bt,u=b.units.filter(x=>x.side===0)[i];b.cur=u;u.ap=2;b.mode='move';b.pend=null;b.undo=null;
+ const turn=async(i,near)=>{await until(()=>__rp.bt&&(__rp.bt.phase==='turn'||__rp.bt.over),null,20000);return E(([i,near])=>{const b=__rp.bt,u=b.units.filter(x=>x.side===0)[i];b.cur=u;if(u.hp<=0){u.hp=10;if(u.k)u.k.state="idle"}u.ap=2;   /* a unit knocked down earlier in the test is stood up again */ b.mode='move';b.pend=null;b.undo=null;
    const f=b.units.filter(x=>x.side===1&&x.hp>0);f.forEach((e,j)=>{e.aware=true;e.hp=Math.max(e.hp,30)});
    if(near){const e=f[0];for(const [dx,dy] of [[0,-1],[1,0],[-1,0],[0,1]]){const x=u.x+dx,y=u.y+dy;if(x>=0&&y>=0&&x<b.W&&y<b.H&&!b.units.some(o=>o!==e&&o.hp>0&&o.x===x&&o.y===y)){e.x=x;e.y=y;break}}
      f.slice(1).forEach((o,j)=>{o.x=Math.min(b.W-1,u.x+3+j);o.y=Math.max(0,u.y-4)})}

@@ -1,5 +1,6 @@
 /* Every system module, in load order. Add a new feature module here. */
 import './engine/util.js';
+import './engine/html.js';
 import './engine/art.js';
 import './engine/audio.js';
 import './engine/fx.js';

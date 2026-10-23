@@ -7,6 +7,7 @@ import {OL,WEAPONS,ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {byBase,sheetOfKobold,sheetOfNpc} from '../engine/sheets.js';
 import {artName,sprite} from '../engine/sprites.js';
 import {R,clamp,rr,seeded} from '../engine/util.js';
+import {packHero} from '../game/sheet.js';
 import {s6Marker} from '../game/story.js';
 import {isRoom,rpNpcs,w6Flooded,w6Lit,w6Patrols,w6Strength} from '../game/world.js';
 import {netDrawTags,netPartnerK} from '../net/draw.js';
@@ -49,7 +50,7 @@ function rpDrawMap(dt){
   if(pk.weapon!==P0.w){pk.weapon=P0.w;pk.W=WEAPONS[pk.weapon]}
   pk.x=px*RT+16;pk.y=py*RT+26;pk.t+=dt;pk.blink-=dt;if(pk.blink<-.12)pk.blink=R(2,5);pk.moving=rp.moving;if(rp.moving)pk.walk+=dt*12;
   if(s.face==='left')pk.face=-1;else if(s.face==='right')pk.face=1;
-  if(s.w6){const H=s.party.find(m=>m.hero)||s.party[0];pk.sheetFn=()=>sheetOfKobold(H);pk.onMap=1;pk.dir6=s.face;pk.colour6=s.hero&&s.hero.colour}else pk.sheetFn=null;pk.wa+=((WEAPONS[pk.weapon].ranged&&!WEAPONS[pk.weapon].magic?1.45:.35)-pk.wa)*Math.min(1,dt*10);
+  if(s.w6){const H=packHero(s);pk.sheetFn=()=>sheetOfKobold(H);pk.onMap=1;pk.dir6=s.face;pk.colour6=s.hero&&s.hero.colour}else pk.sheetFn=null;pk.wa+=((WEAPONS[pk.weapon].ranged&&!WEAPONS[pk.weapon].magic?1.45:.35)-pk.wa)*Math.min(1,dt*10);
   ents.concat([pk],netPartnerK(dt)).sort((a,b)=>a.y-b.y).forEach(drawKobold);netDrawTags();
   // quest markers
   rpNpcs().forEach(n=>{const m=rpMarker(n.id);if(!m)return;const x=n.x*RT+16,y=n.y*RT-4+Math.sin(rp.t*4)*2;ctx.font='400 18px "Lilita One","Fredoka",system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle=OL;ctx.strokeText(m,x,y);ctx.fillStyle=m==='!'?'#ffd54a':'#9dff6e';ctx.fillText(m,x,y)});

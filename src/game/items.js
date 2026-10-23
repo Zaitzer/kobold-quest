@@ -6,7 +6,7 @@ import {RP_ITEMS} from '../data/items.js';
 import {BASE6,CLASSES6} from '../data/v6/classes.js';
 import {AFFIXES6,CONSUMABLES6,GEAR6,PRICES6,RECIPES6,UNIQUES6,WEAPONS6} from '../data/v6/items.js';
 import {CHESTS6} from '../data/v6/story.js';
-import {V6_TIERS,V6_VARIANT,v6TierFor} from './sheet.js';
+import {V6_TIERS,V6_VARIANT,packHero,v6TierFor} from './sheet.js';
 
 const GEAR_SLOTS6=['weapon','armour','shield','helm','boots','cloak','neck','ring1','ring2'];
 const slotOf=k=>k.startsWith('ring')?'ring':k;
@@ -87,7 +87,7 @@ function v6Drops(b){const s=rp.s,out=[],r=Math.random;if(!s||!s.w6)return out;co
   return out}
 
 /* ------------------------------------------------------------------ shops and the smith (systems.md §8) */
-const SHOP6={hearthspire:{tiers:()=>[0],uses:['Potion','Ether']},pebblebrook:{tiers:()=>[((rp.s.party.find(m=>m.hero)||rp.s.party[0]).lvl>=5)?1:0],uses:['Potion','Ether','Phoenix feather']}};
+const SHOP6={hearthspire:{tiers:()=>[0],uses:['Potion','Ether']},pebblebrook:{tiers:()=>[(packHero(rp.s).lvl>=5)?1:0],uses:['Potion','Ether','Phoenix feather']}};
 const WAVE_FAMS=['blades','guns','wands','holy','fists','orbs','instruments','daggers'];
 function v6ShopStock(town){const S=SHOP6[town];if(!S)return[];const out=[];for(const t of S.tiers()){
     for(const fam of WAVE_FAMS)out.push(v6Piece('weapon',t,{fam}));

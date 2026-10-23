@@ -3,6 +3,7 @@ import {view} from '../core/app.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {yip} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpPlace} from '../game/world.js';
@@ -28,8 +29,8 @@ function netGotYip(d,msg){const P=(net.others||[]).find(p=>p.peer===msg.peer);if
 function netChatHtml(){
   let h='<div class="rpdlg"><div class="who">Chat'+(netOnline()?' · '+net.others.length+' online':' · nobody else is here right now')+'</div><div class="chatlog">'+
     (net.chatLog.length?net.chatLog.slice(-8).map(l=>'<p><b>'+esc2(l.who)+':</b> '+esc2(l.txt)+'</p>').join(''):'<p class="rptip">Say hi! Messages pop up over your kobold.</p>')+'</div></div>';
-  h+='<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send"><button class="rpb go" type="button" data-net="chatsend">Send</button></div>';
-  h+=''+(net.partner&&typeof SITE!=='undefined'&&SITE?'<div class="says"><button class="pill" type="button" data-rp="admreport">⚑ Report '+esc2(netNameOf(net.partner.peer))+'</button></div>':'')+'<div class="says"><button class="pill go" type="button" data-net="yip">🐾 Yip!</button>'+NET_SAYS.map(t=>'<button class="pill" type="button" data-net="say" data-v="'+esc2(t)+'">'+esc2(t)+'</button>').join('')+'</div><div class="tbar"><button class="rpb x" type="button" data-net="chatclose">Done</button></div>';
+  h+='<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send">'+button('net:chatsend','Send',{cls:'go'})+'</div>';
+  h+=''+(net.partner&&typeof SITE!=='undefined'&&SITE?'<div class="says">'+button('admreport','⚑ Report '+esc2(netNameOf(net.partner.peer)),{pill:1,raw:1})+'</div>':'')+'<div class="says">'+button('net:yip','🐾 Yip!',{cls:'go',pill:1})+NET_SAYS.map(t=>button('net:say',esc2(t),{pill:1,v:esc2(t),raw:1})).join('')+'</div><div class="tbar">'+button('net:chatclose','Done',{cls:'x'})+'</div>';
   return h}
 
 feature({id:'chat',panels:{chat:{sig:()=>net.chatLog.length+'|'+(net.others||[]).length,html:()=>netChatHtml()}}});

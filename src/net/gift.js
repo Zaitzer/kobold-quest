@@ -4,6 +4,7 @@ import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {tradeLabel,tradeList,tradePut,tradeTake,tradeValid} from '../game/items.js';
@@ -28,9 +29,9 @@ function netGiftTick(){const now=performance.now();for(const gid in net.gifts){c
 const giftRows=[];
 function netTradeHtml(){const s=rp.s;giftRows.length=0;
   let h='<div class="rpdlg"><div class="who">Give to '+esc2(netName())+'</div><p>Tap to send. It arrives in their backpack right away.</p></div><div class="rpcmd shop">';
-  h+=[10,50].map(v=>'<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="'+v+'"'+(s.gold<v?' disabled':'')+'>'+v+' gold<small>You have '+Math.floor(s.gold)+'</small></button>').join('');
-  h+=tradeList().map(([k,v,label])=>{giftRows.push([k,v]);return'<button class="rpb'+(k==='item'?'':' it')+'" type="button" data-net="give" data-k="list" data-v="'+(giftRows.length-1)+'">'+esc2(label)+'</button>'}).join('');
-  return h+'<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>'}
+  h+=[10,50].map(v=>button('net:give',v+' gold',{cls:'go',v:v,data:{'k':'gold'},disabled:s.gold<v,sub:'You have '+Math.floor(s.gold),raw:1})).join('');
+  h+=tradeList().map(([k,v,label])=>{giftRows.push([k,v]);return button('net:give',esc2(label),{cls:k==='item'?'':'it',v:(giftRows.length-1),data:{'k':'list'},raw:1})}).join('');
+  return h+button('net:tradeclose','Done',{cls:'x'})+'</div>'}
 
 feature({id:'trade',panels:{trade:{sig:()=>rp.s.gold+JSON.stringify([rp.s.mats6,rp.s.bag,(rp.s.inv6||[]).length]),html:()=>netTradeHtml()}}});
 feature({id:'net-gift-io',

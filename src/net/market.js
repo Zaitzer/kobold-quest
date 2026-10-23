@@ -4,6 +4,7 @@ import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {tradeLabel,tradeList,tradePrice,tradePut,tradeTake,tradeValid} from '../game/items.js';
@@ -43,17 +44,17 @@ async function netMarketPayouts(){if(!rp.s||net.paying)return;const s=rp.s;s.mkP
     try{await net.db.collection('market').doc(m.id).delete()}catch(e){}}
   rpSave();net.paying=false;rp.sig=''}
 function netMarketHtml(){
-  const s=rp.s,T=net.mkTab,tab=(k,n)=>'<button class="pill'+(T===k?' go':'')+'" type="button" data-net="mktab" data-v="'+k+'">'+n+'</button>';
+  const s=rp.s,T=net.mkTab,tab=(k,n)=>button('net:mktab',n,{cls:T===k?'go':'',pill:1,v:k,raw:1});
   let h='<div class="rpdlg"><div class="who">Market board</div><div class="mktabs">'+tab('buy','Buy')+tab('sell','Sell')+tab('mine','My stall')+'<span class="mkgold">'+Math.floor(s.gold)+' gold</span></div></div><div class="rpcmd shop">';
   if(T==='buy'){const L=net.market.filter(m=>netMkValid(m)&&m.seller!==net.me).sort((a,b)=>b.t-a.t);
-    h+=L.length?L.map(m=>{return '<button class="rpb go" type="button" data-net="mkbuy" data-id="'+esc2(m.id)+'"'+(s.gold<m.price||net.mkBusy?' disabled':'')+'>'+esc2(netMkLabel(m))+' · '+m.price+'g<small>from '+esc2(net.names[m.seller]||'a friend')+'</small></button>'}).join(''):'<p class="rptip">Nothing for sale yet. Be the first: open the Sell tab.</p>'}
+    h+=L.length?L.map(m=>{return button('net:mkbuy',esc2(netMkLabel(m))+' · '+m.price+'g',{cls:'go',data:{'id':esc2(m.id)},disabled:s.gold<m.price||net.mkBusy,sub:'from '+esc2(net.names[m.seller]||'a friend'),raw:1})}).join(''):'<p class="rptip">Nothing for sale yet. Be the first: open the Sell tab.</p>'}
   else if(T==='sell'){
-    if(net.mkSell){const S=net.mkSell;h+='<p class="mksell"><b>'+esc2(netMkLabel(S))+'</b> for <b class="hp">'+S.price+' gold</b></p>'+[-50,-10,-1,1,10,50].map(v=>'<button class="pill" type="button" data-net="mkprice" data-v="'+v+'">'+(v>0?'+':'')+v+'</button>').join('')+
-      '<button class="rpb go" type="button" data-net="mklist"'+(net.mkBusy?' disabled':'')+'>Put it up for sale<small>Stays up while you\'re away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>'}
-    else{const L=tradeList();net.mkList=L;h+=L.map(([k,v,label],i)=>'<button class="rpb'+(k==='item'?'':' it')+'" type="button" data-net="mkpick" data-i="'+i+'">'+esc2(label)+'<small>about '+tradePrice(k,v)+' gold</small></button>').join('')||'<p class="rptip">Your backpack is empty. Take gear off in the pack\'s sheets to sell it.</p>'}}
+    if(net.mkSell){const S=net.mkSell;h+='<p class="mksell"><b>'+esc2(netMkLabel(S))+'</b> for <b class="hp">'+S.price+' gold</b></p>'+[-50,-10,-1,1,10,50].map(v=>button('net:mkprice',(v>0?'+':'')+v,{pill:1,v:v,raw:1})).join('')+
+      button('net:mklist','Put it up for sale',{cls:'go',disabled:net.mkBusy,sub:'Stays up while you\'re away. You get the gold when someone buys it.'})+button('net:mktab','✕ Pick something else',{cls:'x',v:'sell'})}
+    else{const L=tradeList();net.mkList=L;h+=L.map(([k,v,label],i)=>button('net:mkpick',esc2(label),{cls:k==='item'?'':'it',data:{'i':i},sub:'about '+tradePrice(k,v)+' gold',raw:1})).join('')||'<p class="rptip">Your backpack is empty. Take gear off in the pack\'s sheets to sell it.</p>'}}
   else{const L=(net.mine||[]).filter(m=>m.status==='open'&&netMkValid(m));
-    h+=L.length?L.map(m=>'<button class="rpb" type="button" data-net="mkcancel" data-id="'+esc2(m.id)+'">'+esc2(netMkLabel(m))+' · '+m.price+'g<small>Tap to take it back</small></button>').join(''):'<p class="rptip">You have nothing for sale.</p>'}
-  return h+'<button class="rpb x" type="button" data-net="mkclose">Leave</button></div>'}
+    h+=L.length?L.map(m=>button('net:mkcancel',esc2(netMkLabel(m))+' · '+m.price+'g',{data:{'id':esc2(m.id)},sub:'Tap to take it back',raw:1})).join(''):'<p class="rptip">You have nothing for sale.</p>'}
+  return h+button('net:mkclose','Leave',{cls:'x'})+'</div>'}
 
 feature({id:'market',panels:{market:{sig:()=>net.mkTab+JSON.stringify(net.mkSell)+net.market.length+net.market.map(m=>m.id).join()+(net.mine||[]).length+rp.s.gold+net.mkBusy+(rp.s.inv6||[]).length+JSON.stringify([rp.s.mats6,rp.s.bag]),html:()=>netMarketHtml()}}});
 

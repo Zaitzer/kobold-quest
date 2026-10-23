@@ -11,6 +11,7 @@ import {FOES6} from '../data/v6/foes.js';
 import {MAPS6} from '../data/v6/maps.js';
 import {KITS6,SKILLS6} from '../data/v6/skills.js';
 import {WAVE16} from '../data/v6/story.js';
+import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {v6Stats} from '../game/sheet.js';
@@ -34,38 +35,38 @@ function v6UseOn(m,k){const s=rp.s,st=v6Stats(m);if(!m||!(s.bag[k]>0)||m.hp<=0)r
   if(k==='potion'&&m.hp<st.hp){m.hp=Math.min(st.hp,m.hp+Math.round(st.hp*.35))}else if(k==='ether'&&(m.mp||0)<st.mp){m.mp=Math.min(st.mp,(m.mp||0)+Math.round(st.mp*.3))}else return false;
   s.bag[k]--;rpSave();return true}
 function v6MenuHtml(){const s=rp.s,G=goals()[0];
-  if(V6S.item)return'<div class="rpdlg"><div class="who">'+USE6[V6S.item][0]+' on whom? ('+s.bag[V6S.item]+' left)</div></div>'+v6PackUse()+'<div class="rpcmd"><button class="rpb x" type="button" data-rp="v6use" data-v="">Back</button></div>';
+  if(V6S.item)return'<div class="rpdlg"><div class="who">'+USE6[V6S.item][0]+' on whom? ('+s.bag[V6S.item]+' left)</div></div>'+v6PackUse()+'<div class="rpcmd">'+button('v6use','Back',{cls:'x',v:''})+'</div>';
   let h=v6PackHtml()+'<div class="rpdlg">'+(G?'<p><b>'+esc2(G.goal)+'</b><br><small>'+esc2(G.hint)+'</small></p>':'')+'<p><small>'+Math.floor(s.gold)+' gold · '+(s.buns||0)+' ember-buns</small></p></div><div class="rpcmd">';
-  h+=Object.keys(USE6).filter(k=>s.bag[k]>0).map(k=>'<button class="rpb it" type="button" data-rp="v6use" data-v="'+k+'">'+USE6[k][0]+' ×'+s.bag[k]+'<small>'+USE6[k][1]+'</small></button>').join('');
+  h+=Object.keys(USE6).filter(k=>s.bag[k]>0).map(k=>button('v6use',USE6[k][0]+' ×'+s.bag[k],{cls:'it',v:k,sub:USE6[k][1],raw:1})).join('');
   const travel=w6Pieces()>=2&&(s.w6st.fountains||[]).length>1;
-  h+='<button class="rpb'+(travel?' go':'')+'" type="button" data-rp="w6fast"'+(travel?'':' disabled')+'>Map<small>'+(travel?'travel to a fountain':'travel opens with the second Smiler piece')+'</small></button>';
-  h+='<button class="rpb" type="button" data-rp="v6book" data-v="">The Book<small>foes, the Smiler, places, stamps</small></button><button class="rpb" type="button" data-rp="v6set">Settings<small>sound, motion, colours, text size</small></button>';
+  h+=button('w6fast','Map',{cls:travel?'go':'',disabled:!(travel),sub:(travel?'travel to a fountain':'travel opens with the second Smiler piece'),raw:1});
+  h+=button('v6book','The Book',{v:'',sub:'foes, the Smiler, places, stamps'})+button('v6set','Settings',{sub:'sound, motion, colours, text size'});
   h+=menuItems.map(m=>m.html()).join('');
-  return h+'<button class="rpb x" type="button" data-rp="quit">Quit to the title</button><button class="rpb go" type="button" data-rp="close">Back to the map</button></div>'}
-function v6PackUse(){return'<div class="rpcmd">'+rp.s.party.map((m,i)=>{const st=v6Stats(m);return'<button class="rpb go" type="button" data-rp="v6useon" data-v="'+i+'"'+(m.hp<=0?' disabled':'')+'>'+esc2(m.name)+'<small>'+Math.max(0,m.hp)+'/'+st.hp+' HP · '+(m.mp||0)+'/'+st.mp+' MP</small></button>'}).join('')+'</div>'}
+  return h+button('quit','Quit to the title',{cls:'x'})+button('close','Back to the map',{cls:'go'})+'</div>'}
+function v6PackUse(){return'<div class="rpcmd">'+rp.s.party.map((m,i)=>{const st=v6Stats(m);return button('v6useon',esc2(m.name),{cls:'go',v:i,disabled:m.hp<=0,sub:Math.max(0,m.hp)+'/'+st.hp+' HP · '+(m.mp||0)+'/'+st.mp+' MP',raw:1})}).join('')+'</div>'}
 
 /* ------------------------------------------------------------------ the class pick: eight cards; a tap shows more, a second confirms */
 function v6ClassHtml(){const c=V6S.cls;
   let h='<div class="rpdlg"><div class="who">Pick up something and show what you are</div><p>'+(c?'Tap '+esc2(CLASSES6[c].n)+' again to be one.':'Tap a card to see more.')+'</p></div><div class="rpcmd">';
   h+=WAVE16.map(id=>{const C=CLASSES6[id],K=KITS6[id],two=[K.start[0],(K.talents[0]||{}).id].filter(Boolean).map(x=>SKILLS6[x].n).join(', ');
-    return'<button class="rpb'+(c===id?' go on':'')+'" type="button" data-rp="w6cls" data-v="'+id+'">'+esc2(C.n)+'<small>'+esc2(C.role)+' · '+esc2(two)+'</small></button>'}).join('')+'</div>';
+    return button('w6cls',esc2(C.n),{cls:c===id?'go on':'',v:id,sub:esc2(C.role)+' · '+esc2(two),raw:1})}).join('')+'</div>';
   if(c){const C=CLASSES6[c],K=KITS6[c];h+='<div class="rpdlg"><div class="who">'+esc2(C.n)+', '+esc2(flav(C))+'</div><p>'+esc2(C.role)+'. Fights with '+esc2(C.fam)+'.</p><p><small>'+
     [K.start[0]].concat(K.talents.map(t=>t.id)).slice(0,5).map(x=>'<b>'+esc2(SKILLS6[x].n)+'</b>: '+esc2(SKILLS6[x].d)).join('<br>')+'</small></p><p><small>At 8: '+Object.keys(K.subs).map(esc2).join(' or ')+'.</small></p></div>'}
   return h}
 
 /* ------------------------------------------------------------------ the Book (systems.md §15): Mallow's book, four tabs */
 const PIECES=['first','second','third','fourth','fifth'];
-function v6BookHtml(){const B=bk(),t=V6S.book,tab=(k,n)=>'<button class="pill'+(t===k?' go':'')+'" type="button" data-rp="v6book" data-v="'+k+'">'+n+'</button>';
+function v6BookHtml(){const B=bk(),t=V6S.book,tab=(k,n)=>button('v6book',n,{cls:t===k?'go':'',pill:1,v:k,raw:1});
   let h='<div class="rpcmd">'+tab('foes','Foes')+tab('lore','The Smiler')+tab('places','Places')+tab('stamps','Stamps')+'</div><div class="rpdlg">';
   if(t==='foes'){const ids=Object.keys(B.foes).sort((a,b)=>(FOES6[a]&&FOES6[a].home||0)-(FOES6[b]&&FOES6[b].home||0));
     if(V6S.page&&FOES6[V6S.page]){const F=FOES6[V6S.page],r=B.foes[V6S.page]||{},k=r.won>0;
-      h+='<div class="who">'+esc2(F.n)+'</div><p>Seen at levels '+(r.lo||'?')+(r.hi>r.lo?'–'+r.hi:'')+' · beaten '+(r.won||0)+' times</p><p><small>'+(k?esc2(F.how)+'<br>Found: '+esc2(F.where)+(F.drop&&F.drop!=='—'?'<br>Drops: '+esc2(F.drop):''):'? (beat one to learn how it fights)')+'</small></p></div><div class="rpcmd"><button class="rpb x" type="button" data-rp="v6bookpage" data-v="">Back</button>'}
-    else{h+='<div class="who">Foes</div><p>'+(ids.length?ids.length+' met.':'No foes met yet.')+'</p></div><div class="rpcmd">'+ids.map(id=>{const r=B.foes[id];return'<button class="rpb'+(r.won?'':' x')+'" type="button" data-rp="v6bookpage" data-v="'+id+'">'+esc2(FOES6[id]?FOES6[id].n:id)+'<small>'+(r.won?'beaten '+r.won:'met, never beaten')+'</small></button>'}).join('')}}
+      h+='<div class="who">'+esc2(F.n)+'</div><p>Seen at levels '+(r.lo||'?')+(r.hi>r.lo?'–'+r.hi:'')+' · beaten '+(r.won||0)+' times</p><p><small>'+(k?esc2(F.how)+'<br>Found: '+esc2(F.where)+(F.drop&&F.drop!=='—'?'<br>Drops: '+esc2(F.drop):''):'? (beat one to learn how it fights)')+'</small></p></div><div class="rpcmd">'+button('v6bookpage','Back',{cls:'x',v:''})}
+    else{h+='<div class="who">Foes</div><p>'+(ids.length?ids.length+' met.':'No foes met yet.')+'</p></div><div class="rpcmd">'+ids.map(id=>{const r=B.foes[id];return button('v6bookpage',esc2(FOES6[id]?FOES6[id].n:id),{cls:r.won?'':'x',v:id,sub:(r.won?'beaten '+r.won:'met, never beaten'),raw:1})}).join('')}}
   else if(t==='lore'){const P=(rp.s.w6st.pieces||[]);h+='<div class="who">The Smiler</div><p>A tube, filling piece by piece. Six pieces; the last is how to put it together.</p><p>'+
     PIECES.map((n,i)=>(P[i]?'▣ <b>the '+esc2(P[i])+'</b>':'▢ a '+n+' piece')).join('<br>')+'<br>'+(P.length>=6?'▣ <b>the instructions</b>':'▢ the instructions (???)')+'</p></div><div class="rpcmd">'}
   else if(t==='places'){const ids=Object.keys(B.places),F=rp.s.w6st.fountains||[];h+='<div class="who">Places</div><p>'+ids.map(p=>'<b>'+esc2(MAPS6[p]?MAPS6[p].title:p)+'</b>'+(F.some(f=>String(f).startsWith(p))?' · fountain ✓':'')).join('<br>')+'</p></div><div class="rpcmd">'}
   else{const st=rp.s.w6st;h+='<div class="who">Stamps</div><p>'+((B.stamps||[]).map(x=>'🎉 '+esc2(x.n)+' <small>'+esc2(x.d)+'</small>').join('<br>')||'No stamps yet. Festivals leave one.')+'</p><p>Helper\'s marks: <b>'+(st.helps||0)+'</b> <small>(for helping friends with fights from their stories)</small></p></div><div class="rpcmd">'}
-  return h+'<button class="rpb go" type="button" data-rp="menu">Back</button></div>'}
+  return h+button('menu','Back',{cls:'go'})+'</div>'}
 /* what the Book remembers: every foe met (its levels) and beaten, every place seen, festival stamps */
 function v6BookFight(b){if(!b||!b.v6||!rp.s||!rp.s.w6st)return;const B=bk();
   b.units.forEach(u=>{if(u.side!==1||!u.E)return;const id=u.E.id||String(u.key||'').split(':')[1];if(!id||!FOES6[id])return;const L=u.E.L||1,r=B.foes[id]=B.foes[id]||{lo:L,hi:L,won:0};
@@ -80,8 +81,8 @@ const SET6=[['snd'],['music'],['buzz'],
   ['big',()=>'Big text '+(rpOpt.big?'on':'off'),'everything 25% larger'],
   ['hand'],['bspd'],['full']];
 function v6SetHtml(){return'<div class="rpdlg"><div class="who">Settings</div></div><div class="rpcmd">'+SET6.map(([id,label,hint])=>{const o=options.find(x=>x.id===id);
-  return o?'<button class="rpb" type="button" data-opt="'+id+'">'+o.label()+'<small>'+o.hint+'</small></button>':'<button class="rpb" type="button" data-rp="v6opt" data-v="'+id+'">'+label()+'<small>'+hint+'</small></button>'}).join('')+
-  '<button class="rpb go" type="button" data-rp="menu">Back</button></div>'}
+  return o?'<button class="rpb" type="button" data-opt="'+id+'">'+o.label()+'<small>'+o.hint+'</small></button>':button('v6opt',label(),{v:id,sub:hint,raw:1})}).join('')+
+  button('menu','Back',{cls:'go'})+'</div>'}
 function v6ApplyOpts(){if(typeof document==='undefined')return;const c=document.documentElement.classList;c.toggle('calm',!!rpOpt.calm);c.toggle('cb',!!rpOpt.cb);c.toggle('bigtext',!!rpOpt.big)}
 
 feature({id:'v6screens',

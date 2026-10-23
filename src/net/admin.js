@@ -7,8 +7,10 @@ import {rpUI} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {MAPS6} from '../data/v6/maps.js';
+import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
+import {packHero} from '../game/sheet.js';
 import {v6LevelUp} from '../game/talents.js';
 import {net} from './core.js';
 import {adminCall} from './mail.js';
@@ -32,11 +34,11 @@ function open(tab){ADM.tab=tab;ADM.msg='';ADM.code=null;
   if(tab==='players'&&ADM.acct)reloadAcct();
   if(tab==='tests'&&net.me)call('find',{q:me().name.toLowerCase()},'mine')}
 async function reloadAcct(){const r=await call('find',{q:ADM.acct.name.toLowerCase()},'find');const a=(r||[]).find(x=>x.name.toLowerCase()===ADM.acct.name.toLowerCase());if(a)ADM.acct=a}
-const btn=(a,label,sub,cls,data)=>'<button class="rpb'+(cls?' '+cls:'')+'" type="button" data-rp="'+a+'"'+Object.entries(data||{}).map(([k,x])=>' data-'+k+'="'+esc2(String(x))+'"').join('')+(ADM.busy?' disabled':'')+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
+const btn=(a,label,sub,cls,data)=>button(a,label,{sub,cls,data,raw:1,disabled:ADM.busy});   // labels here are built with esc2 already
 const input=(id,ph,type)=>'<div class="chatin"><input id="'+id+'" type="'+(type||'text')+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+esc2(ph)+'"></div>';
 const why='<div class="chatin"><input id="adm-why" type="text" maxlength="200" autocomplete="off" placeholder="Reason (the player sees it)"></div>';
 function adminScreenHtml(){const M=me();if(!M||!M.role)return'<div class="rpdlg"><p>Admins only.</p></div><div class="tbar">'+btn('admx','Back','','x')+'</div>';
-  let h='<div class="rpcmd">'+TABS.map(([k,n])=>'<button class="pill'+(ADM.tab===k?' go':'')+'" type="button" data-rp="admtab" data-v="'+k+'">'+n+'</button>').join('')+'</div><div class="rpdlg">';
+  let h='<div class="rpcmd">'+TABS.map(([k,n])=>button('admtab',n,{cls:ADM.tab===k?'go':'',pill:1,v:k,raw:1})).join('')+'</div><div class="rpdlg">';
   const D=ADM.d;
   switch(ADM.tab){
     case'server':{const S=D.status;h+='<div class="who">Server</div>'+(S?'<p>Build <b>'+esc2(S.build)+'</b>'+(typeof BUILD_ID!=='undefined'&&S.build!==BUILD_ID?' (this page: '+esc2(BUILD_ID)+')':'')+' · up '+Math.round(S.up/3600)+' h · '+S.online+' online · '+S.accounts+' accounts · data '+Math.round(S.size/1024)+' KB · last backup '+esc2(S.backup||'none')+(S.maint?' · <b class="hp">maintenance on</b>':'')+'</p>':'<p>Loading…</p>')+'</div>';
@@ -91,9 +93,9 @@ function adminApplyFixes(s,fixes){const done=s.fixDone=s.fixDone||[],lines=[];
   for(const f of fixes||[]){if(!f||done.includes(f.at))continue;done.push(f.at);if(done.length>100)done.shift();
     if(f.k==='unstuck'){const p=(s.w6st&&s.w6st.respawn)||'hearthspire',M=MAPS6[p];if(M){s.w6=p;s.x=M.entry[0];s.y=M.entry[1]}lines.push('We carried you back to the fountain.')}
     else if(f.k==='flag'){s.q[f.f]=f.v}
-    else if(f.k==='rename'){if(s.hero)s.hero.name=f.to;const h=(s.party||[]).find(m=>m.hero)||s.party[0];if(h)h.name=f.to;lines.push('Your hero is called '+f.to+' now. '+(f.why||''))}
+    else if(f.k==='rename'){if(s.hero)s.hero.name=f.to;const h=packHero(s);if(h)h.name=f.to;lines.push('Your hero is called '+f.to+' now. '+(f.why||''))}
     else if(f.k==='gift'){const got=[];if(f.gold){s.gold+=f.gold;got.push(f.gold+' gold')}if(f.item){s.bag[f.item]=(s.bag[f.item]||0)+1;got.push('a '+f.item)}
-      if(f.xp){const h=(s.party||[]).find(m=>m.hero)||s.party[0];if(h&&h.v6){h.xp=(h.xp||0)+v6XpNeed(h.lvl);while(h.lvl<30&&h.xp>=v6XpNeed(h.lvl)){h.xp-=v6XpNeed(h.lvl);v6LevelUp(h)}got.push('a level\'s XP')}}
+      if(f.xp){const h=packHero(s);if(h&&h.v6){h.xp=(h.xp||0)+v6XpNeed(h.lvl);while(h.lvl<30&&h.xp>=v6XpNeed(h.lvl)){h.xp-=v6XpNeed(h.lvl);v6LevelUp(h)}got.push('a level\'s XP')}}
       lines.push('Please take '+got.join(' and ')+'. '+(f.why||''))}}
   s.fix=[];return lines}
 function adminLetter(lines){if(lines&&lines.length)rpSay(lines.map(t=>({who:'A letter from the keepers',text:t})))}
@@ -125,8 +127,8 @@ feature({id:'admin-tools',
     setTimeout(()=>{if(net.online)net.online.account.onServer=onServer},0)},
   on:{'game:start':()=>{if(pending.length){rpSay(pending);pending=[]}}},
   panels:{admth:{sig:()=>JSON.stringify([rp.s&&rp.s.q,rp.s&&rp.s.party.map(m=>m.lvl),ADM.msg]),html:testHeroHtml},adm:{sig:()=>JSON.stringify([ADM.tab,ADM.d,ADM.acct,ADM.hero,ADM.msg,ADM.code,ADM.busy]),html:adminScreenHtml}},
-  menu:[{order:19,html:()=>{const M=me();return M&&M.role?'<button class="rpb" type="button" data-rp="adm">Admin<small>'+(M.role==='owner'?'owner':'moderator')+' tools</small></button>':''}},
-    {order:18,html:()=>rp.s&&rp.s.test?'<button class="rpb" type="button" data-rp="admth">Test hero<small>any flag, level or fight</small></button>':''}],
+  menu:[{order:19,html:()=>{const M=me();return M&&M.role?button('adm','Admin',{sub:(M.role==='owner'?'owner':'moderator')+' tools',raw:1}):''}},
+    {order:18,html:()=>rp.s&&rp.s.test?button('admth','Test hero',{sub:'any flag, level or fight'}):''}],
   actions:{
     adm:()=>{rp.mode='adm';open(ADM.tab)},admx:()=>{rp.mode='menu'},admtab:d=>open(d.v),
     admmotd:()=>act('motd',{text:v('adm-motd')},()=>call('status')),admann:()=>act('announce',{text:v('adm-ann')}),

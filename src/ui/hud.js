@@ -5,6 +5,7 @@ import {rpOpt} from '../core/options.js';
 import {actions,feature,panels,routes} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
+import {button} from '../engine/html.js';
 import {$,clamp,esc2} from '../engine/util.js';
 import {rpSay} from '../game/dialogue.js';
 import {rpActFacing,rpTry} from '../game/move.js';
@@ -45,7 +46,7 @@ function rpMenuClick(e){
 const MAP_PANEL={
   sig:()=>rp.s.party.map(m=>m.hp+'/'+m.mp+'/'+m.lvl+'/'+(m.pend||0)).join(',')+'|'+netMapRow()+(rp.s.w6||'')+(rp.s.w6st&&rp.s.w6st.cart),
   html:()=>netMapRow()+rpPartyHtml()+'<p class="rpkeys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, or click, to walk · <kbd>E</kbd> talk · <kbd>I</kbd> the pack · <kbd>M</kbd> menu</p><div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div>'+
-    '<div class="rpside"><button class="pill go big" type="button" data-rp="act">Talk / Use</button><div class="rprow2">'+(net.on?'<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>':'')+''+(rp.s.w6==='mine1'&&rp.s.w6st&&rp.s.w6st.cart!=='done'?'<button class="pill" type="button" data-rp="w6hint">Hint</button>':'')+'<button class="pill" type="button" data-rp="v6sheet" data-v="0">⚔ Pack</button>'+'<button class="pill" type="button" data-rp="menu">☰ Menu</button></div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'};
+    '<div class="rpside">'+button('act','Talk / Use',{cls:'go big',pill:1})+'<div class="rprow2">'+(net.on?'<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>':'')+(rp.s.w6==='mine1'&&rp.s.w6st&&rp.s.w6st.cart!=='done'?button('w6hint','Hint',{pill:1}):'')+button('v6sheet','⚔ Pack',{pill:1,v:'0'})+button('menu','☰ Menu',{pill:1})+'</div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'};
 feature({id:'hud',panels:{map:MAP_PANEL},routes:{dir:d=>rpTry(d.dir)},actions:{act:()=>rpActFacing(),w6hint:()=>{rpSay([{who:'',text:w6RailHint()}])}}});
 
 hooks.ui=hudRender;

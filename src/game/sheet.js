@@ -84,4 +84,7 @@ function v6StatsCalc(m){
 /* the four equipped skills; the class's name */
 function rpMemSkills(m){return(m.skills||[]).slice()}   /* the four equipped skills */
 function rpClsName(m){return(CLASSES6[m.cls]||{n:m.cls}).n}
-export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,rpClsName,rpMemSkills,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};
+/* the hero of a save's pack (the one marked hero, else the first), and the pack's mean level */
+function packHero(s){const P=(s&&s.party)||[];return P.find(m=>m.hero)||P[0]||null}
+function packMeanLevel(P){return P&&P.length?P.reduce((a,m)=>a+m.lvl,0)/P.length:1}
+export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,packHero,packMeanLevel,rpClsName,rpMemSkills,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};

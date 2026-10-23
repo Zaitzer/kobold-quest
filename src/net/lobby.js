@@ -8,6 +8,7 @@ import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {SKILLS6} from '../data/v6/skills.js';
 import {WEAPONS} from '../engine/art.js';
+import {button} from '../engine/html.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {v6Stats} from '../game/sheet.js';
@@ -50,16 +51,16 @@ function netLobHtml(){
     h+='<div class="lobp"><small>Your party</small>'+chips(rp.s.party,L.hsel,true,'h')+'</div>';
     if(g)h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(g.party.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:m.hp,mx:v6Stats(m).hp})),g.sel,false)+'</div>';
     if(g&&!L.duel&&g.party.some(m=>m.lvl>rp.s.party[0].lvl))h+='<p class="rptip">'+esc2(netName())+'\'s kobolds fight at level '+rp.s.party[0].lvl+' (level sync).</p>';
-    h+='<div class="tbar two"><button class="rpb x" type="button" data-net="lobcancel">'+(L.duel?'✕ Cancel duel':'✕ '+(g?'Fight alone':'Back'))+'</button><button class="rpb go" type="button" data-net="lobstart"'+(L.duel&&!g?' disabled':'')+'>Start battle ▸<small>'+(g?'with '+esc2(netName()):'on your own')+'</small></button></div>';
+    h+='<div class="tbar two">'+button('net:lobcancel',(L.duel?'✕ Cancel duel':'✕ '+(g?'Fight alone':'Back')),{cls:'x',raw:1})+button('net:lobstart','Start battle ▸',{cls:'go',disabled:L.duel&&!g,sub:(g?'with '+esc2(netName()):'on your own'),raw:1})+'</div>';
     if(!L.duel&&!g&&L.keys&&L.opt&&!L.opt.boss)h=h.replace('✕ Back','✕ Back');}
   else{
-    if(!V.hp){h+='<p>Joining '+esc2(netName())+'…</p></div><div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>';return h}
+    if(!V.hp){h+='<p>Joining '+esc2(netName())+'…</p></div><div class="tbar">'+button('net:lobleave','✕ Leave',{cls:'x'})+'</div>';return h}
     const mySel=L.sel||[0];const tot=(V.hsel||[]).length+mySel.length;
     h+='<p>'+(L.duel?'Pick 1 to 3 kobolds. ':'Pick at least one kobold ('+tot+'/4 together). ')+esc2(netName())+' starts the battle.</p></div>';
     h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(V.hp,V.hsel||[],false)+'</div>';
     h+='<div class="lobp"><small>Your party</small>'+chips(rp.s.party,mySel,true,'g')+'</div>';
     if(V.cap&&rp.s.party.some(m=>m.lvl>V.cap))h+='<p class="rptip">Your kobolds fight at level '+V.cap+' to match '+esc2(netName())+' (level sync). You still get your rewards.</p>';
-    h+='<div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>'}
+    h+='<div class="tbar">'+button('net:lobleave','✕ Leave',{cls:'x'})+'</div>'}
   return h;
 }
 function netLobPick(who,i){const L=net.lob;if(!L)return;
