@@ -31,6 +31,8 @@ function dirFs(root){
     async blob(p){try{const [ds,n]=split(p);return await (await (await dirOf(ds,false)).getFileHandle(n)).getFile()}catch(e){return null}},
     async write(p,t){const [ds,n]=split(p);const fh=await (await dirOf(ds,true)).getFileHandle(n,{create:true});const w=await fh.createWritable();await w.write(t);await w.close()},
     async remove(p){try{const [ds,n]=split(p);await (await dirOf(ds,false)).removeEntry(n)}catch(e){}},
+    async walk(dir){const out=[],go=async(d,pre)=>{for await(const [n,hd] of d.entries()){if(hd.kind==='file')out.push(pre+n);else await go(hd,pre+n+'/')}};
+      try{await go(await dirOf(dir.split('/'),false),dir+'/')}catch(e){}return out.sort()},
     async list(dir){const out=[];try{const d=await dirOf(dir.split('/'),false);for await(const [n,hd] of d.entries())if(hd.kind==='file')out.push(n)}catch(e){}return out.sort()}}}
 /* the last folder, kept in the browser so the next visit is one tap */
 const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open('kq-editor',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
@@ -47,11 +49,23 @@ async function loadAll(){const fs=E.fs,W={tiles:JSON.parse(await fs.read('world/
   E.W=W;Object.assign(E.disk,filesNow());
   E.script=KW.parseScript(await fs.read('docs/slice-dialogue.md')||'');
   const ft=await fs.read('src/data/v6/foes.js')||'',grab=n=>{const m=ft.match(new RegExp('export const '+n+'=(.*?);\\n'));try{return m?JSON.parse(m[1]):null}catch(e){return null}};
-  E.foes=Object.keys(grab('FOES6')||{});E.bosses=Object.keys(grab('BOSSES6')||{});E.places6=(grab('PLACES6')||[]).map(p=>p.place);
+  E.foes=Object.keys(grab('FOES6')||{});E.bosses=Object.keys(grab('BOSSES6')||{});E.places6=(grab('PLACES6')||[]).map(p=>p.place);E.places6pool=Object.fromEntries((grab('PLACES6')||[]).map(p=>[p.place,p.pool]));
   E.cur=E.cur&&W.places[E.cur]?E.cur:(W.places.hearthspire?'hearthspire':Object.keys(W.places)[0]);
   loadArt()}
-async function loadArt(){E.art={};const seen=new Set();for(const kind of ['map','room'])for(const t of Object.values(E.W.tiles[kind]||{}))if(t.sheet&&!seen.has(t.sheet)){seen.add(t.sheet);
-  const b=await E.fs.blob('art/v6/tiles/'+t.sheet+'.png');if(b)try{E.art[t.sheet]=await createImageBitmap(b)}catch(e){}}draw()}
+/* the pixel art in art/v6, drawn or still the stand-in (the game shows a sheet once it is drawn; the editor shows them all): found by
+   file name, the way the game finds them (engine/sheets6.js) */
+async function loadArt(){const ix={};
+  for(const p of await (E.fs.walk?E.fs.walk('art/v6'):[]))if(p.endsWith('.png')&&!/\/(templates|portraits|icons|fx)\//.test(p))ix[p.split('/').pop().slice(0,-4)]=p;   // faces and icons share names with the sheets
+  E.art={};E.artIndex=ix;
+  for(const kind of ['map','room'])for(const t of Object.values(E.W.tiles[kind]||{}))if(t.sheet)artFor(t.sheet);draw()}
+/* an image by its sheet name; null until it has loaded (then the map is drawn again) */
+function artFor(base){if(!base||!E.artIndex)return null;if(base in E.art)return E.art[base];const p=E.artIndex[base];E.art[base]=null;if(!p)return null;
+  E.fs.blob(p).then(b=>b&&createImageBitmap(b)).then(img=>{if(img){E.art[base]=img;draw()}}).catch(()=>{});return null}
+const dash=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+/* a person's sheet: their id, then its parts ("mallow_nest" → mallow, "guard_castle" → guard) */
+function npcArt(id){const d=dash(id);if(E.artIndex&&E.artIndex[d])return artFor(d);for(const p of d.split('-'))if(E.artIndex&&E.artIndex[p])return artFor(p);return null}
+/* a patrol looks like the first foe of its map's encounters */
+function patrolArt(P){const en=P.encounters,pl=en&&E.places6pool[en.place];return pl&&pl[0]?artFor(dash(pl[0])):null}
 
 /* ---------------------------------------------------------------- files, saving, undo */
 function filesNow(){const o={'world/tiles.json':KW.format(E.W.tiles)+'\n','world/scenes.json':KW.format(E.W.scenes)+'\n'};
@@ -85,9 +99,9 @@ function draw(){if(!E.W)return;const c=cv(),r=$('#mid').getBoundingClientRect(),
   const P=place(),L=legend(),z=E.zoom,X=x=>E.ox+x*z,Y=y=>E.oy+y*z;
   const x0=Math.max(0,Math.floor(-E.ox/z)),y0=Math.max(0,Math.floor(-E.oy/z)),x1=Math.min(P.w-1,Math.ceil((r.width-E.ox)/z)),y1=Math.min(P.h-1,Math.ceil((r.height-E.oy)/z));
   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const ch=P.rows[y][x],t=L[ch];
-    const art=E.layers.art&&t&&t.sheet&&E.art[t.sheet],under=t&&t.under&&L[t.under];
+    const art=E.layers.art&&t&&t.sheet&&artFor(t.sheet),under=t&&t.under&&L[t.under];
     g.fillStyle=(art&&under?under.colour:t&&t.colour)||'#ff00ff';g.fillRect(X(x),Y(y),z,z);
-    if(art&&under&&under.sheet&&E.art[under.sheet])g.drawImage(E.art[under.sheet],0,0,32,32,X(x),Y(y),z,z);
+    if(art&&under&&under.sheet&&artFor(under.sheet))g.drawImage(artFor(under.sheet),0,0,32,32,X(x),Y(y),z,z);
     if(art)g.drawImage(art,0,0,32,32,X(x),Y(y),z,z);
     else if(t&&t.solid&&z>=10){g.fillStyle='rgba(0,0,0,.22)';g.fillRect(X(x),Y(y)+z*0.78,z,z*0.22)}
     if((E.layers.letters||!t)&&z>=12){g.fillStyle='rgba(0,0,0,.6)';g.font=`700 ${Math.floor(z*0.55)}px ui-monospace,monospace`;g.textAlign='center';g.textBaseline='middle';g.fillText(ch,X(x)+z/2,Y(y)+z/2+1)}}
@@ -101,10 +115,13 @@ function draw(){if(!E.W)return;const c=cv(),r=$('#mid').getBoundingClientRect(),
   if(E.layers.links)for(const l of P.links||[]){g.lineWidth=2;g.setLineDash(l.flag==='never'?[3,3]:[]);g.strokeStyle=l.flag==='never'?'#9a8aa8':l.flag?'#ffb347':'#ffd54a';g.strokeRect(X(l.x)+1.5,Y(l.y)+1.5,z-3,z-3);g.setLineDash([]);
     label(l.flag==='never'?'shut':'→ '+(l.to||'').replace('room:',''),cx(l.x),Y(l.y),l.flag==='never'?'#b7a9cc':'#ffd54a')}
   if(E.layers.chests)for(const c of P.chests||[])if(c.x!=null){g.fillStyle='#1a0f24';g.fillRect(X(c.x)+z*.18,Y(c.y)+z*.3,z*.64,z*.5);g.fillStyle='#d9a43a';g.fillRect(X(c.x)+z*.24,Y(c.y)+z*.36,z*.52,z*.38)}
-  if(E.layers.patrols)for(const p of P.patrols||[]){const f={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[p.face]||[1,0];g.fillStyle='#8a2f4a';g.beginPath();
+  const sprite=(img,x,y,flip)=>{g.save();if(flip){g.translate(X(x)+z,0);g.scale(-1,1);g.drawImage(img,0,0,32,64,0,Y(y)-z,z,2*z)}else g.drawImage(img,0,0,32,64,X(x),Y(y)-z,z,2*z);g.restore()};
+  if(E.layers.patrols)for(const p of P.patrols||[]){const f={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[p.face]||[1,0],img=E.layers.art&&patrolArt(P);
+    if(img){sprite(img,p.x,p.y,p.face==='west');label(p.name,cx(p.x),Y(p.y)-z,'#ff9a9a');continue}g.fillStyle='#8a2f4a';g.beginPath();
     g.moveTo(cx(p.x)+f[0]*z*.4,cy(p.y)+f[1]*z*.4);g.lineTo(cx(p.x)-f[0]*z*.3-f[1]*z*.3,cy(p.y)-f[1]*z*.3-f[0]*z*.3);g.lineTo(cx(p.x)-f[0]*z*.3+f[1]*z*.3,cy(p.y)-f[1]*z*.3+f[0]*z*.3);g.fill();label(p.name,cx(p.x),Y(p.y),'#ff9a9a')}
-  if(E.layers.people)for(const n of P.npcs||[]){g.lineWidth=2;g.strokeStyle='#1a0f24';g.fillStyle=n.colour||'#e0d0ff';
+  if(E.layers.people)for(const n of (P.npcs||[]).slice().sort((a,b)=>a.y-b.y)){g.lineWidth=2;g.strokeStyle='#1a0f24';g.fillStyle=n.colour||'#e0d0ff';
     if(n.door){g.setLineDash([2,2]);g.strokeStyle='#fff';g.strokeRect(X(n.x)+3,Y(n.y)+3,z-6,z-6);g.setLineDash([])}
+    else if(E.layers.art&&npcArt(n.id)){sprite(npcArt(n.id),n.x,n.y);label(n.n||n.id,cx(n.x),Y(n.y)-z,'#fff');continue}
     else{g.beginPath();g.arc(cx(n.x),cy(n.y),z*0.36,0,7);g.fill();g.stroke();if(z>=14){g.fillStyle='#1a0f24';g.font=`700 ${Math.floor(z*.42)}px system-ui`;g.textAlign='center';g.textBaseline='middle';g.fillText((n.n||n.id)[0].toUpperCase(),cx(n.x),cy(n.y)+1)}}
     label(n.n||n.id,cx(n.x),Y(n.y),'#fff')}
   if(E.layers.scenes)for(const sc of E.W.scenes.scenes||[]){const a=sc.at||{};if(a.place!==E.cur)continue;const on=E.scene===sc.id;g.strokeStyle=on?'#ffd54a':'#b48cff';g.lineWidth=on?3:1.5;g.setLineDash(on?[]:[5,4]);
@@ -168,7 +185,7 @@ const TOOLS=[['select','Select','V','Select a tile; drag a person, chest, link o
 function left(){const T=$('#tools');T.replaceChildren(...TOOLS.map(([k,n,key,tip])=>h('button',{class:E.tool===k?'on':'',title:tip+' ('+key+')',onclick:()=>{E.tool=k;left();draw()}},n)),
     h('select',{title:'Brush size',onchange:e=>{E.brush=+e.target.value},value:E.brush},opts([[1,'brush 1'],[2,'brush 2'],[3,'brush 3']],E.brush)),
     h('button',{title:'Fit the map in the view',onclick:()=>{fitView();draw()}},'Fit view'));
-  const Ly=$('#layers');Ly.replaceChildren(...[['grid','grid'],['art','drawn tiles'],['letters','letters'],['links','links (doors, gates)'],['marks','marks'],['people','people'],['chests','chests'],['patrols','patrols'],['scenes','scene triggers']]
+  const Ly=$('#layers');Ly.replaceChildren(...[['grid','grid'],['art','pixel art'],['letters','letters'],['links','links (doors, gates)'],['marks','marks'],['people','people'],['chests','chests'],['patrols','patrols'],['scenes','scene triggers']]
     .map(([k,n])=>h('label',{},h('input',{type:'checkbox',checked:E.layers[k],onchange:e=>{E.layers[k]=e.target.checked;draw()}}),' ',n)));
   const L=legend();$('#pal').replaceChildren(...Object.entries(L).map(([c,t])=>h('button',{class:E.letter===c?'on':'',title:'"'+c+'" '+t.name+(t.solid?' (solid)':''),onclick:()=>{E.letter=c;if(E.tool==='select'||E.tool==='hand'||E.tool==='pick')E.tool='paint';left();draw()}},
     h('span',{class:'sw',style:{background:t.colour}},c),h('span',{},t.name+(t.solid?' ▪':'')))),

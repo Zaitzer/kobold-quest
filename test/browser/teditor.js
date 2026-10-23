@@ -4,9 +4,9 @@
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs'),os=require('os');
 const R=path.join(__dirname,'../..'),KW=require(R+'/tools/world/world.js');
 const T=fs.mkdtempSync(path.join(os.tmpdir(),'kqed-'));
-for(const d of ['world','docs','src/data/v6','art/v6/tiles'])fs.mkdirSync(path.join(T,d),{recursive:true});
+for(const d of ['world','docs','src/data/v6'])fs.mkdirSync(path.join(T,d),{recursive:true});
 fs.cpSync(R+'/world',T+'/world',{recursive:true});fs.copyFileSync(R+'/docs/slice-dialogue.md',T+'/docs/slice-dialogue.md');fs.copyFileSync(R+'/src/data/v6/foes.js',T+'/src/data/v6/foes.js');
-for(const f of fs.readdirSync(R+'/art/v6/tiles').filter(f=>f.endsWith('.png')))fs.copyFileSync(R+'/art/v6/tiles/'+f,T+'/art/v6/tiles/'+f);
+fs.cpSync(R+'/art/v6',T+'/art/v6',{recursive:true});
 const bad=[],check=(ok,msg)=>{console.log((ok?'ok ':'FAIL ')+msg);if(!ok)bad.push(msg)};
 (async()=>{const br=await chromium.launch(),p=await br.newPage({viewport:{width:1400,height:900}}),errs=[];
   p.on('pageerror',e=>errs.push(e.message));
@@ -15,8 +15,9 @@ const bad=[],check=(ok,msg)=>{console.log((ok?'ok ':'FAIL ')+msg);if(!ok)bad.pus
   await p.exposeBinding('__fsBlob',(s,f)=>{try{return fs.readFileSync(safe(f)).toString('base64')}catch(e){return null}});
   await p.exposeBinding('__fsWrite',(s,f,t)=>{fs.mkdirSync(path.dirname(safe(f)),{recursive:true});fs.writeFileSync(safe(f),t)});
   await p.exposeBinding('__fsRemove',(s,f)=>{try{fs.unlinkSync(safe(f))}catch(e){}});
+  await p.exposeBinding('__fsWalk',(s,d)=>{const out=[],go=(rel)=>{for(const e of fs.readdirSync(safe(rel),{withFileTypes:true}))e.isDirectory()?go(rel+'/'+e.name):out.push(rel+'/'+e.name)};try{go(d)}catch(e){}return out.sort()});
   await p.exposeBinding('__fsList',(s,d)=>{try{return fs.readdirSync(safe(d)).sort()}catch(e){return[]}});
-  await p.addInitScript(()=>{window.__kqFs={name:'kobold-quest',read:f=>window.__fsRead(f),write:(f,t)=>window.__fsWrite(f,t),remove:f=>window.__fsRemove(f),list:d=>window.__fsList(d),
+  await p.addInitScript(()=>{window.__kqFs={name:'kobold-quest',read:f=>window.__fsRead(f),write:(f,t)=>window.__fsWrite(f,t),remove:f=>window.__fsRemove(f),list:d=>window.__fsList(d),walk:d=>window.__fsWalk(d),
     blob:async f=>{const b=await window.__fsBlob(f);return b?new Blob([Uint8Array.from(atob(b),c=>c.charCodeAt(0))],{type:'image/png'}):null}};window.confirm=()=>true;window.alert=m=>{window.__alerts=(window.__alerts||[]).concat([m])}});
   await p.goto('file://'+R+'/tools/editor/index.html');await p.waitForTimeout(1200);
   const st=()=>p.evaluate(()=>{const E=window.KQEditor;return{places:Object.keys(E.W.places).length,problems:E.check.problems.map(x=>x.where+': '+x.msg),cur:E.cur,
@@ -24,6 +25,9 @@ const bad=[],check=(ok,msg)=>{console.log((ok?'ok ':'FAIL ')+msg);if(!ok)bad.pus
   let s=await st();check(s.welcome==='none'&&s.places===14,'the editor opens the world: '+s.places+' places');
   check(!s.problems.length,'the world as it is has no problems '+JSON.stringify(s.problems).slice(0,300));
   check(/all saved/.test(s.status),'nothing to save yet: '+s.status);
+  await p.waitForTimeout(800);
+  const art=await p.evaluate(()=>({n:Object.keys(KQEditor.artIndex||{}).length,grass:!!KQEditor.art.grass,mallow:!!KQEditor.art.mallow||!!KQEditor.art.bib}));
+  check(art.n>150&&art.grass&&art.mallow,'the pixel art is found and drawn (tiles and people): '+JSON.stringify(art));
   await p.screenshot({path:R+'/test/out/editor_open.png'});
   /* paint a tile with the mouse, then undo and redo */
   const tileXY=(x,y)=>p.evaluate(([x,y])=>{const E=window.KQEditor,r=document.querySelector('#cv').getBoundingClientRect();return[r.left+E.ox+(x+.5)*E.zoom,r.top+E.oy+(y+.5)*E.zoom]},[x,y]);
