@@ -27,7 +27,9 @@ async function attempt(kind){
   const name=$('login-name').value.trim(),pass=$('login-pass').value;
   if(!name||!pass){say('Type a name and a password.',true);return}
   $('login-go').disabled=$('login-new').disabled=true;say(kind==='register'?'Making your account…':'Logging in…');
-  try{await loggedIn(await online.account[kind](name,pass))}catch(e){say(typeof e==='string'?e:'Can\'t reach the game server.',true)}
+  const code=$('login-code').value.trim();
+  try{if(code&&kind==='login'){say('Setting your new password…');await online.account.resetpw(name,code,pass);$('login-code').value='';$('login-code').hidden=true}
+    await loggedIn(await online.account[kind](name,pass))}catch(e){say(typeof e==='string'?e:'Can\'t reach the game server.',true)}
   $('login-go').disabled=$('login-new').disabled=false}
 feature({id:'site-login',init(){
   if(typeof SITE==='undefined'||!SITE)return;
@@ -35,6 +37,7 @@ feature({id:'site-login',init(){
   online.account.onNewVersion=updateWhenSafe;
   $('login').addEventListener('submit',e=>{e.preventDefault();attempt('login')});
   $('login-new').addEventListener('click',()=>attempt('register'));
+  $('login-hascode').addEventListener('click',()=>{const c=$('login-code');c.hidden=false;c.focus();say('Type your name, the code, and the new password you want.')});
   $('logout').addEventListener('click',()=>{online.account.logout();location.reload()});
   $('go-rpg').hidden=true;
   if(online.account.hasToken()){say('Logging in…');$('login').hidden=false;online.account.resume().then(loggedIn).catch(e=>{say(typeof e==='string'?e:'',!!e);showLoggedOut()})}

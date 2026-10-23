@@ -64,8 +64,10 @@ function setPiece(id){const S=SETPIECES6[id];if(!S){next();return}const s=rp.s,h
   /* a boss can be fought together (systems.md §12): the lobby opens when a friend is free in the same place */
   story.fight=id;const opt=Object.assign({members,zone:',',v6:1,theme:S.theme,setPiece:1,story:id},S.boss?{boss:keys[0],title:RP_E[keys[0]].n}:{});
   if(S.boss&&!S.solo)rpFight(keys,opt);else rpBattle(keys,opt)}
+/* the test hero's "any fight" (systems.md §17): a set piece outside its scene */
+function s6TestFight(id){if(rp.s&&rp.s.test&&SETPIECES6[id])setPiece(id)}
 /* a shared boss won as the friend: it counts if this player's story has reached that scene, else a helper's mark */
-function s6SharedWin(id){if(!id||!rp.s||!rp.s.w6st)return;const st=rp.s.w6st,sc=SCENES6.find(c=>c.steps.some(x=>x[0]==='fight'&&x[1]===id));
+function s6SharedWin(id){if(!id||!rp.s||!rp.s.w6st||rp.s.test)return;const st=rp.s.w6st,sc=SCENES6.find(c=>c.steps.some(x=>x[0]==='fight'&&x[1]===id));
   if(sc&&due(sc)&&!(st.beat||{})[id]){st.beat=st.beat||{};st.beat[id]=1;st.beat[id+':who']=netName();rpToast('This counts for your story!')}
   else{st.helps=(st.helps||0)+1;rpToast('A helper\'s mark! ('+st.helps+')')}}
 /* ------------------------------------------------------------------ what scenes do */
@@ -164,4 +166,4 @@ feature({id:'story6',
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
+export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};

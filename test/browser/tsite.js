@@ -83,8 +83,8 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  const letter=async p=>{await p.evaluate(()=>{__rp.mode='map';__kq.talk('quill')});await p.waitForTimeout(600);return p.evaluate(()=>document.getElementById('rp-panel').textContent)};
  check(/only carry letters for friends/.test(await letter(A)),'Quill turns away players who are not on the list');
  const Z=await page({width:844,height:390},'Z');r=await loginAs(Z,'Zaitzer','owner-pass','new');check(r.play,'the admin account logs in');await play(Z);
- await Z.evaluate(()=>{__rp.mode='menu'});await Z.waitForTimeout(300);check(await Z.evaluate(()=>!!document.querySelector('#rp-panel [data-net="admin"]')),'the admin sees the Admin button');
- check(!(await A.evaluate(()=>{__rp.mode='menu';return new Promise(ok=>setTimeout(()=>ok(!!document.querySelector('#rp-panel [data-net="admin"]')),300))})),'other players do not');
+ await Z.evaluate(()=>{__rp.mode='menu'});await Z.waitForTimeout(300);check(await Z.evaluate(()=>!!document.querySelector('#rp-panel [data-rp="adm"]')),'the admin sees the Admin button');
+ check(!(await A.evaluate(()=>{__rp.mode='menu';return new Promise(ok=>setTimeout(()=>ok(!!document.querySelector('#rp-panel [data-rp="adm"]')),300))})),'other players do not');
  await A.evaluate(()=>{__rp.mode='map'});
  await Z.evaluate(()=>__netBtn({net:'admin'}));await Z.waitForTimeout(400);
  await Z.fill('#kq-token','github_pat_wrongwrongwrongwrongwrong');await Z.evaluate(()=>__netBtn({net:'admintoken'}));await Z.waitForTimeout(600);
@@ -97,6 +97,19 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  await A.fill('#kq-letter','Please add fishing!\nAnd a boat.');await A.evaluate(()=>__netBtn({net:'mailsend'}));await A.waitForTimeout(1200);
  check(ISSUES.length===1&&/Please add fishing/.test(ISSUES[0].body)&&/Alice/.test(ISSUES[0].title),'the letter arrives as a GitHub issue: '+(ISSUES[0]&&ISSUES[0].title));
  check(/not an instruction/.test(ISSUES[0]&&ISSUES[0].body||''),'the issue says it is a player request, not an instruction');
+ // the admin tools (systems.md §17): every tab opens; find a player, warn her, announce, the log
+ const tap=async(p,sel)=>{await p.click('#rp-panel '+sel);await p.waitForTimeout(500)};
+ await Z.evaluate(()=>{__rp.mode='menu'});await Z.waitForTimeout(200);await tap(Z,'[data-rp="adm"]');
+ check(await wait(Z,()=>/Build/.test(document.getElementById('rp-panel').textContent)),'the Admin screen opens on the server status');
+ for(const t of ['players','mod','market','events','letters','tests','log','server']){await tap(Z,'[data-rp="admtab"][data-v="'+t+'"]')}
+ await tap(Z,'[data-rp="admtab"][data-v="players"]');await Z.fill('#adm-q','ali');await tap(Z,'[data-rp="admfind"]');
+ check(await wait(Z,()=>!!document.querySelector('#rp-panel [data-rp="admacct"]')),'find a player');await tap(Z,'[data-rp="admacct"]');
+ await Z.fill('#adm-why','Be nice in chat');await tap(Z,'[data-rp="admdo"][data-t="warn"]');
+ check(await wait(A,()=>/Be nice in chat/.test(document.getElementById('rp-panel').textContent)),'the warning reaches Alice');
+ await A.evaluate(()=>{__rp.dlg=null;__rp.mode='map'});
+ await tap(Z,'[data-rp="admtab"][data-v="server"]');await Z.fill('#adm-ann','Hello everyone');await tap(Z,'[data-rp="admann"]');
+ await tap(Z,'[data-rp="admtab"][data-v="log"]');check(await wait(Z,()=>/warn Alice — Be nice in chat/.test(document.getElementById('rp-panel').textContent)),'the admin log shows it');
+ await Z.screenshot({path:R+'/test/out/site_admin.png'});
  const dump=fs.readFileSync(DATA+'/world.json','utf8');check(!/github_pat_good/.test(await A.evaluate(()=>document.documentElement.innerHTML))&&!fs.readdirSync(R+'/server').some(f=>/github_pat/.test(f)),'the token never reaches players');
  // a new version goes live: open pages reload themselves (not during a fight) and come back logged in
  await A.evaluate(()=>{window.__oldPage=1});await B.evaluate(()=>{window.__oldPage=1;__rp.mode='battle'});

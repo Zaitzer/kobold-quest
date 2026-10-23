@@ -404,5 +404,10 @@ Everyone else sees no Admin button.
 | **Log** | admin log | every admin action: who, when, which tool, on whom, the reason; it cannot be edited or deleted; kept a year | owner, (m) sees their own |
 | | errors | the error reports pages send (`tech-plan.md`, "Before going public"), grouped by message and build | owner |
 
+**As built (23 Oct).** The fixes (unstuck, a flag, compensation, a hero's new name) are notes the server leaves in the hero's save;
+the game applies them when the hero is played, at once if it is being played, and a letter says what happened. *Restore from a backup*
+replaces the save as it is on the server, so use it while the player is offline. World chat is kept in the server's memory only, so it
+never reaches the data file or the backups; a restart empties it. A ban "for good" is a date far in the future.
+
 **What admins cannot do:** read passwords or private messages; edit a save by hand (only the named tools above, each logged); give a
 multiplier to the curve; copy player data out of the server.

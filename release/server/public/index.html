@@ -341,7 +341,9 @@ button,.rpb,.pill{touch-action:manipulation}
   <form class="tlogin" id="login" hidden autocomplete="on">
     <input id="login-name" name="username" autocomplete="username" placeholder="Kobold name" maxlength="16" autocapitalize="off" spellcheck="false" aria-label="Name">
     <input id="login-pass" name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+    <input id="login-code" hidden autocomplete="off" placeholder="Reset code" maxlength="12" autocapitalize="characters" spellcheck="false" aria-label="Reset code">
     <div class="trow"><button class="pill go" id="login-go" type="submit">Log in</button><button class="pill" id="login-new" type="button">New account</button></div>
+    <button class="linkbtn" id="login-hascode" type="button">I have a reset code</button>
     <p class="tlmsg" id="login-msg" role="status"></p>
   </form>
   <button class="bigplay" id="go-rpg" type="button">Play</button>
@@ -359,17 +361,17 @@ button,.rpb,.pill{touch-action:manipulation}
 (() => {
   // src/core/app.js
   var view = "title", uiT = 0;
-  function show(v) {
-    view = v, document.querySelectorAll(".view").forEach((e) => {
-      e.hidden = e.id !== "v-" + v;
+  function show(v2) {
+    view = v2, document.querySelectorAll(".view").forEach((e) => {
+      e.hidden = e.id !== "v-" + v2;
     });
     try {
       window.scrollTo(0, 0);
     } catch {
     }
   }
-  function set_uiT(v) {
-    return uiT = v;
+  function set_uiT(v2) {
+    return uiT = v2;
   }
 
   // src/core/bus.js
@@ -447,9 +449,9 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     return Math.min(1, Math.max(0, p));
   }
-  var SCORES = ["STR", "DEX", "CON", "INT", "WIS", "CHA"], modOf = (v) => Math.floor((v - 10) / 2);
+  var SCORES = ["STR", "DEX", "CON", "INT", "WIS", "CHA"], modOf = (v2) => Math.floor((v2 - 10) / 2);
   function balanceOf(sc) {
-    let v = SCORES.map((k) => sc[k]), mu = v.reduce((a, b) => a + b, 0) / 6, sg = Math.sqrt(v.reduce((a, b) => a + (b - mu) ** 2, 0) / 6);
+    let v2 = SCORES.map((k) => sc[k]), mu = v2.reduce((a, b) => a + b, 0) / 6, sg = Math.sqrt(v2.reduce((a, b) => a + (b - mu) ** 2, 0) / 6);
     return Math.max(0, 1 - sg / mu);
   }
   var mbar = (sc) => SCORES.reduce((a, k) => a + modOf(sc[k]), 0) / 6, rateOf = (init) => 90 + init;
@@ -1127,7 +1129,7 @@ button,.rpb,.pill{touch-action:manipulation}
   var artName = (name) => String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   // src/engine/util.js
-  var R = (a, b) => a + Math.random() * (b - a), pick = (a) => a[Math.random() * a.length | 0], clamp = (v, a, b) => v < a ? a : v > b ? b : v, eob = (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2), RM = !1;
+  var R = (a, b) => a + Math.random() * (b - a), pick = (a) => a[Math.random() * a.length | 0], clamp = (v2, a, b) => v2 < a ? a : v2 > b ? b : v2, eob = (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2), RM = !1;
   function rr(c, x, y, w, h, r) {
     c.beginPath(), c.moveTo(x + r, y), c.arcTo(x + w, y, x + w, y + h, r), c.arcTo(x + w, y + h, x, y + h, r), c.arcTo(x, y + h, x, y, r), c.arcTo(x, y, x + w, y, r), c.closePath();
   }
@@ -1373,8 +1375,8 @@ button,.rpb,.pill{touch-action:manipulation}
       ctx.fillStyle = "rgba(15,8,22,.88)", rr(ctx, bx - 1.5, by - 1.5, 29, 7, 3.5), ctx.fill(), ctx.fillStyle = r > 0.5 ? "#7ad67a" : r > 0.25 ? "#ffc857" : "#ff6b6b", rr(ctx, bx, by, Math.max(2, 26 * r), 4, 2), ctx.fill();
     }
   }
-  function set_ctx(v) {
-    return ctx = v;
+  function set_ctx(v2) {
+    return ctx = v2;
   }
 
   // src/adapters/storage.js
@@ -1390,8 +1392,8 @@ button,.rpb,.pill{touch-action:manipulation}
     },
     get(key2, fallback) {
       try {
-        let v = this.raw().getItem(key2);
-        return v == null ? fallback : JSON.parse(v);
+        let v2 = this.raw().getItem(key2);
+        return v2 == null ? fallback : JSON.parse(v2);
       } catch {
         return fallback;
       }
@@ -1599,14 +1601,14 @@ button,.rpb,.pill{touch-action:manipulation}
       let sp = a.createStereoPanner();
       sp.pan.value = Math.max(-1, Math.min(1, pan || 0)), out.connect(sp), sp.connect(a.destination);
     } else out.connect(a.destination);
-    let chirp = (f12, f2, d, type, v, dl) => {
+    let chirp = (f12, f2, d, type, v2, dl) => {
       let o = a.createOscillator(), g = a.createGain(), t = t0 + dl;
-      o.type = type, o.frequency.setValueAtTime(f12 * p, t), o.frequency.exponentialRampToValueAtTime(f2 * p, t + d), g.gain.setValueAtTime(1e-4, t), g.gain.exponentialRampToValueAtTime(v, t + 0.012), g.gain.exponentialRampToValueAtTime(8e-4, t + d), o.connect(g), g.connect(out), o.start(t), o.stop(t + d + 0.03);
+      o.type = type, o.frequency.setValueAtTime(f12 * p, t), o.frequency.exponentialRampToValueAtTime(f2 * p, t + d), g.gain.setValueAtTime(1e-4, t), g.gain.exponentialRampToValueAtTime(v2, t + 0.012), g.gain.exponentialRampToValueAtTime(8e-4, t + d), o.connect(g), g.connect(out), o.start(t), o.stop(t + d + 0.03);
     };
     chirp(620, 1450, 0.075, "square", 0.09, 0), chirp(900, 1900, 0.06, "triangle", 0.08, 0.085), chirp(1e3, 1500, 0.05, "sine", 0.05, 0.085);
   }
-  function set_soundOn(v) {
-    return soundOn = v;
+  function set_soundOn(v2) {
+    return soundOn = v2;
   }
 
   // src/data/v6/skills.js
@@ -1716,7 +1718,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function v6GearExtras(m) {
     let o = {}, add = (s) => {
-      for (let [k, v] of Object.entries(s)) o[k] = (o[k] || 0) + v;
+      for (let [k, v2] of Object.entries(s)) o[k] = (o[k] || 0) + v2;
     }, sets = {};
     for (let g of Object.values(m.gear || {})) {
       if (!g) continue;
@@ -1840,7 +1842,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let out = [];
     for (let t of S.tiers()) {
       for (let fam of WAVE_FAMS) out.push(v6Piece("weapon", t, { fam }));
-      for (let slot of ["armour", "helm", "cloak"]) for (let v of ["plain", "robe", "scout"]) GEAR6[slot][v] && out.push(v6Piece(slot, t, { v }));
+      for (let slot of ["armour", "helm", "cloak"]) for (let v2 of ["plain", "robe", "scout"]) GEAR6[slot][v2] && out.push(v6Piece(slot, t, { v: v2 }));
       for (let slot of ["shield", "boots", "neck", "ring"]) out.push(v6Piece(slot, t));
     }
     for (let n of S.uses) out.push({ k: "use", n, id: "u_" + n });
@@ -1905,8 +1907,8 @@ button,.rpb,.pill{touch-action:manipulation}
     return s;
   }
   function v6KitAt(cls, t) {
-    let C = CLASSES6[cls], v = V6_VARIANT[cls] || "plain", g = { weapon: { fam: C.fam, tier: t } };
-    for (let slot of ["armour", "helm", "cloak"]) g[slot] = { slot, tier: t, v: GEAR6[slot][v] ? v : "plain" };
+    let C = CLASSES6[cls], v2 = V6_VARIANT[cls] || "plain", g = { weapon: { fam: C.fam, tier: t } };
+    for (let slot of ["armour", "helm", "cloak"]) g[slot] = { slot, tier: t, v: GEAR6[slot][v2] ? v2 : "plain" };
     for (let slot of ["shield", "boots", "neck"]) g[slot] = { slot, tier: t, v: "plain" };
     return g.ring1 = { slot: "ring", tier: t, v: "plain" }, g.ring2 = { slot: "ring", tier: t, v: "plain" }, g;
   }
@@ -1971,7 +1973,7 @@ button,.rpb,.pill{touch-action:manipulation}
       }
       let row = (GEAR6[g.slot || k] || {})[g.v || "plain"] || GEAR6[g.slot || k].plain, p = row && row[g.tier];
       if (p)
-        for (let [s, v] of Object.entries(p.st)) out[s === "mana" ? "mana" : s] += v;
+        for (let [s, v2] of Object.entries(p.st)) out[s === "mana" ? "mana" : s] += v2;
     }
     return out;
   }
@@ -1979,7 +1981,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let C = CLASSES6[m.cls], L = m.lvl, sc = m.scores, st0 = m.start || v6StartScores(m.cls), G = v6Gear(m), X = v6GearExtras(m), P = {};
     for (let n of m.passives || []) {
       let d = (PASSIVES6[m.cls] || []).find((x) => x.n === n);
-      if (d) for (let [k, v] of Object.entries(d.fx)) P[k] = (P[k] || 0) + v;
+      if (d) for (let [k, v2] of Object.entries(d.fx)) P[k] = (P[k] || 0) + v2;
     }
     let mod = (k) => k === "mbar" ? mbar(sc) : modOf(sc[k]), grow = (k) => k === "mbar" ? mbar(sc) - mbar(st0) : modOf(sc[k]) - modOf(st0[k]), f = (k) => (1 + 0.05 * mod(k)) / 1.1, bA = BASE6.atk[0] + BASE6.atk[1] * (L - 1), bD = BASE6.def[0] + BASE6.def[1] * (L - 1), bH = BASE6.hp[0] + BASE6.hp[1] * (L - 1), atk = (bA + G.atk + (X.atk || 0) + (G.magic ? 0 : G.wpow)) * C.atk * f(V6_ATK_SCORE[m.cls]) * (1 + (P.atkP || 0)), spa = (bA + G.atk + (X.spa || 0) + (G.magic ? G.wpow : 0)) * C.spa * f(V6_CAST_SCORE[m.cls]) * (1 + (P.spaP || 0)), def = (bD + G.def + (X.def || 0)) * C.def * f("CON") * (1 + (P.defP || 0)), sd = (bD + G.def + (X.sd || 0)) * C.sd * f("CON") * (1 + (P.defP || 0)), hp = (bH + G.hp + (X.hp || 0)) * C.hp * f("CON") * (1 + (P.hpP || 0) + (X.hpP || 0)), m30 = C.mana[1], m1 = C.mana[0], baseMana = m1 + (m30 - m1) * (L - 1) / 29, mp = baseMana * (1 + (G.mana + (X.mana || 0)) / 100) * (1 + (P.mpP || 0)), spd = (5 + 0.5 * (L - 1)) * C.spd + G.spd + (X.spd || 0) + (P.spd || 0), accScore = G.fam && G.fam.ranged ? "DEX" : "STR", S = {
       hp: Math.round(hp),
@@ -2102,7 +2104,7 @@ button,.rpb,.pill{touch-action:manipulation}
     !b || !b.v6 || t.side !== 0 || !t.m || (t.m.streak = (t.m.streak || 0) - 1, b.falls = (b.falls || 0) + 1);
   }
   function v6Leave(b, u) {
-    !b || !b.v6 || !u.m || b.units.some((v) => v.side === 0 && v !== u && v.hp <= 0 && !v.fled) && (u.m.corr = (u.m.corr || 0) + 2, b.msg = u.name + " leaves a friend behind… (corruption +2)");
+    !b || !b.v6 || !u.m || b.units.some((v2) => v2.side === 0 && v2 !== u && v2.hp <= 0 && !v2.fled) && (u.m.corr = (u.m.corr || 0) + 2, b.msg = u.name + " leaves a friend behind… (corruption +2)");
   }
   function v6Won(b) {
     !b || !b.v6 || b.units.filter((u) => u.side === 0 && u.m).forEach((u) => {
@@ -2163,8 +2165,8 @@ button,.rpb,.pill{touch-action:manipulation}
   var RP_OPT_KEY = "kobold-pit-rpopt", rpOpt = Object.assign({ hand: "left", buzz: !0 }, store.get(RP_OPT_KEY, {}));
   function rpOptSave() {
     store.set(RP_OPT_KEY, rpOpt);
-    let v = $("v-rpg");
-    v && v.classList.toggle("lefty", rpOpt.hand === "right"), rpLayout();
+    let v2 = $("v-rpg");
+    v2 && v2.classList.toggle("lefty", rpOpt.hand === "right"), rpLayout();
   }
   function rpBuzz(p) {
     if (!(rp.headless || !rpOpt.buzz))
@@ -2197,10 +2199,10 @@ button,.rpb,.pill{touch-action:manipulation}
     (rpcv.width !== cw || rpcv.height !== ch) && (rpcv.width = cw, rpcv.height = ch), rpS = w / VW, rp.mapImg = null, rp.bt && (rp.bt.img = null);
   }
   function rpLayout() {
-    let v = $("v-rpg");
-    if (!v || !v.classList) return;
+    let v2 = $("v-rpg");
+    if (!v2 || !v2.classList) return;
     let rot = innerHeight > innerWidth;
-    (rot !== rp.rot || !v.classList.contains("land")) && (rp.rot = rot, v.classList.toggle("rot", rot), v.classList.add("land"), typeof rpResize == "function" && requestAnimationFrame(rpResize));
+    (rot !== rp.rot || !v2.classList.contains("land")) && (rp.rot = rot, v2.classList.toggle("rot", rot), v2.classList.add("land"), typeof rpResize == "function" && requestAnimationFrame(rpResize));
   }
   function rpGoFull(force) {
     if (rpOpt.full === !1 && !force || !force && !(window.matchMedia && matchMedia("(pointer:coarse)").matches)) return;
@@ -2302,8 +2304,8 @@ button,.rpb,.pill{touch-action:manipulation}
   function burst(x, y, n, colors, spd, type) {
     if (!quiet)
       for (let i = 0; i < n; i++) {
-        let a = Math.random() * 6.283, v = spd * R(0.35, 1), life = R(0.45, 0.85);
-        parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - spd * 0.35, g: 320, life, max: life, type, color: pick(colors), size: R(2.2, 4.2), rot: R(0, 6), vr: R(-9, 9) });
+        let a = Math.random() * 6.283, v2 = spd * R(0.35, 1), life = R(0.45, 0.85);
+        parts.push({ x, y, vx: Math.cos(a) * v2, vy: Math.sin(a) * v2 - spd * 0.35, g: 320, life, max: life, type, color: pick(colors), size: R(2.2, 4.2), rot: R(0, 6), vr: R(-9, 9) });
       }
   }
   function ftext(x, y, text, color, size) {
@@ -2314,8 +2316,8 @@ button,.rpb,.pill{touch-action:manipulation}
     let cols = ["#ffb347", "#fff", "#ff7aa8", "#7ad67a", "#6fd3ee", "#b79bff"], n = RM ? 14 : 70;
     for (let i = 0; i < n; i++) parts.push({ x: R(0, 480), y: R(-30, 40), vx: R(-30, 30), vy: R(30, 110), g: 25, life: R(2.6, 4.2), max: 4.2, type: "confetti", color: pick(cols), size: R(3, 5), rot: R(0, 6), vr: R(-9, 9) });
   }
-  function set_shake(v) {
-    return shake = v;
+  function set_shake(v2) {
+    return shake = v2;
   }
 
   // src/data/banter.js
@@ -2439,9 +2441,9 @@ button,.rpb,.pill{touch-action:manipulation}
     "There's an old rhyme. If a guardian hatches wrong, bring a spark from every town's hearth, light the Great Nest, and hatch again.",
     { who: PIP, text: "Sounds like a job for somebody else." },
     "Mm. Somebody else is a very busy kobold."
-  ], resultRule = (v) => ({
+  ], resultRule = (v2) => ({
     if: { moot: { gte: 2, lte: 3 } },
-    say: ["The hatching is over, Pip. Sit down.", HATCHED[v], { who: PIP, text: "It wasn't my fault. I didn't do anything." }, "(The Elder eats a pebble, slowly.) Nobody did much, little one."].concat(RESULT_TAIL),
+    say: ["The hatching is over, Pip. Sit down.", HATCHED[v2], { who: PIP, text: "It wasn't my fault. I didn't do anything." }, "(The Elder eats a pebble, slowly.) Nobody did much, little one."].concat(RESULT_TAIL),
     then: { set: { moot: 5 }, toast: "New quest (if anybody wants it): a spark from every town" }
   }), YARROW_OPEN = "Ah, Pip. I saw a little dragon fly over my roof this morning. So. Did you warm an egg?", YARROW_NUDGE = ["Ugly and uglier, hm? My grandmother said the same once. Then she told me about the king who ate the gold. Nobody tells that story any more.", "An ember is a nudge, Pip, not a promise. Still. A nudge in a pocket nudges nothing."], miner = (id, excuse, answer, yes, idle, after) => ({ who: null, rules: [
     { if: { ch: 1, ["m_" + id]: 0 }, say: [excuse, { who: PIP, text: answer }, yes], then: { set: { ["m_" + id]: 1 }, add: { miners: 1 }, toast: "{miners} of 4 miners will come to the circle" } },
@@ -3053,8 +3055,8 @@ button,.rpb,.pill{touch-action:manipulation}
       }
     }
     let x = 0, y = 0, add = (dir) => {
-      let v = RP_DIR[dir];
-      x += v[0], y += v[1];
+      let v2 = RP_DIR[dir];
+      x += v2[0], y += v2[1];
     };
     if (rp.keys.forEach(add), rp.held && !rp.keys.has(rp.held) && add(rp.held), x || y) {
       let d = Math.hypot(x, y);
@@ -3136,9 +3138,9 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s, [dx, dy] = RP_DIR[s.face];
     if (!rpInteractAt(s.x + dx, s.y + dy))
       for (let d of ["up", "down", "left", "right"]) {
-        let v = RP_DIR[d];
-        if (rpSpecialAt(s.x + v[0], s.y + v[1])) {
-          s.face = d, rpInteractAt(s.x + v[0], s.y + v[1]);
+        let v2 = RP_DIR[d];
+        if (rpSpecialAt(s.x + v2[0], s.y + v2[1])) {
+          s.face = d, rpInteractAt(s.x + v2[0], s.y + v2[1]);
           return;
         }
       }
@@ -3183,10 +3185,10 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/net/ui.js
   function netMapRow() {
     if (!netOnline()) return "";
-    let O = net.others, open = O.find((p) => p.presence.op && p.presence.m === "lobby"), P = open || netFocus() || O[0];
+    let O = net.others, open2 = O.find((p) => p.presence.op && p.presence.m === "lobby"), P = open2 || netFocus() || O[0];
     if (!P) return "";
     let pr = P.presence || {};
-    return '<div class="netrow"><span><i></i>' + (O.length > 1 ? O.length + " friends online" : esc2(netName(P)) + " · " + (pr.m === "battle" ? "in a battle" : pr.m === "lobby" ? "getting ready to fight" : esc2(pr.a || ""))) + "</span>" + (open && rp.mode === "map" ? '<button class="pill go" type="button" data-net="join" data-p="' + esc2(open.peer) + '">⚔ Join ' + esc2(netName(open)) + "</button>" : "") + "</div>";
+    return '<div class="netrow"><span><i></i>' + (O.length > 1 ? O.length + " friends online" : esc2(netName(P)) + " · " + (pr.m === "battle" ? "in a battle" : pr.m === "lobby" ? "getting ready to fight" : esc2(pr.a || ""))) + "</span>" + (open2 && rp.mode === "map" ? '<button class="pill go" type="button" data-net="join" data-p="' + esc2(open2.peer) + '">⚔ Join ' + esc2(netName(open2)) + "</button>" : "") + "</div>";
   }
   function netMenuButtons() {
     let n = netOnline() ? net.others.length > 1 ? "a friend" : esc2(netName()) : "", h = "";
@@ -3213,8 +3215,8 @@ button,.rpb,.pill{touch-action:manipulation}
   });
 
   // src/ui/hud.js
-  function rpBar(v, m, col) {
-    return '<i class="rpbar"><b style="width:' + clamp(v / m * 100, 0, 100).toFixed(0) + "%;background:" + col + '"></b></i>';
+  function rpBar(v2, m, col) {
+    return '<i class="rpbar"><b style="width:' + clamp(v2 / m * 100, 0, 100).toFixed(0) + "%;background:" + col + '"></b></i>';
   }
   function rpPartyHtml() {
     return '<div class="rpparty">' + rp.s.party.map((m) => {
@@ -3228,8 +3230,8 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s, tt = "<b>" + (rp.mode === "battle" ? rp.bt && rp.bt.boss ? "Boss battle" : "Battle" : rpArea(s.x, s.y)) + "</b><span>" + Math.floor(s.gold) + ' gold</span><span class="rpq">' + rpQuestLine() + "</span>";
     top.dataset.h !== tt && (top.dataset.h = tt, $("rp-topt").innerHTML = tt);
     {
-      let v = $("v-rpg");
-      v.classList.toggle("lefty", rpOpt.hand === "right"), v.dataset && v.dataset.mode !== rp.mode && (v.dataset.mode = rp.mode, requestAnimationFrame(rpResize));
+      let v2 = $("v-rpg");
+      v2.classList.toggle("lefty", rpOpt.hand === "right"), v2.dataset && v2.dataset.mode !== rp.mode && (v2.dataset.mode = rp.mode, requestAnimationFrame(rpResize));
     }
     let P = $("rp-panel"), pn = panels[rp.mode], h = pn && pn.html();
     h == null && (pn = panels.map, h = pn.html());
@@ -3314,6 +3316,10 @@ button,.rpb,.pill{touch-action:manipulation}
   function netGive(kind, val2) {
     if (!netOnline()) return;
     let s = rp.s, label = "";
+    if (s.test) {
+      rpToast("A test hero can't give gifts.");
+      return;
+    }
     if (kind === "gold") {
       if (val2 = Math.min(+val2, Math.floor(s.gold)), val2 <= 0) return;
       s.gold -= val2, label = val2 + " gold";
@@ -3342,8 +3348,8 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     let s = rp.s, label = "";
     if (d.kind === "gold") {
-      let v = clamp(+d.val | 0, 0, 1e5);
-      s.gold += v, label = v + " gold";
+      let v2 = clamp(+d.val | 0, 0, 1e5);
+      s.gold += v2, label = v2 + " gold";
     } else if (d.kind === "mat" && RP_MATS[d.val])
       rpMats()[d.val]++, label = "a " + RP_MATS[d.val].n.toLowerCase();
     else if (d.kind === "item" && RP_IT[d.val])
@@ -3368,7 +3374,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function netTradeHtml() {
     let s = rp.s, M = rpMats(), h = '<div class="rpdlg"><div class="who">Give to ' + esc2(netName()) + '</div><p>Tap to send. It arrives in their backpack right away.</p></div><div class="rpcmd shop">';
-    return h += [10, 50].map((v) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v + '"' + (s.gold < v ? " disabled" : "") + ">" + v + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
+    return h += [10, 50].map((v2) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v2 + '"' + (s.gold < v2 ? " disabled" : "") + ">" + v2 + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
   }
   feature({ id: "trade", panels: { trade: { sig: () => rp.s.gold + JSON.stringify(rpMats()) + rp.s.inv.join() + JSON.stringify(rp.s.bag), html: () => netTradeHtml() } } });
   feature({
@@ -3447,6 +3453,10 @@ button,.rpb,.pill{touch-action:manipulation}
   async function netMarketList() {
     let S = net.mkSell;
     if (!(!S || net.mkBusy || !net.db)) {
+      if (rp.s.test) {
+        rpToast("A test hero can't sell on the market.");
+        return;
+      }
       if ((net.mine || []).filter((m) => m.status === "open").length >= 8) {
         rpToast("You can have 8 things for sale at once.");
         return;
@@ -3507,6 +3517,14 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!rp.s || net.paying) return;
     let s = rp.s;
     s.mkPaid = s.mkPaid || [];
+    for (let m of (net.mine || []).filter((m2) => m2.status === "removed" && !s.mkPaid.includes(m2.id))) {
+      s.mkPaid.push(m.id), netPut(m.kind, m.val), rpToast(netMkLabel(m) + " was taken off the market" + (m.why ? " (" + m.why + ")" : "") + "; it is back in your backpack.");
+      try {
+        await net.db.collection("market").doc(m.id).delete();
+      } catch {
+      }
+      rpSave();
+    }
     let due2 = (net.mine || []).filter((m) => m.status === "sold" && !s.mkPaid.includes(m.id));
     if (due2.length) {
       net.paying = !0;
@@ -3531,7 +3549,7 @@ button,.rpb,.pill{touch-action:manipulation}
     } else if (T === "sell")
       if (net.mkSell) {
         let S = net.mkSell;
-        h += '<p class="mksell"><b>' + esc2(netMkLabel(S)) + '</b> for <b class="hp">' + S.price + " gold</b></p>" + [-50, -10, -1, 1, 10, 50].map((v) => '<button class="pill" type="button" data-net="mkprice" data-v="' + v + '">' + (v > 0 ? "+" : "") + v + "</button>").join("") + '<button class="rpb go" type="button" data-net="mklist"' + (net.mkBusy ? " disabled" : "") + `>Put it up for sale<small>Stays up while you're away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>`;
+        h += '<p class="mksell"><b>' + esc2(netMkLabel(S)) + '</b> for <b class="hp">' + S.price + " gold</b></p>" + [-50, -10, -1, 1, 10, 50].map((v2) => '<button class="pill" type="button" data-net="mkprice" data-v="' + v2 + '">' + (v2 > 0 ? "+" : "") + v2 + "</button>").join("") + '<button class="rpb go" type="button" data-net="mklist"' + (net.mkBusy ? " disabled" : "") + `>Put it up for sale<small>Stays up while you're away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>`;
       } else {
         let M = rpMats();
         h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="mkpick" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join("") + Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join("") || '<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>';
@@ -3644,8 +3662,8 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function netPeers() {
     if (!net.room) return;
-    let ps = net.room.peers(), me = ps.find((p) => p.sameTab);
-    me && (net.myPeer = me.peer);
+    let ps = net.room.peers(), me2 = ps.find((p) => p.sameTab);
+    me2 && (net.myPeer = me2.peer);
     let others = ps.filter((p) => !p.isMe && p.kind === "viewer" && p.presence && p.presence.kq), before = new Set((net.others || []).map((p) => p.peer)), now = new Set(others.map((p) => p.peer)), playing = rp.s && view === "rpg";
     others.forEach((P) => {
       P.by && !(P.by in net.names) && net.user && (net.names[P.by] = "", net.user.profiles([P.by]).then((r) => {
@@ -3755,14 +3773,14 @@ button,.rpb,.pill{touch-action:manipulation}
       hp: +m.hp || 0,
       mp: +m.mp || 0,
       tal: Array.isArray(m.tal) ? m.tal.filter((t) => typeof t == "string").slice(0, 40) : [],
-      eq: typeof m.eq == "object" && m.eq ? Object.fromEntries(Object.entries(m.eq).filter(([k, v]) => RP_SLOTS9.includes(k) && RP_IT[v])) : {},
+      eq: typeof m.eq == "object" && m.eq ? Object.fromEntries(Object.entries(m.eq).filter(([k, v2]) => RP_SLOTS9.includes(k) && RP_IT[v2])) : {},
       adv: RP_ADV[m.adv] ? m.adv : null,
       pend: 0,
       offer: null
     })) : [];
   }
   function netClean6(p) {
-    let num = (v, a, b, d) => (v = +v, Number.isFinite(v) ? clamp(Math.round(v), a, b) : d), obj = (v) => v && typeof v == "object" && !Array.isArray(v) ? v : {}, ids = (v) => Array.isArray(v) ? v.filter((id) => typeof id == "string" && SKILLS6[id]) : [];
+    let num = (v2, a, b, d) => (v2 = +v2, Number.isFinite(v2) ? clamp(Math.round(v2), a, b) : d), obj = (v2) => v2 && typeof v2 == "object" && !Array.isArray(v2) ? v2 : {}, ids = (v2) => Array.isArray(v2) ? v2.filter((id) => typeof id == "string" && SKILLS6[id]) : [];
     return p.filter((m) => m && m.v6 && CLASSES6[m.cls]).slice(0, 3).map((m) => {
       let c = v6PackKobold(m);
       Object.assign(c, {
@@ -3772,7 +3790,7 @@ button,.rpb,.pill{touch-action:manipulation}
         xp: num(m.xp, 0, 1e7, 0),
         hp: num(m.hp, 0, 1e5, 0),
         mp: num(m.mp, 0, 1e5, 0),
-        scores: Object.fromEntries(Object.entries(obj(m.scores)).map(([k, v]) => [k, num(v, 1, 40, 10)])),
+        scores: Object.fromEntries(Object.entries(obj(m.scores)).map(([k, v2]) => [k, num(v2, 1, 40, 10)])),
         skills: ids(m.skills).slice(0, 4),
         known: ids(m.known),
         ranks: obj(m.ranks),
@@ -4346,8 +4364,11 @@ button,.rpb,.pill{touch-action:manipulation}
     let opt = Object.assign({ members, zone: ",", v6: 1, theme: S.theme, setPiece: 1, story: id }, S.boss ? { boss: keys[0], title: RP_E[keys[0]].n } : {});
     S.boss && !S.solo ? rpFight(keys, opt) : rpBattle(keys, opt);
   }
+  function s6TestFight(id) {
+    rp.s && rp.s.test && SETPIECES6[id] && setPiece(id);
+  }
   function s6SharedWin(id) {
-    if (!id || !rp.s || !rp.s.w6st) return;
+    if (!id || !rp.s || !rp.s.w6st || rp.s.test) return;
     let st = rp.s.w6st, sc = SCENES6.find((c) => c.steps.some((x) => x[0] === "fight" && x[1] === id));
     sc && due(sc) && !(st.beat || {})[id] ? (st.beat = st.beat || {}, st.beat[id] = 1, st.beat[id + ":who"] = netName(), rpToast("This counts for your story!")) : (st.helps = (st.helps || 0) + 1, rpToast("A helper's mark! (" + st.helps + ")"));
   }
@@ -4449,7 +4470,7 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
   function goals() {
-    let q = rp.s.q, eq = (w) => Object.entries(w).every(([k, v]) => (q[k] || 0) === v), out = GOALS6.filter((g) => eq(g.when)), miners = ["miner_ore", "miner_tansy", "miner_brothers", "miner_marl"].filter((k) => q[k]).length + (q.pb >= 5 ? 1 : 0);
+    let q = rp.s.q, eq = (w) => Object.entries(w).every(([k, v2]) => (q[k] || 0) === v2), out = GOALS6.filter((g) => eq(g.when)), miners = ["miner_ore", "miner_tansy", "miner_brothers", "miner_marl"].filter((k) => q[k]).length + (q.pb >= 5 ? 1 : 0);
     return out.map((g) => ({ goal: g.goal.replace("{miners}", miners), hint: g.hint }));
   }
   function s6GoalLine() {
@@ -4494,7 +4515,7 @@ button,.rpb,.pill{touch-action:manipulation}
       return h + (L.length ? '<div class="rpcmd">' + L.map((it) => '<button class="rpb" type="button" data-rp="w6sell" data-v="' + it.id + '">' + esc2(v6ItemName(it)) + "<small>sells for " + v6SellPrice(it) + " gold" + (it.uniq || it.set ? " · are you sure? it is special" : "") + "</small></button>").join("") + "</div>" : "<p>Nothing to sell.</p>");
     }
     let mats = s.mats6 || {};
-    return h + "<p><small>" + (Object.entries(mats).filter(([k, v]) => v > 0).map(([k, v]) => k + " ×" + v).join(" · ") || "No materials yet.") + '</small></p><div class="rpcmd">' + v6Recipes(town).map((R2, i) => {
+    return h + "<p><small>" + (Object.entries(mats).filter(([k, v2]) => v2 > 0).map(([k, v2]) => k + " ×" + v2).join(" · ") || "No materials yet.") + '</small></p><div class="rpcmd">' + v6Recipes(town).map((R2, i) => {
       let N = needOf(R2), can = N.every((x) => (mats[x.mat] || 0) >= x.n);
       return '<button class="rpb' + (can ? " go" : "") + '" type="button" data-rp="w6craft" data-v="' + i + '"' + (can ? "" : " disabled") + ">" + esc2(R2.n) + "<small>needs " + esc2(R2.need) + "</small></button>";
     }).join("") + "</div>";
@@ -4763,13 +4784,16 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T09:18:20Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T09:43:35Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
           m.stale && (S.token = null, store.set(TOKEN_KEY, null)), S.authWait && (S.authWait.no(m.why), S.authWait = null);
           break;
         case "loggedout":
+          break;
+        case "pwdone":
+          S.authWait && (S.authWait.ok(null), S.authWait = null);
           break;
         case "pres":
           S.others.set(m.peer, mk(m)), firePeers();
@@ -4790,7 +4814,10 @@ button,.rpb,.pill{touch-action:manipulation}
             let e = new Error(m.err);
             e.code = m.err === "missing" ? "invalid_argument" : m.err, p.no(e);
           } else p.ok(m.val);
+          break;
         }
+        default:
+          account.onServer && account.onServer(m);
       }
     }
     let mk = (p) => ({ peer: p.peer, by: p.by, isMe: !1, sameTab: !1, kind: "viewer", guest: !1, presence: Object.freeze(Object.assign({}, p.presence)), updatedAt: Date.now() }), meP = () => ({ peer: S.peer, by: S.me && S.me.id, isMe: !0, sameTab: !0, kind: "viewer", guest: !1, presence: S.mine, updatedAt: Date.now() }), peers = () => S.authed ? [meP(), ...S.others.values()] : [];
@@ -4807,6 +4834,10 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     let account = {
       onNewVersion: null,
+      onServer: null,
+      /* a password reset with an owner's one-time code (systems.md §17) */
+      resetpw: (name, code, pass) => auth({ k: "resetpw", name, code, pass }),
+      send: (m) => send(m),
       /* server-only requests (the messenger, the admin screen): resolves with the reply's value */
       call: (m) => rpc(m),
       /* set by the page: called when the server runs a newer build than this page */
@@ -4880,7 +4911,7 @@ button,.rpb,.pill{touch-action:manipulation}
       })
     }), colRef = (path, w) => ({
       path,
-      where: (f, op, v) => colRef(path, w.concat([[f, op, v]])),
+      where: (f, op, v2) => colRef(path, w.concat([[f, op, v2]])),
       orderBy() {
         return this;
       },
@@ -4931,8 +4962,8 @@ button,.rpb,.pill{touch-action:manipulation}
       }
     }, 50);
   }
-  async function loggedIn(me) {
-    setSaveKey("kq-save-" + me.id), platform.provider = online.provider, say("Loading your kobolds…"), await netInit(), say(""), $("login").hidden = !0, $("tuser-name").textContent = me.name, $("tuser").hidden = !1, $("go-rpg").hidden = !1, $("login-pass").value = "";
+  async function loggedIn(me2) {
+    setSaveKey("kq-save-" + me2.id), platform.provider = online.provider, say("Loading your kobolds…"), await netInit(), say(""), $("login").hidden = !0, $("tuser-name").textContent = me2.name, $("tuser").hidden = !1, $("go-rpg").hidden = !1, $("login-pass").value = "";
   }
   async function attempt(kind) {
     let name = $("login-name").value.trim(), pass = $("login-pass").value;
@@ -4941,8 +4972,9 @@ button,.rpb,.pill{touch-action:manipulation}
       return;
     }
     $("login-go").disabled = $("login-new").disabled = !0, say(kind === "register" ? "Making your account…" : "Logging in…");
+    let code = $("login-code").value.trim();
     try {
-      await loggedIn(await online.account[kind](name, pass));
+      code && kind === "login" && (say("Setting your new password…"), await online.account.resetpw(name, code, pass), $("login-code").value = "", $("login-code").hidden = !0), await loggedIn(await online.account[kind](name, pass));
     } catch (e) {
       say(typeof e == "string" ? e : "Can't reach the game server.", !0);
     }
@@ -4951,7 +4983,10 @@ button,.rpb,.pill{touch-action:manipulation}
   feature({ id: "site-login", init() {
     online = createOnline(wsUrl()), online.account.onNewVersion = updateWhenSafe, $("login").addEventListener("submit", (e) => {
       e.preventDefault(), attempt("login");
-    }), $("login-new").addEventListener("click", () => attempt("register")), $("logout").addEventListener("click", () => {
+    }), $("login-new").addEventListener("click", () => attempt("register")), $("login-hascode").addEventListener("click", () => {
+      let c = $("login-code");
+      c.hidden = !1, c.focus(), say("Type your name, the code, and the new password you want.");
+    }), $("logout").addEventListener("click", () => {
       online.account.logout(), location.reload();
     }), $("go-rpg").hidden = !0, online.account.hasToken() ? (say("Logging in…"), $("login").hidden = !1, online.account.resume().then(loggedIn).catch((e) => {
       say(typeof e == "string" ? e : "", !!e), showLoggedOut();
@@ -4962,9 +4997,9 @@ button,.rpb,.pill{touch-action:manipulation}
   var mail = { sending: !1, msg: "", admin: null };
   function rpOpenLetter() {
     mail.msg = "", rp.mode = "letter", rpUI(!0);
-    let me = mailMe();
-    me && online.account.call({ k: "mailcheck" }).then((r) => {
-      me.canMail = r.canMail, rp.sig = "", rpUI(!0);
+    let me2 = mailMe();
+    me2 && online.account.call({ k: "mailcheck" }).then((r) => {
+      me2.canMail = r.canMail, rp.sig = "", rpUI(!0);
     }).catch(() => {
     });
   }
@@ -4972,8 +5007,8 @@ button,.rpb,.pill{touch-action:manipulation}
     return online && online.account.me;
   }
   function letterHtml() {
-    let me = mailMe(), who = '<div class="who">Quill the scribe</div>';
-    return me ? !me.canMail && !me.admin ? '<div class="rpdlg">' + who + '<p>"Sorry, little one. I only carry letters for friends of the village. Ask Zaitzer to put your name on my list."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + `<p>"A letter for the makers of this world? Tell them what you'd like to see, or what went wrong. I'll send it by pigeon."</p></div><div class="chatin letter"><textarea id="kq-letter" maxlength="1000" rows="4" placeholder="Dear makers…"></textarea></div>` + (mail.msg ? '<p class="rptip">' + esc2(mail.msg) + "</p>" : "") + '<div class="tbar"><button class="rpb go" type="button" data-net="mailsend"' + (mail.sending ? " disabled" : "") + ">" + (mail.sending ? "Sending…" : "Send letter") + '</button><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + '<p>"My pigeons only fly from the website: joakimskar.no. Log in there and come see me."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>';
+    let me2 = mailMe(), who = '<div class="who">Quill the scribe</div>';
+    return me2 ? !me2.canMail && !me2.admin ? '<div class="rpdlg">' + who + '<p>"Sorry, little one. I only carry letters for friends of the village. Ask Zaitzer to put your name on my list."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + `<p>"A letter for the makers of this world? Tell them what you'd like to see, or what went wrong. I'll send it by pigeon."</p></div><div class="chatin letter"><textarea id="kq-letter" maxlength="1000" rows="4" placeholder="Dear makers…"></textarea></div>` + (mail.msg ? '<p class="rptip">' + esc2(mail.msg) + "</p>" : "") + '<div class="tbar"><button class="rpb go" type="button" data-net="mailsend"' + (mail.sending ? " disabled" : "") + ">" + (mail.sending ? "Sending…" : "Send letter") + '</button><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>' : '<div class="rpdlg">' + who + '<p>"My pigeons only fly from the website: joakimskar.no. Log in there and come see me."</p></div><div class="tbar"><button class="rpb x" type="button" data-net="mailclose">Leave</button></div>';
   }
   async function mailSend() {
     let i = document.getElementById("kq-letter"), text = i ? i.value.trim() : "";
@@ -5005,16 +5040,12 @@ button,.rpb,.pill{touch-action:manipulation}
     rpUI(!0);
   }
   var val = (id) => {
-    let i = document.getElementById(id), v = i ? i.value.trim() : "";
-    return i && (i.value = ""), v;
+    let i = document.getElementById(id), v2 = i ? i.value.trim() : "";
+    return i && (i.value = ""), v2;
   };
   feature({
     id: "messenger",
     panels: { letter: { sig: () => mail.sending + "|" + mail.msg + "|" + !!mailMe(), html: letterHtml }, admin: { sig: () => JSON.stringify(mail.admin) + mail.msg, html: adminHtml } },
-    menu: [{ order: 20, html: () => {
-      let me = mailMe();
-      return me && me.admin ? '<button class="rpb" type="button" data-net="admin">Admin<small>Messenger token and list</small></button>' : "";
-    } }],
     actions: {
       "net:mailsend"() {
         mailSend();
@@ -5026,7 +5057,7 @@ button,.rpb,.pill{touch-action:manipulation}
         rp.mode = "admin", mail.msg = "", adminCall({ op: "state" });
       },
       "net:adminclose"() {
-        rp.mode = "menu", mail.msg = "";
+        rp.mode = "adm", mail.msg = "";
       },
       "net:admintoken"() {
         let t = val("kq-token");
@@ -5097,10 +5128,10 @@ button,.rpb,.pill{touch-action:manipulation}
         if (!want.some(test)) return !1;
         continue;
       }
-      let v = value(k);
+      let v2 = value(k);
       if (want && typeof want == "object") {
-        for (let op in want) if (!OPS[op](v, want[op])) return !1;
-      } else if (v !== want) return !1;
+        for (let op in want) if (!OPS[op](v2, want[op])) return !1;
+      } else if (v2 !== want) return !1;
     }
     return !0;
   }
@@ -5793,8 +5824,8 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     P && P.tiles && (ctx.fillStyle = "rgba(255,107,107,.32)", P.tiles.forEach(([x, y]) => ctx.fillRect(x * TT, y * TT, TT, TT)));
     for (let y = Math.max(0, Math.floor(cy / TT)); y < Math.min(b.H, Math.ceil((cy + BVH) / TT)); y++) for (let x = Math.max(0, Math.floor(cx / TT)); x < Math.min(b.W, Math.ceil((cx + BVW) / TT)); x++) {
-      let v = b.vis[y * b.W + x];
-      v !== 2 && (ctx.fillStyle = v === 1 ? "rgba(13,8,32,.55)" : "#0d0820", ctx.fillRect(x * TT - 0.5, y * TT - 0.5, TT + 1, TT + 1));
+      let v2 = b.vis[y * b.W + x];
+      v2 !== 2 && (ctx.fillStyle = v2 === 1 ? "rgba(13,8,32,.55)" : "#0d0820", ctx.fillRect(x * TT - 0.5, y * TT - 0.5, TT + 1, TT + 1));
     }
     b.pings && b.pings.forEach((p) => {
       b.vis[p.y * b.W + p.x] !== 2 && rpFloatStatic((p.x + 0.5) * TT, (p.y + 0.7) * TT + Math.sin(b.t * 5) * 2, "?", "#ffd54a");
@@ -5833,7 +5864,7 @@ button,.rpb,.pill{touch-action:manipulation}
   var NET_TURN_MS = 2e4;
   function netClean6E(E) {
     let o = {};
-    for (let [k, v] of Object.entries(E)) (typeof v == "number" || typeof v == "boolean" || typeof v == "string" && v.length < 80 || v && typeof v == "object" && JSON.stringify(v).length < 2e3) && (o[k] = v);
+    for (let [k, v2] of Object.entries(E)) (typeof v2 == "number" || typeof v2 == "boolean" || typeof v2 == "string" && v2.length < 80 || v2 && typeof v2 == "object" && JSON.stringify(v2).length < 2e3) && (o[k] = v2);
     return o.v6 = 1, o.n = String(E.n || "Foe").slice(0, 30), o;
   }
   function netSendStart(b) {
@@ -5889,8 +5920,8 @@ button,.rpb,.pill{touch-action:manipulation}
         if (!m) return;
         u = { side, m, name: m.name, x: o.x, y, sz: 1, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, fled: !1, own: o.o, ctl: o.o === "g" ? "me" : "remote", get hp() {
           return m.hp;
-        }, set hp(v) {
-          m.hp = v;
+        }, set hp(v2) {
+          m.hp = v2;
         }, get max() {
           return rpStats(m).hp;
         } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: u.max, size: 0.62 }, 0, 0, !0);
@@ -5978,13 +6009,13 @@ button,.rpb,.pill{touch-action:manipulation}
     let now = performance.now();
     b.net.waitAct && now - b.net.waitAct.t > 2500 && !b.over && (b.net.waitAct.t = now, netEmit(b.net.waitAct.msg)), !b.over && now - b.net.lastSnap > (b.net.started ? 12e3 : 2e4) && (b.over = "lost", b.phase = "end", b.msg = "Lost contact with " + netName() + ". Your kobolds head home.", rpUI(!0));
   }
-  function netSerAct(b, act) {
-    let fl = b.net && b.net.flip, H = b.H, fy = (y) => fl ? H - 1 - y : y, o = { k: act.k };
-    return act.path && (o.path = act.path.map(([x, y]) => [x, fy(y)]), o.cost = act.cost), act.t && (o.t = b.units.indexOf(act.t)), act.f && (o.f = b.units.indexOf(act.f)), act.sk && (o.sk = act.sk), act.it && (o.it = act.it), act.cx != null && (o.cx = act.cx, o.cy = fy(act.cy)), act.ui != null && (o.ui = act.ui, o.x = act.x, o.y = fy(act.y)), o;
+  function netSerAct(b, act2) {
+    let fl = b.net && b.net.flip, H = b.H, fy = (y) => fl ? H - 1 - y : y, o = { k: act2.k };
+    return act2.path && (o.path = act2.path.map(([x, y]) => [x, fy(y)]), o.cost = act2.cost), act2.t && (o.t = b.units.indexOf(act2.t)), act2.f && (o.f = b.units.indexOf(act2.f)), act2.sk && (o.sk = act2.sk), act2.it && (o.it = act2.it), act2.cx != null && (o.cx = act2.cx, o.cy = fy(act2.cy)), act2.ui != null && (o.ui = act2.ui, o.x = act2.x, o.y = fy(act2.y)), o;
   }
-  function netSendAct(b, act) {
-    let msg = { t: "act", id: b.net.id, to: b.net.peer, n: ++net.actN, cur: b.cur ? b.units.indexOf(b.cur) : -1, a: netSerAct(b, act) };
-    netEmit(msg), b.net.waitAct = { msg, t: performance.now() }, act.k === "it" && rp.s.bag[act.it] > 0 && rp.s.bag[act.it]--, b.phase = "wait", b.pend = null, b.msg = "…", rpUI(!0);
+  function netSendAct(b, act2) {
+    let msg = { t: "act", id: b.net.id, to: b.net.peer, n: ++net.actN, cur: b.cur ? b.units.indexOf(b.cur) : -1, a: netSerAct(b, act2) };
+    netEmit(msg), b.net.waitAct = { msg, t: performance.now() }, act2.k === "it" && rp.s.bag[act2.it] > 0 && rp.s.bag[act2.it]--, b.phase = "wait", b.pend = null, b.msg = "…", rpUI(!0);
   }
   function netHostAct(b, d) {
     if (d.n <= (b.net.lastAct || 0)) {
@@ -6006,25 +6037,25 @@ button,.rpb,.pill{touch-action:manipulation}
       netSendSnap(b);
       return;
     }
-    let act = { k: a.k };
-    if (!(a.t != null && (act.t = b.units[a.t], !act.t)) && !(a.f != null && (act.f = b.units[a.f], !act.f))) {
+    let act2 = { k: a.k };
+    if (!(a.t != null && (act2.t = b.units[a.t], !act2.t)) && !(a.f != null && (act2.f = b.units[a.f], !act2.f))) {
       if (a.sk) {
         if (!RP_SK[a.sk] || !rpMemSkills(u.m).includes(a.sk)) return;
-        act.sk = a.sk;
+        act2.sk = a.sk;
       }
       if (a.it) {
         if (!RP_ITEMS[a.it]) return;
-        act.it = a.it;
+        act2.it = a.it;
       }
-      if (a.cx != null && (act.cx = a.cx | 0, act.cy = a.cy | 0), a.k === "move") {
+      if (a.cx != null && (act2.cx = a.cx | 0, act2.cy = a.cy | 0), a.k === "move") {
         let R2 = tcReach(b, u, tcMov(u) * (u.ap >= 2 ? 2 : 1)), last2 = Array.isArray(a.path) && a.path[a.path.length - 1];
         if (!last2) return;
         let p = tcPath(R2, last2[0] | 0, last2[1] | 0);
         if (!p || !p.length) return;
         let d2 = R2.dist.get(last2[1] * b.W + last2[0]);
-        act.path = p, act.cost = d2 <= tcMov(u) ? 1 : 2;
+        act2.path = p, act2.cost = d2 <= tcMov(u) ? 1 : 2;
       }
-      b.net.lastAct = d.n, tcDo(u, act) ? (b.phase = "busy", rp.headless || sfx("drop")) : netSendSnap(b);
+      b.net.lastAct = d.n, tcDo(u, act2) ? (b.phase = "busy", rp.headless || sfx("drop")) : netSendSnap(b);
     }
   }
   function netGuestEnd(b) {
@@ -6105,9 +6136,9 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     return [];
   }
-  function tcPreviewAttack(b, u, t, act) {
-    let o = act.k === "sk" ? { spell: (RP_ST[act.sk] || {}).spell, aim: (RP_ST[act.sk] || {}).aim } : {}, mul = act.k === "sk" && RP_SK[act.sk].mul || 1, H = o.spell ? { h: 100, parts: ["spells never miss"], fl: !1 } : tcHit(b, u, t, o), D = tcDmg(b, u, t, mul, o), cr = Math.round(tcCrit(b, u, t, H.fl) * 100), nm = act.k === "sk" ? RP_SK[act.sk].n : WEAPONS[tcW(u)].n, c = tcActCost(u, act);
-    return act = Object.assign({}, act, { t }), { t, act, info: "<b>" + esc2(nm) + " → " + esc2(t.name) + '</b>: <b class="hp">' + H.h + "%</b> to hit · " + D[0] + "–" + D[1] + " damage · " + cr + "% crit" + (H.parts.length ? " <small>(" + H.parts.join(", ") + ")</small>" : "") + " · " + (c === "end" ? "ends turn" : c + " AP") };
+  function tcPreviewAttack(b, u, t, act2) {
+    let o = act2.k === "sk" ? { spell: (RP_ST[act2.sk] || {}).spell, aim: (RP_ST[act2.sk] || {}).aim } : {}, mul = act2.k === "sk" && RP_SK[act2.sk].mul || 1, H = o.spell ? { h: 100, parts: ["spells never miss"], fl: !1 } : tcHit(b, u, t, o), D = tcDmg(b, u, t, mul, o), cr = Math.round(tcCrit(b, u, t, H.fl) * 100), nm = act2.k === "sk" ? RP_SK[act2.sk].n : WEAPONS[tcW(u)].n, c = tcActCost(u, act2);
+    return act2 = Object.assign({}, act2, { t }), { t, act: act2, info: "<b>" + esc2(nm) + " → " + esc2(t.name) + '</b>: <b class="hp">' + H.h + "%</b> to hit · " + D[0] + "–" + D[1] + " damage · " + cr + "% crit" + (H.parts.length ? " <small>(" + H.parts.join(", ") + ")</small>" : "") + " · " + (c === "end" ? "ends turn" : c + " AP") };
   }
   function rpTacClick(e) {
     let b = rp.bt;
@@ -6145,8 +6176,8 @@ button,.rpb,.pill{touch-action:manipulation}
         }
         let tiles2 = [];
         for (let yy = 0; yy < b.H; yy++) for (let xx = 0; xx < b.W; xx++) Math.hypot(xx - x, yy - y) <= T.area + 0.01 && tiles2.push([xx, yy]);
-        let hits = b.units.filter((v) => tcLive(v) && tcShown(b, v) && tcTiles(v).some(([a, c]) => Math.hypot(a - x, c - y) <= T.area + 0.01)), own = hits.filter((v) => v.side === 0);
-        b.pend = { act: { k: "sk", sk, cx: x, cy: y }, tx: x, ty: y, tiles: tiles2, info: "<b>" + S.n + "</b>: hits " + hits.filter((v) => v.side === 1).length + " foe" + (own.length ? ' and <b class="hp">' + own.length + " friend" + (own.length > 1 ? "s" : "") + "!</b>" : "s") + (T.chan ? " · lands on your next turn, enemies may dodge" : "") + " · " + S.mp + " MP · " + (T.ap === "end" ? "ends turn" : T.ap + " AP") };
+        let hits = b.units.filter((v2) => tcLive(v2) && tcShown(b, v2) && tcTiles(v2).some(([a, c]) => Math.hypot(a - x, c - y) <= T.area + 0.01)), own = hits.filter((v2) => v2.side === 0);
+        b.pend = { act: { k: "sk", sk, cx: x, cy: y }, tx: x, ty: y, tiles: tiles2, info: "<b>" + S.n + "</b>: hits " + hits.filter((v2) => v2.side === 1).length + " foe" + (own.length ? ' and <b class="hp">' + own.length + " friend" + (own.length > 1 ? "s" : "") + "!</b>" : "s") + (T.chan ? " · lands on your next turn, enemies may dodge" : "") + " · " + S.mp + " MP · " + (T.ap === "end" ? "ends turn" : T.ap + " AP") };
         return;
       }
       if (t && tcTargets(b, u).includes(t)) {
@@ -6186,7 +6217,7 @@ button,.rpb,.pill{touch-action:manipulation}
       b.pend = Object.assign(tcPreviewAttack(b, u, t, { k: "atk", t }), { tx: x, ty: y });
       return;
     }
-    let dn = !t && b.v6 && b.units.find((v) => v.side === 0 && v.m && v.hp <= 0 && !v.fled && v.x === x && v.y === y);
+    let dn = !t && b.v6 && b.units.find((v2) => v2.side === 0 && v2.m && v2.hp <= 0 && !v2.fled && v2.x === x && v2.y === y);
     if (dn) {
       v6ReviveOK(b, u, dn) && u.ap >= 1 ? b.pend = { act: { k: "revive", t: dn }, t: dn, tx: x, ty: y, info: "<b>Help up</b> " + esc2(dn.name) + ": gets up with 25% HP · 1 AP" } : (b.msg = (dn.own || "h") === (u.own || "h") ? dn.name + " is down. In a shared fight a friend's kobold can help it up." : "Stand next to " + dn.name + " to help it up (1 AP).", b.pend = null);
       return;
@@ -6229,7 +6260,7 @@ button,.rpb,.pill{touch-action:manipulation}
   function rpTacBtn(d) {
     let b = rp.bt;
     if (!b) return;
-    let u = b.cur, v = d.v;
+    let u = b.cur, v2 = d.v;
     switch (d.tac) {
       case "start":
         b.net && b.net.role === "guest" || (rpTacBegin(), b.net && (b.net.started = 1));
@@ -6251,16 +6282,16 @@ button,.rpb,.pill{touch-action:manipulation}
         break;
       case "mode":
         if (b.phase !== "turn" || !u) break;
-        if (b.pend = null, v === "watch" || v === "guard" || v === "end" || v === "leave") {
+        if (b.pend = null, v2 === "watch" || v2 === "guard" || v2 === "end" || v2 === "leave") {
           b.mode = "move", b.pend = {
-            act: { k: v === "end" ? "end" : v },
+            act: { k: v2 === "end" ? "end" : v2 },
             self: 1,
-            info: v === "watch" ? "<b>Watch</b>: shoot the first enemy that moves in range (−15 to hit). Ends turn." : v === "guard" ? "<b>Guard</b>: −25 to be hit and 25% less damage until your next turn. Ends turn." : v === "leave" ? "<b>Leave</b> the battle. " + esc2(u.name) + " is safe but gets no reward. 1 AP." : "<b>End turn</b> with " + u.ap + " AP unused."
+            info: v2 === "watch" ? "<b>Watch</b>: shoot the first enemy that moves in range (−15 to hit). Ends turn." : v2 === "guard" ? "<b>Guard</b>: −25 to be hit and 25% less damage until your next turn. Ends turn." : v2 === "leave" ? "<b>Leave</b> the battle. " + esc2(u.name) + " is safe but gets no reward. 1 AP." : "<b>End turn</b> with " + u.ap + " AP unused."
           };
           break;
         }
-        if (v.startsWith("sk:")) {
-          let sk = v.slice(3), T = RP_ST[sk] || {}, S = RP_SK[sk];
+        if (v2.startsWith("sk:")) {
+          let sk = v2.slice(3), T = RP_ST[sk] || {}, S = RP_SK[sk];
           if (T.self || T.around) {
             b.mode = "move";
             let al = T.self ? b.units.filter((t) => t.side === 0 && tcLive(t) && tcCheb(u, t) <= T.self) : b.units.filter((t) => t.side === 1 && tcLive(t) && tcShown(b, t) && tcCheb(u, t) <= rpTW(tcW(u)).r);
@@ -6268,7 +6299,7 @@ button,.rpb,.pill{touch-action:manipulation}
             break;
           }
         }
-        b.mode = b.mode === v ? "move" : v;
+        b.mode = b.mode === v2 ? "move" : v2;
         break;
     }
   }
@@ -6307,7 +6338,7 @@ button,.rpb,.pill{touch-action:manipulation}
         }
       }), rpcv.addEventListener("pointermove", (e) => {
         if (!D || D.id !== e.pointerId || !rp.bt) return;
-        let v = rpVec(e.clientX - D.x, e.clientY - D.y), dx = v.x, dy = v.y;
+        let v2 = rpVec(e.clientX - D.x, e.clientY - D.y), dx = v2.x, dy = v2.y;
         if (!D.on && Math.hypot(dx, dy) > 10 && (D.on = !0), D.on) {
           let b = rp.bt, k = BVW / (rpcv.clientWidth || BVW);
           b.camT = null, b.cam.x = clamp(D.cx - dx * k, 0, Math.max(0, b.W * TT - BVW)), b.cam.y = clamp(D.cy - dy * k, 0, Math.max(0, b.H * TT - BVH)), e.preventDefault();
@@ -6327,6 +6358,256 @@ button,.rpb,.pill{touch-action:manipulation}
     routes: { tac: (d) => rpTacBtn(d) }
   });
 
+  // src/net/admin.js
+  var ADM = { tab: "server", d: {}, acct: null, hero: null, msg: "", code: null, busy: !1 }, TABS = [["server", "Server"], ["players", "Players"], ["mod", "Moderation"], ["market", "Market"], ["events", "Events"], ["letters", "Letters"], ["tests", "Tests"], ["log", "Log"]], me = () => online && online.account.me, owner = () => !!(me() && me().role === "owner"), v = (id) => {
+    let i = typeof document < "u" && document.getElementById(id);
+    return i ? i.value.trim() : "";
+  }, day = (t) => t ? new Date(t).toISOString().slice(0, 10) : "—", admAgo = (t) => {
+    if (!t) return "never";
+    let m = (Date.now() - t) / 6e4;
+    return m < 2 ? "now" : m < 120 ? Math.round(m) + " min ago" : m < 2880 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " d ago";
+  };
+  async function call(tool, o, keep) {
+    ADM.busy = !0, rpUI(!0);
+    try {
+      let r = await online.account.call(Object.assign({ k: "adm", tool }, o || {}));
+      return ADM.d[keep || tool] = r, ADM.msg = keep === !1 ? "Done." : ADM.msg, ADM.busy = !1, rpUI(!0), r;
+    } catch (e) {
+      return ADM.msg = e.message || "That did not work.", ADM.busy = !1, rpUI(!0), null;
+    }
+  }
+  async function act(tool, o, after) {
+    ADM.msg = "";
+    let r = await call(tool, Object.assign({ why: v("adm-why") }, o), !1);
+    r !== null && (ADM.msg = "Done.", after && await after(r)), rpUI(!0);
+  }
+  function open(tab) {
+    ADM.tab = tab, ADM.msg = "", ADM.code = null, tab === "server" && (call("status"), owner() && call("mods")), tab === "mod" && (call("reports"), call("words"), call("chatlog")), tab === "market" && (call("listings"), owner() && call("gifts")), tab === "log" && (call("log"), owner() && call("errors")), tab === "players" && ADM.acct && reloadAcct(), tab === "tests" && net.me && call("find", { q: me().name.toLowerCase() }, "mine");
+  }
+  async function reloadAcct() {
+    let a = (await call("find", { q: ADM.acct.name.toLowerCase() }, "find") || []).find((x) => x.name.toLowerCase() === ADM.acct.name.toLowerCase());
+    a && (ADM.acct = a);
+  }
+  var btn = (a, label, sub, cls, data) => '<button class="rpb' + (cls ? " " + cls : "") + '" type="button" data-rp="' + a + '"' + Object.entries(data || {}).map(([k, x]) => " data-" + k + '="' + esc2(String(x)) + '"').join("") + (ADM.busy ? " disabled" : "") + ">" + label + (sub ? "<small>" + sub + "</small>" : "") + "</button>", input = (id, ph, type) => '<div class="chatin"><input id="' + id + '" type="' + (type || "text") + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc2(ph) + '"></div>', why = '<div class="chatin"><input id="adm-why" type="text" maxlength="200" autocomplete="off" placeholder="Reason (the player sees it)"></div>';
+  function adminScreenHtml() {
+    let M = me();
+    if (!M || !M.role) return '<div class="rpdlg"><p>Admins only.</p></div><div class="tbar">' + btn("admx", "Back", "", "x") + "</div>";
+    let h = '<div class="rpcmd">' + TABS.map(([k, n]) => '<button class="pill' + (ADM.tab === k ? " go" : "") + '" type="button" data-rp="admtab" data-v="' + k + '">' + n + "</button>").join("") + '</div><div class="rpdlg">', D = ADM.d;
+    switch (ADM.tab) {
+      case "server": {
+        let S = D.status;
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T09:43:35Z" ? " (this page: " + esc2("2026-10-23T09:43:35Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        break;
+      }
+      case "players": {
+        h += '<div class="who">Players</div></div>' + input("adm-q", "Search accounts by name") + '<div class="rpcmd">' + btn("admfind", "Find") + "</div>", !ADM.acct && D.find && (h += '<div class="rpcmd">' + (D.find.length ? D.find.map((a, i) => btn("admacct", esc2(a.name) + (a.online ? " ●" : ""), "seen " + admAgo(a.seen) + " · " + a.heroes.length + " heroes" + (a.ban ? " · banned" : a.mute ? " · muted" : "") + (a.warns ? " · " + a.warns + " warnings" : ""), "", { v: i })).join("") : '<p class="rptip">Nobody by that name.</p>') + "</div>");
+        let A = ADM.acct;
+        if (A && !ADM.hero && (h += '<div class="rpdlg"><div class="who">' + esc2(A.name) + (A.online ? " (online)" : "") + "</div><p>Made " + day(A.created) + " · seen " + admAgo(A.seen) + " · warnings " + A.warns + (A.mute ? " · muted to " + new Date(A.mute).toLocaleString() : "") + (A.ban ? " · banned " + (A.ban < 0 ? "for good" : "to " + day(A.ban)) : "") + (A.deleted ? " · deleted " + day(A.deleted) : "") + "</p></div>", h += '<div class="rpcmd">' + A.heroes.map((x) => btn("admhero", esc2(x.name || "?") + " · " + x.lvl, "slot " + (x.slot + 1) + (x.deleted ? " · deleted" : "") + (x.test ? " · test" : ""), x.deleted ? "x" : "", { v: x.slot })).join("") + "</div>" + why, h += '<div class="rpcmd">' + btn("admdo", "Warn", "shown at next login", "", { t: "warn" }) + ["hour", "day", "week"].map((f) => btn("admdo", "Mute a" + (f === "hour" ? "n " : " ") + f, "no chat", "", { t: "mute", f })).join("") + ["day", "week", "ever"].map((f) => btn("admdo", f === "ever" ? "Ban for good" : "Ban a " + f, "", "x", { t: "ban", f })).join("") + ["warn", "mute", "ban"].map((w) => btn("admdo", "Undo the last " + w, "", "", { t: "undo", w })).join("") + "</div>" + input("adm-to", "New account name") + '<div class="rpcmd">' + btn("admdo", "Rename the account", "the player is told why", "", { t: "rename" }) + "</div>", owner() && (h += '<div class="rpcmd">' + btn("admdo", "Password reset code", "a one-time code for the player; you never see the password", "", { t: "pwreset" }) + "</div>" + (ADM.code ? '<p class="rptip">Code for ' + esc2(A.name) + ": <b>" + esc2(ADM.code) + "</b> (one day; shown once)</p>" : "") + input("adm-typed", "Type the account name to delete it") + '<div class="rpcmd">' + btn("admdo", "Delete the account", "kept 7 days", "x", { t: "delacct" }) + "</div>"), h += '<div class="rpcmd">' + btn("admback", "Back to the list", "", "x") + "</div>"), A && ADM.hero) {
+          let H = D.hero;
+          h += '<div class="rpdlg"><div class="who">' + esc2(A.name) + " · slot " + (ADM.hero.slot + 1) + "</div>" + (H ? "<p><b>" + esc2(H.name || "?") + "</b> at " + esc2(H.place || "?") + " (fountain: " + esc2(H.respawn || "?") + ") · " + (H.gold || 0) + " gold · saved " + admAgo(H.savedAt) + (H.deleted ? " · deleted " + day(H.deleted) : "") + (H.test ? " · test hero" : "") + "</p><p><small>" + H.pack.map((k) => esc2(k.name) + " " + esc2(k.cls) + " " + k.lvl + " (" + k.hp + " HP)").join(" · ") + "</small></p><p><small>Flags: " + esc2(Object.entries(H.flags).map(([k, x]) => k + "=" + x).join(" ")) + "</small></p><p><small>Bag: " + esc2(Object.entries(H.bag).filter(([k, x]) => x).map(([k, x]) => k + " ×" + x).join(", ") || "empty") + "</small></p>" : "<p>Loading…</p>") + "</div>" + why;
+          let s = { slot: ADM.hero.slot };
+          h += '<div class="rpcmd">' + btn("admdo", "Unstuck", "to its last fountain", "", Object.assign({ t: "unstuck" }, s)) + btn("admdo", "Release the lock", "a vanished device", "", Object.assign({ t: "unlock" }, s)) + (H && H.deleted ? btn("admdo", "Restore the hero", "deleted under 7 days ago", "go", Object.assign({ t: "restore" }, s)) : "") + "</div>" + input("adm-to", "New hero name") + '<div class="rpcmd">' + btn("admdo", "Rename the hero", "", "", Object.assign({ t: "renamehero" }, s)) + "</div>", owner() && (h += input("adm-flag", "Story flag (one step on), e.g. pb") + input("adm-fv", "Value", "number") + '<div class="rpcmd">' + btn("admdo", "Set the flag", "", "", Object.assign({ t: "flag" }, s)) + "</div>" + input("adm-gold", "Gold (up to 1000)", "number") + input("adm-item", "Item, e.g. potion") + '<div class="rpcmd">' + btn("admdo", "Compensate", "gold and/or an item, with the reason above", "go", Object.assign({ t: "compensate" }, s)) + btn("admdo", "Compensate a level's XP", "", "go", Object.assign({ t: "compensate", xp: 1 }, s)) + "</div>", h += '<div class="rpcmd">' + btn("admbackups", "Restore from a backup…", "pick a day; the current save is kept as a copy", "", s) + (D.backups ? D.backups.map((dd) => btn("admdo", dd, "restore this day", "x", Object.assign({ t: "restorebackup", day: dd }, s))).join("") : "") + "</div>"), h += '<div class="rpcmd">' + btn("admback", "Back to " + esc2(A.name), "", "x") + "</div>";
+        }
+        break;
+      }
+      case "mod": {
+        let R2 = D.reports || [];
+        h += '<div class="who">Reports (' + R2.length + " open)</div></div>" + why, h += R2.map((r) => '<div class="rpdlg"><p><b>' + esc2(r.by) + "</b> about <b>" + esc2(r.about) + "</b> · " + admAgo(r.at) + (r.why ? " · " + esc2(r.why) : "") + "</p><p><small>" + r.lines.map((l) => esc2(l.by) + ": " + esc2(l.txt)).join("<br>") + '</small></p></div><div class="rpcmd">' + [["none", "No action"], ["warn", "Warn"], ["mute", "Mute a day"], ["ban", "Ban a day"]].map(([k, n]) => btn("admclose", n, "", "", { id: r.id, how: k })).join("") + "</div>").join(""), h += '<div class="rpdlg"><div class="who">Word filter</div><p><small>' + esc2((D.words || []).join(", ") || "empty") + "</small></p></div>" + input("adm-word", "A word") + '<div class="rpcmd">' + btn("admword", "Add", "", "", { op: "add" }) + btn("admword", "Remove", "", "x", { op: "del" }) + "</div>", h += '<div class="rpdlg"><div class="who">World chat, last 24 hours</div><p><small>' + ((D.chatlog || []).slice(-40).map((l) => esc2(new Date(l.at).toTimeString().slice(0, 5) + " " + l.by + ": " + l.txt)).join("<br>") || "quiet") + "</small></p><p><small>Private messages are never shown.</small></p></div>";
+        break;
+      }
+      case "market": {
+        h += '<div class="who">Listings</div></div>' + why + '<div class="rpcmd">' + ((D.listings || []).map((L) => btn("admunlist", esc2(L.kind + " " + L.val) + " · " + L.price + "g", "from " + esc2(L.seller) + " · tap to remove (it goes back to the seller)", "x", { id: L.id })).join("") || '<p class="rptip">Nothing for sale.</p>') + "</div>", owner() && (h += '<div class="rpdlg"><div class="who">Gifts (last 100)</div><p><small>' + ((D.gifts || []).map((g) => esc2(admAgo(g.at) + " " + g.from + " → " + g.to + ": " + g.kind + " " + g.val)).join("<br>") || "none since the server started") + "</small></p></div>");
+        break;
+      }
+      case "events": {
+        h += '<div class="who">Festival</div><p>A banner, bunting and a stamp for logging in during it. No XP or gold multipliers.</p></div>' + (owner() ? input("adm-fest", "Festival name") + input("adm-days", "Days (1 to 31)", "number") + '<div class="rpcmd">' + btn("admfest", "Start the festival", "", "go") + btn("admfest", "Stop it", "", "x", { stop: 1 }) + "</div>" : '<p class="rptip">Owner only.</p>');
+        break;
+      }
+      case "letters":
+        h += '<div class="who">Letters</div><p>The messenger: the GitHub token and the list.</p></div><div class="rpcmd">' + btn("admletters", "Open the messenger") + "</div>";
+        break;
+      case "tests": {
+        let mine = (D.mine || []).find((a) => a.name === me().name);
+        h += '<div class="who">Test heroes</div><p>A test hero can jump to any flag, any level, any fight; it is hidden from the market, gifts and co-op credit.</p></div>' + (owner() ? '<div class="rpcmd">' + (mine ? mine.heroes.map((x) => btn("admtest", esc2(x.name) + (x.test ? " (test)" : ""), x.test ? "tap to make it normal" : "tap to mark it test", x.test ? "go" : "", { v: x.slot, off: x.test ? 1 : 0 })).join("") : "Loading…") + "</div>" : '<p class="rptip">Owner only.</p>');
+        break;
+      }
+      case "log": {
+        h += '<div class="who">Admin log' + (owner() ? "" : " (your own)") + "</div><p><small>" + ((D.log || []).map((l) => esc2(day(l.at) + " " + l.by + " " + l.tool + (l.on ? " " + l.on : "") + (l.why ? " — " + l.why : ""))).join("<br>") || "empty") + "</small></p></div>", owner() && (h += '<div class="rpdlg"><div class="who">Errors from pages</div><p><small>' + ((D.errors || []).map((e) => esc2("×" + e.count + " " + e.build + " " + e.msg + (e.where ? " (" + e.where + ")" : ""))).join("<br>") || "none") + '</small></p></div><div class="rpcmd">' + btn("admerrclear", "Clear the errors", "", "x") + "</div>");
+        break;
+      }
+    }
+    return ADM.msg && (h += '<p class="tmsg">' + esc2(ADM.msg) + "</p>"), h + '<div class="tbar">' + btn("admx", "Back", "", "x") + "</div>";
+  }
+  var testFight = () => {
+  };
+  function adminSetTestFight(f) {
+    testFight = f;
+  }
+  function testHeroHtml() {
+    return !rp.s || !rp.s.test ? '<div class="rpdlg"><p>Not a test hero.</p></div><div class="tbar">' + btn("admthx", "Back", "", "x") + "</div>" : '<div class="rpdlg"><div class="who">Test hero</div><p><small>' + esc2(Object.entries(rp.s.q).map(([k, x]) => k + "=" + x).join(" ")) + '</small></p></div><div class="rpcmd">' + btn("admthlvl", "Everyone +1 level") + ["rats1", "gate", "grubb", "snipe", "scoutboss"].map((f) => btn("admthfight", "Fight " + f, "", "", { v: f })).join("") + "</div>" + input("adm-thf", "Flag, e.g. act") + input("adm-thv", "Value", "number") + '<div class="rpcmd">' + btn("admthflag", "Set the flag") + "</div>" + (ADM.msg ? '<p class="tmsg">' + esc2(ADM.msg) + "</p>" : "") + '<div class="tbar">' + btn("admthx", "Back", "", "x") + "</div>";
+  }
+  function adminApplyFixes(s, fixes) {
+    let done2 = s.fixDone = s.fixDone || [], lines = [];
+    for (let f of fixes || [])
+      if (!(!f || done2.includes(f.at))) {
+        if (done2.push(f.at), done2.length > 100 && done2.shift(), f.k === "unstuck") {
+          let p = s.w6st && s.w6st.respawn || "hearthspire", M = MAPS6[p];
+          M && (s.w6 = p, s.x = M.entry[0], s.y = M.entry[1]), lines.push("We carried you back to the fountain.");
+        } else if (f.k === "flag")
+          s.q[f.f] = f.v;
+        else if (f.k === "rename") {
+          s.hero && (s.hero.name = f.to);
+          let h = (s.party || []).find((m) => m.hero) || s.party[0];
+          h && (h.name = f.to), lines.push("Your hero is called " + f.to + " now. " + (f.why || ""));
+        } else if (f.k === "gift") {
+          let got = [];
+          if (f.gold && (s.gold += f.gold, got.push(f.gold + " gold")), f.item && (s.bag[f.item] = (s.bag[f.item] || 0) + 1, got.push("a " + f.item)), f.xp) {
+            let h = (s.party || []).find((m) => m.hero) || s.party[0];
+            if (h && h.v6) {
+              for (h.xp = (h.xp || 0) + v6XpNeed(h.lvl); h.lvl < 30 && h.xp >= v6XpNeed(h.lvl); )
+                h.xp -= v6XpNeed(h.lvl), v6LevelUp(h);
+              got.push("a level's XP");
+            }
+          }
+          lines.push("Please take " + got.join(" and ") + ". " + (f.why || ""));
+        }
+      }
+    return s.fix = [], lines;
+  }
+  function adminLetter(lines) {
+    lines && lines.length && rpSay(lines.map((t) => ({ who: "A letter from the keepers", text: t })));
+  }
+  var pending = [];
+  function onServer(m) {
+    let M = me();
+    switch (m.k) {
+      case "authok":
+        m.motd && pending.push({ who: "", text: "📣 " + m.motd }), (m.warns || []).forEach((w) => pending.push({ who: "A warning from the keepers", text: w })), m.festival && (pending.push({ who: "", text: "🎉 " + m.festival.name + "! Until " + day(m.festival.until) + "." }), net.festival = m.festival), net.muteUntil = m.mute || 0;
+        break;
+      case "announce":
+        rpToast("📣 " + m.text);
+        break;
+      case "warned":
+        rpSay([{ who: "A warning from the keepers", text: m.why }]);
+        break;
+      case "muted":
+        net.muteUntil = m.until, rpToast("You can't chat until " + new Date(m.until).toLocaleTimeString().slice(0, 5) + ".");
+        break;
+      case "maint":
+        try {
+          emitSave();
+        } catch {
+        }
+        rpToast("Saved. The server is being looked after; back soon!");
+        break;
+      case "fixed":
+        fetchFixes();
+        break;
+    }
+    M && rp.s && pending.length && (rpSay(pending), pending = []);
+  }
+  var emitSave = () => {
+  }, fixHook = null;
+  function fetchFixes() {
+    fixHook && fixHook();
+  }
+  function adminSetHooks(save, fix) {
+    emitSave = save, fixHook = fix;
+  }
+  var errN = 0, errSeen = /* @__PURE__ */ new Set();
+  function adminReportError(msg, where) {
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T09:43:35Z" })));
+  }
+  async function adminReport(peer) {
+    if (!(!online || !online.account.loggedIn))
+      try {
+        await online.account.call({ k: "report", peer, why: "from the chat" }), rpToast("Thanks. An admin will look at it.");
+      } catch {
+        rpToast("That player is gone.");
+      }
+  }
+  feature({
+    id: "admin-tools",
+    init() {
+      typeof window < "u" && (window.addEventListener("error", (e) => adminReportError(e.message, (e.filename || "").split("/").pop() + ":" + e.lineno)), window.addEventListener("unhandledrejection", (e) => adminReportError(e.reason && e.reason.message || e.reason, "promise"))), setTimeout(() => {
+        online && (online.account.onServer = onServer);
+      }, 0);
+    },
+    on: { "game:start": () => {
+      pending.length && (rpSay(pending), pending = []);
+    } },
+    panels: { admth: { sig: () => JSON.stringify([rp.s && rp.s.q, rp.s && rp.s.party.map((m) => m.lvl), ADM.msg]), html: testHeroHtml }, adm: { sig: () => JSON.stringify([ADM.tab, ADM.d, ADM.acct, ADM.hero, ADM.msg, ADM.code, ADM.busy]), html: adminScreenHtml } },
+    menu: [
+      { order: 19, html: () => {
+        let M = me();
+        return M && M.role ? '<button class="rpb" type="button" data-rp="adm">Admin<small>' + (M.role === "owner" ? "owner" : "moderator") + " tools</small></button>" : "";
+      } },
+      { order: 18, html: () => rp.s && rp.s.test ? '<button class="rpb" type="button" data-rp="admth">Test hero<small>any flag, level or fight</small></button>' : "" }
+    ],
+    actions: {
+      adm: () => {
+        rp.mode = "adm", open(ADM.tab);
+      },
+      admx: () => {
+        rp.mode = "menu";
+      },
+      admtab: (d) => open(d.v),
+      admmotd: () => act("motd", { text: v("adm-motd") }, () => call("status")),
+      admann: () => act("announce", { text: v("adm-ann") }),
+      admmaint: (d) => act("maint", { on: +d.v }, () => call("status")),
+      admmod: (d) => act("mods", { op: d.op, who: v("adm-who") }, () => call("mods")),
+      admfind: () => {
+        ADM.acct = null, ADM.hero = null, call("find", { q: v("adm-q") });
+      },
+      admacct: (d) => {
+        ADM.acct = (ADM.d.find || [])[+d.v] || null, ADM.code = null;
+      },
+      admhero: (d) => {
+        ADM.hero = { slot: +d.v }, ADM.d.hero = null, ADM.d.backups = null, call("hero", { name: ADM.acct.name, slot: +d.v });
+      },
+      admback: () => {
+        ADM.hero ? (ADM.hero = null, reloadAcct()) : ADM.acct = null;
+      },
+      admbackups: () => call("backups"),
+      admdo: (d) => {
+        let A = ADM.acct;
+        if (!A) return;
+        let o = { name: A.name, slot: d.slot != null ? +d.slot : void 0 };
+        (d.t === "warn" || d.t === "mute" || d.t === "ban") && Object.assign(o, { for: d.f }), d.t === "undo" && (o.what = d.w), (d.t === "rename" || d.t === "renamehero") && (o.to = v("adm-to")), d.t === "delacct" && (o.typed = v("adm-typed")), d.t === "flag" && Object.assign(o, { flag: v("adm-flag"), v: +v("adm-fv") }), d.t === "compensate" && Object.assign(o, { gold: +v("adm-gold") || 0, item: v("adm-item") || null, xp: d.xp ? 1 : 0 }), d.t === "restorebackup" && (o.day = d.day), act(d.t === "undo" ? "undo" : d.t, o, async (r) => {
+          d.t === "pwreset" && (ADM.code = r.code), d.t === "rename" && (A.name = o.to), ADM.hero ? await call("hero", { name: A.name, slot: ADM.hero.slot }) : await reloadAcct();
+        });
+      },
+      admclose: (d) => act("closereport", { id: d.id, how: d.how }, () => call("reports")),
+      admword: (d) => act("words", { op: d.op, word: v("adm-word") }, () => call("words")),
+      admunlist: (d) => act("unlist", { id: d.id }, () => call("listings")),
+      admfest: (d) => act("festival", d.stop ? {} : { text: v("adm-fest"), days: +v("adm-days") }),
+      admletters: () => {
+        rp.mode = "admin", adminCall({ op: "state" });
+      },
+      admtest: (d) => act("testhero", { slot: +d.v, off: +d.off }, () => call("find", { q: me().name.toLowerCase() }, "mine")),
+      admth: () => {
+        rp.mode = "admth", ADM.msg = "";
+      },
+      admthx: () => {
+        rp.mode = "menu";
+      },
+      admthlvl: () => {
+        !rp.s || !rp.s.test || (rp.s.party.forEach((m) => {
+          m.v6 && m.lvl < 30 && v6LevelUp(m);
+        }), ADM.msg = "Everyone is level " + rp.s.party[0].lvl + ".");
+      },
+      admthflag: () => {
+        if (!rp.s || !rp.s.test) return;
+        let f = v("adm-thf"), x = +v("adm-thv");
+        /^[a-z]\w*$/.test(f) && Number.isInteger(x) && (rp.s.q[f] = x, ADM.msg = f + " = " + x);
+      },
+      admthfight: (d) => {
+        !rp.s || !rp.s.test || (rp.mode = "map", testFight(d.v));
+      },
+      admerrclear: () => act("errors", { clear: 1 }, () => call("errors"))
+    }
+  });
+
   // src/net/chat.js
   var NET_SAYS = ["Hi! 👋", "Need help!", "Join my fight?", "Duel?", "Follow me", "Thanks! ❤️", "gg", "Brb", "😂", "👍", "🎉", "⚔️"];
   function netCleanText(t) {
@@ -6334,6 +6615,10 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function netSay(txt) {
     if (txt = netCleanText(txt), !txt || !net.on) return;
+    if (net.muteUntil > Date.now()) {
+      rpToast("You can't chat until " + new Date(net.muteUntil).toLocaleTimeString().slice(0, 5) + ".");
+      return;
+    }
     let now = performance.now();
     now - (net.lastSay || 0) < 700 || (net.lastSay = now, netEmit({ t: "chat", txt }), net.bubbles.me = { txt, t: now }, net.chatLog.push({ who: "You", txt }), net.chatLog.length > 30 && net.chatLog.shift(), rp.sig = "");
   }
@@ -6350,9 +6635,9 @@ button,.rpb,.pill{touch-action:manipulation}
     for (let c of String(id || "")) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
     return 0.85 + h % 1e3 / 1e3 * 0.4;
   }
-  function netYipLevel(me, them) {
+  function netYipLevel(me2, them) {
     if ((them.pl || "world") !== (rp.s.place || "world")) return null;
-    let dx = them.x - me.x, dy = them.y - me.y, d = Math.hypot(dx, dy);
+    let dx = them.x - me2.x, dy = them.y - me2.y, d = Math.hypot(dx, dy);
     return { vol: Math.pow(Math.max(0, 1 - d / YIP_RANGE), 1.5), pan: Math.max(-1, Math.min(1, dx / 8)) };
   }
   function netYip() {
@@ -6362,12 +6647,12 @@ button,.rpb,.pill{touch-action:manipulation}
   function netGotYip(d, msg) {
     let P = (net.others || []).find((p) => p.peer === msg.peer);
     if (!P || !rp.s) return;
-    let me = rp.pos || { x: rp.s.x + 0.5, y: rp.s.y + 0.5 }, L = netYipLevel(me, P.presence);
+    let me2 = rp.pos || { x: rp.s.x + 0.5, y: rp.s.y + 0.5 }, L = netYipLevel(me2, P.presence);
     L && (net.bubbles[msg.peer] = { txt: "Yip!", t: performance.now() }, yip(L.vol, L.pan, netYipPitch(P.by)));
   }
   function netChatHtml() {
     let h = '<div class="rpdlg"><div class="who">Chat' + (netOnline() ? " · " + net.others.length + " online" : " · nobody else is here right now") + '</div><div class="chatlog">' + (net.chatLog.length ? net.chatLog.slice(-8).map((l) => "<p><b>" + esc2(l.who) + ":</b> " + esc2(l.txt) + "</p>").join("") : '<p class="rptip">Say hi! Messages pop up over your kobold.</p>') + "</div></div>";
-    return h += '<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send"><button class="rpb go" type="button" data-net="chatsend">Send</button></div>', h += '<div class="says"><button class="pill go" type="button" data-net="yip">🐾 Yip!</button>' + NET_SAYS.map((t) => '<button class="pill" type="button" data-net="say" data-v="' + esc2(t) + '">' + esc2(t) + "</button>").join("") + '</div><div class="tbar"><button class="rpb x" type="button" data-net="chatclose">Done</button></div>', h;
+    return h += '<div class="chatin"><input id="kq-chat" type="text" maxlength="120" placeholder="Type a message…" autocomplete="off" enterkeyhint="send"><button class="rpb go" type="button" data-net="chatsend">Send</button></div>', h += (net.partner ? '<div class="says"><button class="pill" type="button" data-rp="admreport">⚑ Report ' + esc2(netNameOf(net.partner.peer)) + "</button></div>" : "") + '<div class="says"><button class="pill go" type="button" data-net="yip">🐾 Yip!</button>' + NET_SAYS.map((t) => '<button class="pill" type="button" data-net="say" data-v="' + esc2(t) + '">' + esc2(t) + "</button>").join("") + '</div><div class="tbar"><button class="rpb x" type="button" data-net="chatclose">Done</button></div>', h;
   }
   feature({ id: "chat", panels: { chat: { sig: () => net.chatLog.length + "|" + (net.others || []).length, html: () => netChatHtml() } } });
   feature({
@@ -6384,6 +6669,9 @@ button,.rpb,.pill{touch-action:manipulation}
     actions: {
       "net:chat"(d) {
         rp.mode = "chat";
+      },
+      admreport() {
+        net.partner && adminReport(net.partner.peer);
       },
       "net:chatclose"(d) {
         rp.mode = "map";
@@ -6475,7 +6763,7 @@ button,.rpb,.pill{touch-action:manipulation}
     h += '<div class="hh-main"><div class="hh-doll"><canvas class="hh-por" id="hh-por"></canvas>', RP_SLOTS9.forEach((sl) => {
       let id = sl === "weapon" ? "w_" + m.w : m.eq[sl], [x, y] = RP_DOLL[sl];
       h += '<div class="hh-slot' + (id ? " full" + rpItemTone(id) : "") + (glow.includes(sl) ? " glow" : "") + (H.sel && H.sel.slot === sl ? " sel" : "") + '" style="left:' + x + "%;top:" + y + '%" data-slot="' + sl + '" role="button" tabindex="0" aria-label="' + RP_SLOTNAME[sl] + (id ? ": " + RP_IT[id].n : ", empty") + '">' + (id ? '<canvas data-icon="' + id + '"></canvas>' : "<span>" + RP_SLOTNAME[sl] + "</span>") + "</div>";
-    }), h += '</div><div class="hh-side"><div class="hh-cls"><b>' + (m.adv ? RP_ADV[m.adv].n : C.n) + "</b> · Level " + m.lvl + (m.adv ? " <small>(" + C.n + ")</small>" : "") + "</div>" + rpSetLine(m) + '<div class="hh-xp">' + rpBar(m.xp, rpXpNeed(m.lvl), "#ffd54a") + "<small>XP " + m.xp + "/" + rpXpNeed(m.lvl) + '</small></div><div class="hh-stats">' + [["⚔", "Attack", Math.round(st.atk)], ["🛡", "Defence", Math.round(st.def * 10) / 10], ["➶", "Speed", Math.round(st.spd * 10) / 10], ["♥", "Health", m.hp + "/" + st.hp], ["✦", "Mana", m.mp + "/" + st.mp], ["✸", "Crit", Math.round(st.crit * 100) + "%"], ["👣", "Move", rpMoveOf(m) + " tiles"], ["👁", "Sight", 7 + (st.sight || 0) + " tiles"]].map(([i, n, v]) => "<div><i>" + i + "</i><span>" + n + "</span><b>" + v + "</b></div>").join("") + '</div><div class="hh-tal"><small>Skills</small>' + rpMemSkills(m).map((k) => '<span class="chip" title="' + esc2(RP_SK[k].d) + '">' + RP_SK[k].n + "</span>").join("") + '</div><div class="hh-tal"><small>Talents</small>' + (m.tal.length ? m.tal.map((t) => {
+    }), h += '</div><div class="hh-side"><div class="hh-cls"><b>' + (m.adv ? RP_ADV[m.adv].n : C.n) + "</b> · Level " + m.lvl + (m.adv ? " <small>(" + C.n + ")</small>" : "") + "</div>" + rpSetLine(m) + '<div class="hh-xp">' + rpBar(m.xp, rpXpNeed(m.lvl), "#ffd54a") + "<small>XP " + m.xp + "/" + rpXpNeed(m.lvl) + '</small></div><div class="hh-stats">' + [["⚔", "Attack", Math.round(st.atk)], ["🛡", "Defence", Math.round(st.def * 10) / 10], ["➶", "Speed", Math.round(st.spd * 10) / 10], ["♥", "Health", m.hp + "/" + st.hp], ["✦", "Mana", m.mp + "/" + st.mp], ["✸", "Crit", Math.round(st.crit * 100) + "%"], ["👣", "Move", rpMoveOf(m) + " tiles"], ["👁", "Sight", 7 + (st.sight || 0) + " tiles"]].map(([i, n, v2]) => "<div><i>" + i + "</i><span>" + n + "</span><b>" + v2 + "</b></div>").join("") + '</div><div class="hh-tal"><small>Skills</small>' + rpMemSkills(m).map((k) => '<span class="chip" title="' + esc2(RP_SK[k].d) + '">' + RP_SK[k].n + "</span>").join("") + '</div><div class="hh-tal"><small>Talents</small>' + (m.tal.length ? m.tal.map((t) => {
       let T = RP_TAL[m.cls][t];
       return '<span class="chip" title="' + esc2(T.d) + '">' + T.n + "</span>";
     }).join("") : '<span class="chip">none yet</span>') + "</div></div></div>";
@@ -6624,7 +6912,7 @@ button,.rpb,.pill{touch-action:manipulation}
   function rpJoyMove(e) {
     let P = rp.joyP;
     if (!P) return;
-    let v = rpVec(e.clientX - P.cx, e.clientY - P.cy), dx = v.x, dy = v.y, d = Math.hypot(dx, dy);
+    let v2 = rpVec(e.clientX - P.cx, e.clientY - P.cy), dx = v2.x, dy = v2.y, d = Math.hypot(dx, dy);
     d > P.R && (dx *= P.R / d, dy *= P.R / d), rp.joy = { x: dx / P.R, y: dy / P.R }, rpJoyKnob(dx, dy);
   }
   function rpJoyEnd(e) {
@@ -6650,8 +6938,8 @@ button,.rpb,.pill{touch-action:manipulation}
       let S = rp.stick;
       if (!(!S || S.id !== e.pointerId)) {
         {
-          let v = rpVec(e.clientX - S.x, e.clientY - S.y);
-          S.dx = v.x, S.dy = v.y;
+          let v2 = rpVec(e.clientX - S.x, e.clientY - S.y);
+          S.dx = v2.x, S.dy = v2.y;
         }
         !S.on && Math.hypot(S.dx, S.dy) > 14 && (S.on = !0, rp.path = null), S.on && e.preventDefault();
       }
@@ -7139,8 +7427,8 @@ button,.rpb,.pill{touch-action:manipulation}
     (u.vb || []).forEach((x) => {
       x.k === k && (by[x.own || ""] = (by[x.own || ""] || 0) + x.v);
     });
-    let v = Object.values(by);
-    return v.length ? Math.max(0, ...v) + Math.min(0, ...v) : 0;
+    let v2 = Object.values(by);
+    return v2.length ? Math.max(0, ...v2) + Math.min(0, ...v2) : 0;
   }
   function v6Has(u, k) {
     return !!(u.vs && u.vs[k] > 0);
@@ -7378,10 +7666,10 @@ button,.rpb,.pill{touch-action:manipulation}
       s.heal && s.t !== "down" && (sk.heal = s.heal), s.buff && (sk.buff = "v6"), RP_SK[id] = sk, RP_ST[id] = st;
     }
   }
-  function v6DoSkill(b, u, act, S, T) {
+  function v6DoSkill(b, u, act2, S, T) {
     let s = T.v6;
     if (s.buff && (T.self || s.t === "ally")) {
-      let al = s.t === "ally" ? [act.t] : b.units.filter((t) => t.side === u.side && tcLive(t) && (T.self < 1 ? t === u : tcCheb(u, t) <= T.self));
+      let al = s.t === "ally" ? [act2.t] : b.units.filter((t) => t.side === u.side && tcLive(t) && (T.self < 1 ? t === u : tcCheb(u, t) <= T.self));
       return tcQ({ k: "fn", fn: () => {
         al.forEach((t) => {
           (t.vb = t.vb || []).push({ k: s.buff.k, v: s.buff.v, turns: s.buff.turns, own: u.own || "" }), tcFloatU(t, S.n, "#ffe27a");
@@ -7389,17 +7677,17 @@ button,.rpb,.pill{touch-action:manipulation}
       } }), !0;
     }
     if (T.line) {
-      let dx = Math.sign(act.cx - u.x), dy = Math.sign(act.cy - u.y), hit = [];
+      let dx = Math.sign(act2.cx - u.x), dy = Math.sign(act2.cy - u.y), hit = [];
       for (let i = 1; i <= T.line; i++) {
-        let x = u.x + dx * i, y = u.y + dy * i, v = tcUnitAt(b, x, y, u);
-        v && v.side !== u.side && !hit.includes(v) && hit.push(v);
+        let x = u.x + dx * i, y = u.y + dy * i, v2 = tcUnitAt(b, x, y, u);
+        v2 && v2.side !== u.side && !hit.includes(v2) && hit.push(v2);
       }
-      return hit.forEach((v) => tcQ({ k: "atk", a: u, tg: v, o: { mul: S.mul, spell: T.spell, name: S.n, v6: s, area: 1 } })), hit.length || tcFloatU(u, "nothing there", "#d7c9e3"), !0;
+      return hit.forEach((v2) => tcQ({ k: "atk", a: u, tg: v2, o: { mul: S.mul, spell: T.spell, name: S.n, v6: s, area: 1 } })), hit.length || tcFloatU(u, "nothing there", "#d7c9e3"), !0;
     }
-    return T.tile ? (tcQ({ k: "fn", fn: () => v6TileSkill(b, u, act, s) }), !0) : !1;
+    return T.tile ? (tcQ({ k: "fn", fn: () => v6TileSkill(b, u, act2, s) }), !0) : !1;
   }
-  function v6TileSkill(b, u, act, s) {
-    let x = act.cx, y = act.cy;
+  function v6TileSkill(b, u, act2, s) {
+    let x = act2.cx, y = act2.cy;
     if (b.tiles6 = b.tiles6 || [], s.fx === "trap" || s.fx === "traps3" || !s.fx && s.st) {
       b.tiles6.push({ x, y, k: "trap", side: u.side, by: u, s }), tcFloatU(u, "trap set", "#e0c3ff");
       return;
@@ -7414,7 +7702,7 @@ button,.rpb,.pill{touch-action:manipulation}
         let h = tcHome(u);
         u.k.x = h.x, u.k.y = h.y;
       }
-      s.fx === "leap" && b.units.filter((v) => v.side !== u.side && tcLive(v) && tcCheb(u, v) <= 1).forEach((v) => v6Strike(u, v, { mul: s.mul, v6: s }));
+      s.fx === "leap" && b.units.filter((v2) => v2.side !== u.side && tcLive(v2) && tcCheb(u, v2) <= 1).forEach((v2) => v6Strike(u, v2, { mul: s.mul, v6: s }));
       return;
     }
     tcFloatU(u, s.n + " (soon)", "#d7c9e3");
@@ -7495,20 +7783,20 @@ button,.rpb,.pill{touch-action:manipulation}
   function v6AiTurn(b, u) {
     let E = u.E;
     if (v6Has(u, "confuse")) {
-      let own = b.units.filter((v) => v !== u && v.side === u.side && tcLive(v) && tcCheb(u, v) <= 1);
+      let own = b.units.filter((v2) => v2 !== u && v2.side === u.side && tcLive(v2) && tcCheb(u, v2) <= 1);
       return own.length ? tcQ({ k: "atk", a: u, tg: own[0], o: { mul: 1, name: "Confused swing" } }) : tcFloatU(u, "confused", "#e0c3ff"), u.ap = 0, b.phase = "ai", !0;
     }
     if (E.v6trial && E.trick === "old_shellback" && (u.tt = (u.tt || 0) + 1, u.curled = u.tt % 2 === 0, u.curled))
       return tcFloatU(u, "curls up", "#e0c3ff"), u.ap = 0, b.phase = "ai", !0;
     if (E.v6boss) return v6BossTurn(b, u);
     if (E.tele && (u.tel = (u.tel || 0) + 1, u.tel % 3 === 2)) {
-      let ks = b.units.filter((v) => v.side === 0 && tcLive(v));
+      let ks = b.units.filter((v2) => v2.side === 0 && tcLive(v2));
       if (ks.length) {
         let c = v6Focus(b, u, ks), ch = { u, sk: "v6_bigswing", cx: c.x, cy: c.y, area: 1.5, side: 1 };
         return u.chan = ch, b.chans.push(ch), b.msg = u.name + " winds up a big swing: step away!", tcFloatU(u, "winds up!", "#ffb347"), u.ap = 0, b.phase = "ai", !0;
       }
     }
-    let pod = b.units.filter((v) => v.side === 1 && v.pod === u.pod), lost = pod.filter((v) => !tcLive(v)).length / Math.max(1, pod.length);
+    let pod = b.units.filter((v2) => v2.side === 1 && v2.pod === u.pod), lost = pod.filter((v2) => !tcLive(v2)).length / Math.max(1, pod.length);
     if (!E.boss && u.hp < u.max * 0.25 && lost >= 0.5 && (u.fleeing = !0), u.fleeing) {
       if (u.y === 0)
         return u.fled = !0, tcFloatU(u, "runs off", "#d7c9e3"), b.msg = u.name + " runs off!", u.ap = 0, b.phase = "ai", !0;
@@ -7523,19 +7811,19 @@ button,.rpb,.pill{touch-action:manipulation}
       return u.ap = 0, b.phase = "ai", !0;
     }
     if (v6Habit(b, u)) return !0;
-    let seen2 = b.units.filter((v) => v.side === 0 && tcLive(v) && tcSideSees(b, 1, v));
+    let seen2 = b.units.filter((v2) => v2.side === 0 && tcLive(v2) && tcSideSees(b, 1, v2));
     return u.focus = v6HabitFocus(b, u, seen2) || v6Focus(b, u, seen2), !1;
   }
   function v6HabitFocus(b, u, list) {
     if (!list.length) return null;
-    let E = u.E, F = FOES6[E.id] || {}, how = F.how || "", by = (f) => list.reduce((a, v) => f(v) < f(a) ? v : a);
-    if (/most hurt/.test(how)) return by((v) => v.hp / v.max);
-    if (/lowest defence/.test(how)) return by((v) => tcStat(v).def);
+    let E = u.E, F = FOES6[E.id] || {}, how = F.how || "", by = (f) => list.reduce((a, v2) => f(v2) < f(a) ? v2 : a);
+    if (/most hurt/.test(how)) return by((v2) => v2.hp / v2.max);
+    if (/lowest defence/.test(how)) return by((v2) => tcStat(v2).def);
     if (/healer/.test(how)) {
-      let h = list.find((v) => v.m && ["cleric", "druid"].includes(v.m.cls));
+      let h = list.find((v2) => v2.m && ["cleric", "druid"].includes(v2.m.cls));
       if (h) return h;
     }
-    return E.role === "brute" ? by((v) => tcEuc(u, v)) : null;
+    return E.role === "brute" ? by((v2) => tcEuc(u, v2)) : null;
   }
   function v6Habit(b, u) {
     let E = u.E, F = FOES6[E.id] || {}, how = F.how || "";
@@ -7543,19 +7831,19 @@ button,.rpb,.pill{touch-action:manipulation}
       return u.curledOnce = 1, u.vb = (u.vb || []).concat([{ k: "def", v: 1, turns: 1 }]), tcFloatU(u, "curls up", "#e0c3ff"), b.msg = u.name + " curls up!", u.ap = 0, b.phase = "ai", !0;
     if (/guards \(dodge/.test(how) && u.hp < u.max * 0.5 && !u.guard && !(u.guarded = !u.guarded))
       return u.guard = 1, tcFloatU(u, "guards", "#e0c3ff"), b.msg = u.name + " raises its guard.", u.ap = 0, b.phase = "ai", !0;
-    if (/calls a guard if alone/.test(how) && !u.called && !b.units.some((v) => v !== u && v.side === 1 && tcLive(v)))
+    if (/calls a guard if alone/.test(how) && !u.called && !b.units.some((v2) => v2 !== u && v2.side === 1 && tcLive(v2)))
       return u.called = 1, b.msg = u.name + " shouts for help!", v6Spawn(b, u, 1, "guard recruit"), u.ap = 1, !1;
     if (/shouts weaken/.test(how) && u.tt % 3 === 1) {
-      let ks = b.units.filter((v) => v.side === 0 && tcLive(v) && tcEuc(u, v) <= 4);
+      let ks = b.units.filter((v2) => v2.side === 0 && tcLive(v2) && tcEuc(u, v2) <= 4);
       if (ks.length)
-        return b.msg = u.name + " bellows at the pack!", ks.forEach((v) => {
-          Math.random() < v6FoeStatusP(u, v) ? v6Status(v, { k: "weaken", turns: 2 }) : tcFloatU(v, "resisted", "#d7c9e3");
+        return b.msg = u.name + " bellows at the pack!", ks.forEach((v2) => {
+          Math.random() < v6FoeStatusP(u, v2) ? v6Status(v2, { k: "weaken", turns: 2 }) : tcFloatU(v2, "resisted", "#d7c9e3");
         }), u.ap = 1, !1;
     }
-    if (E.role === "ranged" && b.units.filter((v) => v.side === 0 && tcLive(v) && tcCheb(u, v) <= 1).length) {
+    if (E.role === "ranged" && b.units.filter((v2) => v2.side === 0 && tcLive(v2) && tcCheb(u, v2) <= 1).length) {
       let R2 = tcReach(b, u, tcMov(u)), best = null, bv = -1e9;
       if (R2.dist.forEach((d, k) => {
-        let x = k % b.W, y = k / b.W | 0, dd = Math.min(...b.units.filter((v) => v.side === 0 && tcLive(v)).map((v) => Math.hypot(v.x - x, v.y - y)));
+        let x = k % b.W, y = k / b.W | 0, dd = Math.min(...b.units.filter((v2) => v2.side === 0 && tcLive(v2)).map((v2) => Math.hypot(v2.x - x, v2.y - y)));
         dd > bv && (bv = dd, best = [x, y]);
       }), best && bv > 1.5) {
         let p = tcPath(R2, best[0], best[1]);
@@ -7579,16 +7867,16 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!E || !E.v6 || E.v6boss) return 0;
     if (E.role === "ranged" && dn < 3) return -6;
     if (E.role === "caster") {
-      let ks = b.units.filter((v) => v.side === 0 && tcLive(v));
+      let ks = b.units.filter((v2) => v2.side === 0 && tcLive(v2));
       if (!ks.length) return 0;
       let mine = Math.min(...ks.map((k) => Math.hypot(k.x - x, k.y - y)));
-      return b.units.some((v) => v !== u && v.side === 1 && tcLive(v) && Math.min(...ks.map((k) => tcEuc(k, v))) < mine) ? 3 : -3;
+      return b.units.some((v2) => v2 !== u && v2.side === 1 && tcLive(v2) && Math.min(...ks.map((k) => tcEuc(k, v2))) < mine) ? 3 : -3;
     }
     return 0;
   }
   function v6Focus(b, u, list) {
     if (!list.length) return null;
-    let w = list.map((v) => Object.assign({}, v, { threat: (tcStat(v).threat || 1) * (v.guard ? 2 : 1) * (tcSees(b, u, v) ? 1 : 0.5) })), pickd = pickByThreat(w, Math.random());
+    let w = list.map((v2) => Object.assign({}, v2, { threat: (tcStat(v2).threat || 1) * (v2.guard ? 2 : 1) * (tcSees(b, u, v2) ? 1 : 0.5) })), pickd = pickByThreat(w, Math.random());
     return list[w.indexOf(pickd)];
   }
   function v6BossTurn(b, u) {
@@ -7597,7 +7885,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let m = /(\d+) (.+?) on round (\d+)/.exec(E.adds || "");
     if (m && u.bt === +m[3] && v6Spawn(b, u, +m[1], m[2]), u.bt % 3 === 0)
       return b.msg = u.name + " brings down the big swing!", u.ap = 0, b.phase = "ai", !0;
-    let kob = () => b.units.filter((v) => v.side === 0 && tcLive(v)), reach = (v) => E.ranged ? tcEuc(u, v) <= 9 && tcLos(b, u, v) : tcCheb(u, v) <= 1;
+    let kob = () => b.units.filter((v2) => v2.side === 0 && tcLive(v2)), reach = (v2) => E.ranged ? tcEuc(u, v2) <= 9 && tcLos(b, u, v2) : tcCheb(u, v2) <= 1;
     if (!kob().some(reach)) {
       let focus = v6Focus(b, u, kob());
       focus && v6BossWalk(b, u, focus, reach);
@@ -7635,10 +7923,10 @@ button,.rpb,.pill{touch-action:manipulation}
       for (let r = 1; r < 4 && !spot; r++) for (let y = Math.max(0, u.y - r); y <= Math.min(b.H - 1, u.y + r) && !spot; y++) for (let x = Math.max(0, u.x - r); x <= Math.min(b.W - 1, u.x + r) && !spot; x++)
         tcFits(b, { sz: 1 }, x, y) && !b.units.some((o) => tcLive(o) && x >= o.x && x < o.x + (o.sz || 1) && y >= o.y && y < o.y + (o.sz || 1)) && (spot = [x, y]);
       if (!spot) return;
-      let v = { side: 1, E, key: key2, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
-      v.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v.k.face = -1;
-      let h = tcHome(v);
-      v.k.x = h.x, v.k.y = h.y, b.units.push(v), tcFloatU(v, "joins!", "#ffb347");
+      let v2 = { side: 1, E, key: key2, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
+      v2.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v2.k.face = -1;
+      let h = tcHome(v2);
+      v2.k.x = h.x, v2.k.y = h.y, b.units.push(v2), tcFloatU(v2, "joins!", "#ffb347");
     }
   }
   var v6Lab = { pack: ["fighter", "cleric", "wizard", "rogue"], lvl: 5, place: 0, theme: "", msg: "" };
@@ -7670,7 +7958,7 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.bt.v6 = 1;
   }
   function v6LabHtml() {
-    let opt = (v, list) => list.map((x) => '<option value="' + x[0] + '"' + (String(x[0]) === String(v) ? " selected" : "") + ">" + x[1] + "</option>").join(""), cls = [["", "—"]].concat(Object.entries(CLASSES6).map(([k, c]) => [k, c.n]));
+    let opt = (v2, list) => list.map((x) => '<option value="' + x[0] + '"' + (String(x[0]) === String(v2) ? " selected" : "") + ">" + x[1] + "</option>").join(""), cls = [["", "—"]].concat(Object.entries(CLASSES6).map(([k, c]) => [k, c.n]));
     return '<div class="rpdlg"><div class="who">Fight lab (test)</div><p>Pick a pack, a level and a place; the fight uses the v6 rules.</p>' + v6Lab.pack.map((c, i) => "<label>Kobold " + (i + 1) + ' <select id="lab-p' + i + '">' + opt(c || "", cls) + "</select></label> ").join("") + '<label>Level <select id="lab-l">' + opt(v6Lab.lvl, Array.from({ length: 30 }, (_, i) => [i + 1, i + 1])) + '</select></label> <label>Fight <select id="lab-pl">' + opt(v6Lab.place, PLACES6.map((p, i) => [i, p.place + " (L" + p.L + ")"]).concat(Object.values(BOSSES6).map((B) => ["b:" + B.id, "Boss: " + B.n + " (L" + B.L + ")"]), Object.values(TRIALS6).map((T) => ["t:" + T.id, "Trial: " + T.n + " (L" + T.L + ")"]))) + '</select></label> <label>Board <select id="lab-th">' + opt(v6Lab.theme, [["", "by place"], ["meadow", "meadow"], ["woods", "woods"], ["cave", "cave"], ["town", "town"], ["dark", "dark"], ["flooded", "flooded"]]) + '</select></label></div><div class="rpcmd">' + (v6Lab.ks && v6Lab.sig === v6Lab.pack.join(",") + "@" + v6Lab.lvl ? v6Lab.ks.map((m, i) => m ? '<button class="rpb" type="button" data-rp="v6sheet" data-v="' + i + '">' + m.name + "'s sheet<small>level " + m.lvl + (m.pend > 0 ? " · ✦ " + m.pend + " pick" + (m.pend > 1 ? "s" : "") : "") + "</small></button>" : "").join("") : '<button class="rpb" type="button" data-rp="labmake">Make the pack<small>then open their sheets</small></button>') + '</div><div class="tbar"><button class="rpb" type="button" data-rp="labwalk">Walk the slice<small>test: Hearthspire, R1, the mine</small></button><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>';
   }
   feature({
@@ -7703,8 +7991,8 @@ button,.rpb,.pill{touch-action:manipulation}
       return e ? e.value : null;
     };
     for (let i = 0; i < 4; i++) {
-      let v = g("lab-p" + i);
-      v != null && (v6Lab.pack[i] = v || null);
+      let v2 = g("lab-p" + i);
+      v2 != null && (v6Lab.pack[i] = v2 || null);
     }
     let l = g("lab-l"), p = g("lab-pl"), th = g("lab-th");
     th != null && (v6Lab.theme = th), l && (v6Lab.lvl = +l), p != null && p !== "" && (v6Lab.place = /^[bt]:/.test(p) ? p : +p);
@@ -7861,13 +8149,13 @@ button,.rpb,.pill{touch-action:manipulation}
     return { x: (u.x + u.sz / 2) * TT, y: (u.y + u.sz - 0.16) * TT };
   }
   function tcVis(b) {
-    let v = b.vis;
-    for (let i = 0; i < v.length; i++) v[i] === 2 && (v[i] = 1);
+    let v2 = b.vis;
+    for (let i = 0; i < v2.length; i++) v2[i] === 2 && (v2[i] = 1);
     b.units.forEach((a) => {
       if (a.side !== 0 || !tcLive(a)) return;
       let s = tcSight(b, a);
       for (let y = Math.max(0, a.y - s); y <= Math.min(b.H - 1, a.y + s); y++) for (let x = Math.max(0, a.x - s); x <= Math.min(b.W - 1, a.x + s); x++)
-        v[y * b.W + x] === 2 || Math.hypot(x - a.x, y - a.y) > s + 0.01 || tcLosT(b, a.x, a.y, x, y) && (v[y * b.W + x] = 2);
+        v2[y * b.W + x] === 2 || Math.hypot(x - a.x, y - a.y) > s + 0.01 || tcLosT(b, a.x, a.y, x, y) && (v2[y * b.W + x] = 2);
     });
   }
   function tcFits(b, u, x, y) {
@@ -7883,11 +8171,11 @@ button,.rpb,.pill{touch-action:manipulation}
     return c;
   }
   function tcReach(b, u, max) {
-    let W = b.W, dist = /* @__PURE__ */ new Map(), prev = /* @__PURE__ */ new Map(), open = [[0, u.x, u.y]];
-    for (dist.set(u.y * W + u.x, 0); open.length; ) {
+    let W = b.W, dist = /* @__PURE__ */ new Map(), prev = /* @__PURE__ */ new Map(), open2 = [[0, u.x, u.y]];
+    for (dist.set(u.y * W + u.x, 0); open2.length; ) {
       let bi = 0;
-      for (let i = 1; i < open.length; i++) open[i][0] < open[bi][0] && (bi = i);
-      let [d, x, y] = open.splice(bi, 1)[0];
+      for (let i = 1; i < open2.length; i++) open2[i][0] < open2[bi][0] && (bi = i);
+      let [d, x, y] = open2.splice(bi, 1)[0];
       if (!(d > dist.get(y * W + x)))
         for (let [dx, dy] of TC_DIR8) {
           let nx = x + dx, ny = y + dy;
@@ -7895,7 +8183,7 @@ button,.rpb,.pill{touch-action:manipulation}
           let nd = d + tcCost(b, u, nx, ny);
           if (nd > max) continue;
           let k = ny * W + nx;
-          (!dist.has(k) || nd < dist.get(k)) && (dist.set(k, nd), prev.set(k, y * W + x), open.push([nd, nx, ny]));
+          (!dist.has(k) || nd < dist.get(k)) && (dist.set(k, nd), prev.set(k, y * W + x), open2.push([nd, nx, ny]));
         }
     }
     return { dist, prev, W };
@@ -7911,8 +8199,8 @@ button,.rpb,.pill{touch-action:manipulation}
     if (t.sz > 1) return { c: 0, fl: !1 };
     let sx = Math.sign(ax - t.x), sy = Math.sign(ay - t.y), c = 0, any = 0;
     for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      let v = tcT(tcAt(b, t.x + dx, t.y + dy)).cov || 0;
-      v && (any = 1, (dx && dx === sx || dy && dy === sy) && (c = Math.max(c, v)));
+      let v2 = tcT(tcAt(b, t.x + dx, t.y + dy)).cov || 0;
+      v2 && (any = 1, (dx && dx === sx || dy && dy === sy) && (c = Math.max(c, v2)));
     }
     return { c, fl: !!any && !c };
   }
@@ -7953,13 +8241,13 @@ button,.rpb,.pill{touch-action:manipulation}
   function tcCrit(b, a, t, fl) {
     return v6u(a) || v6u(t) ? v6Crit(b, a, t, fl, !1) : tcStat(a).crit + (fl ? 0.15 : 0) + (t.side === 1 && !t.aware ? 0.1 : 0);
   }
-  function tcActCost(u, act) {
-    if (act.k === "atk" && v6u(u)) return v6AtkCost(u);
-    if (act.k === "atk") {
+  function tcActCost(u, act2) {
+    if (act2.k === "atk" && v6u(u)) return v6AtkCost(u);
+    if (act2.k === "atk") {
       let TW = rpTW(tcW(u));
       return TW.h ? 2 : TW.q || tcStat(u).quick ? 1 : "end";
     }
-    return act.k === "sk" ? (RP_ST[act.sk] || { ap: "end" }).ap : act.k === "it" || act.k === "leave" || act.k === "together" || act.k === "revive" ? 1 : "end";
+    return act2.k === "sk" ? (RP_ST[act2.sk] || { ap: "end" }).ap : act2.k === "it" || act2.k === "leave" || act2.k === "together" || act2.k === "revive" ? 1 : "end";
   }
   function tcCanPay(u, c) {
     return c === "end" ? u.ap >= 1 : u.ap >= c;
@@ -8012,23 +8300,23 @@ button,.rpb,.pill{touch-action:manipulation}
         if (T.area)
           foes.forEach((t) => {
             if (!tcInReach(b, u, { x: t.x, y: t.y, sz: 1 }, T.rng === "w" ? rpTW(w).r : T.rng)) return;
-            let v = 0;
+            let v2 = 0;
             b.units.forEach((x) => {
-              !tcLive(x) || Math.hypot(x.x - t.x, x.y - t.y) > T.area + 0.01 || (x.side !== u.side ? v += val2(x, S.mul, { spell: T.spell }) * (T.chan ? 0.7 : 1) : T.ff && (v -= 25));
-            }), out.push({ act: { k: "sk", sk, cx: t.x, cy: t.y }, v: v - mpc - (T.chan ? 6 : 0) });
+              !tcLive(x) || Math.hypot(x.x - t.x, x.y - t.y) > T.area + 0.01 || (x.side !== u.side ? v2 += val2(x, S.mul, { spell: T.spell }) * (T.chan ? 0.7 : 1) : T.ff && (v2 -= 25));
+            }), out.push({ act: { k: "sk", sk, cx: t.x, cy: t.y }, v: v2 - mpc - (T.chan ? 6 : 0) });
           });
         else if (T.around) {
-          let v = 0;
+          let v2 = 0;
           foes.forEach((t) => {
-            tcCheb(u, t) <= rpTW(w).r && (v += val2(t, S.mul, {}));
-          }), v && out.push({ act: { k: "sk", sk }, v: v - mpc });
+            tcCheb(u, t) <= rpTW(w).r && (v2 += val2(t, S.mul, {}));
+          }), v2 && out.push({ act: { k: "sk", sk }, v: v2 - mpc });
         } else if (T.self) {
           let al = b.units.filter((t) => t.side === u.side && tcLive(t) && tcCheb(u, t) <= T.self);
           if (S.heal) {
-            let v = 0;
+            let v2 = 0;
             al.forEach((t) => {
-              v += Math.min(t.max * S.heal, t.max - t.hp) / t.max * 30;
-            }), v > 14 && out.push({ act: { k: "sk", sk }, v: v - mpc });
+              v2 += Math.min(t.max * S.heal, t.max - t.hp) / t.max * 30;
+            }), v2 > 14 && out.push({ act: { k: "sk", sk }, v: v2 - mpc });
           } else S.buff && foes.length && !al.some((t) => t.buff[S.buff] > 0) && out.push({ act: { k: "sk", sk }, v: al.length * 4 - mpc });
         } else S.heal ? b.units.forEach((t) => {
           t.side === u.side && tcLive(t) && t.hp < t.max * 0.6 && tcInReach(b, u, t, T.rng) && out.push({ act: { k: "sk", sk, t }, v: Math.min(t.max * S.heal, t.max - t.hp) / t.max * 40 - mpc });
@@ -8036,8 +8324,8 @@ button,.rpb,.pill{touch-action:manipulation}
           t.side === u.side && !t.fled && t.hp <= 0 && tcCheb(u, t) <= 1 && out.push({ act: { k: "sk", sk, t }, v: 40 });
         }) : foes.forEach((t) => {
           if (!tcInReach(b, u, t, T.rng)) return;
-          let o = { spell: T.spell, aim: T.aim }, v = val2(t, S.mul, o) - mpc;
-          S.stun && !(t.E && t.E.boss) && (v += 6), T.chain && (v *= 1.8), out.push({ act: { k: "sk", sk, t }, v });
+          let o = { spell: T.spell, aim: T.aim }, v2 = val2(t, S.mul, o) - mpc;
+          S.stun && !(t.E && t.E.boss) && (v2 += 6), T.chain && (v2 *= 1.8), out.push({ act: { k: "sk", sk, t }, v: v2 });
         });
       }), b.v6 && pay(1) && v6TogetherOpts(b, u).forEach(({ f, t }) => out.push({ act: { k: "together", f, t }, v: val2(t, 1, {}) + val2(t, 1, {}) * 0.8 })), ["potion", "feather"].forEach((k) => {
         !(rp.s.bag[k] > 0) || !pay(1) || b.units.forEach((t) => {
@@ -8054,10 +8342,10 @@ button,.rpb,.pill{touch-action:manipulation}
       }
       E.all && pay(2) && foes.forEach((t) => {
         if (!tcInReach(b, u, t)) return;
-        let v = 0;
+        let v2 = 0;
         foes.forEach((x) => {
-          Math.hypot(x.x - t.x, x.y - t.y) <= 1.01 && (v += val2(x, 0.7, { spell: WEAPONS[E.w].magic }));
-        }), foes.filter((x) => Math.hypot(x.x - t.x, x.y - t.y) <= 1.01).length > 1 && out.push({ act: { k: "eall", cx: t.x, cy: t.y }, v: v + 2 });
+          Math.hypot(x.x - t.x, x.y - t.y) <= 1.01 && (v2 += val2(x, 0.7, { spell: WEAPONS[E.w].magic }));
+        }), foes.filter((x) => Math.hypot(x.x - t.x, x.y - t.y) <= 1.01).length > 1 && out.push({ act: { k: "eall", cx: t.x, cy: t.y }, v: v2 + 2 });
       });
     }
     return u.focus && u.E && u.E.v6 && out.forEach((o) => {
@@ -8065,25 +8353,25 @@ button,.rpb,.pill{touch-action:manipulation}
       t && t.side !== u.side && t !== u.focus && (o.v *= 0.25);
     }), out;
   }
-  function tcEnemyDo(u, act) {
+  function tcEnemyDo(u, act2) {
     let b = rp.bt, E = u.E;
-    if (act.k === "eheal") {
-      u.ap = 0, tcQ({ k: "heal", a: u, tg: act.t, o: { amt: 0.35 } }), b.msg = u.name + " heals " + act.t.name + ".";
+    if (act2.k === "eheal") {
+      u.ap = 0, tcQ({ k: "heal", a: u, tg: act2.t, o: { amt: 0.35 } }), b.msg = u.name + " heals " + act2.t.name + ".";
       return;
     }
-    if (act.k === "esmash") {
+    if (act2.k === "esmash") {
       u.ap = 0;
       let nm = u.key === "vexx" ? "Royal cleave" : "Ground smash";
       b.msg = u.name + " uses " + nm + "!", b.units.filter((t) => t.side === 0 && tcLive(t) && tcCheb(u, t) <= 1).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: 0.75, name: nm } }));
       return;
     }
-    if (act.k === "eall") {
+    if (act2.k === "eall") {
       u.ap = 0;
       let magic = WEAPONS[E.w].magic, nm = magic ? "Fireball" : "Scattershot";
-      b.msg = u.name + " uses " + nm + "!", b.units.filter((t) => t.side === 0 && tcLive(t) && Math.hypot(t.x - act.cx, t.y - act.cy) <= 1.01).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: 0.7, spell: magic, name: nm } }));
+      b.msg = u.name + " uses " + nm + "!", b.units.filter((t) => t.side === 0 && tcLive(t) && Math.hypot(t.x - act2.cx, t.y - act2.cy) <= 1.01).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: 0.7, spell: magic, name: nm } }));
       return;
     }
-    tcDo(u, act);
+    tcDo(u, act2);
   }
   function rpAiTurn(u) {
     let b = rp.bt;
@@ -8108,8 +8396,8 @@ button,.rpb,.pill{touch-action:manipulation}
       u.x = x, u.y = y;
       let ps = x === ox && y === oy ? here : tcPosScore(b, u, x, y), aoo = path ? tcAooRisk(b, u, ox, oy, path) : 0;
       tcOptions(b, u, ap2).forEach((o) => {
-        let v = o.v + ps * 0.45 - aoo;
-        v > best.v && (best = { v, plan: { x, y, cost, path, act: o.act } });
+        let v2 = o.v + ps * 0.45 - aoo;
+        v2 > best.v && (best = { v: v2, plan: { x, y, cost, path, act: o.act } });
       });
       let rest = ps - aoo + (ap2 >= 1 ? tcMelee(u) ? 0 : 1.5 : 0);
       rest > best.v && (best = { v: rest, plan: { x, y, cost, path, act: ap2 >= 1 ? { k: tcMelee(u) || !tcFoes(b, u).length ? "guard" : "watch" } : null } }), u.x = ox, u.y = oy;
@@ -8120,8 +8408,8 @@ button,.rpb,.pill{touch-action:manipulation}
     }), tcFoes(b, u).length)
       R2 && R2.dist.forEach((d, k) => {
         if (d <= mov) return;
-        let x = k % b.W, y = k / b.W | 0, v = tcPosScore(b, u, x, y) * 0.6 - tcAooRisk(b, u, u.x, u.y, tcPath(R2, x, y));
-        v > best.v && (best = { v, plan: { x, y, cost: 2, path: tcPath(R2, x, y), act: null } });
+        let x = k % b.W, y = k / b.W | 0, v2 = tcPosScore(b, u, x, y) * 0.6 - tcAooRisk(b, u, u.x, u.y, tcPath(R2, x, y));
+        v2 > best.v && (best = { v: v2, plan: { x, y, cost: 2, path: tcPath(R2, x, y), act: null } });
       });
     else {
       let goal = null;
@@ -8141,8 +8429,8 @@ button,.rpb,.pill{touch-action:manipulation}
       }
       let R3 = R2 || R1, gb = null, gv = 1e9;
       if (R3.dist.forEach((d, k) => {
-        let x = k % b.W, y = k / b.W | 0, v = Math.hypot(x - goal.x, y - goal.y) * 3 - tcPosScore(b, u, x, y) * 0.3;
-        v < gv && (gv = v, gb = [x, y]);
+        let x = k % b.W, y = k / b.W | 0, v2 = Math.hypot(x - goal.x, y - goal.y) * 3 - tcPosScore(b, u, x, y) * 0.3;
+        v2 < gv && (gv = v2, gb = [x, y]);
       }), gb) {
         let p = tcPath(R3, gb[0], gb[1]);
         if (p && p.length) {
@@ -8153,9 +8441,9 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     let P = best.plan;
     if (P && P.path && P.path.length && tcDo(u, { k: "move", path: P.path, cost: P.cost }), P && P.act) {
-      let act = P.act;
+      let act2 = P.act;
       tcQ({ k: "fn", fn: () => {
-        !tcLive(u) || rp.bt !== b || act.t && !tcLive(act.t) && act.k !== "sk" && act.k !== "it" || act.k === "atk" && !tcInReach(b, u, act.t) || (u.side === 1 && (act.k === "eheal" || act.k === "esmash" || act.k === "eall") ? tcEnemyDo(u, act) : tcDo(u, act));
+        !tcLive(u) || rp.bt !== b || act2.t && !tcLive(act2.t) && act2.k !== "sk" && act2.k !== "it" || act2.k === "atk" && !tcInReach(b, u, act2.t) || (u.side === 1 && (act2.k === "eheal" || act2.k === "esmash" || act2.k === "eall") ? tcEnemyDo(u, act2) : tcDo(u, act2));
       } });
     }
     (!P || !P.path && !P.act) && (b.msg = u.name + " waits."), b.phase = "ai";
@@ -8178,14 +8466,14 @@ button,.rpb,.pill{touch-action:manipulation}
     return V6_THEMES[t] || V6_THEMES.meadow;
   }
   function v6BigReach(g, W, H, sx, sy) {
-    let open = (x, y) => x >= 0 && y >= 0 && x + 1 < W && y + 1 < H && !tcT(g[y][x]).solid && !tcT(g[y][x + 1]).solid && !tcT(g[y + 1][x]).solid && !tcT(g[y + 1][x + 1]).solid, seen2 = /* @__PURE__ */ new Set();
-    if (!open(sx, sy)) return seen2;
+    let open2 = (x, y) => x >= 0 && y >= 0 && x + 1 < W && y + 1 < H && !tcT(g[y][x]).solid && !tcT(g[y][x + 1]).solid && !tcT(g[y + 1][x]).solid && !tcT(g[y + 1][x + 1]).solid, seen2 = /* @__PURE__ */ new Set();
+    if (!open2(sx, sy)) return seen2;
     let q = [[sx, sy]];
     for (seen2.add(sy * W + sx); q.length; ) {
       let [x, y] = q.pop();
       for (let [dx, dy] of TC_DIR8) {
         let nx = x + dx, ny = y + dy, k = ny * W + nx;
-        seen2.has(k) || !open(nx, ny) || (seen2.add(k), q.push([nx, ny]));
+        seen2.has(k) || !open2(nx, ny) || (seen2.add(k), q.push([nx, ny]));
       }
     }
     return seen2;
@@ -8327,8 +8615,8 @@ button,.rpb,.pill{touch-action:manipulation}
         get hp() {
           return m.hp;
         },
-        set hp(v) {
-          m.hp = v;
+        set hp(v2) {
+          m.hp = v2;
         },
         get max() {
           return rpStats(m).hp;
@@ -8671,67 +8959,67 @@ button,.rpb,.pill{touch-action:manipulation}
     let b = rp.bt;
     v6Fall(b, t), t.k.state = "ko", t.k.rotT = (t.side ? 1 : -1) * Math.PI / 2, t.chan = null, b.chans = b.chans.filter((c) => c.u !== t), t.side === 0 && rpBuzz(70), rp.headless || (burst(t.k.x, t.k.y - 20, 10, ["#ffe27a", "#fff"], 130, "star"), sfx("ko"));
   }
-  function tcDo(u, act) {
-    let b = rp.bt, c = tcActCost(u, act);
+  function tcDo(u, act2) {
+    let b = rp.bt, c = tcActCost(u, act2);
     if (!tcCanPay(u, c)) return !1;
-    if (act.k === "move") {
-      let cost = act.cost;
-      return u.ap < cost ? !1 : (u.ap -= cost, tcQ({ k: "move", u, path: act.path, i: 0, id: ++b.moveId }), b.msg = u.name + (cost > 1 ? " dashes." : " moves."), !0);
+    if (act2.k === "move") {
+      let cost = act2.cost;
+      return u.ap < cost ? !1 : (u.ap -= cost, tcQ({ k: "move", u, path: act2.path, i: 0, id: ++b.moveId }), b.msg = u.name + (cost > 1 ? " dashes." : " moves."), !0);
     }
-    if (tcPay(u, c), act.k === "atk") {
+    if (tcPay(u, c), act2.k === "atk") {
       u.atkd = 1;
       let TW = rpTW(tcW(u));
-      return tcQ({ k: "atk", a: u, tg: act.t, o: {
+      return tcQ({ k: "atk", a: u, tg: act2.t, o: {
         mul: 1,
         quick: v6u(u) && !!tcStat(u).quick,
         splash: TW.splash,
         slow: TW.slow && Math.random() < TW.slow,
         stun: !!(u.E && u.E.stun && Math.random() < u.E.stun),
         name: WEAPONS[tcW(u)].n
-      } }), b.msg = u.name + " attacks " + act.t.name + ".", !0;
+      } }), b.msg = u.name + " attacks " + act2.t.name + ".", !0;
     }
-    if (act.k === "sk") {
-      let S = RP_SK[act.sk], T = RP_ST[act.sk] || {};
+    if (act2.k === "sk") {
+      let S = RP_SK[act2.sk], T = RP_ST[act2.sk] || {};
       if (u.m) {
         if (u.m.mp < S.mp) return !1;
         u.m.mp -= S.mp;
       }
       b.msg = u.name + " uses " + S.n + "!";
-      let dark = !!(u.m && u.m.v6 && u.m.dark && u.m.dark[act.sk]);
-      if (dark && (u.m.corr = (u.m.corr || 0) + 1, b.msg = u.name + " uses " + (T.v6 && T.v6.dark ? T.v6.dark.n : S.n) + "!"), act.dark = dark, T.v6 && v6DoSkill(b, u, act, S, T)) return !0;
+      let dark = !!(u.m && u.m.v6 && u.m.dark && u.m.dark[act2.sk]);
+      if (dark && (u.m.corr = (u.m.corr || 0) + 1, b.msg = u.name + " uses " + (T.v6 && T.v6.dark ? T.v6.dark.n : S.n) + "!"), act2.dark = dark, T.v6 && v6DoSkill(b, u, act2, S, T)) return !0;
       if (T.chan) {
-        let ch = { u, sk: act.sk, cx: act.cx, cy: act.cy, area: T.area, side: u.side };
+        let ch = { u, sk: act2.sk, cx: act2.cx, cy: act2.cy, area: T.area, side: u.side };
         return u.chan = ch, b.chans.push(ch), u.ap = 0, b.msg = u.name + " starts casting " + S.n + "! It lands on " + u.name + "'s next turn.", rp.headless || sfx("drop"), !0;
       }
       if (T.area)
-        return tcQ({ k: "area", a: u, sk: act.sk, cx: act.cx, cy: act.cy, dark: act.dark }), !0;
+        return tcQ({ k: "area", a: u, sk: act2.sk, cx: act2.cx, cy: act2.cy, dark: act2.dark }), !0;
       if (T.around)
-        return b.units.filter((t) => t.side !== u.side && tcLive(t) && tcCheb(u, t) <= (T.aroundR || rpTW(tcW(u)).r)).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul, name: S.n, spell: T.spell, v6: T.v6, dark: act.dark } })), !0;
+        return b.units.filter((t) => t.side !== u.side && tcLive(t) && tcCheb(u, t) <= (T.aroundR || rpTW(tcW(u)).r)).forEach((t) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul, name: S.n, spell: T.spell, v6: T.v6, dark: act2.dark } })), !0;
       if (T.self) {
         let al = b.units.filter((t) => t.side === u.side && tcLive(t) && tcCheb(u, t) <= T.self);
-        return S.heal ? al.forEach((t) => tcQ({ k: "heal", a: u, tg: t, o: { amt: S.heal, sk: act.sk, dark: act.dark } })) : S.buff && tcQ({ k: "fn", fn: () => {
+        return S.heal ? al.forEach((t) => tcQ({ k: "heal", a: u, tg: t, o: { amt: S.heal, sk: act2.sk, dark: act2.dark } })) : S.buff && tcQ({ k: "fn", fn: () => {
           al.forEach((t) => {
             t.buff[S.buff] = 3, tcFloatU(t, S.buff === "atk" ? "ATK up!" : "DEF up!", "#ffe27a");
           }), rp.headless || sfx("win");
         } }), !0;
       }
       if (S.heal)
-        return tcQ({ k: "heal", a: u, tg: act.t, o: { amt: S.heal, sk: act.sk, dark: act.dark } }), !0;
+        return tcQ({ k: "heal", a: u, tg: act2.t, o: { amt: S.heal, sk: act2.sk, dark: act2.dark } }), !0;
       if (S.revive)
-        return tcQ({ k: "heal", a: u, tg: act.t, o: { revive: S.revive } }), !0;
+        return tcQ({ k: "heal", a: u, tg: act2.t, o: { revive: S.revive } }), !0;
       if (T.chain) {
-        let prev = act.t, hit = [prev];
+        let prev = act2.t, hit = [prev];
         for (let i = 0; i < T.chain; i++) {
           let nx = b.units.filter((x) => x.side === prev.side && tcLive(x) && !hit.includes(x) && tcCheb(x, prev) <= 2).sort((x, y) => tcCheb(x, prev) - tcCheb(y, prev))[0];
           if (!nx) break;
           hit.push(nx), prev = nx;
         }
-        return hit.forEach((t, i) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul * (i ? 0.7 : 1), spell: 1, stunP: S.stunP, name: S.n, v6: T.v6, dark: act.dark } })), !0;
+        return hit.forEach((t, i) => tcQ({ k: "atk", a: u, tg: t, o: { mul: S.mul * (i ? 0.7 : 1), spell: 1, stunP: S.stunP, name: S.n, v6: T.v6, dark: act2.dark } })), !0;
       }
-      return tcQ({ k: "atk", a: u, tg: act.t, o: { mul: S.mul, spell: T.spell, aim: T.aim, stun: S.stun, slow: S.slow, drain: S.drain, name: S.n, v6: T.v6, dark: act.dark } }), !0;
+      return tcQ({ k: "atk", a: u, tg: act2.t, o: { mul: S.mul, spell: T.spell, aim: T.aim, stun: S.stun, slow: S.slow, drain: S.drain, name: S.n, v6: T.v6, dark: act2.dark } }), !0;
     }
-    if (act.k === "it") {
-      let t = act.t, m = t.m, k = act.it;
+    if (act2.k === "it") {
+      let t = act2.t, m = t.m, k = act2.it;
       return u.ctl !== "remote" && rp.s.bag[k]--, tcQ({ k: "fn", fn: () => {
         let st = rpStats(m);
         if (k === "bun") {
@@ -8747,7 +9035,7 @@ button,.rpb,.pill{touch-action:manipulation}
         rp.headless || sfx("nom");
       } }), b.msg = u.name + " uses a " + RP_ITEMS[k].n.toLowerCase() + ".", !0;
     }
-    return act.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act.k === "together" ? v6Together(b, u, act.f, act.t) : act.k === "revive" ? v6Revive(b, u, act.t) : act.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", v6Leave(b, u), rp.headless || sfx("pop"), !0) : !1;
+    return act2.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act2.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act2.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act2.k === "together" ? v6Together(b, u, act2.f, act2.t) : act2.k === "revive" ? v6Revive(b, u, act2.t) : act2.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", v6Leave(b, u), rp.headless || sfx("pop"), !0) : !1;
   }
   function rpBattleStep(dt) {
     let b = rp.bt;
@@ -9218,13 +9506,13 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var pct = (x, y) => "left:" + ((x + 0.5) / WW * 100).toFixed(2) + "%;top:" + ((y + 0.5) / WH * 100).toFixed(2) + "%";
   function wmHtml() {
-    let me = wmWhere(), h = '<div class="wmap"><div class="wmapbox"><img alt="Map of the world" src="' + wmImage() + '">', T = sites();
+    let me2 = wmWhere(), h = '<div class="wmap"><div class="wmapbox"><img alt="Map of the world" src="' + wmImage() + '">', T = sites();
     for (let r of nameRoutes().list) {
       let far = ([c2, rr3]) => Math.min(...T.map((t) => Math.hypot(t.x - c2 * 10 - 5, (t.y - rr3 * 10 - 5) * 1.6))), [c, rr2] = r.cells.reduce((a, b) => far(b) > far(a) ? b : a);
       h += '<i class="wmr" style="' + pct(c * 10 + 5, rr2 * 10 + 5) + '">' + r.name.replace("Route ", "") + "</i>";
     }
     for (let t of T) h += '<i class="wmt" style="' + pct(t.x, t.y) + '"><b></b>' + esc2(t.name) + "</i>";
-    return h += '<i class="wmyou" style="' + pct(me.x, me.y) + '"></i></div></div>', h + '<div class="tbar"><p class="rptip">You are in <b>' + esc2(me.x < OLD_W && me.y < OLD_H ? "the Burrowhome valley" : overworldArea(me.x, me.y)) + '</b>. Numbers are routes.</p><button class="rpb x" type="button" data-rp="wmclose">Close</button></div>';
+    return h += '<i class="wmyou" style="' + pct(me2.x, me2.y) + '"></i></div></div>', h + '<div class="tbar"><p class="rptip">You are in <b>' + esc2(me2.x < OLD_W && me2.y < OLD_H ? "the Burrowhome valley" : overworldArea(me2.x, me2.y)) + '</b>. Numbers are routes.</p><button class="rpb x" type="button" data-rp="wmclose">Close</button></div>';
   }
   function rpOpenWorldMap() {
     rp.mode = "worldmap", rp.path = null, rp.held = null, rpUI(!0);
@@ -9277,7 +9565,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let m = cur();
     if (!m) return '<div class="rpdlg"><p>No kobold.</p></div><div class="tbar"><button class="rpb x" type="button" data-rp="v6sheetx">Back</button></div>';
     let st = v6Stats(m), C = CLASSES6[m.cls], K = KITS6[m.cls], k = v6Known(m), tabs = pack().map((x, i) => x ? '<button class="rpb' + (i === sheet.i ? " on" : "") + '" type="button" data-rp="v6sheet" data-v="' + i + '">' + esc2(x.name) + "<small>" + esc2(CLASSES6[x.cls].n) + " " + x.lvl + (x.pend > 0 ? " · ✦" + x.pend : "") + "</small></button>" : "").join(""), row = (a, b) => "<div><span>" + a + "</span> <b>" + b + "</b></div>", h = '<div class="rpcmd">' + tabs + '</div><div class="rpdlg"><div class="who">' + esc2(m.name) + " · " + esc2(C.n) + (m.sub ? " (" + esc2(m.sub) + ")" : "") + " · level " + m.lvl + "</div>";
-    if (h += '<div class="hh-stats">' + row("HP", m.hp + "/" + st.hp) + row("Mana", (m.mp || 0) + "/" + st.mp) + row("Attack", f1(st.atk)) + row("Sp. attack", f1(st.spa)) + row("Defence", f1(st.def)) + row("Sp. defence", f1(st.sd)) + row("Accuracy", f1(st.acc)) + row("Dodge", f1(st.dodge)) + row("Resistance", f1(st.res)) + row("Initiative", st.init) + row("Move", st.move) + row("Crit", Math.round(st.crit * 100) + "% ×" + st.critD) + row("Threat", f1(st.threat)) + row("Steadiness", st.steady) + row("Bond / streak", (m.bond || 0) + " / " + (m.streak || 0)) + row("Corruption", m.corr || 0) + row("Luck", m.luck || 0) + (m.cls === "monk" ? row("Balance", f1(st.balance)) : "") + "</div>", h += "<p><small>" + Object.entries(m.scores).map(([s, v]) => s + " " + v).join(" · ") + "</small></p>", m.passives && m.passives.length) {
+    if (h += '<div class="hh-stats">' + row("HP", m.hp + "/" + st.hp) + row("Mana", (m.mp || 0) + "/" + st.mp) + row("Attack", f1(st.atk)) + row("Sp. attack", f1(st.spa)) + row("Defence", f1(st.def)) + row("Sp. defence", f1(st.sd)) + row("Accuracy", f1(st.acc)) + row("Dodge", f1(st.dodge)) + row("Resistance", f1(st.res)) + row("Initiative", st.init) + row("Move", st.move) + row("Crit", Math.round(st.crit * 100) + "% ×" + st.critD) + row("Threat", f1(st.threat)) + row("Steadiness", st.steady) + row("Bond / streak", (m.bond || 0) + " / " + (m.streak || 0)) + row("Corruption", m.corr || 0) + row("Luck", m.luck || 0) + (m.cls === "monk" ? row("Balance", f1(st.balance)) : "") + "</div>", h += "<p><small>" + Object.entries(m.scores).map(([s, v2]) => s + " " + v2).join(" · ") + "</small></p>", m.passives && m.passives.length) {
       let n = {};
       m.passives.forEach((p) => n[p] = (n[p] || 0) + 1), h += "<p><small>Passives: " + Object.entries(n).map(([p, c]) => esc2(p) + (c > 1 ? " ×" + c : "")).join(", ") + "</small></p>";
     }
@@ -9295,8 +9583,8 @@ button,.rpb,.pill{touch-action:manipulation}
     if (h += '<div class="who">Skills (' + (m.skills || []).length + " of " + V6_EQUIP + " equipped" + (rest ? "" : ", change them at rest") + ')</div><div class="rpcmd">', k.forEach((id) => {
       let S = SKILLS6[id];
       if (!S) return;
-      let on2 = (m.skills || []).includes(id), dk = m.dark && m.dark[id], open = v6DarkOpen(m, id);
-      h += '<button class="rpb' + (on2 ? " sk on" : "") + '" type="button" data-rp="v6eq" data-v="' + id + '"' + (rest ? "" : " disabled") + ">" + esc2(dk ? S.dark.n : S.n) + (((m.ranks || {})[id] || 1) > 1 ? " " + "★".repeat(m.ranks[id] - 1) : "") + "<small>" + (on2 ? "equipped" : "not equipped") + " · " + S.mp + " mana · " + (S.ap === "end" ? "ends turn" : S.ap + " AP") + "</small></button>", S.dark && (h += '<button class="rpb' + (dk ? " on" : "") + '" type="button" data-rp="v6dark" data-v="' + id + '"' + (open && rest ? "" : " disabled") + ">" + (dk ? "Dark: on" : "Dark: off") + "<small>" + (open ? esc2(S.dark.n) + ": ×1.25, +1 corruption a cast" : "opens at corruption " + (v6IsSub(id) ? 25 : 10)) + "</small></button>");
+      let on2 = (m.skills || []).includes(id), dk = m.dark && m.dark[id], open2 = v6DarkOpen(m, id);
+      h += '<button class="rpb' + (on2 ? " sk on" : "") + '" type="button" data-rp="v6eq" data-v="' + id + '"' + (rest ? "" : " disabled") + ">" + esc2(dk ? S.dark.n : S.n) + (((m.ranks || {})[id] || 1) > 1 ? " " + "★".repeat(m.ranks[id] - 1) : "") + "<small>" + (on2 ? "equipped" : "not equipped") + " · " + S.mp + " mana · " + (S.ap === "end" ? "ends turn" : S.ap + " AP") + "</small></button>", S.dark && (h += '<button class="rpb' + (dk ? " on" : "") + '" type="button" data-rp="v6dark" data-v="' + id + '"' + (open2 && rest ? "" : " disabled") + ">" + (dk ? "Dark: on" : "Dark: off") + "<small>" + (open2 ? esc2(S.dark.n) + ": ×1.25, +1 corruption a cast" : "opens at corruption " + (v6IsSub(id) ? 25 : 10)) + "</small></button>");
     }), h += "</div>", rp.s && rp.s.w6) {
       let S = ["weapon", "armour", "shield", "helm", "boots", "cloak", "neck", "ring1", "ring2"], nm = (g, k2) => g ? g.n ? v6ItemName(Object.assign({ k: "gear", aff: [] }, g)) : v6PieceName(g, k2) : "—";
       h += '<div class="who">Gear</div><div class="rpcmd">' + S.map((k2) => {
@@ -9305,7 +9593,7 @@ button,.rpb,.pill{touch-action:manipulation}
       }).join("") + "</div>";
       let W = (rp.s.inv6 || []).filter((it) => v6CanWear(m, it));
       W.length && (h += '<div class="rpcmd">' + W.map((it) => '<button class="rpb go" type="button" data-rp="v6eqit" data-v="' + it.id + '">' + esc2(v6ItemName(it)) + "<small>wear it · T" + (it.tier + 1) + " " + it.slot + "</small></button>").join("") + "</div>");
-      let bag = Object.entries(rp.s.bag || {}).filter(([k2, v]) => v > 0).map(([k2, v]) => k2 + " ×" + v).concat(Object.entries(rp.s.mats6 || {}).filter(([k2, v]) => v > 0).map(([k2, v]) => k2 + " ×" + v));
+      let bag = Object.entries(rp.s.bag || {}).filter(([k2, v2]) => v2 > 0).map(([k2, v2]) => k2 + " ×" + v2).concat(Object.entries(rp.s.mats6 || {}).filter(([k2, v2]) => v2 > 0).map(([k2, v2]) => k2 + " ×" + v2));
       bag.length && (h += "<p><small>Bag: " + esc2(bag.join(" · ")) + "</small></p>");
     }
     if (m.hero) {
@@ -9453,7 +9741,19 @@ button,.rpb,.pill{touch-action:manipulation}
       C6.ask = i, rp.mode = "c6busy", rpUI(!0);
       return;
     }
-    C6.slot = i, lockTake(i), rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, rp.sig = "", rpUI(!0);
+    let R2 = C6.cloud[i], lines = R2 ? adminApplyFixes(s, R2.fix) : [];
+    R2 && (s.test = R2.test ? 1 : 0), C6.slot = i, lockTake(i), rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, rp.sig = "", rpUI(!0), lines.length && (chars6Save(s), adminLetter(lines));
+  }
+  async function c6FixNow() {
+    let i = C6.slot, ref = i != null && cloudRef(i);
+    if (!(!ref || !rp.s))
+      try {
+        let sn = await ref.get(), d = sn.exists && sn.data();
+        if (!d) return;
+        let lines = adminApplyFixes(rp.s, d.fix);
+        rp.s.test = d.test ? 1 : 0, lines.length && rp.s.w6 && rpApplyWorld(), chars6Save(rp.s), adminLetter(lines), rpUI(!0);
+      } catch {
+      }
   }
   function c6Create() {
     let n = v6HeroName(C6.form.name);
@@ -9568,6 +9868,7 @@ button,.rpb,.pill{touch-action:manipulation}
     id: "chars6",
     on: { save6: (s) => chars6Save(s) },
     init() {
+      adminSetHooks(() => chars6Save(rp.s), c6FixNow), adminSetTestFight((id) => s6TestFight(id));
       let b = typeof document < "u" && $("go-rpg");
       b && b.addEventListener("click", (e) => {
         window.__kqOldTitle || (e.stopImmediatePropagation(), rpGoFull(), openSelect());

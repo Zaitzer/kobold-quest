@@ -23,7 +23,7 @@ function netMarketPrice(kind,val){const base=kind==='item'?(RP_IT[val]||{}).pric
 function netTake(kind,val){const s=rp.s;if(kind==='gold')return false;if(kind==='mat'){const M=rpMats();if(!(M[val]>0))return false;M[val]--;return true}
   if(kind==='bag'){if(!(s.bag[val]>0))return false;s.bag[val]--;return true}const i=s.inv.indexOf(val);if(i<0)return false;s.inv.splice(i,1);return true}
 function netPut(kind,val){const s=rp.s;if(kind==='mat')rpMats()[val]++;else if(kind==='bag')s.bag[val]=(s.bag[val]||0)+1;else rpGive(val)}
-async function netMarketList(){const S=net.mkSell;if(!S||net.mkBusy||!net.db)return;if((net.mine||[]).filter(m=>m.status==='open').length>=8){rpToast('You can have 8 things for sale at once.');return}
+async function netMarketList(){const S=net.mkSell;if(!S||net.mkBusy||!net.db)return;if(rp.s.test){rpToast('A test hero can\'t sell on the market.');return}if((net.mine||[]).filter(m=>m.status==='open').length>=8){rpToast('You can have 8 things for sale at once.');return}
   if(!netTake(S.kind,S.val))return;net.mkBusy=true;rpSave();
   try{await net.db.collection('market').add({seller:net.me,kind:S.kind,val:S.val,price:Math.round(S.price),status:'open',buyer:null,t:Date.now()});rpToast(netMkLabel(S)+' is on the market for '+Math.round(S.price)+' gold.');net.mkSell=null;net.mkTab='mine'}
   catch(e){netPut(S.kind,S.val);rpSave();rpToast('Couldn\'t reach the market. Try again.')}net.mkBusy=false;rpUI(true)}
@@ -41,6 +41,8 @@ async function netMarketCancel(id){if(net.mkBusy)return;const ref=net.db.collect
   catch(e){}net.mkBusy=false;rpUI(true)}
 /* sellers get paid when they're next online */
 async function netMarketPayouts(){if(!rp.s||net.paying)return;const s=rp.s;s.mkPaid=s.mkPaid||[];
+  /* a listing an admin removed (systems.md §17) comes back to its seller */
+  for(const m of (net.mine||[]).filter(m=>m.status==='removed'&&!s.mkPaid.includes(m.id))){s.mkPaid.push(m.id);netPut(m.kind,m.val);rpToast(netMkLabel(m)+' was taken off the market'+(m.why?' ('+m.why+')':'')+'; it is back in your backpack.');try{await net.db.collection('market').doc(m.id).delete()}catch(e){}rpSave()}
   const due=(net.mine||[]).filter(m=>m.status==='sold'&&!s.mkPaid.includes(m.id));if(!due.length)return;net.paying=true;
   for(const m of due){s.mkPaid.push(m.id);if(s.mkPaid.length>200)s.mkPaid.shift();s.gold+=Math.max(0,+m.price||0);rpToast('Your '+netMkLabel(m)+' sold for '+m.price+' gold!');
     try{await net.db.collection('market').doc(m.id).delete()}catch(e){}}

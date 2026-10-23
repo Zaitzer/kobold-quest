@@ -13,7 +13,7 @@ import {rpGive,rpItemDesc} from '../game/items.js';
 import {net,netEmit,netName,netNameOf,netOnline,netRid} from './core.js';
 
 function netGive(kind,val){
-  if(!netOnline())return;const s=rp.s;let label='';
+  if(!netOnline())return;const s=rp.s;let label='';if(s.test){rpToast('A test hero can\'t give gifts.');return}
   if(kind==='gold'){val=Math.min(+val,Math.floor(s.gold));if(val<=0)return;s.gold-=val;label=val+' gold'}
   else if(kind==='mat'){const M=rpMats();if(!(M[val]>0))return;M[val]--;label='a '+RP_MATS[val].n.toLowerCase()}
   else if(kind==='item'){const i=s.inv.indexOf(val);if(i<0)return;s.inv.splice(i,1);label=RP_IT[val].n}

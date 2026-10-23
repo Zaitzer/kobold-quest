@@ -12,8 +12,9 @@ import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {$,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {s6NewGame,story} from '../game/story6.js';
+import {s6NewGame,s6TestFight,story} from '../game/story6.js';
 import {w6Title} from '../game/world6.js';
+import {adminApplyFixes,adminLetter,adminSetHooks,adminSetTestFight} from '../net/admin.js';
 import {net} from '../net/core.js';
 import {rpUI} from './hud.js';
 
@@ -42,7 +43,13 @@ async function lockCheck(){const i=C6.slot,r=lockRef(i);if(i==null||!r)return;tr
 /* ------------------------------------------------------------------ playing, making, deleting */
 async function c6Play(i,force){const s=v6Load(raw(i));if(!s){rpToast('That save could not be read.');return}
   if(!force&&!(await lockFree(i))){C6.ask=i;rp.mode='c6busy';rpUI(true);return}
-  C6.slot=i;lockTake(i);rp.s=s;rp.bt=null;rp.pk=null;rp.npcK={};rpApplyWorld();rp.mode='map';story.busy=false;story.scene=null;rp.sig='';rpUI(true)}
+  /* what an admin left in the server's copy (systems.md §17): fixes, and whether it is a test hero */
+  const R=C6.cloud[i];const lines=R?adminApplyFixes(s,R.fix):[];if(R)s.test=R.test?1:0;
+  C6.slot=i;lockTake(i);rp.s=s;rp.bt=null;rp.pk=null;rp.npcK={};rpApplyWorld();rp.mode='map';story.busy=false;story.scene=null;rp.sig='';rpUI(true);
+  if(lines.length){chars6Save(s);adminLetter(lines)}}
+/* a fix arrives while this hero is played: read the server's copy now, apply, save */
+async function c6FixNow(){const i=C6.slot,ref=i!=null&&cloudRef(i);if(!ref||!rp.s)return;try{const sn=await ref.get();const d=sn.exists&&sn.data();if(!d)return;
+  const lines=adminApplyFixes(rp.s,d.fix);rp.s.test=d.test?1:0;if(lines.length&&rp.s.w6)rpApplyWorld();chars6Save(rp.s);adminLetter(lines);rpUI(true)}catch(e){}}
 function c6Create(){const n=v6HeroName(C6.form.name);if(!n){rpToast('2 to 12 letters, please.');return}
   const taken=[0,1,2,3,4,5].some(i=>{const x=slotInfo(i);return x&&!x.deleted&&x.name.toLowerCase()===n.toLowerCase()});if(taken){rpToast('You already have a hero called '+n+'.');return}
   C6.slot=C6.form.slot;lockTake(C6.slot);rp.s=rpNewState();s6NewGame(n,C6.form.colour);rp.s.created=Date.now();chars6Save(rp.s)}
@@ -77,7 +84,7 @@ function openSelect(){rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountai
   rp.bt=null;rp.dlg=null;rp.pk=null;rp.npcK={};C6.slot=null;rp.mode='c6';show('rpg');rpLayout();requestAnimationFrame(()=>{rpResize();rpUI(true)});cloudLoad().then(()=>rpUI(true))}
 function readName(){const e=typeof document!=='undefined'&&document.getElementById('c6-new');if(e)C6.form.name=e.value}
 feature({id:'chars6',on:{save6:s=>chars6Save(s)},
-  init(){const b=typeof document!=='undefined'&&$('go-rpg');if(!b)return;b.addEventListener('click',e=>{if(window.__kqOldTitle)return;e.stopImmediatePropagation();rpGoFull();openSelect()},true)},
+  init(){adminSetHooks(()=>chars6Save(rp.s),c6FixNow);adminSetTestFight(id=>s6TestFight(id));const b=typeof document!=='undefined'&&$('go-rpg');if(!b)return;b.addEventListener('click',e=>{if(window.__kqOldTitle)return;e.stopImmediatePropagation();rpGoFull();openSelect()},true)},
   panels:{c6:{sig:()=>JSON.stringify([C6.cloud,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
   menu:[{order:3,html:()=>rp.s&&rp.s.w6&&C6.slot!=null?'<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>':''}],
   actions:{c6play:d=>{c6Play(+d.v)},c6force:()=>{c6Play(C6.ask,true)},c6new:d=>{C6.form={name:'Pip',colour:'orange',slot:+d.v};rp.mode='c6new'},c6col:d=>{readName();C6.form.colour=d.v},c6make:()=>{readName();c6Create()},
@@ -85,4 +92,4 @@ feature({id:'chars6',on:{save6:s=>chars6Save(s)},
     c6menu:()=>{chars6Save(rp.s);openSelect()}}});
 /* the lock is renewed while a hero is played, and played time is counted */
 let c6tick=0;frames.push(dt=>{if(C6.slot==null||!rp.s||!rp.s.w6)return;rp.s.played=(rp.s.played||0)+dt;c6tick+=dt;if(c6tick*1000>=RENEW_MS){c6tick=0;lockCheck()}});
-export {C6,C6_COLOURS,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};
+export {C6,C6_COLOURS,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6FixNow,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};

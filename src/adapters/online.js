@@ -21,19 +21,21 @@ function createOnline(url){
   function rpc(m){return new Promise((ok,no)=>{const id=++S.seq;S.pending.set(id,{ok,no});send(Object.assign({rid:id},m));
     setTimeout(()=>{if(S.pending.has(id)){S.pending.delete(id);no(new Error('timeout'))}},15000)})}
   function got(m){switch(m.k){
-    case 'authok':{S.authed=true;S.me={id:m.id,name:m.name,canMail:!!m.canMail,admin:!!m.admin};S.peer=m.peer;if(m.token){S.token=m.token;store.set(TOKEN_KEY,m.token)}
+    case 'authok':{S.authed=true;S.me={id:m.id,name:m.name,canMail:!!m.canMail,admin:!!m.admin,role:m.role||null,motd:m.motd||null,festival:m.festival||null,warns:m.warns||[],mute:m.mute||0};S.peer=m.peer;if(m.token){S.token=m.token;store.set(TOKEN_KEY,m.token)}
       S.others.clear();(m.peers||[]).forEach(p=>S.others.set(p.peer,mk(p)));
       if(Object.keys(S.mine).length)send({k:'pres',presence:S.mine});
       if(m.build&&m.build!=='dev'&&typeof BUILD_ID!=='undefined'&&m.build!==BUILD_ID&&account.onNewVersion)account.onNewVersion(m.build);
       if(S.authWait){S.authWait.ok(S.me);S.authWait=null}
-      S.connH.forEach(h=>h(true));firePeers();refetch(()=>true);break}
+      S.connH.forEach(h=>h(true));firePeers();refetch(()=>true);if(account.onServer)account.onServer(m);break}
     case 'autherr':if(m.stale){S.token=null;store.set(TOKEN_KEY,null)}if(S.authWait){S.authWait.no(m.why);S.authWait=null}break;
     case 'loggedout':break;
+    case 'pwdone':if(S.authWait){S.authWait.ok(null);S.authWait=null}break;
     case 'pres':S.others.set(m.peer,mk(m));firePeers();break;
     case 'gone':S.others.delete(m.peer);firePeers();break;
     case 'emit':(S.handlers[m.topic]||[]).forEach(h=>h({topic:m.topic,data:m.data,peer:m.peer,by:m.by,isMe:false,sameTab:false,kind:'viewer',guest:false}));break;
     case 'dbchg':refetch(p=>p===m.path||m.path.startsWith(p+'/'));break;
-    case 'res':{const p=S.pending.get(m.rid);if(!p)break;S.pending.delete(m.rid);if(m.ok===false){const e=new Error(m.err);e.code=m.err==='missing'?'invalid_argument':m.err;p.no(e)}else p.ok(m.val)}}}
+    case 'res':{const p=S.pending.get(m.rid);if(!p)break;S.pending.delete(m.rid);if(m.ok===false){const e=new Error(m.err);e.code=m.err==='missing'?'invalid_argument':m.err;p.no(e)}else p.ok(m.val);break}
+    default:if(account.onServer)account.onServer(m)}}   /* announce, warned, muted, maint, fixed: the admin tools (net/admin.js) */
   const mk=p=>({peer:p.peer,by:p.by,isMe:false,sameTab:false,kind:'viewer',guest:false,presence:Object.freeze(Object.assign({},p.presence)),updatedAt:Date.now()});
   const meP=()=>({peer:S.peer,by:S.me&&S.me.id,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:S.mine,updatedAt:Date.now()});
   const peers=()=>S.authed?[meP(),...S.others.values()]:[];
@@ -41,7 +43,10 @@ function createOnline(url){
   /* ---------- accounts ---------- */
   function auth(m){return new Promise((ok,no)=>{if(S.authWait)S.authWait.no('cancelled');S.authWait={ok,no};send(m)})}
   const account={
-    onNewVersion:null,
+    onNewVersion:null,onServer:null,
+    /* a password reset with an owner's one-time code (systems.md §17) */
+    resetpw:(name,code,pass)=>auth({k:'resetpw',name,code,pass}),
+    send:m=>send(m),
     /* server-only requests (the messenger, the admin screen): resolves with the reply's value */
     call:m=>rpc(m),/* set by the page: called when the server runs a newer build than this page */
     get loggedIn(){return S.authed},get me(){return S.me},hasToken:()=>!!S.token,

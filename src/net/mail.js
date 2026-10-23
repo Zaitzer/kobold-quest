@@ -38,10 +38,9 @@ async function adminCall(m){try{mail.admin=await online.account.call(Object.assi
 const val=id=>{const i=document.getElementById(id);const v=i?i.value.trim():'';if(i)i.value='';return v};
 feature({id:'messenger',
   panels:{letter:{sig:()=>mail.sending+'|'+mail.msg+'|'+!!mailMe(),html:letterHtml},admin:{sig:()=>JSON.stringify(mail.admin)+mail.msg,html:adminHtml}},
-  menu:[{order:20,html:()=>{const me=mailMe();return me&&me.admin?'<button class="rpb" type="button" data-net="admin">Admin<small>Messenger token and list</small></button>':''}}],
   actions:{
     'net:mailsend'(){mailSend()},'net:mailclose'(){rp.mode='map';mail.msg=''},
-    'net:admin'(){rp.mode='admin';mail.msg='';adminCall({op:'state'})},'net:adminclose'(){rp.mode='menu';mail.msg=''},
+    'net:admin'(){rp.mode='admin';mail.msg='';adminCall({op:'state'})},'net:adminclose'(){rp.mode='adm';mail.msg=''},
     'net:admintoken'(){const t=val('kq-token');if(t)adminCall({op:'token',token:t})},
     'net:wladd'(){const n=val('kq-wl');if(n)adminCall({op:'wladd',name:n})},'net:wldel'(){const n=val('kq-wl');if(n)adminCall({op:'wldel',name:n})}}});
 export {adminCall,adminHtml,letterHtml,mail,mailMe,mailSend,rpOpenLetter,val};

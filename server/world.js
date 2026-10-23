@@ -11,7 +11,8 @@ const sha=t=>crypto.createHash('sha256').update(t).digest('hex');
 const rid=(n=8)=>crypto.randomBytes(n).toString('hex');
 
 class World{
-  constructor(store,opt={}){this.store=store;this.conns=new Set();this.leases=new Map();this.tries=new Map();this.now=opt.now||(()=>Date.now());this.build=opt.build||'dev';this.mail=opt.mail||null}
+  constructor(store,opt={}){this.store=store;this.conns=new Set();this.leases=new Map();this.tries=new Map();this.now=opt.now||(()=>Date.now());this.build=opt.build||'dev';this.mail=opt.mail||null;this.admin=null}
+  nameOk(n){return NAME_RE.test(String(n||''))}
 
   /* public numbers for /status (no names) */
   stats(){const keys=Object.keys(this.store.data||{});return{accounts:keys.filter(k=>k.startsWith('users/')).length,listings:keys.filter(k=>k.startsWith('docs/market/')).length}}
@@ -28,16 +29,21 @@ class World{
     if(!m||typeof m!=='object')return;
     try{
       if(m.k==='register'||m.k==='login'||m.k==='resume')return await this.auth(conn,m);
+      if(m.k==='resetpw'&&this.admin){if(this.limited(conn))return conn.send({k:'autherr',why:'Too many tries. Wait a few minutes.'});const bad=await this.admin.resetPassword(m,scrypt);
+        return conn.send(bad?{k:'autherr',why:bad}:{k:'pwdone'})}
       if(!conn.user)return conn.send({k:'autherr',why:'Please log in.'});
       switch(m.k){
         case 'logout':await this.store.del('sessions/'+sha(String(m.token||'')));conn.send({k:'loggedout'});return conn.end();
         case 'pres':return this.presence(conn,m.presence);
-        case 'emit':return this.emit(conn,m);
+        case 'emit':return await this.emit(conn,m);
         case 'profiles':return conn.send({k:'res',rid:m.rid,val:await this.profiles(m.ids)});
         case 'db':return conn.send(Object.assign({k:'res',rid:m.rid},await this.db(conn,m)));
         case 'ping':return conn.send({k:'pong'});
         case 'mail':return conn.send(Object.assign({k:'res',rid:m.rid},this.mail?await this.mail.send(conn.user,m.text,m.where):{ok:false,err:'no messenger'}));
         case 'mailcheck':return conn.send({k:'res',rid:m.rid,ok:true,val:{canMail:this.mail?await this.mail.canSend(conn.user):false}});
+        case 'adm':return conn.send(Object.assign({k:'res',rid:m.rid},this.admin?await this.admin.call(conn,m):{ok:false,err:'no admin tools'}));
+        case 'report':return conn.send(Object.assign({k:'res',rid:m.rid},this.admin?await this.admin.report(conn,m):{ok:false}));
+        case 'err':if(this.admin)await this.admin.error(conn,m);return;
         case 'admin':return conn.send(Object.assign({k:'res',rid:m.rid},this.mail?await this.mail.admin(conn.user,m):{ok:false,err:'no messenger'}));
       }
     }catch(e){console.error('message',m&&m.k,e);if(m&&m.rid)conn.send({k:'res',rid:m.rid,ok:false,err:'server error'})}
@@ -49,6 +55,7 @@ class World{
     if(m.k==='resume'){const s=await this.store.get('sessions/'+sha(String(m.token||'')));
       if(!s||s.until<this.now())return conn.send({k:'autherr',why:'Your login ran out. Please log in again.',stale:true});
       const u=await this.store.get('users/'+s.lname);if(!u)return conn.send({k:'autherr',why:'That account is gone.',stale:true});
+      {const no=this.admin&&await this.admin.canLogin(u);if(no)return conn.send({k:'autherr',why:no,stale:true})}
       return this.welcome(conn,u,null)}
     if(this.limited(conn))return conn.send({k:'autherr',why:'Too many tries. Wait a few minutes.'});
     const name=String(m.name||'').trim(),pass=String(m.pass||'');
@@ -57,17 +64,19 @@ class World{
     const lname=name.toLowerCase();let u=await this.store.get('users/'+lname);
     if(m.k==='register'){
       if(u)return conn.send({k:'autherr',why:'That name is taken.'});
+      {const M=await this.store.get('config/maint');if(M&&M.on)return conn.send({k:'autherr',why:'The server is being looked after. Try again in a little while.'})}
       const salt=rid(16);u={id:'u_'+rid(6),name,lname,salt,hash:await scrypt(pass,salt),created:this.now()};
       await this.store.put('users/'+lname,u);await this.store.put('ids/'+u.id,{lname})}
     else{
       const bad=()=>conn.send({k:'autherr',why:'Wrong name or password.'});
       if(!u){await scrypt(pass,'x'.repeat(32));return bad()}
-      const h=await scrypt(pass,u.salt);if(!crypto.timingSafeEqual(Buffer.from(h,'hex'),Buffer.from(u.hash,'hex')))return bad()}
+      const h=await scrypt(pass,u.salt);if(!crypto.timingSafeEqual(Buffer.from(h,'hex'),Buffer.from(u.hash,'hex')))return bad();
+      {const no=this.admin&&await this.admin.canLogin(u);if(no)return conn.send({k:'autherr',why:no})}}
     const token=rid(24);await this.store.put('sessions/'+sha(token),{lname,until:this.now()+SESSION_DAYS*864e5});
     return this.welcome(conn,u,token)}
   async welcome(conn,u,token){
-    conn.user={id:u.id,name:u.name,lname:u.lname};const canMail=this.mail?await this.mail.canSend(conn.user):false,admin=this.mail?this.mail.isAdmin(conn.user):false;
-    conn.send({k:'authok',id:u.id,name:u.name,token,build:this.build,canMail,admin,peer:conn.peer,peers:this.authed().filter(c=>c!==conn).map(c=>this.peerOf(c))});
+    conn.user={id:u.id,name:u.name,lname:u.lname};const canMail=this.mail?await this.mail.canSend(conn.user):false,G=this.admin?await this.admin.greet(u):{},admin=!!(G.role||(this.mail&&this.mail.isAdmin(conn.user)));
+    conn.send({k:'authok',id:u.id,name:u.name,token,build:this.build,canMail,admin,role:G.role||null,motd:G.motd||null,festival:G.festival||null,warns:G.warns||[],mute:G.mute||0,peer:conn.peer,peers:this.authed().filter(c=>c!==conn).map(c=>this.peerOf(c))});
     this.broadcast({k:'pres',...this.peerOf(conn)},conn)}
   async profiles(ids){const out={};for(const id of [].concat(ids||[]).slice(0,50)){const r=await this.store.get('ids/'+id);const u=r&&await this.store.get('users/'+r.lname);if(u)out[id]={id,name:u.name}}return out}
 
@@ -75,7 +84,9 @@ class World{
   presence(conn,p){if(!p||typeof p!=='object'||JSON.stringify(p).length>MAX_MSG)return;
     const next=Object.assign({},conn.presence,p);for(const k in next)if(next[k]===null)delete next[k];conn.presence=next;
     this.broadcast({k:'pres',...this.peerOf(conn)},conn)}
-  emit(conn,m){const data=m.data;const s=JSON.stringify(data);if(!s||s.length>MAX_MSG)return;
+  async emit(conn,m){let data=m.data;const s=JSON.stringify(data);if(!s||s.length>MAX_MSG)return;
+    if(this.admin&&data&&data.t==='chat'){data=await this.admin.chatLine(conn,data);if(!data)return}
+    if(this.admin&&data&&data.t==='gift')this.admin.gift(conn,data,this.authed().find(c=>c.peer===data.to));
     const msg=JSON.stringify({k:'emit',topic:String(m.topic||''),data,peer:conn.peer,by:conn.user.id});
     for(const c of this.authed())if(c!==conn&&(!data||!data.to||data.to===c.peer))c.sendRaw(msg)}
 

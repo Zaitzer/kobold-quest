@@ -13,7 +13,9 @@
   <form class="tlogin" id="login" hidden autocomplete="on">
     <input id="login-name" name="username" autocomplete="username" placeholder="Kobold name" maxlength="16" autocapitalize="off" spellcheck="false" aria-label="Name">
     <input id="login-pass" name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+    <input id="login-code" hidden autocomplete="off" placeholder="Reset code" maxlength="12" autocapitalize="characters" spellcheck="false" aria-label="Reset code">
     <div class="trow"><button class="pill go" id="login-go" type="submit">Log in</button><button class="pill" id="login-new" type="button">New account</button></div>
+    <button class="linkbtn" id="login-hascode" type="button">I have a reset code</button>
     <p class="tlmsg" id="login-msg" role="status"></p>
   </form>
   <button class="bigplay" id="go-rpg" type="button">Play</button>
