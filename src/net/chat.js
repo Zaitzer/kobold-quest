@@ -1,7 +1,7 @@
 /* ---------- chat ---------- */
 import {view} from '../core/app.js';
 import {feature} from '../core/registry.js';
-import {rp} from '../core/state.js';
+import {rp,rpPlace} from '../core/state.js';
 import {yip} from '../engine/audio.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
@@ -18,7 +18,7 @@ function netGotChat(d,msg){const txt=netCleanText(d.txt);if(!txt)return;net.bubb
 /* yip: everyone on the same map hears it, louder the closer they are, from the side they are on */
 const YIP_RANGE=14;
 function netYipPitch(id){let h=2166136261;for(const c of String(id||''))h=Math.imul(h^c.charCodeAt(0),16777619)>>>0;return .85+(h%1000)/1000*.4}
-function netYipLevel(me,them){if((them.pl||'world')!==(rp.s.place||'world'))return null;const dx=them.x-me.x,dy=them.y-me.y,d=Math.hypot(dx,dy);
+function netYipLevel(me,them){if((them.pl||'none')!==rpPlace())return null;const dx=them.x-me.x,dy=them.y-me.y,d=Math.hypot(dx,dy);
   return{vol:Math.pow(Math.max(0,1-d/YIP_RANGE),1.5),pan:Math.max(-1,Math.min(1,dx/8))}}
 function netYip(){const now=performance.now();if(now-(net.lastYip||0)<450)return;net.lastYip=now;
   netEmit({t:'yip'});net.bubbles.me={txt:'Yip!',t:now};yip(.9,0,netYipPitch(net.me))}

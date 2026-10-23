@@ -15,14 +15,14 @@ node test/run.js           # everything; `node test/run.js quick` skips the brow
 | folder | what lives there | depends on |
 |---|---|---|
 | `engine/` | kobold art, weapons drawing, sound, music, particles, small helpers | nothing |
-| `data/` | content tables: items, classes, skills, monsters, zones, world map, NPC dialogue and quests | engine |
-| `core/` | game state, saves and migrations, event bus, feature registry, quest rules, layout, input, boot | data, engine |
+| `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design by `tools/gen-data.js`), the registries the battle code reads, consumables | engine |
+| `core/` | game state, the save format (`save6.js`), event bus, feature registry, story conditions, layout, input, boot | data, engine |
 | `adapters/` | browser storage and the page's online services (room, user, db) | nothing |
-| `game/` | map play: movement, NPCs, stats, items, gear crafting, promotions | core, data |
+| `game/` | the world (`world6.js`), the story (`story6.js`), the character sheet, talents, items, music choice, movement | core, data |
 | `battle/` | tactical battles: rules, flow, enemy AI, drawing, touch input | core, data |
-| `render/` | map and item icon drawing | engine, data |
-| `ui/` | the HUD, the ☰ menu, side sheets, the heroes and gear screen | everything above |
-| `net/` | friends online: presence, lobby, co-op and duel battles, gifts, chat, market, cloud saves | everything above |
+| `render/` | map drawing | engine, data |
+| `ui/` | the heroes screen, the HUD, the ☰ menu, the pack's sheets, the Book, settings | everything above |
+| `net/` | friends online: presence, lobby, co-op and duel battles, gifts, chat, market, letters, admin tools | everything above |
 | `dev/` | test hooks, only in the test build | |
 
 `src/systems.js` lists every module in load order. `src/main.js` imports it, then `core/boot.js` runs
@@ -37,7 +37,6 @@ feature({
   id:'fishing',
   panels:{fishing:{sig:()=>rp.s.fish, html:()=>'<div class="rpdlg">…</div>'}}, // side sheet for rp.mode='fishing'
   actions:{cast:d=>castLine(), 'net:fishgift':d=>…},                       // data-rp="cast", data-net="fishgift"
-  tiles:{F:{use:(x,y)=>{rp.mode='fishing'}}},                               // bump into a map tile letter F
   menu:[{order:20,html:()=>'<button class="rpb" data-rp="cast">Fish</button>'}],
   options:[{id:'bobber',label:()=>'Bobber '+…,hint:'…',toggle(){…}}],      // a settings row
   net:{fishgift(d,msg){…}},                                                 // an online message type
@@ -47,50 +46,38 @@ feature({
 ```
 
 Put it in a new module, add one line to `src/systems.js`, run `node tools/imports.js`. Adding `fishing:false` to `FLAGS` in `core/registry.js`
-switches the whole feature off. `test/logic/wiring.test.js` fails if a button, mode or tile has no handler.
+switches the whole feature off. `test/logic/wiring.test.js` fails if a button or mode has no handler.
 
 Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:won`, `battle:lost`, `battle:end`, `save`.
 
 ## Content is data
 
-* **The story** is the Hatching (`docs/story-hatching.md`): quest flags are listed at the top of `data/dialogue.js`,
-  barriers across routes (`BARRIERS` in `data/overworld.js`) open on those flags, and `test/logic/hatching.test.js` plays it through.
-* **Dialogue and quests** are rules in `data/dialogue.js`, read by `core/rules.js`. Each villager has a list of
-  rules; the first whose `if` holds speaks. Effects (`set`, `add`, `gold`, `xp`, `item`, `join`, `fight`, `toast`…)
-  run `now`, `then`, or on a choice. The quest log and the top-bar quest line are rule lists too.
-* **Bosses** (what beating them does and drops), **kill tallies** and **bounties** are in `data/quests.js`.
-* **The world** (`data/overworld.js`) is a region of 600 × 350 tiles laid out like a handheld adventure: 10 towns joined by
-  15 numbered routes (grassy, woods, desert, mountain pass, snow, marsh, shore, a cave tunnel and sea bridges), walled in by
-  forest, cliffs and sea. `REGION` is the plan, one letter per 10 × 10 block; edit it to add or move routes and towns. Routes
-  are grown from the plan with noise but always get a path through; towns get a ring wall, roads, a healing fountain (`O`),
-  signs (`i`) and houses whose doors open into rooms made on the spot. The Burrowhome valley sits unchanged in the
-  north-west corner. `test/logic/overworld.test.js` checks every town, route, door and sign.
-* **Drawings** (`art/sprites/*.png`, names listed in `art/WANTED.md`, which the build writes) replace the look drawn in
-  code wherever they exist: characters by id (`makeK({art})`, `engine/sprites.js`), tiles by letter (`TILE_ART` in
-  `render/map.js`). The Claude page has them built in (`KQ_ART`); the website fetches `art/manifest.json`, which
-  `deploy/install.sh` makes on every update with `server/art.js`, so a pushed drawing is live in about two minutes.
-* **Rooms** are drawn as rows of letters in `data/places.js`; `RP_DOORS` says which world door leads where. NPCs, chests and
-  quest spots take `place:'inn'` to live inside. `test/logic/places.test.js` checks every room is closed in and reachable.
-* **Pickups and quest spots** on the map are in `data/world.js` (`RP_PICKUPS`, `RP_SPOTS`).
-* Balance knobs are `BAL` in `data/battle.js`; `test/sim/battle.js` and `test/sim/quest.js` measure them.
+* **Everything is made from the design.** `tools/gen-data.js` reads the design's tools and documents and writes `src/data/v6/`
+  (classes, skills, foes, items, the slice's maps and rooms, the script and its scenes). Don't edit those files; change the design and
+  run it again. `test/logic/v6data.test.js` fails if they are out of date.
+* **The story** (`docs/story-hatching.md`, `docs/slice-dialogue.md`) is played by `game/story6.js`: scenes from `tools/v6/scenes.js`
+  with their places, conditions (`core/rules.js`) and steps (say, fight, choice, join, give, deed…). `test/logic/story6.test.js`
+  plays it from the bakery to the tube, once per class.
+* **The world** is `game/world6.js` on the maps in `data/v6/maps.js`: links, fountains, stables, patrols, encounters, chests, the
+  dark floor, the flood, the rail puzzle.
+* **Sprite sheets** (`art/v6`, listed in `art/v6/ASSETS.md`) replace the look drawn in code wherever one is drawn
+  (`engine/sheets6.js`). The Claude page has them built in (`KQ_ART`); the website fetches `art/manifest.json`, which
+  `deploy/install.sh` makes on every update with `server/art.js`.
 
 ## Saves
 
-`core/save.js` owns the format. To change it: bump `SAVE_VERSION`, add `MIGRATIONS[oldVersion](save)`.
-Every save copy (this browser, the cloud) goes through the migrations as it loads, and the newest copy wins.
-A save from a newer version is left alone rather than overwritten. Local key `kobold-pit-rpg`,
-cloud doc `data/users/<id>/save`, market collection `market`, room topic `kq`: all unchanged.
+`core/save6.js` owns the format (one document per hero, six slots: `ui/chars6.js`). Missing fields take their defaults as a save
+loads; a change of shape gets a migration in `MIGRATIONS6`. `SAVE6_EPOCH` with `"epoch"` in `server/config.json` resets everyone's
+progress once. Cloud docs `data/users/<id>/char<n>` and `lock<n>`, market collection `market`, room topic `kq`.
 
 ## Layout and styles
 
 Sideways only: an upright phone gets the whole view turned a quarter turn (`core/layout.js`, `rpLoc`/`rpVec`
 turn touches back). Styles are split by screen: `base`, `title`, `hud`, `sheets`, `battle`, `hero`, `online`
-(order in `styles/order.json`). `node test/browser/styles.js save|compare file.json` snapshots the computed style
-of every element on 16 screens at 3 sizes, to restyle without surprises.
+(order in `styles/order.json`).
 
 ## Tests
 
-* `test/logic/*` run the whole game in Node (`test/lib/game.js`). Parity tests replay the same dice through the
-  last hand-written version (`test/fixtures/v37.html`): 48 full battles, 9,600 conversations, every content table, saves.
-* `test/browser/*` drive the real page in Chromium at phone, upright phone and desktop sizes; `tnet` and `tmmo`
-  play two and three players through a mocked room and database (`netmock.js`).
+* `test/logic/*` run the whole game in Node (`test/lib/game.js`); `test/browser/*` drive the real page in Chromium, at four screen
+  sizes, two players through a mocked room (`netmock.js`), and the website against a real local server (`tsite`).
+* `node test/run.js` runs every test as its own job, side by side; `test/qa.js` maps every system in `systems.md` §0 to its tests.

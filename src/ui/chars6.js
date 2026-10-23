@@ -5,12 +5,12 @@
    a lock document renewed every 30 seconds. Old saves are not carried over (progress was reset for v6). */
 import {store} from '../adapters/storage.js';
 import {show} from '../core/app.js';
-import {rpGoFull,rpLayout,rpResize} from '../core/layout.js';
+import {rpLayout,rpResize} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
 import {SLOTS6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
 import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
-import {$,esc2} from '../engine/util.js';
+import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {s6NewGame,s6TestFight,story} from '../game/story6.js';
 import {w6Title} from '../game/world6.js';
@@ -84,7 +84,7 @@ function openSelect(){rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountai
   rp.bt=null;rp.dlg=null;rp.pk=null;rp.npcK={};C6.slot=null;rp.mode='c6';show('rpg');rpLayout();requestAnimationFrame(()=>{rpResize();rpUI(true)});cloudLoad().then(()=>rpUI(true))}
 function readName(){const e=typeof document!=='undefined'&&document.getElementById('c6-new');if(e)C6.form.name=e.value}
 feature({id:'chars6',on:{save6:s=>chars6Save(s)},
-  init(){adminSetHooks(()=>chars6Save(rp.s),c6FixNow);adminSetTestFight(id=>s6TestFight(id));const b=typeof document!=='undefined'&&$('go-rpg');if(!b)return;b.addEventListener('click',e=>{if(window.__kqOldTitle)return;e.stopImmediatePropagation();rpGoFull();openSelect()},true)},
+  init(){adminSetHooks(()=>chars6Save(rp.s),c6FixNow);adminSetTestFight(id=>s6TestFight(id));},
   panels:{c6:{sig:()=>JSON.stringify([C6.cloud,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
   menu:[{order:3,html:()=>rp.s&&rp.s.w6&&C6.slot!=null?'<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>':''}],
   actions:{c6play:d=>{c6Play(+d.v)},c6force:()=>{c6Play(C6.ask,true)},c6new:d=>{C6.form={name:'Pip',colour:'orange',slot:+d.v};rp.mode='c6new'},c6col:d=>{readName();C6.form.colour=d.v},c6make:()=>{readName();c6Create()},

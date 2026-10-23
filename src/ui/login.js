@@ -4,7 +4,7 @@ import {createOnline} from '../adapters/online.js';
 import {platform} from '../adapters/platform.js';
 import {view} from '../core/app.js';
 import {feature} from '../core/registry.js';
-import {rpSave,setSaveKey} from '../core/save.js';
+import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {$} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
@@ -18,7 +18,6 @@ function wsUrl(){return(location.protocol==='https:'?'wss:':'ws:')+'//'+location
 function say(t,bad){const m=$('login-msg');m.textContent=t||'';m.classList.toggle('bad',!!bad)}
 function showLoggedOut(){$('login').hidden=false;$('go-rpg').hidden=true;$('tuser').hidden=true;setTimeout(()=>{try{$('login-name').focus()}catch(e){}},50)}
 async function loggedIn(me){
-  setSaveKey('kq-save-'+me.id);
   platform.provider=online.provider;
   say('Loading your kobolds…');
   await netInit();

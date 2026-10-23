@@ -1,8 +1,7 @@
 /* ---------- Kobold Quest v6: the character save (build step 3; systems.md §11, §16) ----------
    One document per character (a hero and everything that belongs to it). The account's shared part and the slot list are a
-   separate document (build step 14). Not switched on yet: the old game keeps its save until the v6 world can be played (step 11),
-   so this module only builds, checks, upgrades and stores v6 saves, and turns an old save into a read-only legacy hero.
-   Server paths (step 14): data/users/<account>/chars/<slot>, data/users/<account>/account, data/users/<account>/legacy. */
+   separate document (build step 14). This module builds, checks, upgrades and stores saves.
+   Server paths (step 14): data/users/<account>/char<slot>, data/users/<account>/lock<slot>. */
 import {store} from '../adapters/storage.js';
 
 const SAVE6_VERSION=1,SAVE6_EPOCH=3,SLOTS6=6;
@@ -27,18 +26,14 @@ function v6SaveOf(s){const o=JSON.parse(JSON.stringify(Object.assign({},s,{party
 /* upgrade and check a v6 save as it loads: missing fields take their defaults (so adding a field never needs a migration),
    wrong shapes are refused (null) */
 const MIGRATIONS6={};
-function v6Load(o){if(!o||typeof o!=='object'||o.legacy)return null;o=JSON.parse(JSON.stringify(o));o.v=o.v||1;
+function v6Load(o){if(!o||typeof o!=='object')return null;o=JSON.parse(JSON.stringify(o));o.v=o.v||1;
   while(o.v<SAVE6_VERSION){const f=MIGRATIONS6[o.v];if(!f)return null;f(o);o.v++}if(o.v!==SAVE6_VERSION||(o.epoch||0)<SAVE6_EPOCH)return null;
   const d=v6NewSave({name:o.hero&&o.hero.name});for(const k of Object.keys(d))if(o[k]===undefined||(d[k]!==null&&(typeof o[k]!==typeof d[k]||Array.isArray(o[k])!==Array.isArray(d[k]))))o[k]=d[k];
   if(!v6HeroName(o.hero.name))o.hero.name='Pip';
   o.party=o.party.filter(m=>m&&m.v6&&m.cls&&m.lvl>=1&&m.lvl<=30);o.roster=o.roster.filter(m=>m&&m.v6&&m.cls);return o}
-/* the old game's save becomes the legacy hero (systems.md §16): kept whole and read-only, with a summary for the select screen */
-function v6Legacy(old){if(!old||typeof old!=='object'||!Array.isArray(old.party)||!old.party.length)return null;const p=old.party[0];
-  return{legacy:true,name:p.name||'Pip',lvl:p.lvl||1,pack:old.party.map(m=>m.name),gold:old.gold||0,seals:(old.seals||0),savedAt:old.savedAt||0,data:JSON.parse(JSON.stringify(old))}}
 /* this browser's copies (the server's are step 14): one key per account and slot */
 const key6=(acct,slot)=>'kq6:'+(acct||'guest')+':'+slot;
 function v6Store(acct,slot,s){if(slot<0||slot>=SLOTS6)return false;s.savedAt=Date.now();store.set(key6(acct,slot),v6SaveOf(s));return true}
 function v6Fetch(acct,slot){try{return v6Load(store.get(key6(acct,slot),null))}catch(e){return null}}
 function v6Slots(acct){const out=[];for(let i=0;i<SLOTS6;i++){const s=v6Fetch(acct,i);out.push(s?{slot:i,name:s.hero.name,cls:s.party[0]&&s.party[0].cls,lvl:s.party[0]?s.party[0].lvl:1,seals:s.seals.length,played:s.played,savedAt:s.savedAt,where:s.respawn}:null)}return out}
-function v6KeepLegacy(acct,old){const L=v6Legacy(old);if(L&&!store.get(key6(acct,'legacy'),null))store.set(key6(acct,'legacy'),L);return L}
-export {KOBOLD_KEYS,MIGRATIONS6,SAVE6_EPOCH,SAVE6_VERSION,SLOTS6,key6,v6Fetch,v6HeroName,v6KeepLegacy,v6Legacy,v6Load,v6NewSave,v6PackKobold,v6SaveOf,v6Slots,v6Store};
+export {KOBOLD_KEYS,MIGRATIONS6,SAVE6_EPOCH,SAVE6_VERSION,SLOTS6,key6,v6Fetch,v6HeroName,v6Load,v6NewSave,v6PackKobold,v6SaveOf,v6Slots,v6Store};

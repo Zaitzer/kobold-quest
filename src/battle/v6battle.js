@@ -1,6 +1,5 @@
 /* ---------- Kobold Quest v6: the battle layer (build steps 5, 6, 8) ----------
-   v6 kobolds (m.v6) and v6 foes (E.v6) fight by the v6 rules (battle/v6rules.js); the old units keep the old rules until the world
-   is rebuilt, so the v37 parity test still guards them. The engine's own functions (rules.js, flow.js, input.js) call in here at a
+   Kobolds and foes fight by the rules in battle/v6rules.js. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
 import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
@@ -303,7 +302,7 @@ function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+
     '<div class="tbar"><button class="rpb" type="button" data-rp="labwalk">Walk the slice<small>test: Hearthspire, R1, the mine</small></button><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
 feature({id:'fightlab',init(){v6RegisterSkills()},
   panels:{lab:{sig:()=>JSON.stringify([v6Lab.pack,v6Lab.lvl,v6Lab.place,v6Lab.theme,v6Lab.sig,(v6Lab.ks||[]).map(m=>m&&[m.lvl,m.pend])]),html:v6LabHtml}},
-  menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
+  menu:[{order:90,html:()=>rp.s&&rp.s.test?'<button class="rpb" type="button" data-rp="lab">Fight lab<small>test fights (a test hero)</small></button>':''}],
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()},labwalk:()=>{v6LabRead();const ks=v6LabKobolds().filter(Boolean);ks.forEach(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp});w6Start(ks)}}});
 function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
   for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}

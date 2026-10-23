@@ -1,4 +1,4 @@
-/* the v6 save (build step 3, systems.md §11, §16): a new character saves and loads every field; an old save becomes the legacy hero */
+/* the v6 save (build step 3, systems.md §11, §16): a new character saves and loads every field */
 process.emitWarning=()=>{};
 let fails=0,checks=0;const bad=m=>{fails++;console.log('FAIL',m)};const ok=(c,m)=>{checks++;if(!c)bad(m)};
 const X=require('../lib/game.js')();X.rp.headless=true;
@@ -15,8 +15,5 @@ ok(!('junk' in p2),'runtime fields are not saved');ok(JSON.stringify(X.v6Stats(p
 // a save missing fields takes the defaults; a broken one is refused; an old-epoch one is ignored
 const thin=JSON.parse(json);delete thin.stables;delete thin.fame;const t2=X.v6Load(thin);ok(t2&&Array.isArray(t2.stables)&&t2.fame===0,'missing fields take their defaults');
 ok(X.v6Load({party:'x'})===null||X.v6Load({party:'x'}).party.length===0,'a broken save gives nothing to play');ok(X.v6Load(Object.assign(JSON.parse(json),{epoch:1}))===null,'a save from before the reset is ignored');
-// the old game's save becomes the legacy hero, kept whole
-const old=X.rpNewState();old.gold=77;const L=X.v6Legacy(old);ok(L&&L.legacy&&L.gold===77&&L.data.gold===77&&L.name===old.party[0].name,'the old save becomes a legacy hero');ok(X.v6Load(L)===null,'a legacy hero is not played as v6');
-// six slots in this browser
 ok(X.v6Slots('acct').length===6&&X.v6Slots('acct').every(x=>x===null),'six empty slots');
 console.log(fails?fails+' failures':'v6 save: '+checks+' checks');process.exitCode=fails?1:0;

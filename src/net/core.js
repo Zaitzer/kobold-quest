@@ -9,7 +9,6 @@ import {rp,rpPlace} from '../core/state.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpHat} from '../game/stats.js';
 import {rpArea} from '../game/world.js';
-import {netCloudInit} from './cloud.js';
 import {netGiftTick} from './gift.js';
 import {netLobSend} from './lobby.js';
 import {netMarketInit} from './market.js';
@@ -26,7 +25,7 @@ async function netInit(){
     net.room=room;net.user=user;net.db=db;
     if(user){try{net.me=await user.id()}catch(e){}}
     if(room){room.on('kq',netMsg,()=>{});room.onPeers(netPeers,()=>{});net.on=true}
-    if(db&&net.me){await netCloudInit();netMarketInit()}
+    if(db&&net.me){netMarketInit()}
   }catch(e){console.warn('online features unavailable',e)}
 }
 /* ---------- who's here: everyone in the room who is playing ---------- */
@@ -55,7 +54,7 @@ function netPartnerFree(){return netOnline()&&net.others.some(p=>p.presence.m===
 function netEmit(data){if(!net.room)return;try{net.room.emit('kq',data).catch(()=>{})}catch(e){}}
 /* my own presence: where I am and what I'm doing */
 function netPresence(force){
-  if(!net.room||!rp.s)return;const now=performance.now();if(!force&&now-net.lastPres<120)return;
+  if(!net.room||!rp.s||!rp.s.party[0])return;const now=performance.now();if(!force&&now-net.lastPres<120)return;   /* the heroes screen: nobody to show yet */
   const s=rp.s,m=s.party[0],p=rp.pos||{x:s.x+.5,y:s.y+.5};
   const pr={kq:1,pl:rpPlace(),x:Math.round(p.x*100)/100,y:Math.round(p.y*100)/100,f:s.face,a:rpArea(s.x,s.y),m:rp.mode==='battle'||rp.mode==='lobby'?rp.mode:rp.mode==='map'?'map':'busy',lv:m.lvl,cl:m.cls,w:m.w,h:rpHat(m),
     op:net.lob&&net.lob.host&&!net.lob.duel&&!net.lob.g&&rp.mode==='lobby'?net.lob.id:null,nm:'',pn:s.party.length};

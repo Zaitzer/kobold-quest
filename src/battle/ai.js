@@ -5,7 +5,6 @@ import {v6AiTurn,v6PosHabit,v6TogetherOpts} from './v6battle.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
-import {WEAPONS} from '../engine/art.js';
 import {pick} from '../engine/util.js';
 import {rpMemSkills,rpStats} from '../game/stats.js';
 
@@ -18,7 +17,7 @@ function tcPosScore(b,u,x,y){
   let threat=0,dn=99;const melee=tcMelee(u),TW=rpTW(tcW(u));
   foes.forEach(f=>{const F=f.ghost?f.u:f,fx=F.x,fy=F.y;F.x=f.x;F.y=f.y;
     const d=tcEuc(F,u);dn=Math.min(dn,d);const fm=tcMelee(F),reach=fm?tcMov(F)*2+rpTW(tcW(F)).r:tcMov(F)+rpTW(tcW(F)).r;
-    if(d<=reach+.5){const cv=fm?0:tcCover(b,u,F.x,F.y).c,h=(fm?.9:.75)-cv*.2-(u.sz===1&&tcT(tcAt(b,x,y)).grass?.1:0);threat+=Math.max(.05,h)*tcAvg(tcDmg(b,F,u,1))*(b.v6&&F.E&&F.E.boss?.35:1)}   // v6: a boss's blows land wherever you stand (focus by threat)
+    if(d<=reach+.5){const cv=fm?0:tcCover(b,u,F.x,F.y).c,h=(fm?.9:.75)-cv*.2-(u.sz===1&&tcT(tcAt(b,x,y)).grass?.1:0);threat+=Math.max(.05,h)*tcAvg(tcDmg(b,F,u,1))*(F.E&&F.E.boss?.35:1)}   // v6: a boss's blows land wherever you stand (focus by threat)
     F.x=fx;F.y=fy});
   /* bosses don't get scared when hurt: they keep coming instead of hiding out of sight */
   let s=-threat/Math.max(8,u.E&&u.E.boss?u.max:u.hp)*30;
@@ -26,7 +25,7 @@ function tcPosScore(b,u,x,y){
     else if(u.E&&u.E.healer)s-=Math.max(0,3-dn)*6;
     else{if(dn<2)s-=10;if(dn<=(TW.o||TW.r)+.5)s+=5;else s-=(dn-(TW.o||TW.r))*1.5}}
   if(u.sz===1&&tcT(tcAt(b,x,y)).grass)s+=1.5;
-  if(b.v6&&u.side===1&&foes.length)s+=v6PosHabit(b,u,x,y,dn);
+  if(u.side===1&&foes.length)s+=v6PosHabit(b,u,x,y,dn);
   b.chans.forEach(c=>{if(c.side!==u.side&&Math.hypot(x-c.cx,y-c.cy)<=c.area+1.01)s-=60});
   if(u.side===0&&b.exits)s+=0;
   u.x=ox;u.y=oy;return s;
@@ -35,7 +34,7 @@ function tcPosScore(b,u,x,y){
 function tcOptions(b,u,apLeft){
   const out=[],foes=tcFoes(b,u),w=tcW(u);
   const pay=c=>c==='end'?apLeft>=1:apLeft>=c;
-  const val=(t,mul,o)=>{const H=o&&o.spell?{h:100,fl:false}:tcHit(b,u,t,o),dm=tcAvg(tcDmg(b,u,t,mul,o))*(1+tcCrit(b,u,t,H.fl)*.5),ev=H.h/100*dm;return ev/Math.max(10,b.v6&&t.E&&t.E.boss?Math.min(t.max,u.max||100):t.max)*55+(dm>=t.hp?22*H.h/100:0)};
+  const val=(t,mul,o)=>{const H=o&&o.spell?{h:100,fl:false}:tcHit(b,u,t,o),dm=tcAvg(tcDmg(b,u,t,mul,o))*(1+tcCrit(b,u,t,H.fl)*.5),ev=H.h/100*dm;return ev/Math.max(10,t.E&&t.E.boss?Math.min(t.max,u.max||100):t.max)*55+(dm>=t.hp?22*H.h/100:0)};
   if(pay(tcActCost(u,{k:'atk'})))foes.forEach(t=>{if(tcInReach(b,u,t))out.push({act:{k:'atk',t},v:val(t,1,{})+(rpTW(w).splash?4:0)})});
   if(u.m){const m=u.m,st=rpStats(m);
     rpMemSkills(m).forEach(sk=>{const S=RP_SK[sk],T=RP_ST[sk]||{ap:'end'};if(m.mp<S.mp||!pay(T.ap))return;const mpc=S.mp*.6;
@@ -47,26 +46,14 @@ function tcOptions(b,u,apLeft){
       else if(S.heal){b.units.forEach(t=>{if(t.side===u.side&&tcLive(t)&&t.hp<t.max*.6&&tcInReach(b,u,t,T.rng))out.push({act:{k:'sk',sk,t},v:Math.min(t.max*S.heal,t.max-t.hp)/t.max*40-mpc})})}
       else if(S.revive){b.units.forEach(t=>{if(t.side===u.side&&!t.fled&&t.hp<=0&&tcCheb(u,t)<=1)out.push({act:{k:'sk',sk,t},v:40})})}
       else foes.forEach(t=>{if(!tcInReach(b,u,t,T.rng))return;const o={spell:T.spell,aim:T.aim};let v=val(t,S.mul,o)-mpc;if(S.stun&&!(t.E&&t.E.boss))v+=6;if(T.chain)v*=1.8;out.push({act:{k:'sk',sk,t},v})})});
-    if(b.v6&&pay(1))v6TogetherOpts(b,u).forEach(({f,t})=>out.push({act:{k:'together',f,t},v:val(t,1,{})+val(t,1,{})*0.8}));
-    ['potion','feather'].forEach(k=>{if(!(rp.s.bag[k]>0)||!pay(1))return;b.units.forEach(t=>{if(t.side!==u.side||t.fled||tcCheb(u,t)>1)return;
-      if(k==='potion'&&tcLive(t)&&t.hp<t.max*.35)out.push({act:{k:'it',it:k,t},v:18});if(k==='feather'&&t.hp<=0)out.push({act:{k:'it',it:k,t},v:30})})})}
-  else{const E=u.E;
-    if(E.healer&&pay(1))b.units.forEach(t=>{if(t.side===1&&tcLive(t)&&t.hp<t.max*.6&&tcInReach(b,u,t,5))out.push({act:{k:'eheal',t},v:(t.max-t.hp)/t.max*35})});
-    if(E.smash&&pay(2)){const adj=foes.filter(t=>tcCheb(u,t)<=1);if(adj.length&&(u.turns%E.smash===0||adj.length>1))out.push({act:{k:'esmash'},v:adj.reduce((a,t)=>a+val(t,.75,{}),0)+8})}
-    if(E.all&&pay(2))foes.forEach(t=>{if(!tcInReach(b,u,t))return;let v=0;foes.forEach(x=>{if(Math.hypot(x.x-t.x,x.y-t.y)<=1.01)v+=val(x,.7,{spell:WEAPONS[E.w].magic})});if(foes.filter(x=>Math.hypot(x.x-t.x,x.y-t.y)<=1.01).length>1)out.push({act:{k:'eall',cx:t.x,cy:t.y},v:v+2})})}
-  if(u.focus&&u.E&&u.E.v6)out.forEach(o=>{const t=o.act&&o.act.t;if(t&&t.side!==u.side&&t!==u.focus)o.v*=0.25});   // v6: the focus drawn by threat
+    if(pay(1))v6TogetherOpts(b,u).forEach(({f,t})=>out.push({act:{k:'together',f,t},v:val(t,1,{})+val(t,1,{})*0.8}));
+    if((rp.s.bag.potion||0)>0&&pay(1))b.units.forEach(t=>{if(t.side===u.side&&!t.fled&&tcCheb(u,t)<=1&&tcLive(t)&&t.hp<t.max*.35)out.push({act:{k:'it',it:'potion',t},v:18})})}
+  if(u.focus&&u.E)out.forEach(o=>{const t=o.act&&o.act.t;if(t&&t.side!==u.side&&t!==u.focus)o.v*=0.25});   // v6: the focus drawn by threat
   return out;
-}
-function tcEnemyDo(u,act){const b=rp.bt,E=u.E;
-  if(act.k==='eheal'){u.ap=0;tcQ({k:'heal',a:u,tg:act.t,o:{amt:.35}});b.msg=u.name+' heals '+act.t.name+'.';return}
-  if(act.k==='esmash'){u.ap=0;const nm=u.key==='vexx'?'Royal cleave':'Ground smash';b.msg=u.name+' uses '+nm+'!';b.units.filter(t=>t.side===0&&tcLive(t)&&tcCheb(u,t)<=1).forEach(t=>tcQ({k:'atk',a:u,tg:t,o:{mul:.75,name:nm}}));return}
-  if(act.k==='eall'){u.ap=0;const magic=WEAPONS[E.w].magic,nm=magic?'Fireball':'Scattershot';b.msg=u.name+' uses '+nm+'!';
-    b.units.filter(t=>t.side===0&&tcLive(t)&&Math.hypot(t.x-act.cx,t.y-act.cy)<=1.01).forEach(t=>tcQ({k:'atk',a:u,tg:t,o:{mul:.7,spell:magic,name:nm}}));return}
-  tcDo(u,act);
 }
 function rpAiTurn(u){
   const b=rp.bt;
-  if(b.v6&&u.side===1&&u.E&&u.E.v6&&u.aware&&v6AiTurn(b,u))return;
+  if(u.side===1&&u.E&&u.aware&&v6AiTurn(b,u))return;
   if(u.side===1&&!u.aware){/* idle groups shuffle about a little */
     if(Math.random()<.45){const R=tcReach(b,u,2),opts=[];R.dist.forEach((d,k)=>{if(d>0)opts.push(k)});if(opts.length){const k=pick(opts);const p=tcPath(R,k%b.W,(k/b.W)|0);if(p)tcQ({k:'move',u,path:p,i:0,id:++b.moveId})}}
     u.ap=0;b.phase='ai';return}
@@ -94,7 +81,7 @@ function rpAiTurn(u){
   if(P&&P.act){const act=P.act;tcQ({k:'fn',fn:()=>{if(!tcLive(u)||rp.bt!==b)return;
       if(act.t&&!tcLive(act.t)&&act.k!=='sk'&&act.k!=='it')return;
       if(act.k==='atk'&&!tcInReach(b,u,act.t))return;
-      if(u.side===1&&(act.k==='eheal'||act.k==='esmash'||act.k==='eall'))tcEnemyDo(u,act);else tcDo(u,act)}})}
+      tcDo(u,act)}})}
   if(!P||(!P.path&&!P.act))b.msg=u.name+' waits.';
   b.phase='ai';
 }
@@ -102,4 +89,4 @@ function tcAooRisk(b,u,ox,oy,path){if(!path)return 0;let r=0,px=ox,py=oy;
   for(const [x,y] of path){b.units.forEach(o=>{if(o.side===u.side||!tcLive(o)||!tcMelee(o)||(o.side===1&&!o.aware))return;const rr=rpTW(tcW(o)).r;
       if(tcCheb(o,{x:px,y:py,sz:u.sz})<=rr&&tcCheb(o,{x,y,sz:u.sz})>rr)r+=.8*tcAvg(tcDmg(b,o,u,1))/Math.max(8,u.hp)*30});px=x;py=y}
   return r}
-export {rpAiTurn,tcAooRisk,tcAvg,tcEnemyDo,tcFoes,tcOptions,tcPosScore};
+export {rpAiTurn,tcAooRisk,tcAvg,tcFoes,tcOptions,tcPosScore};

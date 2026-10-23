@@ -1,5 +1,4 @@
 import {drawSheet} from './sheets6.js';
-import {drawCharSprite,sprite} from './sprites.js';
 import {R,clamp,eob,heartPath,rr,starPath} from './util.js';
 let ctx=null;let selected=null;
 const TEAMS=[
@@ -170,9 +169,7 @@ function drawKobold(k){
   ctx.scale(pop*(1+.2*sq)*k.face*k.size,pop*(1-.2*sq)*k.size);
   ctx.translate(0,bob);
   /* a drawing from art/sprites, if there is one for this character */
-  const art=sprite(k.art);
-  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a v6 sheet (engine/sheets6.js) */}
-  else if(art){if(lying)ctx.rotate(-1.35);if(flash)ctx.globalAlpha=.45;drawCharSprite(ctx,art,k.size);ctx.globalAlpha=1}
+  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a sheet from art/v6 (engine/sheets6.js) */}
   else{
   ctx.lineCap='round';ctx.lineJoin='round';
   // tail

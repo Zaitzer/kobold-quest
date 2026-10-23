@@ -9,13 +9,11 @@ for(const f of order){const t=fs.readFileSync(R+'/styles/'+f,'utf8').replace(/\/
 const tpl=fs.readFileSync(R+'/index.html','utf8');
 /* every build gets an id; the server hands it out and pages from an older build reload themselves */
 const BUILD_ID=process.env.KQ_BUILD||new Date().toISOString().slice(0,19)+'Z';
-/* Joakim's drawings: built into the page (the Claude page has no server to fetch them from); the website fetches its own */
-const {templateHashes,isPlaceholder}=require('../server/art.js'),TPL=templateHashes(R+'/art/templates');
-function artFrom(dir){const out={};if(!fs.existsSync(dir))return out;for(const f of fs.readdirSync(dir).sort())if(/^[a-z0-9-]+\.png$/.test(f)){const b=fs.readFileSync(path.join(dir,f));if(!isPlaceholder(b,TPL))out[f.slice(0,-4)]='data:image/png;base64,'+b.toString('base64')}return out}
+/* Joakim's sprite sheets (art/v6), the drawn ones: built into the page (the Claude page has no server to fetch them from); the website
+   fetches its own. The test build carries test sheets instead (test/fixtures/art6). */
 const {drawn6}=require('../server/art.js');
-/* the v6 sheets (art/v6): the drawn ones, as 'v6/<folder>/<name>' (the test build uses test/fixtures/art6 instead) */
 const art6=dir=>{const o={};if(fs.existsSync(dir))for(const [rel,b] of drawn6(dir))o['v6/'+rel.slice(0,-4)]='data:image/png;base64,'+b.toString('base64');return o};
-const ART=Object.assign(artFrom(R+'/art/sprites'),art6(R+'/art/v6')),TEST_ART=Object.assign(artFrom(R+'/test/fixtures/art'),art6(R+'/test/fixtures/art6'));
+const ART=art6(R+'/art/v6'),TEST_ART=art6(R+'/test/fixtures/art6');
 function bundle(test,site){return esbuild.buildSync({entryPoints:[R+'/src/main.js'],bundle:true,format:'iife',target:'es2020',write:false,
   define:{TEST:test?'true':'false',SITE:site?'true':'false',BUILD_ID:JSON.stringify(BUILD_ID),KQ_ART:site?'null':JSON.stringify(test?TEST_ART:ART)},minifySyntax:!test,legalComments:'none',charset:'utf8'}).outputFiles[0].text}
 fs.mkdirSync(R+'/dist',{recursive:true});
@@ -28,5 +26,3 @@ const site='<!doctype html><html lang="en"><head><meta charset="utf-8">\n'+page(
 fs.writeFileSync(R+'/dist/kq_site_test.html','<!doctype html><html lang="en"><head><meta charset="utf-8">\n'+page(bundle(true,true))+'\n</html>');
 fs.writeFileSync(R+'/dist/BUILD',BUILD_ID);
 console.log('built',(prod.length/1024).toFixed(0)+' KB');
-/* the list of drawings the game can use (art/WANTED.md) */
-{const {artList,makePlaceholders}=require('./artlist.js');const L=artList(require(R+'/test/lib/game.js')());fs.writeFileSync(R+'/art/WANTED.md',L.md);makePlaceholders(L.rows)}

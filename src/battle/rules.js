@@ -1,14 +1,12 @@
-import {v6AtkCost,v6Crit,v6DmgRange,v6FoeStat,v6Hit,v6InReach,v6Move,v6u} from './v6battle.js';
+import {v6AtkCost,v6Crit,v6DmgRange,v6FoeStat,v6Hit,v6InReach,v6Move} from './v6battle.js';
 import {TT} from './view.js';
 import {RP_ST,RP_TT,RP_TW,TC_DIR8} from '../data/battle.js';
-import {RP_ZONE} from '../data/monsters.js';
 import {WEAPONS} from '../engine/art.js';
-import {clamp,seeded} from '../engine/util.js';
+import {seeded} from '../engine/util.js';
 import {rpStats} from '../game/stats.js';
 const rpTW=w=>RP_TW[w]||{r:1};
 const tcT=c=>RP_TT[c]||{};
 /* ---------- board generation ---------- */
-function tcTheme(zone,boss){if(RP_ZONE[zone]&&RP_ZONE[zone].th)return RP_ZONE[zone].th;if(boss==='vexx'||zone==='K')return'castle';if(boss==='gorb'||zone==='C'||zone==='g')return'cave';if(zone===';')return'woods';return'meadow'}
 function tcBase(th){return th==='cave'?'C':th==='castle'?'K':th==='woods'?';':'.'}
 function tcGen(th,W,H,boss,seed){
   const r=seeded(seed),base=tcBase(th),g=[];
@@ -48,9 +46,8 @@ function tcLos(b,a,c){for(const [x0,y0] of tcTiles(a))for(const [x1,y1] of tcTil
 function tcNear(a,c){let best=null,bd=1e9;for(const [x,y] of tcTiles(a)){const d=Math.hypot(x-c.x,y-c.y);if(d<bd){bd=d;best=[x,y]}}return best}
 /* ---------- units ---------- */
 function tcW(u){return u.m?u.m.w:u.E.w}
-function tcStat(u){if(u.m)return rpStats(u.m);if(u.E&&u.E.v6)return v6FoeStat(u);return{atk:u.atk,def:u.def,spd:u.spd,hp:u.max,mp:0,crit:.08,dodge:0,sight:u.E.sight||0,stealth:0}}
-function rpMoveOf(m){const st=rpStats(m);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)}
-function tcMov(u){if(v6u(u))return v6Move(u);const st=tcStat(u);return clamp(Math.round(2+st.spd*.35),3,6)+(st.mov||0)-(u.sz>1?1:0)}
+function tcStat(u){return u.m?rpStats(u.m):v6FoeStat(u)}
+function tcMov(u){return v6Move(u)}
 function tcSight(b,u){return(b.dark?3:b.theme==='cave'?5:7)+(tcStat(u).sight||0)}
 function tcGrass(b,u){return u.sz===1&&!!tcT(tcAt(b,u.x,u.y)).grass}
 function tcSees(b,a,c){
@@ -88,36 +85,13 @@ function tcCover(b,t,ax,ay){
   return{c,fl:!!any&&!c};
 }
 function tcMelee(u){return!WEAPONS[tcW(u)].ranged}
-function tcInReach(b,a,t,rng){if(v6u(a))return v6InReach(b,a,t,rng);const w=tcW(a),TW=rpTW(w);
-  if(rng==null||rng==='w'){if(tcMelee(a))return tcCheb(a,t)<=TW.r&&(TW.r<2||tcLos(b,a,t));return tcEuc(a,t)<=TW.r+(tcStat(a).rng||0)+.5&&tcLos(b,a,t)}
-  return tcEuc(a,t)<=rng+.5&&tcLos(b,a,t)}
-function tcHit(b,a,t,o){
-  if(v6u(a)||v6u(t))return v6Hit(b,a,t,o);
-  o=o||{};const w=tcW(a),TW=rpTW(w),melee=tcMelee(a)&&!o.spell,d=tcEuc(a,t),parts=[];
-  let h=melee?90:75;
-  if(!melee&&a.m&&a.m.cls==='ranger'){h+=10}
-  const [ax,ay]=tcNear(a,t),cv=melee?{c:0,fl:false}:tcCover(b,t,ax,ay);
-  if(cv.c===1){h-=20;parts.push('half cover −20')}else if(cv.c===2){h-=40;parts.push('full cover −40')}
-  if(cv.fl)parts.push('flanked');
-  const opt=(TW.o||0)+(tcStat(a).rng||0);if(!melee&&TW.o&&d>opt+.5){const p=Math.ceil(d-opt-.5)*10;h-=p;parts.push('far −'+p)}
-  if(TW.close&&d<=2.5){h+=15;parts.push('close +15')}
-  if(tcGrass(b,t)&&tcCheb(a,t)>1){h-=10;parts.push('tall grass −10')}
-  const ts=tcStat(t);if(ts.dodge){const p=Math.round(ts.dodge*100);h-=p;parts.push('dodge −'+p)}
-  if(t.guard){h-=25;parts.push('guarding −25')}
-  if(t.side===1&&!t.aware){h+=20;parts.push('surprise +20')}
-  if(o.aim){h+=o.aim;parts.push('aimed +'+o.aim)}if(o.aoo){h-=10;parts.push('free hit −10')}if(o.watch){h-=15;parts.push('watch −15')}
-  return{h:clamp(Math.round(h),5,95),parts,fl:cv.fl,cv:cv.c};
-}
-function tcDmg(b,a,t,mul,o){if(v6u(a)||v6u(t))return v6DmgRange(b,a,t,mul,o);o=o||{};const as=tcStat(a),ts=tcStat(t);let d=as.atk*mul;
-  if(a.buff.atk>0)d*=1.25;if(as.rage&&a.m&&a.m.hp<as.hp*.5)d*=1+as.rage;
-  if(rpTW(tcW(a)).close&&!o.spell&&tcEuc(a,t)<=2.5)d*=1.2;if(o.spell&&as.spellp)d*=1+as.spellp;
-  d-=ts.def*.5;if(t.buff.def>0)d*=.7;if(t.guard)d*=.75;d=Math.max(1,d);
-  return[Math.max(1,Math.round(d*.85)),Math.max(1,Math.round(d*1.15))]}
-function tcCrit(b,a,t,fl){if(v6u(a)||v6u(t))return v6Crit(b,a,t,fl,false);return tcStat(a).crit+(fl?.15:0)+(t.side===1&&!t.aware?.1:0)}
+function tcInReach(b,a,t,rng){return v6InReach(b,a,t,rng)}
+function tcHit(b,a,t,o){return v6Hit(b,a,t,o)}
+function tcDmg(b,a,t,mul,o){return v6DmgRange(b,a,t,mul,o)}
+function tcCrit(b,a,t,fl){return v6Crit(b,a,t,fl,false)}
 /* ---------- action costs ---------- */
 function tcActCost(u,act){
-  if(act.k==='atk'&&v6u(u))return v6AtkCost(u);
-  if(act.k==='atk'){const TW=rpTW(tcW(u));return TW.h?2:(TW.q||tcStat(u).quick)?1:'end'}
+  if(act.k==='atk')return v6AtkCost(u);
   if(act.k==='sk')return(RP_ST[act.sk]||{ap:'end'}).ap;
   if(act.k==='it'||act.k==='leave'||act.k==='together'||act.k==='revive')return 1;
   return'end';
@@ -126,4 +100,4 @@ function tcCanPay(u,c){return c==='end'?u.ap>=1:u.ap>=c}
 function tcPay(u,c){u.ap=c==='end'?0:u.ap-c}
 /* ---------- building a battle ---------- */
 const rpAlive=u=>u.hp>0;
-export {rpAlive,rpMoveOf,rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcCrit,tcDmg,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcLos,tcLosT,tcMelee,tcMov,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTheme,tcTiles,tcUnitAt,tcVis,tcW};
+export {rpAlive,rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcCrit,tcDmg,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcLos,tcLosT,tcMelee,tcMov,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTiles,tcUnitAt,tcVis,tcW};

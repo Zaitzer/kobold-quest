@@ -1,7 +1,7 @@
 /* The test suite. Every test is its own job (one file, one process, nothing shared but the build), so any one can run alone and
    all of them run side by side, slowest first.
-     node test/run.js              the logic tests, the battle sims and the browser scenarios; the story with two classes (fighter, wizard)
-     node test/run.js full         the same, the story with all eight classes, and the old slice sim: before a release
+     node test/run.js              the logic tests and the browser scenarios; the story with two classes (fighter, wizard)
+     node test/run.js full         the same, the story with all eight classes: before a release
      node test/run.js quick        no browsers, the story with one class (fine for logic-only changes)
      node test/run.js coop6 tart6  only the jobs whose names contain one of the words (the build still runs first)
    JOBS=n sets how many run at once (default: two per CPU, at least 4). Times are kept in test/out/times.json to order the next run.
@@ -20,14 +20,12 @@ function judge(name,t0,status,stdout,stderr){
 function pool(list,n){return new Promise(done=>{let i=0,live=0;const next=()=>{if(i>=list.length&&!live)return done();
   while(live<n&&i<list.length){const [name,file,a,env]=list[i++],t0=Date.now();live++;let so='',se='';
     const c=spawn('node',[file].concat(a||[]),{cwd:path.dirname(file),env:Object.assign({},process.env,env||{})});const kill=setTimeout(()=>c.kill('SIGKILL'),900000);
-    c.stdout.on('data',d=>so+=d);c.stderr.on('data',d=>se+=d);c.on('close',code=>{clearTimeout(kill);live--;judge(name,t0,code,so,se);next()})}};next()})}
+    c.on('error',e=>{se+=String(e)});c.stdout.on('data',d=>so+=d);c.stderr.on('data',d=>se+=d);c.on('close',code=>{clearTimeout(kill);live--;judge(name,t0,code,so,se);next()})}};next()})}
 /* the jobs */
 const jobs=[];
 for(const f of fs.readdirSync(R+'/test/logic').filter(f=>f.endsWith('.test.js')).sort()){
   if(f==='story6.test.js'){for(const cls of quick?['fighter']:full?['fighter','ranger','wizard','cleric','monk','sorcerer','bard','rogue']:['fighter','wizard'])jobs.push(['logic/story6 '+cls,R+'/test/logic/'+f,[cls]]);continue}
   jobs.push(['logic/'+f.slice(0,-8),R+'/test/logic/'+f,quick?['quick']:[]])}
-jobs.push(['sim/battle meadow',R+'/test/sim/battle.js',[],{N:'12'}],['sim/battle gorb',R+'/test/sim/battle.js',[],{N:'6',BOSS:'gorb',LVL:'7'}]);
-if(full)jobs.push(['sim/slice',R+'/test/sim/slice.js',[],{RUNS:'2'}]);   /* the old game's slice, played by the AI: a minute and a half */
 if(!quick)for(const f of fs.readdirSync(R+'/test/browser').filter(f=>f.endsWith('.js')&&!['netmock.js','states.js','styles.js'].includes(f))   /* helpers and tools, not tests */.sort())jobs.push(['browser/'+f.slice(0,-3),R+'/test/browser/'+f]);
 const pick=j=>!words.length||words.some(w=>j[0].includes(w));
 const solo=jobs.filter(j=>j[0]==='browser/tsite'&&pick(j)),rest=jobs.filter(j=>j[0]!=='browser/tsite'&&pick(j)).sort((a,b)=>(times[b[0]]||30)-(times[a[0]]||30));

@@ -2,6 +2,7 @@
    Gear pieces as data (slot, tier, variant, family, bonuses, set, unique), their stats by items.md's power points, the backpack,
    equipping, chests (systems.md §8's table), the two shops and the Pebblebrook smith, drops by the rule, selling at 35%. */
 import {rp} from '../core/state.js';
+import {RP_ITEMS} from '../data/items.js';
 import {BASE6,CLASSES6} from '../data/v6/classes.js';
 import {AFFIXES6,CONSUMABLES6,GEAR6,PRICES6,RECIPES6,UNIQUES6,WEAPONS6} from '../data/v6/items.js';
 import {CHESTS6} from '../data/v6/story.js';
@@ -49,6 +50,17 @@ function v6PieceName(g,key){const s=slotOf(key);if(s==='weapon')return(WEAPONS6[
 /* ------------------------------------------------------------------ consumables and materials (the bag is counts) */
 const USE_KEY={'Potion':'potion','Ether':'ether','Phoenix feather':'feather','Hearty potion':'hpotion','Hearty ether':'hether','Great potion':'gpotion','Great ether':'gether','Golden feather':'gfeather'};
 function v6GiveUse(n,c){const k=USE_KEY[n]||n.toLowerCase();rp.s.bag[k]=(rp.s.bag[k]||0)+(c||1)}
+/* things that change hands (gifts, the market): 'bag' a potion or an ether, 'mat' a material by name, 'item' a piece from the backpack */
+function tradeValid(kind,val){if(kind==='bag')return!!RP_ITEMS[val];if(kind==='mat')return typeof val==='string'&&/^[A-Za-z' -]{2,30}$/.test(val);
+  return kind==='item'&&!!val&&typeof val==='object'&&val.k==='gear'&&!!GEAR_SLOTS6.concat(['weapon']).find(x=>x===val.slot||(val.slot==='ring'&&x.startsWith('ring')))}
+function tradeLabel(kind,val){return kind==='bag'?RP_ITEMS[val].n:kind==='mat'?val:v6ItemName(val)}
+function tradeHas(kind,val){const s=rp.s;return kind==='bag'?(s.bag[val]||0)>0:kind==='mat'?((s.mats6||{})[val]||0)>0:inv().some(i=>i.id===val.id)}
+function tradeTake(kind,val){if(!tradeHas(kind,val))return false;const s=rp.s;if(kind==='bag')s.bag[val]--;else if(kind==='mat')s.mats6[val]--;else{const L=inv();L.splice(L.findIndex(i=>i.id===val.id),1)}return true}
+function tradePut(kind,val){const s=rp.s;if(kind==='bag')s.bag[val]=(s.bag[val]||0)+1;else if(kind==='mat')v6GiveMat(val);else v6Take(Object.assign({},val,{id:'i'+(Date.now()%1e7)+'_'+(uid++)}))}
+function tradePrice(kind,val){return Math.max(1,Math.round(kind==='bag'?RP_ITEMS[val].price*.6:kind==='mat'?12:v6Price(val)*.6))}
+/* what this hero can give or sell, as [kind, val, label] */
+function tradeList(){const s=rp.s,out=[];for(const k of Object.keys(RP_ITEMS))if((s.bag[k]||0)>0)out.push(['bag',k,RP_ITEMS[k].n+' ×'+s.bag[k]]);
+  for(const [m,c] of Object.entries(s.mats6||{}))if(c>0)out.push(['mat',m,m+' ×'+c]);for(const it of inv())if(!it.uniq)out.push(['item',it,v6ItemName(it)]);return out}
 function v6GiveMat(n,c){const s=rp.s;s.mats6=s.mats6||{};s.mats6[n]=(s.mats6[n]||0)+(c||1)}
 
 /* ------------------------------------------------------------------ chests (systems.md §8) */
@@ -91,4 +103,4 @@ function v6Recipes(town){return town==='pebblebrook'?RECIPES6.filter(R=>R.tier==
 const RECIPE_PIECE={'Moss cape+':['cloak',{set:'Mossback regalia',aff:['Hale']}],'Copper pot-helm':['helm',{}],'Miller\'s spear':['weapon',{fam:'blades'}],'miller\'s boots':['boots',{set:'Millers\' set'}]};
 function v6Craft(town,i){const R=v6Recipes(town)[i];if(!R)return false;const mats=rp.s.mats6||{},N=needOf(R);if(!N.every(x=>(mats[x.mat]||0)>=x.n))return false;N.forEach(x=>mats[x.mat]-=x.n);
   const [slot,opt]=RECIPE_PIECE[R.n]||['ring',{}];const it=v6Piece(slot,R.tier-1,Object.assign({n:R.n.replace(/^m/,'M')},opt,slot==='weapon'?{fam:CLASSES6[rp.s.party[0].cls].fam}:{}));v6Take(it);return it}
-export {GEAR_SLOTS6,MAT_OF,RECIPE_PIECE,SHOP6,USE_KEY,WAVE_FAMS,ZONE_MAT,affixStats,bases,inv,needOf,rollAffixes,slotOf,uid,uniqueStats,v6Buy,v6CanWear,v6ChestItems,v6Craft,v6Drops,v6Equip6,v6GearExtras,v6GiveMat,v6GiveUse,v6ItemName,v6OpenChest,v6Piece,v6PieceName,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock,v6Take,v6Unequip};
+export {GEAR_SLOTS6,MAT_OF,RECIPE_PIECE,SHOP6,USE_KEY,WAVE_FAMS,ZONE_MAT,affixStats,bases,inv,needOf,rollAffixes,slotOf,tradeHas,tradeLabel,tradeList,tradePrice,tradePut,tradeTake,tradeValid,uid,uniqueStats,v6Buy,v6CanWear,v6ChestItems,v6Craft,v6Drops,v6Equip6,v6GearExtras,v6GiveMat,v6GiveUse,v6ItemName,v6OpenChest,v6Piece,v6PieceName,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock,v6Take,v6Unequip};

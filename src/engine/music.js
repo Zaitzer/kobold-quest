@@ -5,11 +5,9 @@ import {view} from '../core/app.js';
 import {rpOpt} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
-import {regionMusic} from '../data/overworld.js';
 import {ac,audio,duckT,fxCrackle,fxWheel,soundOn} from './audio.js';
 import {clamp,seeded} from './util.js';
 import {v6Music} from '../game/music6.js';
-import {rpArea} from '../game/world.js';
 
 const RP_SCALES={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],penta:[0,2,4,7,9],mpenta:[0,3,5,7,10],harm:[0,2,3,5,7,8,11],phryg:[0,1,3,5,7,8,10]};
 const RP_TRACKS={
@@ -78,14 +76,10 @@ const RP_DRUMS={/* 16 steps per bar: k kick, s snare, h hat, d drip */
   soft:['k','','','','h','','','','s','','','','h','','',''],drip:['','','','','d','','','','','','d','','','','',''],
   march:['k','','s','','k','','s','s','k','','s','','k','s','s','s'],drive:['k','h','s','h','k','k','s','h','k','h','s','h','k','k','s','s']};
 function rpMusicWant(){
-  if(!soundOn||rp.headless||rpOpt.music===false||view!=='rpg'||!rp.s)return null;
-  if(rp.s.w6){const W=v6Music();rpMus.amb=W.amb;return W.key}
-  if(rp.mode==='battle'&&rp.bt)return rp.bt.boss?'boss':'battle';
-  if(rp.s.place)return rpMus.outdoor||'village';/* indoors keeps the tune from outside, quieter */
-  const r=regionMusic(rp.s.x,rp.s.y),a=r||rpArea(rp.s.x,rp.s.y);
-  return rpMus.outdoor=r||(a==='Burrowhome'?'village':a==='Whisper Woods'?'woods':'meadow')}
+  if(!soundOn||rp.headless||rpOpt.music===false||view!=='rpg'||!rp.s||!rp.s.w6)return null;
+  const W=v6Music();rpMus.amb=W.amb;return W.key}
 /* how loud the music is now: lower indoors, lower still while someone talks, nearly gone under a jingle */
-function rpMusicLevel(now){return .09*(rp.s&&(rp.s.place||(rp.s.w6&&rp.s.w6.startsWith('room:')))?.7:1)*(rp.dlg?.45:1)*(now<duckT?.2:1)}
+function rpMusicLevel(now){return .09*(rp.s&&rp.s.w6&&rp.s.w6.startsWith('room:')?.7:1)*(rp.dlg?.45:1)*(now<duckT?.2:1)}
 function rpMusicTick(){
   const want=rpMusicWant(),a=ac;   /* 'quiet' plays no notes: only the ambient (the tower fire) */
   if(!want){if(rpMus.g&&a){rpMus.g.gain.setTargetAtTime(0,a.currentTime,.15);rpMus.g=null;rpMus.key=null}return}

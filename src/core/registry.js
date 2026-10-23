@@ -6,7 +6,6 @@
      panels:{market:{sig,html}},  // side sheets, keyed by rp.mode; sig() says when to redraw
      actions:{buy(d){...}},       // buttons with data-rp="buy"
      routes:{net(d){...}},        // buttons with a data-net="..." attribute go to this handler
-     tiles:{M:{use(x,y){}}},      // map tiles you can bump into or tap
      menu:[{order,html()}],       // extra buttons in the ☰ menu
      options:[{id,order,label(),hint,toggle()}], // settings rows in the menu
      net:{gift(d,msg){}},         // online messages by type
@@ -19,13 +18,13 @@ import {on} from './bus.js';
 
 /* feature switches: {fishing:false} keeps that feature from registering anything */
 export const FLAGS={};
-export const panels={},actions={},routes={},tiles={},netHandlers={};
+export const panels={},actions={},routes={},netHandlers={};
 export const menuItems=[],options=[],frames=[],inits=[],features={};
 export function feature(f){
   if(features[f.id])throw Error('feature '+f.id+' registered twice');
   features[f.id]=f;if(FLAGS[f.id]===false)return f;
   const put=(dst,src,kind)=>{for(const k in src||{}){if(dst[k])throw Error(kind+' "'+k+'" taken (by '+f.id+')');dst[k]=src[k]}};
-  put(panels,f.panels,'panel');put(actions,f.actions,'action');put(routes,f.routes,'route');put(tiles,f.tiles,'tile');put(netHandlers,f.net,'net message');
+  put(panels,f.panels,'panel');put(actions,f.actions,'action');put(routes,f.routes,'route');put(netHandlers,f.net,'net message');
   (f.menu||[]).forEach(m=>menuItems.push(m));(f.options||[]).forEach(o=>options.push(o));
   for(const ev in f.on||{})on(ev,f.on[ev]);
   if(f.frame)frames.push(f.frame);if(f.init)inits.push(f.init);

@@ -45,7 +45,7 @@ function rpDrawBattle(){
   if(mine&&b.mode==='move'&&!b.pend){const mov=tcMov(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov);
     R2.dist.forEach((d,kk)=>{const x=kk%b.W,y=(kk/b.W)|0;if(x===u.x&&y===u.y)return;ctx.fillStyle=d<=mov?'rgba(111,184,255,.28)':'rgba(255,213,74,.22)';ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2)})}
   /* the legal tiles for a tile or area skill (build step 4) */
-  if(mine&&b.v6&&!b.pend&&b.mode.startsWith('sk:')){const L=v6LegalTiles(b,u,b.mode.slice(3));if(L){ctx.fillStyle='rgba(155,227,107,'+(.18+.06*Math.sin(b.t*4))+')';L.forEach(([x,y])=>ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2))}}
+  if(mine&&!b.pend&&b.mode.startsWith('sk:')){const L=v6LegalTiles(b,u,b.mode.slice(3));if(L){ctx.fillStyle='rgba(155,227,107,'+(.18+.06*Math.sin(b.t*4))+')';L.forEach(([x,y])=>ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2))}}
   /* charging spells */
   b.chans.forEach(c=>{const T=Math.ceil(c.area);ctx.fillStyle='rgba(255,90,60,'+(.18+.1*Math.sin(b.t*6))+')';for(let y=c.cy-T;y<=c.cy+T;y++)for(let x=c.cx-T;x<=c.cx+T;x++)if(Math.hypot(x-c.cx,y-c.cy)<=c.area+.01)ctx.fillRect(x*TT,y*TT,TT,TT)});
   /* preview */
@@ -68,7 +68,7 @@ function rpDrawBattle(){
     if(x.guard||x.watch){ctx.font='700 11px system-ui';ctx.textAlign='center';ctx.fillStyle='#9ad0ff';ctx.fillText(x.watch?'👁':'🛡',x.k.x+w/2+6,Y+5)}
     if(x.chan){ctx.font='800 11px "Fredoka",system-ui';ctx.textAlign='center';ctx.fillStyle='#ff8a5c';ctx.fillText('casting…',x.k.x,Y-4)}});
   /* v6: the hit chance on every foe in reach, a skull when the hit can fell it (ui-design.md §5, priority 3) */
-  if(mine&&!b.pend&&b.v6)tcTargets(b,u).forEach(t=>{if(t.side!==1||!t.k)return;const B=tcHitBadge(b,u,t);if(B)rpFloatStatic(t.k.x,t.k.y-(t.sz>1?78:54),B.h+'%'+(B.kill?' 💀':''),B.kill?'#ffd54a':'#ffffff')});
+  if(mine&&!b.pend)tcTargets(b,u).forEach(t=>{if(t.side!==1||!t.k)return;const B=tcHitBadge(b,u,t);if(B)rpFloatStatic(t.k.x,t.k.y-(t.sz>1?78:54),B.h+'%'+(B.kill?' 💀':''),B.kill?'#ffd54a':'#ffffff')});
   /* active marker */
   if(u&&tcLive(u)&&(u.side===0||tcShown(b,u))){ctx.fillStyle='#ffd54a';const y=u.k.y-40*(u.sz>1?2:1)-12+Math.sin(rp.t*6)*2;ctx.beginPath();ctx.moveTo(u.k.x-6,y-8);ctx.lineTo(u.k.x+6,y-8);ctx.lineTo(u.k.x,y);ctx.closePath();ctx.fill();ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.stroke()}
   if(b.anim){const a=b.anim;if(a.proj==='heal'){ctx.fillStyle='#ff7aa8';heartPath(ctx,a.x,a.y,6);ctx.fill()}else if(a.proj==='fire'){el(a.x,a.y,6,6,'#ff8a2b');el(a.x,a.y,3,3,'#ffe9a8')}else if(a.proj==='ice'){el(a.x,a.y,5,5,'#d8f3ff')}else if(a.proj==='water'){el(a.x,a.y,4,4,'#7fd0ff')}else el(a.x,a.y,3.5,3.5,'#ffb347')}

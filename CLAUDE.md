@@ -6,7 +6,9 @@ brief, the build/deploy steps and the gotchas. Then `docs/ROADMAP.md` and `docs/
 - Owner: Joakim (GitHub Zaitzer). He plays on his phone; keep replies short and do the technical work yourself.
 - Joakim pushes drawings straight to `main` with GitHub Desktop: always `git pull --rebase origin main` before pushing,
   and republish the Claude page after new art arrives.
-- The story source of truth is `docs/story-hatching.md` (v6). The game still plays the older story until the rebuild.
+- The story source of truth is `docs/story-hatching.md` (v6); the game plays it (the old game was removed on 23 Oct).
+- **No dead code (Joakim, 23 Oct):** a new version of a thing replaces the old one in the same change: delete the old code, data, tests
+  and docs it made obsolete. Never keep an old path alive beside a new one.
 - Read ARCHITECTURE.md before changing code. After moving code between modules run `node tools/imports.js`.
 - Before every push: `npm i && (cd server && npm i)`, then the tests: `node test/run.js quick` (about 50 s, no browsers) for logic-only
   changes, `node test/run.js` (about 4 min) when screens or styles change, `node test/run.js full` (all eight story classes) before a

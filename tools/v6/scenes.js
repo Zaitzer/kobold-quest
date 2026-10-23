@@ -51,6 +51,7 @@ const NPCS=[
   {id:'shrine',n:'Moon shrine keeper',place:'hearthspire',x:14,y:23,door:1,from:'1.10',lines:['Forget what you learned']},
   {id:'shop_hs',n:'Shopkeeper',place:'hearthspire',x:30,y:23,door:1,shop:'hearthspire',from:'1.10',lines:['Potions on the left']},
   {id:'inn_hs',n:'Innkeeper',place:'room:inn',x:4,y:3,from:'1.10',lines:['A bed\'s ten gold'],colour:'#c4523a'},
+  {id:'quill',n:'Quill the scribe',place:'room:inn',x:9,y:3,letter:1,colour:'#7b5ea8'},   // carries players' letters to the game's makers (net/mail.js)
   {id:'barracks',n:'Barracks guard',place:'hearthspire',x:33,y:7,door:1,from:'1.10',lines:['We\'re on the wall']},
   {id:'board_hs',n:'Market board',place:'hearthspire',x:24,y:14,door:1,from:'1.10',lines:['Lost: one sock','Raptor rides to Pebblebrook']},
   {id:'gate_guard',n:'Gate guard',place:'hearthspire',x:1,y:15,colour:'#8a2f4a'},

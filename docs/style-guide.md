@@ -11,19 +11,20 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
 
 **Every time:**
 1. In GitHub Desktop, press **Fetch origin** (and **Pull** if it offers), so you have my latest changes.
-2. Open the drawing's file in `art\sprites\` (e.g. `pip.png`). Every file is already there, as a copy of its template
-   with the grid. Draw on a **new layer** and hide the grid layer.
-3. **File → Save** (PNG, flatten) over the same file. Untouched copies are ignored, so anything you haven't drawn keeps
-   its look drawn in code. Keep the `.pdn` somewhere outside the repo if you want the layers.
+2. Open the sheet's file in `art\v6\` (e.g. `characters\heroes\pip.png`). Every file is already there, as a simple stand-in at
+   the right size. Import its template from `art\v6\templates\` as a layer (frame borders, the feet line, the safe box), draw
+   underneath, then delete the template layer.
+3. **File → Save** (PNG, flatten) over the same file. Stand-ins are ignored, so anything you haven't drawn keeps its look
+   drawn in code. Keep the `.pdn` somewhere outside the repo if you want the layers.
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
 5. About **2 minutes** later it's on joakimskar.no (reload the page). The Claude page gets it with my next update.
 
-The game takes it from there: it moves feet that are slightly off the line onto it, flips characters to face left,
-and uses the drawing wherever that character or tile appears (map, battles, the party screen). Anything without a
+The game takes it from there: it flips characters to face left, picks each row and frame by what the character is doing,
+and uses the sheet wherever that character or tile appears (map, battles). Anything without a
 drawing keeps its look drawn in code, so you can draw in any order. To change a drawing, save over it and push
 again; to go back, GitHub Desktop's **History** has every version.
 
-`art/WANTED.md` is the checklist: every drawing the game can use, its template, and ✅ once it's in.
+`art/v6/ASSETS.md` is the checklist: every sheet the game can use, its size and template.
 
 ## Sizes: pixel art at twice Ruby's resolution (decided 22 Oct 2026)
 
@@ -82,16 +83,15 @@ portraits, objects, icons), as an **empty transparent placeholder at the right s
 animations in rows (walk down, up and side; battle idle; attack; cast; hurt, down and cheer), frames left to right. The
 templates with frame borders, feet lines and safe boxes are in `art/v6/templates/`; **`art/v6/ASSETS.md`** lists all 469 assets
 with their sheet type and marks the 202 the slice uses (★). To draw one: open the placeholder, import the template as a layer,
-draw underneath, delete the template layer, save, push. The live game still reads `art/sprites/`, so nothing in `art/v6` shows
-until the slice wires it in. The list below says what to draw **first**; ★ in `ASSETS.md` says everything the slice will use
+draw underneath, delete the template layer, save, push. The list below says what to draw **first**; ★ in `ASSETS.md` says everything the slice will use
 (what isn't drawn yet keeps a look drawn in code).
 
 ## What to draw first (the new slice, 22 Oct 2026)
 
 The slice is **Hearthspire act 1 → the capital gate → R1 → Pebblebrook and the mine** (`scope.md` M1). Everything not on this
 list stays drawn in code until phase 3, so draw top to bottom and stop anywhere: each drawing makes the game better on its own.
-`art/WANTED.md` is regenerated for the new cast when the slice starts; existing files with the right name (`bork.png`,
-`glint.png`, `mallow.png`, `nugget.png`, `grubb.png`, `glitterbeak.png`, `beetle.png`) are reused.
+The old game's drawings (`art/sprites`, on the 128 × 128 template) were retired with the old game on 23 Oct; they are in the
+repository's history if any are worth redrawing at 32 × 64.
 
 **A. The first ten (the faces of the whole game)**
 

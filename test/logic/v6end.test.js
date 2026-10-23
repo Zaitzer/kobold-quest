@@ -16,7 +16,7 @@ const kobs=b=>b.units.filter(u=>u.side===0);
  X.tcDo(d,{k:'leave'});X.tcDo(e,{k:'leave'});X.tcCheckEnd();ok(b.over==='run','everyone gone should end the fight as fled: '+b.over);ok(X.rp.s.gold===g0,'fleeing gives no gold');
  X.rpEndBattle();ok(c.m.hp===1,'the downed kobold is carried out and stands with 1 HP')}
 // losing a normal fight: half the gold, everyone healed, back at the fountain
-{const b=start(0);X.rp.s.gold=101;kobs(b).forEach(u=>{u.hp=0;X.tcKo(u)});X.tcCheckEnd();ok(b.over==='lose','everyone down is a loss');ok(!X.v6CanRetry(b),'a normal fight is not retried');
+{const b=start(0);X.rp.s.gold=101;X.rp.s.w6='r1';X.rp.s.w6st={fountains:[],stables:[],respawn:'hearthspire',chests:[],patrols:{},enc:{},switches:{},campfire:{}};kobs(b).forEach(u=>{u.hp=0;X.tcKo(u)});X.tcCheckEnd();ok(b.over==='lose','everyone down is a loss');ok(!X.v6CanRetry(b),'a normal fight is not retried');
  X.rpEndBattle();ok(X.rp.s.gold===50,'losing keeps half the gold: '+X.rp.s.gold)}
 // losing to a boss: 10% softer, and it can be retried at once with HP and mana as they were
 {const b=start('b:grubb');const hp0=b.units.find(u=>u.E&&u.E.v6boss).max,ks=kobs(b),before=ks.map(u=>[u.m.hp,u.m.mp]);X.rp.s.bag=X.rp.s.bag||{};X.rp.s.bag.potion=3;

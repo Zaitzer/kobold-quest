@@ -14,21 +14,19 @@ import {rpSay} from '../game/dialogue.js';
 import {v6Piece} from '../game/items6.js';
 import {rpSpecialAt,rpTapTile} from '../game/move.js';
 import {MILL} from '../game/music6.js';
-import {rpTalk} from '../game/npcs.js';
 import {s6Npcs} from '../game/story6.js';
 import {v6Kobold} from '../game/v6sheet.js';
-import {rpBfs,rpEnterPlace,rpSolid} from '../game/world.js';
+import {rpBfs,rpSolid} from '../game/world.js';
 import {w6Go,w6Start} from '../game/world6.js';
 import {net,netBtn} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
-import {rpHeroOpen} from '../ui/hero.js';
 import {rpUI} from '../ui/hud.js';
 
 export function installHooks(){
-  window.__rp=rp;window.__kqOldTitle=!/[?&]v6\b/.test(location.search);   // the old browser scenarios play the first story; ?v6 opens the heroes screen
+  window.__rp=rp;
   window.__rpB={reach:()=>{const b=rp.bt,u=b.cur,R=tcReach(b,u,tcMov(u)),out=[];R.dist.forEach((d,k)=>{if(d>0)out.push([k%b.W,Math.floor(k/b.W),d])});return out},battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
   window.__net=net;window.__rpF=(k,o)=>rpFight(k,o);window.__netBtn=d=>{netBtn(d);rpUI(true)};window.__rpS=()=>rpSave();
-  window.__kq={talk:rpTalk,say:rpSay,hero:rpHeroOpen,enter:rpEnterPlace,registry,sprite};
+  window.__kq={say:rpSay,registry,sprite};
   window.__w6go=(p,x,y)=>{w6Go(p,x,y);rpUI(true)};
   /* v6 shortcuts for the co-op test: a ready pack in the world (past Hearthspire's morning, so not phased), and a fight from the first road's mix */
   window.__v6={pack:(list,opt)=>{if(!rp.s)rp.s=rpNewState();w6Start(list.map((x,i)=>v6Kobold(x[0],x[1],x[2],{hero:i===0?1:0})),opt);rp.s.q.act=rp.s.q.act||7;rpUI(true)},

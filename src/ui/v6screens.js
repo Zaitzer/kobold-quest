@@ -40,7 +40,7 @@ function v6MenuHtml(){const s=rp.s,G=goals()[0];
   h+='<button class="rpb'+(travel?' go':'')+'" type="button" data-rp="w6fast"'+(travel?'':' disabled')+'>Map<small>'+(travel?'travel to a fountain':'travel opens with the second Smiler piece')+'</small></button>';
   h+='<button class="rpb" type="button" data-rp="v6book" data-v="">The Book<small>foes, the Smiler, places, stamps</small></button><button class="rpb" type="button" data-rp="v6set">Settings<small>sound, motion, colours, text size</small></button>';
   h+=menuItems.map(m=>m.html()).join('');
-  return h+'<button class="rpb go" type="button" data-rp="close">Back to the map</button></div>'}
+  return h+'<button class="rpb x" type="button" data-rp="quit">Quit to the title</button><button class="rpb go" type="button" data-rp="close">Back to the map</button></div>'}
 function v6PackUse(){return'<div class="rpcmd">'+rp.s.party.map((m,i)=>{const st=v6Stats(m);return'<button class="rpb go" type="button" data-rp="v6useon" data-v="'+i+'"'+(m.hp<=0?' disabled':'')+'>'+esc2(m.name)+'<small>'+Math.max(0,m.hp)+'/'+st.hp+' HP · '+(m.mp||0)+'/'+st.mp+' MP</small></button>'}).join('')+'</div>'}
 
 /* ------------------------------------------------------------------ the class pick: eight cards; a tap shows more, a second confirms */

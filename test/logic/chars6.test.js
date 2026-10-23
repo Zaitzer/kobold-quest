@@ -1,5 +1,5 @@
 /* accounts and characters (build step 14, systems.md §16): six slots, a new hero named by the player, saving into its slot and
-   loading it back, deleting with the name typed and restoring within 7 days, gone after, the legacy hero, a guest's hero kept */
+   loading it back, deleting with the name typed and restoring within 7 days, gone after, a guest's hero kept */
 process.emitWarning=()=>{};
 let fails=0,checks=0;const bad=m=>{fails++;console.log('FAIL',m)};const ok=(c,m)=>{checks++;if(!c)bad(m)};
 const X=require('../lib/game.js')();X.rp.headless=true;
@@ -19,6 +19,4 @@ X.rp.s=X.rpNewState();C.slot=null;X.chars6Play(2,true);setTimeout(()=>{
   C.del={i:2,typed:'Pip'};X.doDelete();ok(!X.slotInfo(2).deleted,'the wrong name does not delete');
   C.del={i:2,typed:'Tansy'};X.doDelete();ok(X.slotInfo(2).deleted,'typing the name deletes');X.restore(2);ok(!X.slotInfo(2).deleted,'restored within 7 days');
   C.del={i:2,typed:'Tansy'};X.doDelete();const raw=JSON.parse(JSON.stringify(X.store.get('kq6:guest:2')));raw.deletedAt=Date.now()-8*864e5;X.store.set('kq6:guest:2',raw);X.purge(2);ok(!X.slotInfo(2),'after 7 days the hero is gone');
-  // the legacy hero: the old game's save, summarised
-  const old=X.rpNewState();old.gold=12;const L=X.v6Legacy(old);ok(L&&L.legacy&&L.gold===12,'the old save is the legacy hero');
   console.log(fails?fails+' failures':'v6 heroes: '+checks+' checks');process.exitCode=fails?1:0},0);

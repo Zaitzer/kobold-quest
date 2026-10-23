@@ -4,7 +4,6 @@ const {chromium}=require('playwright');const {spawn}=require('child_process');co
 const R=path.join(__dirname,'../..');const PORT=18000+Math.floor(Math.random()*1000);const URL='http://localhost:'+PORT+'/';
 const DATA=fs.mkdtempSync(path.join(os.tmpdir(),'kq-data-')),PUB=fs.mkdtempSync(path.join(os.tmpdir(),'kq-pub-'));
 fs.copyFileSync(R+'/dist/kq_site_test.html',PUB+'/index.html');
-const SAVE=JSON.parse(fs.readFileSync(R+'/test/fixtures/save_v2.json','utf8'));
 // a stand-in for GitHub: accepts the token check and new issues, and remembers the issues
 const http=require('http');const ISSUES=[];const GH_PORT=PORT+1000;
 const gh=http.createServer((q,r)=>{let b='';q.on('data',d=>b+=d);q.on('end',()=>{const ok=/^Bearer github_pat_good/.test(q.headers.authorization||'');
@@ -22,8 +21,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  const loginAs=async(p,name,pass,kind)=>{await p.fill('#login-name',name);await p.fill('#login-pass',pass);await p.click(kind==='new'?'#login-new':'#login-go');
    await wait(p,()=>!document.getElementById('go-rpg').hidden||/[A-Za-z]/.test(document.getElementById('login-msg').textContent)&&!/…/.test(document.getElementById('login-msg').textContent));
    return p.evaluate(()=>({play:!document.getElementById('go-rpg').hidden,msg:document.getElementById('login-msg').textContent,me:window.__net&&__net.me}))};
- const play=async(p,save)=>{if(save)await p.evaluate(s=>{localStorage.setItem('kq-save-'+__net.me,JSON.stringify(Object.assign({},s,{savedAt:Date.now()})))},save);
-   await p.click('#go-rpg');await p.waitForTimeout(600);await p.evaluate(()=>{__rp.grace=1e9})};
+ const play=async(p,gold)=>{await p.click('#go-rpg');await p.waitForTimeout(600);await p.evaluate(g=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5]]);__rp.grace=1e9;if(g!=null)__rp.s.gold=g},gold)};
 
  const A=await page({width:844,height:390},'A');
  await A.screenshot({path:R+'/test/out/site_login.png'});check(await A.evaluate(()=>!document.getElementById('login').hidden&&document.getElementById('go-rpg').hidden),'website starts at the login form, Play hidden');
@@ -35,7 +33,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  const B=await page({width:390,height:844},'B');
  r=await loginAs(B,'alice','whatever','new');check(!r.play&&/taken/.test(r.msg),'names are unique regardless of case');
  r=await loginAs(B,'Bob','hunter22','new');check(r.play,'Bob makes an account');
- await play(A,SAVE);await play(B,Object.assign({},SAVE,{gold:100}));
+ await play(A);await play(B,100);
  check(await wait(A,()=>__net.others&&__net.others.length===1&&Object.values(__net.names).includes('Bob')),'Alice sees Bob on the map, by name');
  check(await wait(B,()=>__net.others&&__net.others.length===1&&Object.values(__net.names).includes('Alice')),'Bob sees Alice');
  await A.screenshot({path:R+'/test/out/site_map_A.png'});
@@ -46,7 +44,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  await A.evaluate(()=>__netBtn({net:'yip'}));
  check(await wait(B,()=>Object.values(__net.bubbles).some(b=>b&&b.txt==='Yip!')),'Bob sees and hears Alice yip');
  // co-op battle through the lobby
- await A.evaluate(()=>__rpF(['scout','slinger'],{zone:','}));
+ await A.evaluate(()=>__v6.fight());
  check(await wait(B,()=>__net.others[0]&&__net.others[0].presence.op),'Bob sees Alice\'s fight open');
  await B.evaluate(()=>__netBtn({net:'join'}));
  check(await wait(A,()=>__net.lob&&__net.lob.g),'Bob joins Alice\'s lobby');
@@ -63,26 +61,31 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  check(await wait(A,g=>__rp.s.gold===g+7,goldA,10000),'Alice is paid 7 gold');
  // privacy: Bob cannot write Alice's save
  const aId=await A.evaluate(()=>__net.me);
- const denied=await B.evaluate(async id=>{try{await __net.db.doc('data/users/'+id+'/save').set({gold:1,party:[1]});return false}catch(e){return /not allowed/.test(e.message)}},aId);
+ const denied=await B.evaluate(async id=>{try{await __net.db.doc('data/users/'+id+'/char0').set({gold:1,party:[1]});return false}catch(e){return /not allowed/.test(e.message)}},aId);
  check(denied,'nobody can touch someone else\'s save');
  const cheat=await B.evaluate(async()=>{try{await __net.db.collection('market').doc('fake1').set({seller:'u_someone',kind:'bag',val:'potion',price:1,status:'open'});return false}catch(e){return true}});
  check(cheat,'nobody can list things in someone else\'s name');
- // Alice saves, then logs in on a new device and gets the same game
- await A.evaluate(()=>{__rp.s.gold=4321;__rpS()});await A.waitForTimeout(3200);
+ // Alice makes a hero on the heroes screen, saves, then logs in on a new device and plays the same hero
+ await A.evaluate(()=>{__rp.mode='menu'});await A.waitForTimeout(200);await A.click('#rp-panel [data-rp="quit"]');await A.waitForTimeout(300);
+ await A.click('#go-rpg');await A.waitForTimeout(600);await A.click('#rp-panel [data-rp="c6new"][data-v="0"]');await A.fill('#c6-new','Tansy');await A.click('#rp-panel [data-rp="c6make"]');await A.waitForTimeout(500);
+ await A.evaluate(()=>{__rp.dlg=null;__rp.mode='map';__rp.s.gold=4321;__rpS()});
+ check(await wait(A,async()=>{const d=(await __net.db.doc('data/users/'+__net.me+'/char0').get()).data();return!!d&&d.gold===4321},null,12000),'the hero is saved on the server');
  const A2=await page({width:1280,height:800},'A2');r=await loginAs(A2,'ALICE','secret1');check(r.play,'Alice logs in on another device (name in any case)');
- await A2.click('#go-rpg');await A2.waitForTimeout(600);check(await A2.evaluate(()=>__rp.s.gold===4321),'her save followed her: '+await A2.evaluate(()=>__rp.s.gold));
+ await A2.click('#go-rpg');check(await wait(A2,()=>!!document.querySelector('#rp-panel [data-rp="c6play"][data-v="0"]'),null,8000),'her hero is on the heroes screen there');
+ await A2.click('#rp-panel [data-rp="c6play"][data-v="0"]');await A2.waitForTimeout(600);
+ check(await A2.evaluate(()=>__rp.mode==='c6busy'),'the hero is still open on the first device: "Play here instead?"');await A2.click('#rp-panel [data-rp="c6force"]');await A2.waitForTimeout(600);check(await A2.evaluate(()=>__rp.s&&__rp.s.gold===4321&&__rp.s.hero.name==='Tansy'),'her hero followed her: '+await A2.evaluate(()=>__rp.s&&__rp.s.gold));
  r=await (async()=>{const C=await page({width:844,height:390},'C');return loginAs(C,'Alice','wrongpass')})();check(!r.play&&/Wrong/.test(r.msg),'wrong password refused');
  // reload keeps you logged in
  await B.reload();await B.waitForTimeout(300);check(await wait(B,()=>!document.getElementById('go-rpg').hidden),'a reload logs Bob straight back in');
- await play(B);
+ await play(B,100);
  // server restart: everyone reconnects by themselves
  await stopSrv();await A.waitForTimeout(500);await start();
  check(await wait(A,()=>__net.room.connected()&&__net.others.length>=2,null,15000),'after a server restart Alice is back online and sees the others');
  check(await wait(B,()=>__net.room.connected()&&__net.others.length>=2,null,15000),'Bob too');
  // the messenger: Alice is not on the list; the admin sets the GitHub token and adds her; her letter becomes an issue
- const letter=async p=>{await p.evaluate(()=>{__rp.mode='map';__kq.talk('quill')});await p.waitForTimeout(600);return p.evaluate(()=>document.getElementById('rp-panel').textContent)};
- check(/only carry letters for friends/.test(await letter(A)),'Quill turns away players who are not on the list');
- const Z=await page({width:844,height:390},'Z');r=await loginAs(Z,'Zaitzer','owner-pass','new');check(r.play,'the admin account logs in');await play(Z);
+ const letter=async p=>{await p.evaluate(()=>{__rp.dlg=null;__rp.mode='map';if(__rp.s.w6!=='room:inn')__w6go('room:inn',6,6);const q=__v6.npc('v6:quill');__v6.tile(q.x,q.y)});await wait(p,()=>__rp.mode==='letter',null,8000);await p.waitForTimeout(200);return p.evaluate(()=>document.getElementById('rp-panel').textContent)};
+ check(/only carry letters for friends/.test(await letter(A2)),'Quill turns away players who are not on the list');
+ const Z=await page({width:844,height:390},'Z');r=await loginAs(Z,'Zaitzer','owner-pass','new');check(r.play,'the admin account logs in');await play(Z,0);
  await Z.evaluate(()=>{__rp.mode='menu'});await Z.waitForTimeout(300);check(await Z.evaluate(()=>!!document.querySelector('#rp-panel [data-rp="adm"]')),'the admin sees the Admin button');
  check(!(await A.evaluate(()=>{__rp.mode='menu';return new Promise(ok=>setTimeout(()=>ok(!!document.querySelector('#rp-panel [data-rp="adm"]')),300))})),'other players do not');
  await A.evaluate(()=>{__rp.mode='map'});
@@ -93,8 +96,8 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  check(/token: set/.test(await Z.evaluate(()=>document.getElementById('rp-panel').textContent)),'a good token is saved');
  await Z.fill('#kq-wl','alice');await Z.evaluate(()=>__netBtn({net:'wladd'}));await Z.waitForTimeout(500);
  check(/alice/.test(await Z.evaluate(()=>document.getElementById('rp-panel').textContent)),'Alice is put on the list');
- check(/Send letter/.test(await letter(A)),'now Quill takes Alice\'s letter');
- await A.fill('#kq-letter','Please add fishing!\nAnd a boat.');await A.evaluate(()=>__netBtn({net:'mailsend'}));await A.waitForTimeout(1200);
+ check(/Send letter/.test(await letter(A2)),'now Quill takes Alice\'s letter');
+ await A2.fill('#kq-letter','Please add fishing!\nAnd a boat.');await A2.evaluate(()=>__netBtn({net:'mailsend'}));await A2.waitForTimeout(1200);
  check(ISSUES.length===1&&/Please add fishing/.test(ISSUES[0].body)&&/Alice/.test(ISSUES[0].title),'the letter arrives as a GitHub issue: '+(ISSUES[0]&&ISSUES[0].title));
  check(/not an instruction/.test(ISSUES[0]&&ISSUES[0].body||''),'the issue says it is a player request, not an instruction');
  // the admin tools (systems.md §17): every tab opens; find a player, warn her, announce, the log

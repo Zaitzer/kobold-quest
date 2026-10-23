@@ -20,6 +20,7 @@ import {v6Kobold,v6Stats} from './v6sheet.js';
 import {w6Cart,w6Go,w6Start} from './world6.js';
 import {netName} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
+import {rpOpenLetter} from '../net/mail.js';
 import {V6S,v6ClassHtml} from '../ui/v6screens.js';
 
 const PACK=4;
@@ -92,6 +93,8 @@ const due=sc=>!seen()[sc.id]&&test(sc.when||null);
 function sceneAt(kind,p,x,y,npc){return SCENES6.find(sc=>{const a=sc.at;if(!a||a.place!==p||!due(sc))return false;
   if(kind==='enter')return!!a.enter;if(kind==='npc')return a.npc===npc;if(kind==='tile')return!!a.tile&&a.tile[0]===x&&a.tile[1]===y;
   if(kind==='area')return!!a.area&&Math.hypot(x-a.area[0],y-a.area[1])<=a.area[2];if(kind==='bump')return!!a.bump&&Math.hypot(x-a.bump[0],y-a.bump[1])<=a.bump[2];return false})}
+/* a waiting scene for this NPC (its "!" on the map) */
+function s6Marker(id){const n=String(id).replace(/^v6:/,'');return SCENES6.some(sc=>sc.at&&sc.at.npc===n&&sc.at.place===rp.s.w6&&due(sc))?'!':''}
 function s6Step(x,y){if(story.busy||rp.bt)return false;const sc=sceneAt('area',rp.s.w6,x,y);return sc?play(sc.id):false}
 function s6Enter(p){if(story.busy)return false;const sc=sceneAt('enter',p);return sc?play(sc.id):false}
 /* tapping or bumping something: an NPC's scene or line, a scene's tile, a bump area, the hearth's chat, the roster board */
@@ -101,7 +104,8 @@ function s6Bump(x,y){if(story.busy)return false;const p=rp.s.w6,n=s6NpcAt(x,y,tr
   const c=(rp.grid[y]||[])[x];if(c==='H'&&p.startsWith('room:')&&p!=='room:tower')return chat(p);
   if(c==='o'&&p.startsWith('room:'))return roster();
   return false}
-function npcLine(n){if(!n.lines||!n.lines.length){rpSay([{who:n.n,text:'...'}]);return true}const st=rp.s.w6st;st.talk=st.talk||{};const i=st.talk[n.id]||0;st.talk[n.id]=(i+1)%n.lines.length;
+function npcLine(n){if(n.letter){rpOpenLetter();return true}   /* Quill the scribe: the letter desk (net/mail.js) */
+if(!n.lines||!n.lines.length){rpSay([{who:n.n,text:'...'}]);return true}const st=rp.s.w6st;st.talk=st.talk||{};const i=st.talk[n.id]||0;st.talk[n.id]=(i+1)%n.lines.length;
   const it=SCRIPT6[n.from].items[n.lines[i]];let L=lineOf(it);
   /* "(after the hatching:)" splits a line in two (slice-dialogue.md §1.10) */
   const parts=L.text.split(/\s*\(after the hatching:\)\s*/);if(parts.length>1)L.text=(rp.s.q.act||0)>=5?parts[1]:parts[0];
@@ -167,4 +171,4 @@ feature({id:'story6',
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
+export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6Marker,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};

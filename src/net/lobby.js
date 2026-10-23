@@ -4,21 +4,18 @@ import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {v6PackKobold} from '../core/save6.js';
 import {rp} from '../core/state.js';
-import {RP_ADV,RP_CLS} from '../data/classes.js';
-import {RP_IT,RP_SLOTS9} from '../data/items.js';
-import {RP_E,RP_ZONE} from '../data/monsters.js';
+import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {SKILLS6} from '../data/v6/skills.js';
 import {WEAPONS} from '../engine/art.js';
-import {clamp,esc2,wpick} from '../engine/util.js';
+import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpStats} from '../game/stats.js';
 import {netSendStart} from './battle.js';
 import {net,netByPeer,netEmit,netFocus,netName,netPartnerFree,netPresence,netRid} from './core.js';
 import {rpUI} from '../ui/hud.js';
-function netParty(){if(rp.s.w6)return rp.s.party.map(v6PackKobold);return rp.s.party.map(m=>({name:m.name,cls:m.cls,w:m.w,lvl:m.lvl,xp:m.xp,hp:m.hp,mp:m.mp,tal:(m.tal||[]).slice(),eq:Object.assign({},m.eq),adv:m.adv||null}))}
-function netCleanParty(p){if(!Array.isArray(p))return[];if(p.some(m=>m&&m.v6))return netClean6(p);return p.slice(0,3).map(m=>({name:String(m.name||'Kobold').slice(0,16),cls:RP_CLS[m.cls]?m.cls:'warrior',w:WEAPONS[m.w]?m.w:'stick',lvl:clamp(+m.lvl||1,1,40),xp:+m.xp||0,
-  hp:+m.hp||0,mp:+m.mp||0,tal:Array.isArray(m.tal)?m.tal.filter(t=>typeof t==='string').slice(0,40):[],eq:typeof m.eq==='object'&&m.eq?Object.fromEntries(Object.entries(m.eq).filter(([k,v])=>RP_SLOTS9.includes(k)&&RP_IT[v])):{},adv:RP_ADV[m.adv]?m.adv:null,pend:0,offer:null}))}
+function netParty(){return rp.s.party.map(v6PackKobold)}
+function netCleanParty(p){return Array.isArray(p)?netClean6(p):[]}
 /* a friend's v6 kobolds: only the saved fields (save6.js), checked so a bad message can't break the fight */
 function netClean6(p){const num=(v,a,b,d)=>{v=+v;return Number.isFinite(v)?clamp(Math.round(v),a,b):d},obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{},ids=v=>Array.isArray(v)?v.filter(id=>typeof id==='string'&&SKILLS6[id]):[];
   return p.filter(m=>m&&m.v6&&CLASSES6[m.cls]).slice(0,3).map(m=>{const c=v6PackKobold(m);
@@ -26,7 +23,7 @@ function netClean6(p){const num=(v,a,b,d)=>{v=+v;return Number.isFinite(v)?clamp
       scores:Object.fromEntries(Object.entries(obj(m.scores)).map(([k,v])=>[k,num(v,1,40,10)])),skills:ids(m.skills).slice(0,4),known:ids(m.known),ranks:obj(m.ranks),dark:obj(m.dark),
       gear:obj(m.gear),lead:obj(m.lead),passives:Array.isArray(m.passives)?m.passives.filter(x=>typeof x==='string'):[],w:WEAPONS[m.w]?m.w:'stick',pend:0});
     try{rpStats(c)}catch(e){return null}return c}).filter(Boolean)}
-const clsName=c=>(CLASSES6[c]||RP_CLS[c]||{n:''}).n;
+const clsName=c=>(CLASSES6[c]||{n:''}).n;
 /* ---------- the lobby before a battle ---------- */
 function rpFight(keys,opt){if(netPartnerFree()&&!opt.duel){netOpenLobby(keys,opt)}else rpBattle(keys,opt)}
 function netOpenLobby(keys,opt,duel){
@@ -43,7 +40,7 @@ function netLobFix(L,who){
 function netLobSend(){const L=net.lob;if(!L||!L.host)return;
   const sum=p=>p.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:Math.max(0,m.hp),mx:rpStats(m).hp}));
   netEmit({t:'lob',id:L.id,duel:L.duel,title:netLobTitle(L),hp:sum(rp.s.party),hsel:L.hsel,g:L.g?{peer:L.g.peer,sel:L.g.sel}:null,cap:L.duel?0:rp.s.party[0].lvl});L.sent=performance.now()}
-function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.title?o.title:o.boss&&RP_E[o.boss]?RP_E[o.boss].n:(RP_ZONE[o.zone]||{n:'Battle'}).n}
+function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.title?o.title:o.boss&&RP_E[o.boss]?RP_E[o.boss].n:'Battle'}
 function netLobHtml(){
   const L=net.lob;if(!L)return'';const host=L.host,V=L.view||{};
   const chips=(party,sel,mine,who)=>party.map((m,i)=>{const on=sel.includes(i),hp=m.hp!=null?m.hp:0,mx=m.mx||rpStats(m).hp,dn=hp<=0;
@@ -75,10 +72,8 @@ function netLobPick(who,i){const L=net.lob;if(!L)return;
 /* level sync: a friend's kobolds above the host's level fight as if they were at the host's level (talents beyond it
    rest, promotion only from level 10); health and mana keep the same share they had */
 function netLevelSync(m,cap){if(!m||m.lvl<=cap)return m;
-  if(m.v6){const c=JSON.parse(JSON.stringify(m)),a=rpStats(m);c.lvl=cap;c.synced=m.lvl;const b=rpStats(c);   /* v6: the sheet at the host's level; scores, skills and gear stay */
-    c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
-  const c=Object.assign({},m,{lvl:cap,tal:(m.tal||[]).slice(0,Math.max(0,cap-1)),adv:cap>=10?m.adv:null,synced:m.lvl});
-  const a=rpStats(m),b=rpStats(c);c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
+  const c=JSON.parse(JSON.stringify(m)),a=rpStats(m);c.lvl=cap;c.synced=m.lvl;const b=rpStats(c);   /* the sheet at the host's level; scores, skills and gear stay */
+  c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
 /* ---------- starting a battle together ---------- */
 function netStart(){
   const L=net.lob;if(!L||!L.host)return;const s=rp.s;
@@ -87,8 +82,7 @@ function netStart(){
   net.lob=null;
   if(L.duel){if(!theirs.length)return rpToast('Waiting for '+netName()+'.');rpBattle([],{duel:true,members:mine,foes:theirs,net:L.g.peer,nid:L.id,gParty:L.g.party})}
   else{let keys=L.keys;const o=L.opt||{};
-        if(o.v6){}   /* v6: nothing scales with the players (design.md §10) */
-    else if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,(Z.base||o.zone)===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
+        /* nothing scales with the players (design.md §10) */
     rpBattle(keys,Object.assign({},o,{members:mine.concat(theirs),net:theirs.length?L.g.peer:null,nid:L.id,gParty:L.g?L.g.party:[]}))}
   if(rp.bt&&rp.bt.net)netSendStart(rp.bt);
   netPresence(true);

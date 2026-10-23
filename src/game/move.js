@@ -1,21 +1,17 @@
 /* ---------- Kobold Quest: free, smooth movement on the world map ----------
    Pip has a real position (in tiles, fractional). The thumbstick is analog, the
    keyboard does 8 directions, walls slide, and pushing into someone talks to them. */
-import {rpEncounter} from '../battle/flow.js';
 import {emit} from '../core/bus.js';
-import {feature,tiles} from '../core/registry.js';
+import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
-import {RP_ZONE} from '../data/monsters.js';
-import {regionZone} from '../data/overworld.js';
-import {RP_DIR} from '../data/world.js';
 import {clamp} from '../engine/util.js';
-import {rpTalk} from './npcs.js';
 import {s6Bump,s6NpcAt} from './story6.js';
-import {rpBfs,rpChestAt,rpNpcAt,rpOpenChest,rpSolid} from './world.js';
+import {rpBfs,rpSolid} from './world.js';
 import {w6Bump,w6LinkAt,w6Step,w6Use} from './world6.js';
 
 const RP_SPEED=4.6,RP_R=.28;
+const RP_DIR={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function rpSyncPos(){const s=rp.s;
   /* never start inside something solid (a new building, a stall): step to the nearest free tile */
   if(rpSolid(s.x,s.y)){let best=null,bd=1e9;for(let y=Math.max(1,s.y-4);y<=Math.min(rp.grid.length-2,s.y+4);y++)for(let x=Math.max(1,s.x-4);x<=Math.min(rp.grid[0].length-2,s.x+4);x++){if(rpSolid(x,y))continue;const d=Math.abs(x-s.x)+Math.abs(y-s.y);if(d<bd){bd=d;best=[x,y]}}if(best){s.x=best[0];s.y=best[1]}}
@@ -25,25 +21,14 @@ function rpBlockedAt(x,y){
   for(const [ox,oy] of [[-RP_R,-RP_R*.6],[RP_R,-RP_R*.6],[-RP_R,RP_R],[RP_R,RP_R]]){const tx=Math.floor(x+ox),ty=Math.floor(y+oy);if(rpSolid(tx,ty))return[tx,ty]}
   return null}
 /* things you can interact with on a tile */
-function rpInteractAt(x,y){
-  if(!rp.grid[y])return false;const c=rp.grid[y][x];
-  if(rp.s.w6){if(s6Bump(x,y)||w6Bump(x,y)||w6Use(x,y)){rp.path=null;return true}return false}
-  const npc=rpNpcAt(x,y);if(npc){rp.path=null;rpTalk(npc.id);return true}
-  const ch=rpChestAt(x,y);if(ch){rp.path=null;rpOpenChest(ch);return true}
-  /* doors, shrines, boards, stalls...: whatever feature registered this tile letter */
-  const t=tiles[c];if(t){rp.path=null;t.use(x,y);return true}
-  return false}
-function rpSpecialAt(x,y){const c=rp.grid[y]&&rp.grid[y][x];if(rp.s.w6)return!!(c&&'FocxpHSC'.includes(c))||!!w6LinkAt(rp.s.w6,x,y,'bump')||!!s6NpcAt(x,y,true);return!!(rpNpcAt(x,y)||tiles[c]||rpChestAt(x,y))}
+function rpInteractAt(x,y){if(!rp.grid[y])return false;if(s6Bump(x,y)||w6Bump(x,y)||w6Use(x,y)){rp.path=null;return true}return false}
+function rpSpecialAt(x,y){const c=rp.grid[y]&&rp.grid[y][x];return!!(c&&'FocxpHSC'.includes(c))||!!w6LinkAt(rp.s.w6,x,y,'bump')||!!s6NpcAt(x,y,true)}
 /* Pip steps onto a new tile */
 function rpEnterTile(tx,ty){
   const s=rp.s;s.x=tx;s.y=ty;rp.pt=[tx,ty];s.steps++;
   const c=rp.grid[ty][tx];
   emit('tile:enter',tx,ty,c);
-  if(s.w6){const g=rp.grace>0;if(w6Step(tx,ty,c)){if(s.steps%10===0)rpSave();return}if(g)rp.grace--;if(s.steps%10===0)rpSave();return}
-  if(rp.grace>0)rp.grace--;
-  else{const z=rp.s.place?c:regionZone(tx,ty,c),Z=RP_ZONE[z];if(Z&&Math.random()<(rp.encRate||.06)){rp.path=null;rp.held=null;rpEncounter(z);return}}
-  if(s.steps%10===0)rpSave();
-}
+  const g=rp.grace>0;if(w6Step(tx,ty,c)){if(s.steps%10===0)rpSave();return}if(g)rp.grace--;if(s.steps%10===0)rpSave()}
 /* the direction Pip wants to go this frame (length 0..1) */
 function rpWant(){
   const s=rp.s;
@@ -103,4 +88,4 @@ rp.bumpT=0;
 rp.bumpLock=null;
 rp.moving=false;
 }});
-export {RP_R,RP_SPEED,rpActFacing,rpBlockedAt,rpEnterTile,rpInteractAt,rpMoveFrame,rpSpecialAt,rpSyncPos,rpTapTile,rpTry,rpWant};
+export {RP_DIR,RP_R,RP_SPEED,rpActFacing,rpBlockedAt,rpEnterTile,rpInteractAt,rpMoveFrame,rpSpecialAt,rpSyncPos,rpTapTile,rpTry,rpWant};
