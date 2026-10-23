@@ -695,19 +695,19 @@ button,.rpb,.pill{touch-action:manipulation}
       let p = plainNear(G, R2.at[0], R2.at[1]);
       G[p.y][p.x] = "i", signs[p.x + "," + p.y] = R2.text;
     }
-    let seen = new Uint8Array(WW * WH), q = [], walk = (x, y) => x >= 0 && y >= 0 && x < WW && y < WH && G[y][x] !== "o" && !SOLID_HERE.has(G[y][x]);
+    let seen2 = new Uint8Array(WW * WH), q = [], walk = (x, y) => x >= 0 && y >= 0 && x < WW && y < WH && G[y][x] !== "o" && !SOLID_HERE.has(G[y][x]);
     for (let e of VALLEY_EXITS) {
       let x = e.x, y = e.y;
-      walk(x, y) && (seen[y * WW + x] = 1, q.push(y * WW + x));
+      walk(x, y) && (seen2[y * WW + x] = 1, q.push(y * WW + x));
     }
     for (let h = 0; h < q.length; h++) {
       let i = q[h], x = i % WW, y = i / WW | 0;
       for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         let nx = x + dx, ny = y + dy;
-        !walk(nx, ny) || seen[ny * WW + nx] || (seen[ny * WW + nx] = 1, q.push(ny * WW + nx));
+        !walk(nx, ny) || seen2[ny * WW + nx] || (seen2[ny * WW + nx] = 1, q.push(ny * WW + nx));
       }
     }
-    for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) !seen[y * WW + x] && walk(x, y) && (G[y][x] = wallOf(x, y));
+    for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) !seen2[y * WW + x] && walk(x, y) && (G[y][x] = wallOf(x, y));
     return BUILT = { G, signs, towns, houses, routes: routes2 };
   }
   function wallOf(x, y) {
@@ -720,12 +720,12 @@ button,.rpb,.pill{touch-action:manipulation}
     return rt.name + (to.length ? " · to " + to.join(" and ") : "");
   }
   function nameRoutes() {
-    let C = REGION[0].length, Rn = REGION.length, id = /* @__PURE__ */ new Map(), list = [], key = (c, r) => c + "," + r, nameOf = (ch) => isTown(ch) ? TOWNS[ch].name : "Burrowhome", seen = /* @__PURE__ */ new Set(["3,2", "0,2"]), q = [[3, 2], [0, 2]];
+    let C = REGION[0].length, Rn = REGION.length, id = /* @__PURE__ */ new Map(), list = [], key = (c, r) => c + "," + r, nameOf = (ch) => isTown(ch) ? TOWNS[ch].name : "Burrowhome", seen2 = /* @__PURE__ */ new Set(["3,2", "0,2"]), q = [[3, 2], [0, 2]];
     for (let h = 0; h < q.length; h++) {
       let [c, r] = q[h];
       for (let [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
         let nc = c + dc, nr = r + dr, ch = cellAt(nc, nr);
-        if (!(!isOpen(ch) || seen.has(key(nc, nr)))) {
+        if (!(!isOpen(ch) || seen2.has(key(nc, nr)))) {
           if (isRoute(ch) && !id.has(key(nc, nr))) {
             let rt = { name: "Route " + (list.length + 1), ends: [], cells: [], kinds: {} };
             list.push(rt);
@@ -739,7 +739,7 @@ button,.rpb,.pill{touch-action:manipulation}
               }
             }
           }
-          seen.add(key(nc, nr)), q.push([nc, nr]);
+          seen2.add(key(nc, nr)), q.push([nc, nr]);
         }
       }
     }
@@ -1405,6 +1405,78 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   };
 
+  // src/core/save6.js
+  var SAVE6_VERSION = 1, SAVE6_EPOCH = 2, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass"];
+  function v6NewSave(opt) {
+    opt = opt || {};
+    let name = v6HeroName(opt.name) || "Pip";
+    return {
+      v: SAVE6_VERSION,
+      epoch: SAVE6_EPOCH,
+      created: opt.now || 0,
+      savedAt: 0,
+      played: 0,
+      hero: { name, colour: opt.colour || "orange", renamed: !1 },
+      q: { act: 0 },
+      seals: [],
+      // the story's flags (act, pb, grubb, miner_*, side quests, bounties); seals: the Smiler pieces (the old key)
+      party: [],
+      roster: [],
+      // the pack (the old key) and every companion who has joined; kobolds as KOBOLD_KEYS
+      gold: 0,
+      bag: {},
+      buns: 3,
+      inv: [],
+      // gold, consumables, the backpack; ember-buns left (three in the whole game)
+      fountains: [],
+      stables: [],
+      respawn: null,
+      // fountains drunk from, stables visited, where a loss sends you
+      bossDefeats: {},
+      chests: [],
+      patrols: 0,
+      fame: 0,
+      // softening, chests opened, patrols beaten since the last rest, fame
+      place: { map: "hearthspire", x: 0, y: 0, face: "down" }
+    };
+  }
+  function v6HeroName(n) {
+    return n = String(n || "").trim(), /^[A-Za-zÆØÅæøåÄÖÜäöüé' -]{2,12}$/.test(n) ? n : null;
+  }
+  function v6PackKobold(m) {
+    let o = {};
+    for (let k of KOBOLD_KEYS) m[k] !== void 0 && (o[k] = JSON.parse(JSON.stringify(m[k])));
+    return o;
+  }
+  function v6SaveOf(s) {
+    let o = JSON.parse(JSON.stringify(Object.assign({}, s, { party: [], roster: [] })));
+    return o.party = (s.party || []).map(v6PackKobold), o.roster = (s.roster || []).map(v6PackKobold), o.v = SAVE6_VERSION, o.epoch = SAVE6_EPOCH, o;
+  }
+  var MIGRATIONS6 = {};
+  function v6Load(o) {
+    if (!o || typeof o != "object" || o.legacy) return null;
+    for (o = JSON.parse(JSON.stringify(o)), o.v = o.v || 1; o.v < SAVE6_VERSION; ) {
+      let f = MIGRATIONS6[o.v];
+      if (!f) return null;
+      f(o), o.v++;
+    }
+    if (o.v !== SAVE6_VERSION || (o.epoch || 0) < SAVE6_EPOCH) return null;
+    let d = v6NewSave({ name: o.hero && o.hero.name });
+    for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
+    return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
+  }
+  var key6 = (acct, slot) => "kq6:" + (acct || "guest") + ":" + slot;
+  function v6Store(acct, slot, s) {
+    return slot < 0 || slot >= SLOTS6 ? !1 : (s.savedAt = Date.now(), store.set(key6(acct, slot), v6SaveOf(s)), !0);
+  }
+  function v6Fetch(acct, slot) {
+    try {
+      return v6Load(store.get(key6(acct, slot), null));
+    } catch {
+      return null;
+    }
+  }
+
   // src/core/save.js
   var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 1, saveKey = SAVE_KEY;
   function setSaveKey(k) {
@@ -1451,7 +1523,13 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
   function rpSave() {
-    rp.headless || rp.s && rp.s.w6 || (rp.s.savedAt = Date.now(), rp.s.epoch = SAVE_EPOCH, store.set(saveKey, rp.s), emit("save", rp.s));
+    if (!rp.headless) {
+      if (rp.s && rp.s.w6) {
+        v6Store("guest", 0, rp.s), emit("save", rp.s);
+        return;
+      }
+      rp.s.savedAt = Date.now(), rp.s.epoch = SAVE_EPOCH, store.set(saveKey, rp.s), emit("save", rp.s);
+    }
   }
 
   // src/data/gear.js
@@ -1790,7 +1868,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function v6Cards(m) {
     if (!(m.pend > 0)) return null;
-    let K = KITS6[m.cls], k = v6Known(m), sc = m.scores, score = { k: "score", opts: m.cls === "monk" ? [SCORES.slice().sort((a, b) => sc[a] - sc[b])[0]] : SCORES.filter((s) => sc[s] < 20) }, next = K.talents.find((t) => t.lvl <= m.lvl && !k.includes(t.id)), skill = next ? { k: "skill", opts: [next.id] } : { k: "rank", opts: k.filter((id) => SKILLS6[id] && ((m.ranks || {})[id] || 1) < V6_RANK_MAX) }, passive = { k: "passive", opts: (PASSIVES6[m.cls] || []).map((p) => p.n) };
+    let K = KITS6[m.cls], k = v6Known(m), sc = m.scores, score = { k: "score", opts: m.cls === "monk" ? [SCORES.slice().sort((a, b) => sc[a] - sc[b])[0]] : SCORES.filter((s) => sc[s] < 20) }, next2 = K.talents.find((t) => t.lvl <= m.lvl && !k.includes(t.id)), skill = next2 ? { k: "skill", opts: [next2.id] } : { k: "rank", opts: k.filter((id) => SKILLS6[id] && ((m.ranks || {})[id] || 1) < V6_RANK_MAX) }, passive = { k: "passive", opts: (PASSIVES6[m.cls] || []).map((p) => p.n) };
     return [score, skill, passive].filter((c) => c.opts.length);
   }
   function v6Pick(m, kind, choice) {
@@ -1857,7 +1935,11 @@ button,.rpb,.pill{touch-action:manipulation}
       m.hp = hp, m.mp = mp;
     });
     let boss = b.units.find((u) => u.E && u.E.v6boss), keys = boss ? [v6BossKey(boss.E.id)] : S.keys;
-    return rp.bt = null, rp.mode = "map", rpBattle(keys, boss ? Object.assign({}, S.opt, { boss: keys[0] }) : S.opt), rp.bt && (rp.bt.v6 = 1), !0;
+    if (rp.bt = null, rp.mode = "map", rpBattle(keys, boss ? Object.assign({}, S.opt, { boss: keys[0] }) : S.opt), rp.bt) {
+      rp.bt.v6 = 1;
+      for (let k of ["story", "patrol", "xpMul"]) b[k] != null && (rp.bt[k] = b[k]);
+    }
+    return !0;
   }
   function v6End(b) {
     !b || !b.v6 || b.units.filter((u) => u.side === 0 && u.m).forEach((u) => {
@@ -2076,8 +2158,8 @@ button,.rpb,.pill{touch-action:manipulation}
     ] }
   ], bondKey = (a, b) => [a, b].sort().join("|");
   function banterNext(s, test2) {
-    let names = s.party.map((m) => m.name), seen = s.banter || [], bond = s.bond || {};
-    return BANTER.find((B) => !seen.includes(B.id) && names.includes(B.a) && names.includes(B.b) && (bond[bondKey(B.a, B.b)] || 0) >= (B.need || 3) && (!B.if || !test2 || test2(B.if))) || null;
+    let names = s.party.map((m) => m.name), seen2 = s.banter || [], bond = s.bond || {};
+    return BANTER.find((B) => !seen2.includes(B.id) && names.includes(B.a) && names.includes(B.b) && (bond[bondKey(B.a, B.b)] || 0) >= (B.need || 3) && (!B.if || !test2 || test2(B.if))) || null;
   }
 
   // src/game/banter.js
@@ -2486,6 +2568,9 @@ button,.rpb,.pill{touch-action:manipulation}
   // src/data/v6/foes.js
   var ROLES6 = { normal: { hp: 1, atk: 1, def: 1, sd: 1, dodge: 10, init: 10, move: 4, res: 0, note: "the yardstick" }, brute: { hp: 1.6, atk: 1.2, def: 1.6, sd: 1, dodge: 3, init: 8, move: 3, res: 0, note: "slow, hard to hurt, hits hard" }, quick: { hp: 0.7, atk: 0.85, def: 0.7, sd: 0.8, dodge: 22, init: 12, move: 6, res: 0, note: "hard to hit, falls fast" }, ranged: { hp: 0.8, atk: 0.9, def: 0.8, sd: 0.8, dodge: 10, init: 10, move: 4, res: 0, note: "shoots from afar (steadiness 6)" }, caster: { hp: 0.75, atk: 1.1, def: 0.6, sd: 1.6, dodge: 10, init: 10, move: 4, res: 10, note: "uses special attack; resists magic" }, elite: { hp: 2, atk: 1.25, def: 1.3, sd: 1.2, dodge: 25, init: 11, move: 4, res: 10, note: "a patrol leader: worth more" }, swarm: { hp: 0.4, atk: 0.6, def: 0.5, sd: 0.5, dodge: 15, init: 11, move: 5, res: 0, note: "comes in numbers" } }, FOES6 = { cellar_rat: { n: "Cellar rat", role: "swarm", lv: [1, 2], home: 1, where: "Mallow's cellar (set-piece)", zone: "none", uses: "—", how: "runs at the nearest kobold in twos and threes; flees at low HP", drop: "—", by: { 1: { hp: 15, atk: 7.2, def: 0.5, sd: 0.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.42, xp: 1, gold: 1 }, 2: { hp: 17, atk: 9.2, def: 1, sd: 1, dodge: 15, init: 11, move: 5, res: 0, w: 0.409, xp: 2, gold: 2 } } }, guard_recruit: { n: "Guard recruit", role: "normal", lv: [2, 3], home: 2, where: "the castle yard drill (set-piece)", zone: "none", uses: "—", how: "guards (dodge +25) when hurt; a tutorial in cover", drop: "—", by: { 2: { hp: 43, atk: 15.3, def: 2, sd: 2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 5, gold: 4 }, 3: { hp: 49, atk: 18.9, def: 2.9, sd: 2.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 6, gold: 5 } } }, nettlenose_scout: { n: "Nettlenose scout", role: "quick", lv: [3, 30], home: 5, where: "every road as the story goes on", zone: "none", uses: "unseen in tall grass", how: "ambushes from grass, hits the most hurt kobold, slips away", drop: "moss or the zone's material", by: { 3: { hp: 35, atk: 16.1, def: 2, sd: 2.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 4, gold: 4 }, 4: { hp: 65, atk: 23.2, def: 2.7, sd: 3.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 7, gold: 5 }, 5: { hp: 72, atk: 26.1, def: 3.4, sd: 3.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.761, xp: 10, gold: 6 }, 6: { hp: 80, atk: 26.7, def: 4, sd: 4.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.757, xp: 11, gold: 6 }, 7: { hp: 86, atk: 30.3, def: 4.7, sd: 5.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 13, gold: 7 }, 8: { hp: 92, atk: 33.2, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 132, atk: 42, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 143, atk: 44.9, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 145, atk: 47.9, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 23, gold: 10 }, 12: { hp: 157, atk: 51, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 27, gold: 11 }, 13: { hp: 165, atk: 55.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 24, gold: 12 }, 14: { hp: 172, atk: 59.7, def: 9.3, sd: 10.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 27, gold: 13 }, 15: { hp: 223, atk: 71.7, def: 10, sd: 11.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 31, gold: 13 }, 16: { hp: 230, atk: 76.3, def: 10.7, sd: 12.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 34, gold: 14 }, 17: { hp: 246, atk: 79.7, def: 11.3, sd: 13, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 37, gold: 15 }, 18: { hp: 268, atk: 83.2, def: 12, sd: 13.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 41, gold: 16 }, 19: { hp: 277, atk: 89, def: 12.7, sd: 14.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 45, gold: 17 }, 20: { hp: 286, atk: 94, def: 13.3, sd: 15.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 48, gold: 17 }, 21: { hp: 344, atk: 96.4, def: 14, sd: 16, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 53, gold: 18 }, 22: { hp: 365, atk: 99.7, def: 14.7, sd: 16.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 57, gold: 19 }, 23: { hp: 374, atk: 105.8, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 53, gold: 20 }, 24: { hp: 384, atk: 109.3, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 57, gold: 20 }, 25: { hp: 394, atk: 114.5, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 61, gold: 21 }, 26: { hp: 417, atk: 118.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 65, gold: 22 }, 27: { hp: 481, atk: 134.8, def: 18, sd: 20.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 69, gold: 23 }, 28: { hp: 492, atk: 142.1, def: 18.7, sd: 21.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 73, gold: 23 }, 29: { hp: 502, atk: 148.1, def: 19.3, sd: 22.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 77, gold: 24 }, 30: { hp: 539, atk: 152.1, def: 20, sd: 22.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 82, gold: 25 } } }, nettlenose_slinger: { n: "Nettlenose slinger", role: "ranged", lv: [3, 30], home: 5, where: "every road", zone: "none", uses: "—", how: "keeps 5–6 tiles away behind cover; retreats when a kobold comes close", drop: "the zone's material", by: { 3: { hp: 40, atk: 17, def: 2.3, sd: 2.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 4, gold: 4 }, 4: { hp: 74, atk: 24.6, def: 3.1, sd: 3.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 7, gold: 5 }, 5: { hp: 82, atk: 27.7, def: 3.8, sd: 3.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.803, xp: 10, gold: 6 }, 6: { hp: 92, atk: 28.3, def: 4.6, sd: 4.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.8, xp: 11, gold: 7 }, 7: { hp: 98, atk: 32.1, def: 5.4, sd: 5.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 14, gold: 8 }, 8: { hp: 105, atk: 35.1, def: 6.1, sd: 6.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 14, gold: 8 }, 9: { hp: 151, atk: 44.4, def: 6.9, sd: 6.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.799, xp: 17, gold: 9 }, 10: { hp: 164, atk: 47.6, def: 7.6, sd: 7.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.799, xp: 20, gold: 10 }, 11: { hp: 166, atk: 50.8, def: 8.4, sd: 8.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 24, gold: 11 }, 12: { hp: 180, atk: 54, def: 9.2, sd: 9.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 27, gold: 12 }, 13: { hp: 188, atk: 58.8, def: 9.9, sd: 9.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 25, gold: 13 }, 14: { hp: 196, atk: 63.2, def: 10.7, sd: 10.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 28, gold: 13 }, 15: { hp: 254, atk: 75.9, def: 11.4, sd: 11.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 31, gold: 14 }, 16: { hp: 263, atk: 80.8, def: 12.2, sd: 12.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 34, gold: 15 }, 17: { hp: 282, atk: 84.4, def: 13, sd: 13, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 38, gold: 16 }, 18: { hp: 307, atk: 88.1, def: 13.7, sd: 13.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 42, gold: 17 }, 19: { hp: 317, atk: 94.2, def: 14.5, sd: 14.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 45, gold: 17 }, 20: { hp: 327, atk: 99.6, def: 15.2, sd: 15.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 49, gold: 18 }, 21: { hp: 393, atk: 102, def: 16, sd: 16, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 53, gold: 19 }, 22: { hp: 417, atk: 105.6, def: 16.8, sd: 16.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 58, gold: 20 }, 23: { hp: 428, atk: 112.1, def: 17.5, sd: 17.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 54, gold: 21 }, 24: { hp: 439, atk: 115.8, def: 18.3, sd: 18.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 58, gold: 22 }, 25: { hp: 450, atk: 121.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 62, gold: 22 }, 26: { hp: 476, atk: 125.1, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 66, gold: 23 }, 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 }, 28: { hp: 562, atk: 150.4, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 74, gold: 25 }, 29: { hp: 574, atk: 156.8, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 78, gold: 26 }, 30: { hp: 616, atk: 161, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 83, gold: 27 } } }, snatchclaw_s_guard: { n: "Snatchclaw's guard", role: "normal", lv: [8, 30], home: 12, where: "roads, toll gates, barracks, castle", zone: "none", uses: "—", how: "shield wall: guards an ally beside it; taunts (threat ×2)", drop: "gold scrap", by: { 8: { hp: 132, atk: 39, def: 7.7, sd: 7.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 19, gold: 11 }, 9: { hp: 188, atk: 49.4, def: 8.6, sd: 8.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 22, gold: 12 }, 10: { hp: 205, atk: 52.9, def: 9.5, sd: 9.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 27, gold: 13 }, 11: { hp: 207, atk: 56.4, def: 10.5, sd: 10.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 31, gold: 14 }, 12: { hp: 225, atk: 60, def: 11.5, sd: 11.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 36, gold: 15 }, 13: { hp: 235, atk: 65.3, def: 12.4, sd: 12.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 32, gold: 16 }, 14: { hp: 245, atk: 70.2, def: 13.4, sd: 13.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 37, gold: 17 }, 15: { hp: 318, atk: 84.3, def: 14.3, sd: 14.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 41, gold: 18 }, 16: { hp: 329, atk: 89.7, def: 15.3, sd: 15.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 45, gold: 19 }, 17: { hp: 352, atk: 93.8, def: 16.2, sd: 16.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 50, gold: 20 }, 18: { hp: 383, atk: 97.9, def: 17.2, sd: 17.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 55, gold: 21 }, 19: { hp: 396, atk: 104.6, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 408, atk: 110.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 491, atk: 113.4, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 521, atk: 117.3, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 535, atk: 124.5, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 }, 24: { hp: 549, atk: 128.6, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 76, gold: 27 }, 25: { hp: 562, atk: 134.7, def: 23.8, sd: 23.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 81, gold: 28 }, 26: { hp: 595, atk: 139, def: 24.8, sd: 24.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 86, gold: 29 }, 27: { hp: 687, atk: 158.6, def: 25.7, sd: 25.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 91, gold: 30 }, 28: { hp: 702, atk: 167.1, def: 26.7, sd: 26.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 97, gold: 31 }, 29: { hp: 718, atk: 174.2, def: 27.6, sd: 27.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 103, gold: 32 }, 30: { hp: 770, atk: 178.9, def: 28.6, sd: 28.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 108, gold: 33 } } }, guard_sergeant: { n: "Guard sergeant", role: "elite", lv: [16, 30], home: 20, where: "R4, the castle, patrols", zone: "none", uses: "weaken (shout)", how: "leads a patrol; shouts weaken at the pack; calls a guard if alone", drop: "boss fang (10%)", by: { 16: { hp: 658, atk: 112.2, def: 19.8, sd: 18.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.925, xp: 117, gold: 36 }, 17: { hp: 704, atk: 117.2, def: 21.1, sd: 19.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.924, xp: 128, gold: 38 }, 18: { hp: 767, atk: 122.3, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.922, xp: 141, gold: 40 }, 19: { hp: 791, atk: 130.8, def: 23.5, sd: 21.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.927, xp: 154, gold: 42 }, 20: { hp: 816, atk: 138.3, def: 24.8, sd: 22.9, dodge: 25, init: 11, move: 4, res: 10, w: 1.926, xp: 167, gold: 44 }, 21: { hp: 982, atk: 141.7, def: 26, sd: 24, dodge: 25, init: 11, move: 4, res: 10, w: 1.935, xp: 179, gold: 46 }, 22: { hp: 1042, atk: 146.7, def: 27.2, sd: 25.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 193, gold: 48 }, 23: { hp: 1070, atk: 155.6, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 182, gold: 51 }, 24: { hp: 1097, atk: 160.8, def: 29.7, sd: 27.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 195, gold: 53 }, 25: { hp: 1125, atk: 168.4, def: 30.9, sd: 28.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 208, gold: 55 }, 26: { hp: 1191, atk: 173.7, def: 32.2, sd: 29.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.935, xp: 221, gold: 57 }, 27: { hp: 1375, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 234, gold: 58 }, 28: { hp: 1405, atk: 208.9, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 248, gold: 61 }, 29: { hp: 1435, atk: 217.8, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 263, gold: 63 }, 30: { hp: 1540, atk: 223.6, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 277, gold: 64 } } }, copper_beetle: { n: "Copper beetle", role: "brute", lv: [3, 8], home: 5, where: "R1, the mine", zone: "pebble", uses: "—", how: "charges in a line; curls up (defence ×2) for a turn when hurt", drop: "moss, gold scrap", by: { 3: { hp: 79, atk: 22.7, def: 4.6, sd: 2.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.499, xp: 10, gold: 8 }, 4: { hp: 148, atk: 32.8, def: 6.2, sd: 3.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.487, xp: 15, gold: 10 }, 5: { hp: 164, atk: 36.9, def: 7.7, sd: 4.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.496, xp: 21, gold: 11 }, 6: { hp: 183, atk: 37.8, def: 9.2, sd: 5.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.507, xp: 24, gold: 13 }, 7: { hp: 197, atk: 42.8, def: 10.7, sd: 6.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 31, gold: 14 }, 8: { hp: 211, atk: 46.8, def: 12.2, sd: 7.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.523, xp: 32, gold: 16 } } }, glow_grub: { n: "Glow grub", role: "caster", lv: [5, 8], home: 7, where: "the mine", zone: "pebble", uses: "slow (sticky spit)", how: "spits from range at the kobold with the lowest defence; lights the dark tiles", drop: "gold scrap", by: { 5: { hp: 77, atk: 33.8, def: 2.9, sd: 7.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.892, xp: 9, gold: 7 }, 6: { hp: 86, atk: 34.6, def: 3.5, sd: 9.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.891, xp: 10, gold: 8 }, 7: { hp: 92, atk: 39.2, def: 4, sd: 10.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 12, gold: 8 }, 8: { hp: 99, atk: 42.9, def: 4.6, sd: 12.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.886, xp: 12, gold: 9 } } }, sand_skink: { n: "Sand skink", role: "quick", lv: [8, 13], home: 10, where: "R2, the oasis", zone: "sun", uses: "poison (bite)", how: "darts in, bites, darts out; hides under sand (unseen) on sand tiles", drop: "sand glass", by: { 8: { hp: 92, atk: 33.2, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 132, atk: 42, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 143, atk: 44.9, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 145, atk: 47.9, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 23, gold: 10 }, 12: { hp: 157, atk: 51, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 27, gold: 11 }, 13: { hp: 165, atk: 55.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 24, gold: 12 } } }, cellar_bee: { n: "Cellar bee", role: "swarm", lv: [10, 13], home: 11, where: "the honey cellars", zone: "sun", uses: "poison (sting)", how: "flies over terrain in a cloud of three; goes for the healer", drop: "sand glass, reed", by: { 10: { hp: 82, atk: 31.7, def: 4.8, sd: 4.8, dodge: 15, init: 11, move: 5, res: 0, w: 0.39, xp: 10, gold: 5 }, 11: { hp: 83, atk: 33.8, def: 5.3, sd: 5.3, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 12, gold: 5 }, 12: { hp: 90, atk: 36, def: 5.7, sd: 5.7, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 13, gold: 6 }, 13: { hp: 94, atk: 39.2, def: 6.2, sd: 6.2, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 12, gold: 6 } } }, wax_golem: { n: "Wax golem", role: "brute", lv: [11, 13], home: 12, where: "the honey cellars", zone: "sun", uses: "slow (wax)", how: "plods, leaves wax tiles (slow) behind it; melts (defence ×0.5) when burned", drop: "sand glass", by: { 11: { hp: 331, atk: 67.7, def: 16.8, sd: 10.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 53, gold: 21 }, 12: { hp: 360, atk: 72, def: 18.3, sd: 11.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 61, gold: 22 }, 13: { hp: 376, atk: 78.4, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 56, gold: 24 } } }, rock_goat: { n: "Rock goat", role: "brute", lv: [13, 16], home: 14, where: "R3, the pass", zone: "ember", uses: "fall (charge)", how: "charges two tiles and knocks the target down (fall); butts kobolds off ledges", drop: "gold scrap", by: { 13: { hp: 376, atk: 78.4, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 56, gold: 24 }, 14: { hp: 393, atk: 84.3, def: 21.4, sd: 13.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 63, gold: 26 }, 15: { hp: 509, atk: 101.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 69, gold: 27 }, 16: { hp: 526, atk: 107.7, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 77, gold: 29 } } }, stoker: { n: "Stoker", role: "caster", lv: [13, 18], home: 15, where: "R3, the crater", zone: "ember", uses: "burn", how: "throws embers that burn; stokes hot tiles around itself", drop: "gold scrap", by: { 13: { hp: 176, atk: 71.8, def: 7.4, sd: 19.8, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 22, gold: 14 }, 14: { hp: 184, atk: 77.2, def: 8, sd: 21.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.886, xp: 25, gold: 15 }, 15: { hp: 238, atk: 92.7, def: 8.6, sd: 22.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.895, xp: 28, gold: 16 }, 16: { hp: 247, atk: 98.7, def: 9.2, sd: 24.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 31, gold: 17 }, 17: { hp: 264, atk: 103.2, def: 9.7, sd: 25.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 34, gold: 18 }, 18: { hp: 287, atk: 107.7, def: 10.3, sd: 27.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 37, gold: 19 } } }, magma_slug: { n: "Magma slug", role: "brute", lv: [15, 18], home: 17, where: "the crater", zone: "ember", uses: "burn (hot trail)", how: "leaves a trail of hot tiles (burn on entry); very slow", drop: "gold scrap, boss fang (5%)", by: { 15: { hp: 509, atk: 101.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 69, gold: 27 }, 16: { hp: 526, atk: 107.7, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 77, gold: 29 }, 17: { hp: 563, atk: 112.5, def: 25.9, sd: 16.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 85, gold: 30 }, 18: { hp: 613, atk: 117.5, def: 27.4, sd: 17.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.515, xp: 93, gold: 32 } } }, snow_beast: { n: "Snow beast", role: "brute", lv: [19, 22], home: 20, where: "R5, the snowfield", zone: "frost", uses: "fall (ice)", how: "stamps ice tiles around it (fall on entry); hugs (root) when adjacent", drop: "frost shard", by: { 19: { hp: 633, atk: 125.6, def: 29, sd: 18.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 102, gold: 33 }, 20: { hp: 653, atk: 132.8, def: 30.5, sd: 19.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 111, gold: 35 }, 21: { hp: 786, atk: 136, def: 32, sd: 20, dodge: 3, init: 8, move: 3, res: 0, w: 1.52, xp: 118, gold: 37 }, 22: { hp: 834, atk: 140.8, def: 33.5, sd: 21, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 127, gold: 38 } } }, frost_guard: { n: "Frost guard", role: "normal", lv: [19, 23], home: 21, where: "R5, the draft outpost", zone: "frost", uses: "slow (frost spear)", how: "a guard with a frost spear: reach 2, slows on hit", drop: "frost shard", by: { 19: { hp: 396, atk: 104.6, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 408, atk: 110.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 491, atk: 113.4, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 521, atk: 117.3, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 535, atk: 124.5, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 } } }, ice_mite: { n: "Ice mite", role: "swarm", lv: [20, 23], home: 22, where: "the ice cellars", zone: "frost", uses: "fall (slick)", how: "skitters in fours; makes the floor slick where it dies", drop: "frost shard", by: { 20: { hp: 163, atk: 66.4, def: 9.5, sd: 9.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.389, xp: 24, gold: 9 }, 21: { hp: 196, atk: 68, def: 10, sd: 10, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 26, gold: 10 }, 22: { hp: 208, atk: 70.4, def: 10.5, sd: 10.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 28, gold: 10 }, 23: { hp: 214, atk: 74.7, def: 11, sd: 11, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 27, gold: 10 } } }, shore_crab: { n: "Shore crab", role: "brute", lv: [23, 27], home: 24, where: "R6, R7, the shipwreck", zone: "salt", uses: "—", how: "armoured (defence ×1.6); pinches and holds (root) the kobold in front", drop: "pearl, reed", by: { 23: { hp: 856, atk: 149.4, def: 35, sd: 21.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.523, xp: 120, gold: 40 }, 24: { hp: 878, atk: 154.3, def: 36.6, sd: 22.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 129, gold: 41 }, 25: { hp: 900, atk: 161.7, def: 38.1, sd: 23.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 138, gold: 43 }, 26: { hp: 953, atk: 166.8, def: 39.6, sd: 24.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.522, xp: 146, gold: 44 }, 27: { hp: 1100, atk: 190.4, def: 41.1, sd: 25.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 154, gold: 46 } } }, smuggler: { n: "Smuggler", role: "quick", lv: [23, 26], home: 24, where: "R6, the shipwreck", zone: "salt", uses: "unseen (hides)", how: "hides in crates (unseen), strikes, pockets gold (−1% of the pack's gold, given back on defeat)", drop: "reed, pearl", by: { 23: { hp: 374, atk: 105.8, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 53, gold: 20 }, 24: { hp: 384, atk: 109.3, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 57, gold: 20 }, 25: { hp: 394, atk: 114.5, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 61, gold: 21 }, 26: { hp: 417, atk: 118.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 65, gold: 22 } } }, sea_guard: { n: "Sea guard", role: "ranged", lv: [25, 27], home: 26, where: "R7, the islands", zone: "salt", uses: "—", how: "throws harpoons (steadiness 4); pulls a kobold one tile closer on hit", drop: "pearl", by: { 25: { hp: 450, atk: 121.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 62, gold: 22 }, 26: { hp: 476, atk: 125.1, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 66, gold: 23 }, 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 } } }, cave_eel: { n: "Cave eel", role: "caster", lv: [26, 27], home: 27, where: "the island cave", zone: "salt", uses: "—", how: "storm bolts that chain to one more kobold; lives in water tiles (cover)", drop: "pearl", by: { 26: { hp: 447, atk: 152.9, def: 14.9, sd: 39.6, dodge: 10, init: 10, move: 4, res: 10, w: 0.896, xp: 59, gold: 26 }, 27: { hp: 516, atk: 174.5, def: 15.4, sd: 41.1, dodge: 10, init: 10, move: 4, res: 10, w: 0.9, xp: 63, gold: 27 } } }, royal_guard: { n: "Royal guard", role: "elite", lv: [27, 30], home: 29, where: "the castle", zone: "none", uses: "stun (shield bash)", how: "guards Snatchclaw's hall in pairs; shield-bash stun; never flees", drop: "boss fang (15%)", by: { 27: { hp: 1375, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 234, gold: 58 }, 28: { hp: 1405, atk: 208.9, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 248, gold: 61 }, 29: { hp: 1435, atk: 217.8, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 263, gold: 63 }, 30: { hp: 1540, atk: 223.6, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 277, gold: 64 } } }, castle_crossbow: { n: "Castle crossbow", role: "ranged", lv: [27, 30], home: 29, where: "the castle walls", zone: "none", uses: "—", how: "fires from the walls (full cover) at 8–10 tiles; steadiness 3", drop: "gold scrap", by: { 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 }, 28: { hp: 562, atk: 150.4, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 74, gold: 25 }, 29: { hp: 574, atk: 156.8, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 78, gold: 26 }, 30: { hp: 616, atk: 161, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 83, gold: 27 } } } }, PLACES6 = [{ place: "R1 (the capital gate → Pebblebrook)", L: 4, target: 3.333, pool: ["nettlenose_scout", "nettlenose_slinger", "copper_beetle"] }, { place: "the mine (Pebblebrook)", L: 7, target: 4, pool: ["copper_beetle", "glow_grub", "nettlenose_scout"] }, { place: "R2 (→ Sunhaven)", L: 10, target: 4, pool: ["snatchclaw_s_guard", "sand_skink", "nettlenose_slinger"] }, { place: "the honey cellars (Sunhaven)", L: 12, target: 4, pool: ["cellar_bee", "wax_golem", "sand_skink"] }, { place: "R3 (→ Emberreach)", L: 15, target: 4.267, pool: ["rock_goat", "stoker", "nettlenose_slinger"] }, { place: "the crater (Emberreach)", L: 17, target: 4.267, pool: ["stoker", "magma_slug", "nettlenose_scout"] }, { place: "R4, the bun road", L: 17, target: 4.267, pool: ["snatchclaw_s_guard", "guard_sergeant", "nettlenose_slinger", "nettlenose_scout"] }, { place: "R5 (→ Frostwick)", L: 21, target: 4.267, pool: ["snow_beast", "frost_guard", "nettlenose_scout"] }, { place: "the ice cellars (Frostwick)", L: 22, target: 4.267, pool: ["ice_mite", "snow_beast", "frost_guard"] }, { place: "R6 (→ Saltspray)", L: 24, target: 4.267, pool: ["shore_crab", "smuggler", "snatchclaw_s_guard"] }, { place: "the shipwreck (Saltspray)", L: 25, target: 4.267, pool: ["shore_crab", "smuggler", "nettlenose_slinger"] }, { place: "R7 and the islands", L: 26, target: 4.267, pool: ["shore_crab", "sea_guard"] }, { place: "the island cave", L: 27, target: 4.267, pool: ["cave_eel", "shore_crab", "sea_guard"] }, { place: "the march and the castle", L: 29, target: 4.267, pool: ["royal_guard", "castle_crossbow", "snatchclaw_s_guard", "guard_sergeant"] }], BOSSES6 = { grubb: { id: "grubb", n: "Grubb", L: 5, R: 7, k: 34, hp: 869, atk: 37.1, def: 4.8, sd: 4.8, dodge: 5, init: 10, move: 3, res: 10, where: "the mill road", trick: "loud and easy to read: a big telegraphed swing every third round", adds: "2 Nettlenose scouts on round 4", drop: "Toll pot (helm, T2)", xp: 107, gold: 45 }, snipe: { id: "snipe", n: "Snipe", L: 8, R: 7, k: 35, hp: 1153, atk: 52, def: 7.6, sd: 7.6, dodge: 5, init: 10, move: 3, res: 10, where: "the mine", trick: "rides a copper cart behind cover (full cover against ranged); leaves it to throw", adds: "none", drop: "Copper-cart wheel (shield, T2)", xp: 162, gold: 63 }, sunhaven_guard_captain: { id: "sunhaven_guard_captain", n: "Sunhaven guard captain", L: 12, R: 8, k: 41, hp: 2304, atk: 74.6, def: 11.4, sd: 11.4, dodge: 5, init: 10, move: 3, res: 10, where: "the barracks by the oasis", trick: "drains the oasis tiles one by one (dry tiles slow); stands in the last wet one", adds: "2 guards", drop: "Drain-key (neck, T3)", xp: 364, gold: 88 }, emberreach_guard_captain: { id: "emberreach_guard_captain", n: "Emberreach guard captain", L: 16, R: 8, k: 42, hp: 3453, atk: 113.6, def: 15.3, sd: 15.3, dodge: 5, init: 10, move: 3, res: 10, where: "the seized ovens", trick: "seizes ovens: hot tiles around him burn on entry", adds: "1 stoker", drop: "Oven mitts (ring, T4)", xp: 475, gold: 113 }, snatchclaw_emberreach: { id: "snatchclaw_emberreach", n: "Snatchclaw (Emberreach)", L: 18, R: 10, k: 54, hp: 5174, atk: 108.9, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the forge square", trick: "talks the pack into standing down: a confuse on one kobold every third round instead of the big attack", adds: "2 guards", drop: "Captain's sash (cloak, T4)", xp: 738, gold: 126 }, bun_road_toll_captain: { id: "bun_road_toll_captain", n: "Bun-road toll captain", L: 18, R: 8, k: 43, hp: 4120, atk: 125.4, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the R4 toll gate", trick: "brings a guard every third round until the gate bell is rung", adds: "guards, one at a time", drop: "Bun satchel (armour, T4)", xp: 587, gold: 126 }, draft_sergeant_frostwick: { id: "draft_sergeant_frostwick", n: "Draft sergeant", L: 22, R: 8, k: 44, hp: 5733, atk: 167.2, def: 20.9, sd: 20.9, dodge: 5, init: 10, move: 3, res: 10, where: "the draft outpost on R5", trick: '"drafts" a kobold for three turns (it fights for him, a confuse)', adds: "1 frost guard", drop: "Sergeant's whistle (neck, T5)", xp: 828, gold: 150 }, pier_captain_saltspray: { id: "pier_captain_saltspray", n: "Pier captain", L: 26, R: 8, k: 46, hp: 6848, atk: 202.2, def: 24.8, sd: 24.8, dodge: 5, init: 10, move: 3, res: 10, where: "the harbour", trick: "fights from a boat at range (steadiness 3); the pack must bring him to the pier", adds: "2 sea guards", drop: "Net cloak (cloak, T6)", xp: 990, gold: 175 }, castle_commander: { id: "castle_commander", n: "Castle commander", L: 28, R: 10, k: 58, hp: 10185, atk: 212.1, def: 26.6, sd: 26.6, dodge: 5, init: 10, move: 3, res: 10, where: "the castle gate", trick: "a wall of royal guards that opens in phases (75 / 50 / 25%)", adds: "royal guards, two per phase", drop: "Marble gauntlets (ring, T6)", xp: 1405, gold: 188 }, snatchclaw_castle: { id: "snatchclaw_castle", n: "Snatchclaw (castle)", L: 29, R: 11, k: 64, hp: 11480, atk: 210, def: 27.6, sd: 27.6, dodge: 5, init: 10, move: 3, res: 10, where: "the throne room", trick: "runs for the tower fire; whoever has the most threat must hold him", adds: "2 royal guards", drop: "Throne splinter (helm, T6)", xp: 1640, gold: 194 }, glitterbeak: { id: "glitterbeak", n: "Glitterbeak", L: 30, R: 12, k: 70, hp: 13477, atk: 205.6, def: 28.5, sd: 28.5, dodge: 5, init: 10, move: 3, res: 10, where: "the castle roof", trick: "cold: heals when he eats buns (a telegraphed dive at the bun cart), loses it while the pack's embers glow; **luck 2** (a dragon's luck)", adds: "none", drop: "Warm scale (neck, T6)", xp: 1894, gold: 200 } }, TRIALS6 = { old_shellback: { id: "old_shellback", n: "Old Shellback", base: "copper_beetle", L: 8, area: "the mine, floor 3 (the flooded gallery)", trick: "curls up every second turn: it does not attack, and takes half damage until it uncurls", drop: "flour-dusted apron (Millers' set)", hp: 395, atk: 48.8, def: 9.9, sd: 9.2, dodge: 25, init: 11, move: 4, res: 10, xp: 72, gold: 31 }, the_queen_bee_s_comb: { id: "the_queen_bee_s_comb", n: "The queen bee's comb", base: "cellar_bee", L: 13, area: "the honey cellars, floor 3", trick: "calls two cellar bees every third turn", drop: "honey-silk cloak (Honey-glass set)", hp: 705, atk: 81.6, def: 16.1, sd: 14.9, dodge: 25, init: 11, move: 4, res: 10, xp: 126, gold: 46 }, the_magma_slug_s_mother: { id: "the_magma_slug_s_mother", n: "The magma slug's mother", base: "magma_slug", L: 18, area: "the crater, floor 3", trick: "leaves burning tiles where it moves", drop: "ember apron (Bakers' set)", hp: 1150, atk: 122.3, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, xp: 211, gold: 60 }, the_ice_wyrm_statue: { id: "the_ice_wyrm_statue", n: "The ice wyrm statue", base: "snow_beast", L: 23, area: "the ice cellars, floor 3", trick: "stands still until struck; then every hit on it slows the striker", drop: "ice slab (Fort set)", hp: 1605, atk: 155.6, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, xp: 272, gold: 76 }, the_ghost_ship_s_captain: { id: "the_ghost_ship_s_captain", n: "The ghost ship's captain", base: "sea_guard", L: 27, area: "the island cave", trick: "unseen every other turn (dodge halved does not apply: it is simply not there)", drop: "net cloak (Harbour set)", hp: 2062, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, xp: 351, gold: 88 } };
 
+  // src/data/v6/story.js
+  var SCRIPT6 = { "1.1": { id: "1.1", title: "Morning (the bakery) · new game · sets `act 1`", items: [{ dir: "Morning. The bakery smells of volcano fire. Mallow slides two buns across the counter.", show: !0 }, { who: "Mallow", text: "Two buns, {hero}. Same as every morning." }, { who: "{hero}", text: "Same as every morning. Good. I like things the same." }, { who: "Mallow", text: "So does my oven. It's older than me and twice as stubborn." }, { who: "Mallow", text: "Before you eat those: the cellar's got rats again. Take your stick." }, { who: "{hero}", text: "It's a very good stick." }, { who: "Mallow", text: "It's a stick, dear." }] }, "1.2": { id: "1.2", title: "The cellar (the bakery cellar) · `act 1` · set-piece fights 1 and 2: rats (Pip alone, no class yet: his stick)", items: [{ dir: "{hero} goes down the hatch. Three rats are in the flour sacks. Moving and attacking are taught here.", show: !1 }, { who: "{hero}", text: "Out. This flour is for buns, and the buns are for me." }, { dir: "A bigger rat noses out from behind the boarded door in the wall, with two friends. The hit chance on each foe is taught here.", show: !1 }, { who: "{hero}", text: "You're the boss rat, aren't you. You've got a boss face." }, { dir: "After the second fight {hero} looks at the old door, boarded over.", show: !0 }, { who: "Mallow", text: "(from the hatch) That's the flour tunnel. The carts used to come in under my bakery, before the roads." }, { who: "{hero}", text: "Why doesn't anyone use it?" }, { who: "Mallow", text: "It's full of rats." }, { who: "{hero}", text: "It WAS full of rats." }, { who: "Mallow", text: "Then it's a very good stick." }, { who: "Mallow", text: "Now, one more job. Light my lamp at the tower fire, would you?" }, { who: "Mallow", text: "Tomorrow is hatching day. The embers come out of my oven." }, { who: "Mallow", text: "And my oven wants a proper flame." }, { dir: "Sets `act 2`.", show: !1 }] }, "1.3": { id: "1.3", title: "The square (Bib's bench) · `act 2`", items: [{ who: "Bib", text: "{hero}! Morning. Sit down, the bench is warm." }, { who: "{hero}", text: "Can't. Errand. Lamp. Tower." }, { who: "Bib", text: "Hatching day tomorrow. Three eggs in the Nest. Everyone's talking about it." }, { who: "{hero}", text: "Are you going?" }, { who: "Bib", text: "Maybe. If I'm up. Here, have a bun. I had three." }, { who: "{hero}", text: "You're the best friend a kobold ever had." }, { who: "Bib", text: "I know. I once asked the whole town to fix the old mill with me. Nobody came." }, { who: "Bib", text: "It was fine. Everything's fine." }, { dir: "Bib's bench can be visited at any time in act 1; after this scene he says one of these (in turn):", show: !0 }, { who: "Bib", text: "Buns are fine, {hero}. Buns are always fine." }, { who: "Bib", text: "I'd help, but I'm sitting. You can't help AND sit. I've tried." }, { who: "Bib", text: "The fountain's nice today. It was nice yesterday too." }] }, "1.4": { id: "1.4", title: "The castle yard (the drill) · `act 2` · set-piece fights 3 and 4: the recruits, then the sergeant; the class is picked here", items: [{ dir: "The castle gate. Two guards, yawning.", show: !0 }, { who: "Guard", text: "Halt. Who goes there? (squints) Oh. It's the bun kid." }, { who: "Guard", text: "Go on, then. Mind the drill." }, { dir: "In the yard, a sergeant is shouting at recruits. Snatchclaw watches from the wall.", show: !0 }, { who: "Sergeant", text: "YOU. Small one. Pick up something and show me what you are." }, { dir: "The class picker opens: fighter, barbarian, paladin, ranger, rogue, monk, cleric, druid, bard, wizard, sorcerer, warlock", show: !1 }, { who: "Sergeant", text: "Not bad. For a kobold who eats that many buns. Now try ME." }, { dir: `The second bout: the sergeant and one recruit. It teaches the telegraphed big swing ("he's winding up, step away").`, show: !1 }, { who: "Sergeant", text: "(winding up) AND... SWING." }, { dir: "After the bout:", show: !1 }, { who: "Sergeant", text: "Hm. You moved. Most of them just stand there and take it." }, { who: "Snatchclaw", text: "(from the wall) Up early, bun boy? Good. Somebody should be." }, { who: "{hero}", text: "Who's that?" }, { who: "Guard", text: "The captain. Twenty winters on that wall. Never seen him sleep." }] }, "1.5": { id: "1.5", title: "The castle hall and the tower · `act 2`", items: [{ dir: "The hall, on the way to the tower stairs. A faded mural: kobolds carrying fire up a mountain, and at the front a kobold", show: !0 }, { who: "{hero}", text: "Doesn't look like it smiles. Looks like a pipe." }, { dir: "The tower fire at the top. {hero} holds out the lamp; the flame jumps into it.", show: !0 }, { who: "Tower guard", text: "Every hearth in Kobaldia was lit from that fire. Your baker's oven too." }, { who: "Tower guard", text: "Don't drop it." }, { who: "{hero}", text: "I never drop things. (He nearly drops it.)" }, { dir: "Back at the bakery, Mallow lights the oven from the lamp. Sets `act 3`. Night falls; {hero} sleeps.", show: !0 }] }, "1.6": { id: "1.6", title: "Hatching day (the bakery, then the square) · `act 3`", items: [{ dir: "Morning. Mallow lifts glowing embers out of the oven with tongs, one into each clay cup.", show: !0 }, { who: "Mallow", text: "Here, {hero}. Your ember. Keep it close, you chilly little lizard." }, { who: "{hero}", text: "It's warm." }, { who: "Mallow", text: "That's the idea. Take it to the Nest and warm whichever egg you think best." }, { who: "{hero}", text: "What if they're all bad?" }, { who: "Mallow", text: "Then pick the least bad, dear. That's most of life." }, { dir: "In the square only a handful of kobolds hold clay cups. Most are still in bed.", show: !0 }] }, "1.7": { id: "1.7", title: "The Great Nest (the castle yard) · `act 3`", items: [{ dir: "Three big eggs in the straw: a green one with little shoots, a grey one that seems to yawn, and a gold one on a pile of", show: !0 }, { who: "Bramble", text: "That's the sprouty one. More buns, and everybody helps at harvest." }, { who: "Bramble", text: "Work never hurt a kobold." }, { who: "Mallow", text: "I'm warming the sleepy one. My oven's old. A sleepy dragon keeps things as they are." }, { who: "Glint", text: "Look at it SHINE. It's got a RIBBON." }, { who: "Smudge", text: "The finest buns, friend! A sticker for everyone who warms the shiny one. Sticker?" }, { who: "{hero}", text: "No." }, { who: "Smudge", text: "Suit yourself. (to Glint) Sticker?" }, { who: "Glint", text: "(already holding out his ember) Yes please." }, { who: "Bramble", text: "Any of them will keep the raiders off the border." }, { who: "Bramble", text: "Dwarves, elves, humans. They all want our buns." }, { who: "Bramble", text: "The difference is who gets the buns afterwards." }, { dir: "The player can look at each egg (one line each):", show: !0 }, { who: "{hero}", text: "(sprouty) It's growing a leaf. Show-off." }, { who: "{hero}", text: "(sleepy) It's asleep. I respect that." }, { who: "{hero}", text: "(shiny) It's wearing a ribbon. Eggs shouldn't wear things." }, { dir: "Sets `act 4`.", show: !1 }] }, "1.8": { id: "1.8", title: "Why bother? (the Nest) · `act 4` · the refusal", items: [{ dir: "{hero} walks to the sprouty egg, cup in hand. Bib wanders up behind him.", show: !0 }, { who: "Bib", text: "{hero}. Why bother? A dragon's a dragon. You've got your buns." }, { who: "Bib", text: "Here. Have mine too." }, { who: "{hero}", text: "(looks at the bun, then the egg, then the bun) ...It's still warm." }, { dir: "{hero} pockets his ember, sits down in the warm straw and eats Bib's bun. He falls asleep.", show: !0 }, { dir: "Night. Almost nobody comes. Three guards walk in and hold their embers to the shiny egg.", show: !0 }, { who: "Guard", text: "Captain says the shiny one." }, { who: "Guard", text: "Captain says." }, { dir: "Glint is asleep next to the shiny egg, his sticker on his nose. The gold egg glows.", show: !0 }, { dir: "Dawn. CRACK.", show: !0 }, { who: "Glitterbeak", text: "...Cold. COLD. Why is everything so COLD?" }, { dir: "He sees Mallow's tray of morning buns, steaming. He eats the whole tray.", show: !0 }, { who: "Glitterbeak", text: "Warm. MINE." }, { dir: "He flies to the castle roof. {hero} wakes up with straw in his ear.", show: !0 }, { who: "{hero}", text: "What did I miss?" }, { dir: "Sets `act 5`. A notice goes up on the bakery: EVERY BATCH TO THE GUARDS FIRST.", show: !1 }] }, "1.9": { id: "1.9", title: "Somebody did (the bakery) · `act 5` · the mentor", items: [{ who: "{hero}", text: "Every batch to the guards? But I didn't choose any of this." }, { who: "Mallow", text: "No, dear. Somebody did." }, { dir: "Silence. Mallow kneads an empty bowl. Then she takes off her hat; there's a bun in it.", show: !0 }, { who: "Mallow", text: "One left. I hid it in my hat. Don't tell the dragon." }, { dir: "Mallow's bun (1 of 3) goes in the bag.", show: !0 }, { who: "Mallow", text: "(singing, quietly) When a dragon hatches cold, and he hoards the buns and gold..." }, { who: "{hero}", text: "I know that one. It's for babies." }, { who: "Mallow", text: "It's for everybody. (She takes down a fat recipe book.) My grandmother's." }, { who: "Mallow", text: "Recipes in the front. In the back, instructions for a thing called the Smiler." }, { who: "Mallow", text: "A piece in every town. Bring them together and you can fix a dragon that hatched wrong." }, { who: "{hero}", text: "So somebody should go and get them." }, { who: "Mallow", text: "Somebody should." }, { who: "{hero}", text: "...I'm going to Pebblebrook for flour. For buns. That's all." }, { who: "Mallow", text: "Of course you are, dear. Take the book." }, { dir: "Wizzle bursts in.", show: !0 }, { who: "Wizzle", text: "I'm COMING. I'm too young for an ember but I am NOT too young for this." }, { who: "Glint", text: "(in the doorway, sticker still on) I warmed the shiny one. For a sticker. ...I'll come too." }, { who: "{hero}", text: "Fine. Nobody talk to me before lunch." }, { dir: "Wizzle and Glint join. Sets `act 6`. The inn's first two campfire chats unlock (§6).", show: !1 }] }, "1.10": { id: "1.10", title: "Hearthspire's people in act 1 (one line each, by place)", items: [{ who: "Fountain kobold", text: "Hatching day! I'll go after my nap. (after the hatching:) Did I miss it? I missed it." }, { who: "Smith", text: "Sticks, swords, pans. A pan is a sword for buns." }, { who: "Moon shrine keeper", text: "Forget what you learned, little one? The moon remembers it for you. For a few coins." }, { who: "Shopkeeper", text: "Potions on the left, buns on the right. (after the hatching:) Potions on the left. Just potions now." }, { who: "Innkeeper", text: "A bed's ten gold, the fire's free, and the stories are worth what you pay for them." }, { who: "Barracks guard", text: "We're on the wall all night, every night. You lot sleep. That's fine. Somebody has to." }, { who: "Market board", text: '"Lost: one sock. Warm."' }, { who: "Market board", text: '"Raptor rides to Pebblebrook: SUSPENDED. No flour, no feed."' }] }, "1.11": { id: "1.11", title: "The capital gate · `act 6` · the threshold", items: [{ who: "Gate guard", text: "Going out? One bun. New rule." }, { who: "{hero}", text: "I haven't got a bun." }, { who: "Gate guard", text: "Then the next one you get is ours. (Flavour only: nothing leaves the bag, `design.md` §2.)" }, { who: "{hero}", text: "That was going to be my lunch." }, { who: "Gate guard", text: "It's the dragon's lunch now. He's a growing lad." }, { dir: "A kobold sits cross-legged by the gate, eyes shut.", show: !0 }, { who: "Bork", text: "Bork is meditating." }, { who: "Wizzle", text: "He's asleep." }, { who: "Bork", text: "(opens one eye) Bork napped through the hatching. Bork is... ashamed." }, { who: "Bork", text: "Bork would like to come. Bork will not nap." }, { who: "{hero}", text: "We're going for flour. Nothing more." }, { who: "Bork", text: "Bork likes flour. (nods off; Wizzle pokes him; he joins)" }, { dir: "Bork joins. Outside the gate, three Nettlenose scouts are pulling at a flour cart that isn't there any more.", show: !1 }] }, "1.12": { id: "1.12", title: "Outside the gate · `act 6`, after Bork joins · set-piece fight 5: Nettlenose scouts (the first fight with a pack of four; R1's newest foe)", items: [{ who: "Nettlenose scout", text: "Oi! Toll! Snatchclaw's orders! ...Have you got flour?" }, { who: "{hero}", text: "We're GOING for flour." }, { who: "Nettlenose scout", text: "Then we'll toll you on the way back!" }, { dir: "After the fight they scamper off down R1.", show: !0 }, { who: "Glint", text: "They had shiny buttons. Did anyone else see the buttons?" }, { dir: "Sets `act 7`: R1 is open.", show: !1 }] }, "2.0": { id: "2.0", title: "R1 (the capital gate → Pebblebrook)", items: [{ dir: "Signs and small scenes, in the order they're met.", show: !0 }, { who: "Sign", text: "PEBBLEBROOK 120 steps. Beetles." }, { who: "Sign by the pond", text: "NO SWIMMING (beetles)." }, { who: "Raptor stable sign", text: "RAPTOR STABLE. Shut. No flour, no feed, no raptors. Sorry. —The Riders" }, { who: "Grubb's sign", text: "TOLL: one bun. Or two. I'm flexible." }] }, "2.1": { id: "2.1", title: "The runaway goat (route extra) · any time", items: [{ who: "Goat", text: "Meh." }, { dir: "It follows the pack. It eats a sign. At the Mossback farms in Pebblebrook:", show: !1 }, { who: "Farmer Clover", text: "BUTTERCUP! You found her! She ate my gate again, didn't she." }, { who: "{hero}", text: "She ate a sign." }, { who: "Farmer Clover", text: "Progress. Here, take this ring, it's lucky. Buttercup never liked it." }] }, "2.2": { id: "2.2", title: "Tansy's lunch (the pond) · challenge step 2 · needs `pb ≥ 2`", items: [{ who: "Tansy", text: "I'm not going ANYWHERE hungry. I put my lunch down for one moment." }, { who: "Tansy", text: "One moment. And a beetle took it. Into the reeds." }, { dir: "A fight with a copper beetle and its friends in the tall grass by the pond.", show: !0 }, { who: "{hero}", text: "Your lunch. Slightly chewed." }, { dir: 'A choice appears: "Give it back" or "Eat it" (a deed, `corruption.md` #9: +2 corruption; "Give it back" is kind deed 3, −1). Eating it:', show: !0 }, { who: "Tansy", text: "You ATE it? ...Fine. I'm still coming. I'm not happy about it." }, { dir: 'Either way she comes; the line below is for "Give it back".', show: !1 }, { who: "Tansy", text: "(inspecting it) That's beetle chewing. Fine. I'll come to the circle." }, { who: "Tansy", text: "I'm eating it on the way, though." }] }, "3.1": { id: "3.1", title: "Arrival (the mill road, Grubb's toll) · `act 7` · sets `pb 1`", items: [{ dir: "A big kobold in a guard's helmet sits on a box across the mill road.", show: !0 }, { who: "Grubb", text: "HALT. Toll. One bun." }, { who: "{hero}", text: "The gate's already got my next one." }, { who: "Grubb", text: "Then you owe one. I'm writing it down. (He writes it down. It takes a while.)" }, { who: "Grubb", text: "Go on in. And stay off my mill road on the way out." }, { who: "Grubb", text: "Flour carts don't leave without paying." }, { who: "Sign", text: "PEBBLEBROOK. Home of the best flour in Kobaldia. (Flour currently unavailable.)" }, { dir: "The mill wheel stands still. Nobody is at the circle stones; on the biggest one, a chalk tally of marks.", show: !0 }] }, "3.2": { id: "3.2", title: "Ruddle (the mill) · `pb 1` · sets `pb 2` (the challenge opens)", items: [{ who: "Ruddle", text: "You're from the capital? Come for flour? Ha. Have a look at the wheel." }, { who: "{hero}", text: "It's not turning." }, { who: "Ruddle", text: "The dam's shut. The brook goes round my mill instead of through it." }, { who: "{hero}", text: "So open the dam." }, { who: "Ruddle", text: "Not alone, I can't. The dam is the whole town's. The shift circle decides it." }, { who: "Ruddle", text: "Everyone in the circle drops a stone in the bag. White, open it. Black, leave it." }, { who: "Ruddle", text: "Last spring the bag said leave it. By one stone." }, { who: "{hero}", text: "So do it again." }, { who: "Ruddle", text: "With what circle? The miners haven't sat in it in nine years." }, { who: "Ruddle", text: "I've been counting. On the stone." }, { who: "Ruddle", text: "Get the whole shift to the circle and we'll try again. Five of them." }, { who: "Ruddle", text: "Well. Four who might come. And one who never does." }, { who: "{hero}", text: "Why me?" }, { who: "Ruddle", text: `You're the only one in town who hasn't said "why bother" yet.` }, { who: "{hero}", text: "(who nearly did) ...Fine. Who are they?" }, { who: "Ruddle", text: "Ore, down the mine. Tansy, out by the pond." }, { who: "Ruddle", text: "Flint and Grit, who aren't speaking. And Old Marl." }, { dir: "The quest log lists the five miners as five lines (one per step) with a hint each, one tap away.", show: !1 }, { who: "Ruddle", text: "A smiler? Never heard of one. A flute, maybe. For a very big kobold.", when: "if asked about the Smiler" }, { who: "Ruddle", text: "Old things? The only old thing here is my axle. Stuck since my grandad's day." }] }, "3.3": { id: "3.3", title: "Grubb (the mill road) · `pb ≥ 2`, when the player walks onto the mill road · boss, L5", items: [{ who: "Grubb", text: "I SAID stay off my mill road." }, { who: "{hero}", text: "There's nothing to carry anyway. The mill's stopped." }, { who: "Grubb", text: "Then nothing pays nothing. That's still a toll." }, { dir: "Fight. Grubb swings big every third round, and shouts first.", show: !1 }, { who: "Grubb", text: "(winding up) HERE IT COMES." }, { dir: "After:", show: !1 }, { who: "Grubb", text: "Fine. FINE. Keep your road. (He takes his toll box and stomps off toward town, not the capital.)" }, { who: "Wizzle", text: "He went the wrong way. The capital's that way." }, { who: "{hero}", text: "Not my problem." }, { dir: "Sets `grubb 1`. The mill road is open; the raptor stable is still shut (no feed).", show: !1 }] }, "3.4": { id: "3.4", title: "Glitterbeak over the mill · after `grubb 1`, the next time the player comes to the mill", items: [{ dir: "A shadow slides over the mill. Glitterbeak lands on the roof and sniffs at the flour sacks in the loft window.", show: !0 }, { who: "Glitterbeak", text: "Mine. Mine. Mine. Mine. (He loses count.) ...Mine." }, { who: "Glitterbeak", text: "(shivering) Still cold." }, { dir: "He flies off. Where he sat, the roof is white with frost.", show: !0 }, { who: "Ruddle", text: "Third time this month. He doesn't even eat flour. He just likes to count it." }] }, "3.5": { id: "3.5", title: "Ore and Nugget (mine floor 1) · challenge step 1", items: [{ dir: "Near the stairs, a small kobold is arguing with a lantern seller who isn't there any more.", show: !0 }, { who: "Nugget", text: "Three copper for the lantern. For you, four." }, { who: "{hero}", text: "That's more." }, { who: "Nugget", text: "You look like you can afford it. Everything has a price." }, { who: "Nugget", text: "You're going deeper? You'll want a lantern. I have a lantern." }, { who: "Nugget", text: "I'll come WITH the lantern. Nine copper a day." }, { who: "{hero}", text: "No." }, { who: "Nugget", text: "Eight." }, { who: "Bork", text: "Bork has no copper." }, { who: "Nugget", text: "...Fine. Free. Just this once. Don't tell anybody." }, { who: "Nugget", text: "And if you see a nugget shaped like a duck, it's my grandad's. It's mine." }, { dir: "Nugget joins (he also brings a 5% discount at shops). At the end of the rails, a full cart is jammed.", show: !1 }, { who: "Ore", text: "Don't touch that cart. A full cart off the rails is a cart in the face." }, { who: "Ore", text: "I can't leave it, I can't move it, so I'm standing here. That's mining." }, { dir: "The rail puzzle: switch the points so the cart rolls back to the rail end.", show: !0 }, { who: "Ore", text: "Huh. Rolled right back. ...The circle? Nine years. Is Ruddle still counting?" }, { who: "{hero}", text: "On the stone." }, { who: "Ore", text: "Somebody has to sit on the big stone. Might as well be me." }] }, "3.6": { id: "3.6", title: 'The one stone (the mill loft) · challenge step 3, and the side quest "The one stone"', items: [{ dir: "Flint and Grit stand at opposite ends of the square, not looking at each other.", show: !0 }, { who: "Flint", text: "He dropped it. The stone. On the way to the bag. That's why it lost." }, { who: "Grit", text: "HE dropped it." }, { who: "Flint", text: "Did not." }, { who: "Grit", text: "Did." }, { who: "{hero}", text: "Where's the bag now?" }, { who: "Flint and Grit", text: "(pointing at the mill) Loft." }, { dir: "In the mill loft, the old bag hangs on a nail. There's a hole in the bottom. A white stone sits under it.", show: !0 }, { who: "{hero}", text: "Nobody dropped it. The bag did." }, { who: "Flint", text: "...Stupid bag." }, { who: "Grit", text: "Stupid bag." }, { who: "Flint", text: "We'll come. We're bringing our own bag." }, { who: "Grit", text: "I'm holding it." }, { who: "Flint", text: "I'M holding it." }, { dir: "The loft chest can be opened now (its key was in the bag).", show: !1 }] }, "3.7": { id: "3.7", title: "Old Marl (her house, then the mill) · challenge step 4", items: [{ who: "Old Marl", text: "The circle never listens. Nine years ago I stood up to speak and they'd already decided." }, { who: "Old Marl", text: "So I stopped going. Nobody noticed. That's how you know." }, { dir: "{hero} goes to the mill.", show: !0 }, { who: "{hero}", text: "Old Marl will come if she can speak first." }, { who: "Ruddle", text: "First? (a long pause) Yes. Of course. I should have said that nine years ago." }, { dir: "Back at Marl's house:", show: !1 }, { who: "Old Marl", text: "First? Hm. Then I'll come. And I'll be long." }] }, "3.8": { id: "3.8", title: "The fifth miner (the circle stones, at dusk) · after steps 1–4 · the twist", items: [{ dir: "Dusk. Someone sits alone in the empty circle, a toll box under his arm. It's Grubb, on the smallest stone.", show: !0 }, { who: "Grubb", text: "This was my stone. Before the helmet." }, { who: "{hero}", text: "You're from HERE?" }, { who: "Grubb", text: "Born by the dam. Nine years ago I said the dam was going to need fixing. Nobody listened." }, { who: "Grubb", text: "So I went where they do listen. The guards gave me a box and a road." }, { who: "Grubb", text: "Everybody listens to a toll." }, { who: "{hero}", text: "You're the one who never comes." }, { who: "Grubb", text: "Why would I? (He gets up and walks off into the dark.)" }, { who: "Ruddle", text: "(arriving with a lantern) So you've met our fifth." }, { who: "Ruddle", text: "Snipe's down the mine taking half the copper. Deal with him first." }, { who: "Ruddle", text: "Then we'll see about Grubb." }, { dir: "Sets `pb 3`.", show: !1 }] }, "3.9": { id: "3.9", title: "Snipe (mine floor 3) · `pb 3` · boss, L8", items: [{ dir: "A guard on a copper cart, behind a pile of copper.", show: !0 }, { who: "Snipe", text: "Half the copper for the guards. Half the half for me." }, { who: "Snipe", text: "The rest for the miners. That's sums." }, { who: "{hero}", text: "That's not sums." }, { who: "Snipe", text: "It's MY sums." }, { dir: "Fight. Snipe rolls behind cover on his cart.", show: !1 }, { dir: "After:", show: !1 }, { who: "Snipe", text: "Fine! Take it! Copper's heavy anyway." }, { who: "Nugget", text: "(already filling his pockets) Is it, though?" }, { who: "{hero}", text: "Put it back. It's the miners'." }, { who: "Nugget", text: "...I was counting it. For them." }, { dir: "Sets `pb 4`. The flooded gallery (the hidden trial, Old Shellback) is next to Snipe's pile; it has no lines.", show: !1 }] }, "3.10": { id: "3.10", title: "Grubb's stone (the toll box) · `pb 4` · challenge step 5", items: [{ dir: "Grubb sits on his toll box on the mill road. {hero}, Nugget and Old Marl walk up together.", show: !0 }, { who: "Old Marl", text: "Grubb. I'm speaking first today. I'd like you to hear it." }, { who: "Grubb", text: "You lot never let anybody speak first." }, { who: "Old Marl", text: "We do now. Ruddle said." }, { who: "Nugget", text: "And the toll box is worth nothing. I checked. It's empty." }, { who: "Grubb", text: "(looks in the box; it's empty) ...It's always been empty. Nobody paid." }, { who: "Grubb", text: "(puts the helmet in the box) My stone's still there?" }, { who: "{hero}", text: "Smallest one." }, { who: "Grubb", text: "It was always the smallest one." }, { dir: "Sets `pb 5`.", show: !1 }] }, "3.11": { id: "3.11", title: "The circle meets (the circle stones) · `pb 5` · the reconciliation", items: [{ dir: "The whole shift sits on the stones: Ore on the big one, Tansy eating, Flint and Grit holding one bag together, Grubb", show: !0 }, { who: "Old Marl", text: "I've waited nine years to say this. The dam leaks on the east side." }, { who: "Old Marl", text: "That's all. That's what I wanted to say. Sit down, Marl." }, { who: "Ruddle", text: "Stones in the bag. White, open it. Black, leave it." }, { dir: "One by one they drop stones in. Ruddle tips the bag out on the big stone. All white.", show: !0 }, { who: "Ruddle", text: "Open. Every stone. Even Grubb's." }, { who: "Grubb", text: "(quietly) Even mine." }, { dir: "Ruddle wipes the chalk tally off the stone with his sleeve.", show: !0 }] }, "3.12": { id: "3.12", title: "The wheel turns, the tube (the mill) · after the circle · sets `pb 6`", items: [{ dir: "The dam opens, the brook runs through the mill and the wheel groans. Something clanks inside.", show: !0 }, { who: "Ruddle", text: "That's the old axle. It's come loose. (He pulls out a long iron tube with a smile cut into one end.)" }, { who: "{hero}", text: `(opening Mallow's book) "The tube." That's a piece. That's a Smiler piece.` }, { who: "Ruddle", text: "Take it. It never turned right anyway." }, { who: "Nugget", text: "That's worth at least—" }, { who: "{hero}", text: "No." }, { dir: "The first Smiler piece. The raptor stable opens on the mill road.", show: !0 }, { who: "Rider", text: "Flour-feed's back! Raptors are flying! Well. Running. They don't fly. Hop on." }, { dir: "Raptor travel is unlocked.", show: !1 }] }, "3.13": { id: "3.13", title: "Pebblebrook's people (one or two lines each)", items: [{ who: "Innkeeper", text: "Beds upstairs, the fire's down here. We don't have flour, so the pies are just crust." }, { who: "Innkeeper", text: "Pies are back. Real ones. With insides.", when: "after the mill turns" }, { who: "Shopkeeper", text: "Picks, lamps, and swords that were picks once." }, { who: "Smith", text: "Bring me five scraps of gold and I'll make you miller's boots." }, { who: "Smith", text: "Very good for standing still in." }, { who: "Ruddle's apprentice", text: "I chalk a new mark every morning. Nine years. Nearly ran out of stone." }, { who: "Farmer at the fountain", text: "The guards say the toll keeps the raiders off." }, { who: "Farmer at the fountain", text: "Can't see how. Raiders don't use the mill road." }, { who: "Note board", text: '"Ghost in the mill!!"' }, { who: "Note board", text: '"Anyone seen Buttercup? (goat)"' }, { who: "Note board", text: '"BOUNTY: Big Pinch" · "BOUNTY: Nettlenose scout leader"' }] }, "3.14": { id: "3.14", title: "Side quests and bounties", items: [{ dir: "The ghost of the mill (funny). A kobold by the mill, shaking.", show: !0 }, { who: "Shaky kobold", text: "There's a GHOST in the mill. All white. It goes skree." }, { dir: "In the mill: a raptor chick, covered head to toe in flour.", show: !0 }, { who: "Raptor chick", text: "Skree." }, { who: "{hero}", text: "It's a chick. In flour." }, { who: "Rider", text: "(later) We'll keep her. She's already named. She's called Ghost." }, { dir: "Seed swap (the land). A Mossback farmer at the farms.", show: !0 }, { who: "Farmer Clover", text: "Moss tufts! Bring me three and I'll give you seeds." }, { who: "Farmer Clover", text: "Moss for seeds, seeds for moss. That's farming." }, { dir: "After:", show: !1 }, { who: "Farmer Clover", text: "Here, a cape. It's moss. It's warm. You'd be amazed what moss can do." }, { who: "Board", text: "BIG PINCH. A copper beetle the size of a cart. Eats boots. Reward 40 gold." }, { who: "Board", text: "A Nettlenose with a sergeant's hat. Says he's the guard" }, { who: "Nettlenose scout leader", text: "I'm the sergeant's cousin! I have a hat!" }] }, "6.0": { id: "6.0", title: "The slice's campfire chats", items: [{ dir: "Chats play at an inn when everyone in them is in the pack (`companions.md`). Each gives +1 bond to every companion in it.", show: !0 }] }, "6.1": { id: "6.1", title: "You HAD one?! (Wizzle) · Hearthspire inn, after §1.9", items: [{ who: "Wizzle", text: "{hero}. You had an ember. A real one. From Mallow." }, { who: "{hero}", text: "Still have it." }, { who: "Wizzle", text: "You HAD one and you KEPT it?!" }, { who: "{hero}", text: "I was going to use it. I got a bun." }, { who: "Wizzle", text: "I'd have given ANYTHING for an ember. I'd have given you my tail." }, { who: "{hero}", text: "I don't want your tail." }, { who: "Wizzle", text: "Nobody ever wants my tail. Grandma says I'm too young to count." }, { who: "{hero}", text: "You're counting now. You're coming, aren't you?" }, { who: "Wizzle", text: "(quiet for once) ...Yeah." }] }, "6.2": { id: "6.2", title: "The sticker (Glint) · Hearthspire inn, after §1.9", items: [{ who: "Glint", text: "Want to see my sticker?" }, { who: "{hero}", text: "No." }, { who: "Glint", text: "It's a dragon. With a ribbon. It shines when you tilt it." }, { who: "{hero}", text: "That's the dragon who ate Mallow's tray." }, { who: "Glint", text: "(tilting it) He looks so friendly on the sticker." }, { who: "{hero}", text: "He's on the castle roof stealing buns." }, { who: "Glint", text: "...I didn't know it was that kind of shiny." }, { who: "Glint", text: "I'll keep it anyway. I keep everything shiny. It's the only thing I'm good at." }] }, "6.3": { id: "6.3", title: "Bork is meditating (Bork) · Pebblebrook inn", items: [{ who: "Bork", text: "Bork is meditating." }, { who: "{hero}", text: "You're snoring." }, { who: "Bork", text: "Bork meditates loudly." }, { who: "Bork", text: "(awake) On hatching night Bork lay down for one minute. To rest his eyes." }, { who: "Bork", text: "When Bork opened them there was a dragon. And no buns." }, { who: "Wizzle", text: "You slept through the WHOLE THING?" }, { who: "Bork", text: "Bork slept through the whole thing." }, { who: "Bork", text: "Bork will not nap through anything again. (He yawns.) Starting tomorrow." }] }, "6.4": { id: "6.4", title: "Everything has a price (Nugget) · Pebblebrook inn, after §3.5", items: [{ who: "Nugget", text: "How much do you want for the stick?" }, { who: "{hero}", text: "It's not for sale." }, { who: "Nugget", text: "Everything has a price. Even you." }, { who: "{hero}", text: "What's my price?" }, { who: "Nugget", text: "(looks him up and down) Two buns. Every morning. You'd be cheap." }, { who: "{hero}", text: "(says nothing for a while)" }, { who: "Nugget", text: "It was a joke. Mostly. I'd pay three." }] }, "6.5": { id: "6.5", title: "Who deserves an ember (Wizzle and Nugget) · Pebblebrook inn, after §3.9", items: [{ who: "Wizzle", text: "The miners all have embers. Every one. Even the brothers who don't talk." }, { who: "Nugget", text: "Everybody grown has one. You get one from the tower fire. That's how it works." }, { who: "Wizzle", text: "Well I think you should have to DESERVE it." }, { who: "Nugget", text: "Who decides who deserves it?" }, { who: "Wizzle", text: "...Somebody clever." }, { who: "Nugget", text: "Like who?" }, { who: "Wizzle", text: "(thinks hard) Me." }, { who: "Nugget", text: "I'd sell mine to you. Price on request." }, { who: "Wizzle", text: "You can't SELL an ember!" }, { who: "Nugget", text: "Then what's it for?" }, { dir: "Neither of them knows. They both look at {hero}'s pocket. {hero} pretends to be asleep.", show: !0 }] } }, SCENES6 = [{ id: "1.1", at: { start: 1 }, steps: [["say", null, null, 0, 6], ["set", { act: 1 }]] }, { id: "1.2", at: { place: "room:cellar", enter: 1 }, when: { act: 1 }, steps: [["say", null, "Out. This flour", 0, 1], ["fight", "rats1"], ["say", "A bigger rat", "You're the boss rat", 2, 3], ["fight", "rats2"], ["say", "After the second fight", null, 4, 13], ["give", "lamp", 1], ["set", { act: 2, lamp: 1 }]] }, { id: "1.3", at: { place: "hearthspire", npc: "bib" }, when: { act: 2 }, steps: [["say", null, "Everything's fine.", 0, 7], ["set", { bib1: 1 }]] }, { id: "1.4", at: { place: "hearthspire", area: [19.5, 11, 1] }, when: { act: 2, drill: 0 }, steps: [["say", null, "show me what you are", 0, 4], ["class"], ["fight", "drill1"], ["say", "Not bad.", "Now try ME", 6, 6], ["fight", "drill2"], ["say", "Hm. You moved", null, 10, 13], ["set", { drill: 1 }]] }, { id: "1.5a", from: "1.5", at: { place: "room:castle", enter: 1 }, when: { act: { gte: 2 }, mural: 0 }, steps: [["say", null, "Looks like a pipe", 0, 1], ["set", { mural: 1 }]] }, { id: "1.5b", from: "1.5", at: { place: "room:tower", enter: 1 }, when: { act: 2, lamp: 1 }, steps: [["say", "The tower fire at the top", "I never drop things", 2, 5], ["set", { lamp: 2 }]] }, { id: "1.5c", from: "1.5", at: { place: "room:bakery", npc: "mallow" }, when: { act: 2, lamp: 2 }, steps: [["say", "Back at the bakery", null, 6, 6], ["set", { act: 3 }]] }, { id: "1.6", at: { place: "room:bakery", npc: "mallow" }, when: { act: 3, ember: 0 }, steps: [["say", null, null, 0, 6], ["give", "ember", 1], ["set", { ember: 1 }]] }, { id: "1.7", at: { place: "hearthspire", area: [19.5, 8.5, 2.2] }, when: { act: 3, ember: 1 }, steps: [["say", null, "The difference is who gets the buns", 0, 11], ["set", { act: 4 }]] }, { id: "1.8", at: { place: "hearthspire", bump: [19.5, 8.5, 3] }, when: { act: 4 }, steps: [["say", null, null, 0, 15], ["set", { act: 5 }]] }, { id: "1.9", at: { place: "room:bakery", npc: "mallow" }, when: { act: 5 }, steps: [["say", null, "Don't tell the dragon.", 0, 3], ["give", "bun", 1], ["say", "singing, quietly", "Take the book.", 5, 13], ["give", "book", 1], ["say", "Wizzle bursts in", "Nobody talk to me", 14, 17], ["join", "wizzle"], ["join", "glint"], ["set", { act: 6 }]] }, { id: "1.11", at: { place: "hearthspire", area: [1, 16, 2] }, when: { act: 6, bork: 0 }, steps: [["say", null, "(nods off", 0, 11], ["join", "bork"], ["set", { bork: 1 }], ["scene", "1.12"]] }, { id: "1.12", at: { none: 1 }, steps: [["say", null, "toll you on the way back", 0, 2], ["fight", "gate"], ["say", "After the fight they scamper", null, 3, 5], ["set", { act: 7 }]] }, { id: "2.1a", from: "2.1", at: { place: "r1", npc: "goat" }, when: { goat: 0 }, steps: [["say", null, "Meh.", 0, 0], ["set", { goat: 1 }]] }, { id: "2.1b", from: "2.1", at: { place: "pebblebrook", npc: "clover" }, when: { goat: 1 }, steps: [["say", "BUTTERCUP!", "never liked it.", 2, 4], ["give", "clover-ring", 1], ["kind", 2], ["set", { goat: 2 }]] }, { id: "2.2", at: { place: "r1", npc: "tansy" }, when: { pb: { gte: 2 }, miner_tansy: 0 }, steps: [["say", null, "Into the reeds.", 0, 1], ["fight", "lunch"], ["say", "Your lunch. Slightly chewed.", "Your lunch. Slightly chewed.", 3, 3], ["choice", [["Give it back", [["kind", 3], ["say", "That's beetle chewing", "eating it on the way", 7, 8]]], ["Eat it", [["deed", 9], ["say", "You ATE it?", "You ATE it?", 5, 5]]]]], ["set", { miner_tansy: 1 }]] }, { id: "3.1", at: { place: "r1", area: [93, 9, 2.5] }, when: { act: 7, pb: 0 }, steps: [["say", null, "Flour carts don't leave", 0, 5], ["set", { pb: 1 }]] }, { id: "3.1b", from: "3.1", at: { place: "pebblebrook", enter: 1 }, when: { pb: 1, arrived: 0 }, steps: [["say", "PEBBLEBROOK. Home of", null, 6, 7], ["set", { arrived: 1 }]] }, { id: "3.2", at: { place: "room:mill", npc: "ruddle" }, when: { pb: 1 }, steps: [["say", null, "And Old Marl.", 0, 16], ["set", { pb: 2 }]] }, { id: "3.3", at: { place: "r1", area: [93, 9, 3] }, when: { pb: { gte: 2, lte: 3 }, grubb: 0 }, steps: [["say", null, "That's still a toll.", 0, 2], ["fight", "grubb"], ["say", "Fine. FINE.", null, 6, 9], ["set", { grubb: 1 }]] }, { id: "3.4", at: { place: "pebblebrook", area: [10, 10, 3] }, when: { grubb: 1, gbmill: 0 }, steps: [["say", null, null, 0, 4], ["set", { gbmill: 1 }]] }, { id: "3.5", at: { place: "mine1", npc: "nugget_mine" }, when: { nugget: 0 }, steps: [["say", null, "It's mine.", 0, 10], ["join", "nugget"], ["set", { nugget: 1 }]] }, { id: "3.5b", from: "3.5", at: { place: "mine1", npc: "ore" }, when: { pb: { gte: 2 }, miner_ore: 0, cart: 0 }, repeat: 1, steps: [["say", "Don't touch that cart", "That's mining.", 12, 13], ["choice", [["Push the cart", [["cart"]]], ["Leave it", []]]]] }, { id: "3.5c", from: "3.5", at: { place: "mine1", npc: "ore" }, when: { cart: 1, miner_ore: 0 }, steps: [["say", "Huh. Rolled right back", null, 15, 17], ["set", { miner_ore: 1 }]] }, { id: "3.6", at: { place: "pebblebrook", npc: "flint" }, when: { pb: { gte: 2 }, stone: 0 }, steps: [["say", null, "Loft.", 0, 6], ["set", { stone: 1 }]] }, { id: "3.6x", from: "3.6", at: { place: "pebblebrook", npc: "grit" }, when: { pb: { gte: 2 }, stone: 0 }, steps: [["say", null, "Loft.", 0, 6], ["set", { stone: 1 }]] }, { id: "3.6b", from: "3.6", at: { place: "room:loft", tile: [5, 2] }, when: { stone: 1 }, steps: [["say", "In the mill loft", "I'M holding it.", 7, 13], ["set", { stone: 2, miner_brothers: 1 }]] }, { id: "3.7", at: { place: "pebblebrook", npc: "marl" }, when: { pb: { gte: 2 }, marl: 0 }, steps: [["say", null, "That's how you know.", 0, 1], ["set", { marl: 1 }]] }, { id: "3.7b", from: "3.7", at: { place: "room:mill", npc: "ruddle" }, when: { marl: 1 }, steps: [["say", "Old Marl will come", "nine years ago.", 3, 4], ["set", { marl: 2 }]] }, { id: "3.7c", from: "3.7", at: { place: "pebblebrook", npc: "marl" }, when: { marl: 2 }, steps: [["say", "First? Hm.", null, 6, 6], ["set", { marl: 3, miner_marl: 1 }]] }, { id: "3.8", at: { place: "pebblebrook", area: [18, 16, 3] }, when: { pb: 2, miner_ore: 1, miner_tansy: 1, miner_brothers: 1, miner_marl: 1 }, steps: [["tint", "dusk"], ["say", null, null, 0, 11], ["tint", null], ["set", { pb: 3 }]] }, { id: "3.9", at: { place: "mine3", area: [24, 15, 2.5] }, when: { pb: 3 }, steps: [["say", null, "It's MY sums.", 0, 4], ["fight", "snipe"], ["say", "Fine! Take it!", null, 7, 11], ["set", { pb: 4 }]] }, { id: "3.10", at: { place: "r1", npc: "grubb_road" }, when: { pb: 4, nugget: 1 }, steps: [["say", null, null, 0, 9], ["set", { pb: 5 }]] }, { id: "3.11", at: { place: "pebblebrook", area: [18, 16, 3] }, when: { pb: 5 }, steps: [["say", null, null, 0, 7], ["scene", "3.12"]] }, { id: "3.12", at: { none: 1 }, steps: [["say", null, "Hop on.", 0, 7], ["piece", "tube"], ["kind", 5], ["set", { pb: 6 }]] }, { id: "3.14a", from: "3.14", at: { place: "pebblebrook", npc: "shaky" }, when: { ghost: 0 }, steps: [["say", "There's a GHOST", "It goes skree.", 1, 1], ["set", { ghost: 1 }]] }, { id: "3.14b", from: "3.14", at: { place: "room:mill", npc: "chick" }, when: { ghost: 1 }, steps: [["say", "In the mill: a raptor chick", "It's a chick. In flour.", 2, 4], ["set", { ghost: 2 }]] }, { id: "3.14c", from: "3.14", at: { place: "pebblebrook", npc: "clover" }, when: { seeds: 0, goat: { ne: 1 } }, steps: [["say", "Moss tufts!", "That's farming.", 7, 8], ["set", { seeds: 1 }]] }, { id: "3.14d", from: "3.14", at: { place: "pebblebrook", npc: "board_pb" }, when: { bounty_pinch: 0 }, steps: [["say", "BIG PINCH.", "BIG PINCH.", 11, 11], ["say", "A Nettlenose with a sergeant", "A Nettlenose with a sergeant", 12, 12], ["set", { bounty_pinch: 1, bounty_scout: 1 }]] }, { id: "3.14e", from: "3.14", at: { place: "mine2", area: [20, 5, 2] }, when: { bounty_scout: 1 }, steps: [["say", "I'm the sergeant's cousin", null, 13, 13], ["fight", "scoutboss"], ["give", "gold", 60], ["set", { bounty_scout: 2 }]] }, { id: "3.14f", from: "3.14", at: { place: "r1", area: [60, 12, 2] }, when: { bounty_pinch: 1 }, steps: [["fight", "pinch"], ["give", "gold", 40], ["set", { bounty_pinch: 2 }]] }], NPCS6 = [{ id: "mallow", n: "Mallow", place: "room:bakery", x: 5, y: 4, colour: "#f0e6c8" }, { id: "mallow_nest", n: "Mallow", place: "hearthspire", x: 16, y: 9, show: { act: 3 }, colour: "#f0e6c8" }, { id: "bib", n: "Bib", place: "hearthspire", x: 17, y: 18, from: "1.3", lines: [9, 10, 11], show: { act: { lte: 6 } }, colour: "#c9a24a" }, { id: "guard_castle", n: "Guard", place: "hearthspire", x: 18, y: 12, colour: "#8a2f4a" }, { id: "sergeant", n: "Sergeant", place: "hearthspire", x: 16, y: 10, colour: "#8a2f4a" }, { id: "snatchclaw", n: "Snatchclaw", place: "hearthspire", x: 24, y: 3, colour: "#4a35b0" }, { id: "tower_guard", n: "Tower guard", place: "room:tower", x: 6, y: 1, colour: "#8a2f4a" }, { id: "bramble", n: "Bramble", place: "hearthspire", x: 16, y: 8, show: { act: { gte: 3, lte: 4 } }, colour: "#5fb04a" }, { id: "smudge", n: "Smudge", place: "hearthspire", x: 23, y: 8, show: { act: { gte: 3 } }, colour: "#9a7a48" }, { id: "glint_nest", n: "Glint", place: "hearthspire", x: 23, y: 9, show: { act: { gte: 3, lte: 4 } }, colour: "#e05aa8" }, { id: "fountain_kobold", n: "Fountain kobold", place: "hearthspire", x: 22, y: 15, from: "1.10", lines: [0], show: { act: { lte: 6 } }, colour: "#7bb6e6" }, { id: "smith_hs", n: "Smith", place: "hearthspire", x: 7, y: 23, door: 1, from: "1.10", lines: [1] }, { id: "shrine", n: "Moon shrine keeper", place: "hearthspire", x: 14, y: 23, door: 1, from: "1.10", lines: [2] }, { id: "shop_hs", n: "Shopkeeper", place: "hearthspire", x: 30, y: 23, door: 1, from: "1.10", lines: [3] }, { id: "inn_hs", n: "Innkeeper", place: "room:inn", x: 4, y: 3, from: "1.10", lines: [4], colour: "#c4523a" }, { id: "barracks", n: "Barracks guard", place: "hearthspire", x: 33, y: 7, door: 1, from: "1.10", lines: [5] }, { id: "board_hs", n: "Market board", place: "hearthspire", x: 24, y: 14, door: 1, from: "1.10", lines: [6, 7] }, { id: "gate_guard", n: "Gate guard", place: "hearthspire", x: 1, y: 15, colour: "#8a2f4a" }, { id: "bork_gate", n: "Bork", place: "hearthspire", x: 2, y: 17, show: { act: { lte: 6 }, bork: 0 }, colour: "#5fb04a" }, { id: "goat", n: "Goat", place: "r1", x: 60, y: 18, show: { goat: 0 }, colour: "#eee6d0" }, { id: "tansy", n: "Tansy", place: "r1", x: 38, y: 15, show: { miner_tansy: 0 }, colour: "#d98a3a" }, { id: "grubb_road", n: "Grubb", place: "r1", x: 93, y: 10, show: { any: [{ pb: { lte: 2 }, grubb: 0 }, { pb: 4 }] }, colour: "#d8a868" }, { id: "sign_r1a", n: "Sign", place: "r1", x: 13, y: 11, door: 1, from: "2.0", lines: [1] }, { id: "sign_r1b", n: "Grubb's sign", place: "r1", x: 66, y: 8, door: 1, from: "2.0", lines: [4] }, { id: "sign_r1c", n: "Raptor stable sign", place: "r1", x: 95, y: 8, door: 1, from: "2.0", lines: [3] }, { id: "ruddle", n: "Ruddle", place: "room:mill", x: 10, y: 4, from: "3.2", lines: [18, 19], colour: "#a8743f" }, { id: "apprentice", n: "Ruddle's apprentice", place: "room:mill", x: 4, y: 2, from: "3.13", lines: [5], colour: "#c9a36a" }, { id: "chick", n: "Raptor chick", place: "room:mill", x: 12, y: 2, show: { ghost: 1 }, colour: "#fff3c4" }, { id: "shaky", n: "Shaky kobold", place: "pebblebrook", x: 11, y: 10, show: { ghost: { lte: 1 } }, colour: "#b8aec9" }, { id: "flint", n: "Flint", place: "pebblebrook", x: 13, y: 13, show: { miner_brothers: 0 }, colour: "#7d6c8a" }, { id: "grit", n: "Grit", place: "pebblebrook", x: 28, y: 13, show: { miner_brothers: 0 }, colour: "#62526d" }, { id: "marl", n: "Old Marl", place: "pebblebrook", x: 27, y: 6, show: { miner_marl: 0 }, colour: "#9a8aa8" }, { id: "clover", n: "Farmer Clover", place: "pebblebrook", x: 11, y: 20, colour: "#3f7f3a" }, { id: "farmer_fountain", n: "Farmer at the fountain", place: "pebblebrook", x: 22, y: 16, from: "3.13", lines: [6, 7], colour: "#5fb04a" }, { id: "inn_pb", n: "Innkeeper", place: "room:pebinn", x: 5, y: 3, from: "3.13", lines: [0], colour: "#c4523a" }, { id: "shop_pb", n: "Shopkeeper", place: "pebblebrook", x: 26, y: 17, door: 1, from: "3.13", lines: [2] }, { id: "board_pb", n: "Note board", place: "pebblebrook", x: 13, y: 11, door: 1 }, { id: "nugget_mine", n: "Nugget", place: "mine1", x: 16, y: 8, show: { nugget: 0 }, colour: "#c9a24a" }, { id: "ore", n: "Ore", place: "mine1", x: 25, y: 16, show: { miner_ore: 0 }, colour: "#8a7360" }, { id: "snipe_npc", n: "Snipe", place: "mine3", x: 24, y: 15, show: { pb: { lte: 3 } }, colour: "#8a2f4a" }, { id: "rider", n: "Rider", place: "r1", x: 89, y: 7, show: { pb: 6 }, colour: "#ffb347" }], SETPIECES6 = { rats1: { foes: [["cellar_rat", 1], ["cellar_rat", 1], ["cellar_rat", 1]], theme: "cave", solo: 1 }, rats2: { foes: [["cellar_rat", 2, "big", "Boss rat"], ["cellar_rat", 1], ["cellar_rat", 1]], theme: "cave", solo: 1 }, drill1: { foes: [["guard_recruit", 2], ["guard_recruit", 2]], theme: "town", solo: 1 }, drill2: { foes: [["guard_recruit", 3, "elite+tele", "Sergeant"], ["guard_recruit", 2]], theme: "town", solo: 1 }, gate: { foes: [["nettlenose_scout", 3], ["nettlenose_scout", 3], ["nettlenose_scout", 3]], theme: "meadow" }, lunch: { foes: [["copper_beetle", 4], ["copper_beetle", 4], ["nettlenose_scout", 4]], theme: "meadow" }, grubb: { boss: "grubb", theme: "meadow" }, snipe: { boss: "snipe", theme: "cave" }, pinch: { foes: [["copper_beetle", 5, "elite", "Big Pinch"], ["copper_beetle", 5]], theme: "meadow" }, scoutboss: { foes: [["nettlenose_scout", 7, "elite", "Nettlenose scout leader"], ["nettlenose_scout", 7], ["nettlenose_scout", 7]], theme: "dark" } }, CHATS6 = [{ id: "6.1", inn: "room:inn", who: ["wizzle"], when: { act: { gte: 6 } } }, { id: "6.2", inn: "room:inn", who: ["glint"], when: { act: { gte: 6 } } }, { id: "6.3", inn: "room:pebinn", who: ["bork", "wizzle"] }, { id: "6.4", inn: "room:pebinn", who: ["nugget"], when: { nugget: 1 } }, { id: "6.5", inn: "room:pebinn", who: ["wizzle", "nugget"], when: { pb: { gte: 4 } } }], COMPANIONS6 = { wizzle: { n: "Wizzle", cls: "sorcerer", colour: "blue" }, glint: { n: "Glint", cls: "bard", colour: "pink" }, bork: { n: "Bork", cls: "monk", colour: "green" }, nugget: { n: "Nugget", cls: "rogue", colour: "gold" } }, WAVE16 = ["fighter", "ranger", "wizard", "cleric", "monk", "sorcerer", "bard", "rogue"], GOALS6 = [{ when: { act: 1 }, goal: "Chase the rats out of Mallow's cellar", hint: "The hatch is by the bakery's back wall." }, { when: { act: 2 }, goal: "Light Mallow's lamp at the tower fire", hint: "The tower is in the castle yard. Mind the drill." }, { when: { act: 3 }, goal: "Take your ember to the Great Nest", hint: "The Nest is in the castle yard." }, { when: { act: 4 }, goal: "Warm an egg", hint: "Any of them. Or..." }, { when: { act: 5 }, goal: "Talk to Mallow", hint: "The bakery has a notice on it now." }, { when: { act: 6 }, goal: "Leave by the capital gate", hint: "West, along the marble street." }, { when: { act: 7, pb: 0 }, goal: "Walk to Pebblebrook", hint: "R1, 120 steps. Beetles." }, { when: { pb: 1 }, goal: "Find out why the mill has stopped", hint: "The mill is by the brook, west of the square." }, { when: { pb: 2 }, goal: "Get the shift to the circle: {miners} of 5", hint: "Ore (the mine), Tansy (the pond on R1), Flint and Grit (the square), Old Marl (the north houses)." }, { when: { pb: 2, grubb: 0 }, goal: "... and clear the mill road", hint: "Grubb is on the mill road, east." }, { when: { pb: 3 }, goal: "Deal with Snipe at the bottom of the mine", hint: "Three floors down. The campfire is on floor 2." }, { when: { pb: 4 }, goal: "Bring Grubb to the circle", hint: "The toll box, on the mill road. Take Nugget and Old Marl." }, { when: { pb: 5 }, goal: "The circle meets", hint: "The circle stones." }, { when: { pb: 6 }, goal: "Take the tube home (or ride: the stable is open)", hint: "The raptor stable is on the mill road." }], MINERS6 = [{ who: "Ore", hint: "His cart is stuck on floor 1." }, { who: "Tansy", hint: "Lost her lunch by the pond." }, { who: "Flint and Grit", hint: "Each blames the other for the stone. Where is the bag?" }, { who: "Old Marl", hint: "She wants to be heard. Ask Ruddle." }, { who: "Grubb", hint: "After Snipe." }], DEEDS6 = { 1: { n: "casting a dark version of a skill", v: 1 }, 2: { n: "defeating a foe that has turned to run (a foe under 25% HP may flee)", v: 1 }, 3: { n: "striking a foe that is asleep (Lullaby, Dread lullaby)", v: 1 }, 4: { n: "aiming an area skill so it hits a friend", v: 1 }, 5: { n: "leaving the field while a friend is down", v: 2 }, 6: { n: "winning a fight against foes five or more levels under the pack (bullying)", v: 1 }, 7: { n: "finishing a foe with a dark version", v: 1 }, 8: { n: "Pickpocket or Lift on a villager instead of a foe", v: 2 }, 9: { n: "eating a found lost item meant for someone (Tansy's lunch)", v: 2 }, 10: { n: "buying from Smudge's shiny offers on the road", v: 1 }, 11: { n: "greasing a toll (pay a guard to look away)", v: 2 }, 12: { n: "taking a stay-home bun from the cart", v: 2 }, 13: { n: "selling a gift a friend gave you", v: 1 }, 14: { n: "shooing a lost animal away instead of walking it home", v: 1 }, 15: { n: "breaking a villager's pots or crates", v: 1 }, 16: { n: "reading a diary left on a shelf", v: 1 }, 17: { n: "tipping over a sign", v: 1 }, 18: { n: "scribbling on the mural", v: 1 }, 19: { n: "skipping out of an inn without paying for the bed", v: 2 }, 20: { n: "kicking a downed foe in a duel (an attack on a downed duel kobold)", v: 2 }, 21: { n: "snatching the last potion from a friend's gift box in co-op", v: 1 }, 22: { n: "warming the shiny egg again at the new hatching (the epilogue's free warming)", v: 3 }, 23: { n: "feeding a stolen bun to Glitterbeak's collectors", v: 2 }, 24: { n: "ringing the square's bell for nothing", v: 1 } }, KIND6 = { 1: { n: "the moon shrine's cleansing: −10 for 4F gold (the price of a talent reset), any kobold", v: -10 }, 2: { n: "walking a lost animal home", v: -1 }, 3: { n: "returning a lost item to its owner", v: -1 }, 4: { n: "helping a friend's boss fight (the helper's reward)", v: -1 }, 5: { n: "finishing a keeper's challenge", v: -2 }, 6: { n: "a companion's quest done", v: -2 }, 7: { n: "giving a potion to a hurt villager (one in every town, sitting by the fountain)", v: -1 }, 8: { n: "standing a sign back up", v: -1 } };
+
   // src/data/v6/maps.js
   var MAPS6 = { hearthspire: { flood: null, title: "Hearthspire (the capital)", w: 40, h: 30, rows: ["#########G##############################", "#.......oM.............................#", "#.T......MKKKKKKKKKKKKKKKKKKKK.......T.#", "#..T.....MKkkBBBBBBBBBBBBBBtkK......T..#", "#...BBBBBMKkkBBBBBBBBBBBBBBtkK.BBBBB...#", "#...BBBBBMKkkBBBBBBBBBBBBBBtkK.BBBBB...#", "#...BBBBBMKkkBBBBBBBDBBBBBBkkK.BBBBB...#", "#...BBDBBMKkkkkkkkkkkkkkkkkkkK.BBDBB...#", "#........MKkkkkkkNNNNNNkkkkkkK.........#", "#...BBBB.MKkkk|kkNNNNNNkkkkkkK...BBBB..#", "#...BBBB.MKkkkkkkkkkkkkkkkkkkK...BBBB..#", "#...BDBB.MKKKKKKKKKkkKKKKKKKKK...BDBB..#", "#........M..........M..................#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#..M.BBBB......MMMMMMMMMoM..........M..#", "#.oM.BDBB......MMMMFFMMMMM..........Mo.#", "GMMMMMMMMMMMMMMMMMMFFMMMMMMMMMMMMMMMMMMG", "#..M...........MMMMMMMMMMM..........M..#", "#..M.BBBBBB....MbMMMMMMMMM..BBBBBB..M..#", "#..M.BBBBBBh...MMMMMMMMMMM..BBBBBB..M..#", "#.TM.BBBBBB.........M.......BBBBBB..MT.#", "#..M.BBBDBB.........M.......BBDBBB..M..#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#..M.BBDBBB..BDBB...M..BDBB.BBDBBB..M..#", "#..M.BBBBBB..BBBB...M..BBBB.BBBBBB..M..#", "#..M.BBBBBB..BBBB...M..BBBB.BBBBBB..M..#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#.T.........T...T...M...T..T.........T.#", "#...................Mo.................#", "####################G###################"], marks: [[8, 21, "bakery (Mallow)"], [11, 19, "cellar hatch (flour tunnel)"], [30, 21, "inn (rest, roster, campfire chats)"], [30, 23, "shop (tier 1)"], [7, 23, "smithy"], [14, 23, "moon shrine (talent reset)"], [33, 7, "barracks"], [20, 6, "castle hall (the mural)"], [27, 5, "the tower (the tower fire)"], [19, 9, "the Great Nest"], [14, 9, "the throne (act 2)"], [19, 15, "fountain"], [16, 18, "Bib's bench"], [6, 15, "raptor stable (opens with the first piece)"], [24, 14, "market and note board"], [0, 16, "the capital gate → R1"], [9, 0, "north gate → R5"], [39, 16, "east gate → R6"], [20, 29, "south gate → R4"]], entry: [1, 16], notes: "No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square.", patrols: [], stables: [[6, 15]] }, r1: { flood: null, title: "R1 (the capital gate → Pebblebrook, 120 steps)", w: 100, h: 26, rows: ["TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT", "T......................................................~...........................................T", "T......................................................~...........................................T", "T.....................................T................~..............................BBBBBB.......T", "T..........T...............T........................T..~..............................BBBBBB.......T", 'T.........T............................................~....................""""""....BBBBBB.......T', 'T......................................................~....................""""""....BBDBBB.......T', 'T.....................,,,"""""""",,,,,,,,,,,,""........~...................."""""".................T', 'T.............""""""..,......................."........~..........o............................o...T', 'T.............""""""..,."""""..........."""""."........~........,"""""",,,,,,"""",,,,,,,,,,,,,,,,,,,', 'T.............""""""..,."""""..........."""""."."""""".~........,..."""""""".......................T', 'T............o........,."""""..........."""""."."""""".~........,...""""""""........"""""..........T', ',,,,,,,,,,,,,,"""""""",."""""..........."""""."."""""".~........,...""""""""........"""""..........T', 'T.......................................""""".,........~........,..................."""""..........T', "T.............................~~~~~~~~........,........~........,..................................T", "T.............................~~~~~~~~........,........~........,...........................T......T", 'T.......T.....................~~~~~~~~........,,,,,,,,,=,""""""",...............T..................T', 'T.............................~~~~~~~~.................~.."""""....................................T', 'T...........T.................~~~~~~~~.................~..""""".......T..c.........................T', 'T......................................................~..""""".........rrr........................T', "T.................T..............c.........T...........~................rrr........................T", "T......................................................~....T......................................T", "T......................................................~...........................................T", "T......................................................~...........................................T", "T......................................................~...........................................T", "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"], marks: [[0, 12, "the capital gate"], [99, 9, "→ Pebblebrook (the mill road)"], [33, 20, "chest behind the pond"], [73, 18, "chest on the lookout"], [88, 6, "raptor stable (shut until the first piece)"], [55, 16, "the brook bridge"], [13, 11, 'sign: "PEBBLEBROOK 120 steps. Beetles."'], [66, 8, "Grubb's toll sign"], [60, 18, "the runaway goat's meadow"]], entry: [0, 12], notes: "Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.", patrols: [{ x: 30, y: 7, face: "east", name: "the hill patrol" }, { x: 48, y: 16, face: "west", name: "the bridge patrol" }, { x: 79, y: 9, face: "west", name: "the mill-road patrol" }], stables: [[88, 6]] }, pebblebrook: { flood: [[14, 13], [14, 23]], title: "Pebblebrook", w: 32, h: 24, rows: ["TTTTTT~~TTTTTTTTTTTTTTTTTTTTTTTT", "T.....~~..........rrGrr........T", "T.T~~~~~....T.....rr,rr...BBBB.T", "T..~~~~~............,.....BBBBTT", "T..~~~~~........T...,.....BBBB.T", "T..rrrrrr...........,......D...T", "T.....~~BBBBB.......,..........T", "T.....~~BBBBB.......,...BBBBB..T", "T.....~~BBBBB.......,...BBBBB..T", "T.....~~BBDBB.......,...BBBBB..T", "T....c..WW,.........,...BBBBB..T", "T.........,..o......,.....D....T", "T..,,,,,,,,,,,,,,,,,,,,,,,,,,o,,", "T.............,................T", "T...BBDBB.....,...O....FF......T", "T...BBBBB.....,.O...O..FF......T", "T...BBBBB.....,................T", "T........BDBB.,.O...O...BBDBB..T", "T........BBBB.,...O.....BBBBB..T", 'T."""""""""BB.,.........BBBBB..T', 'T."""""""""...,................T', 'T."""""""""...,.......T......T.T', "T.............,................T", "TTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTT"], marks: [[31, 12, "← R1 (the mill road)"], [14, 23, "→ R2 (Sunhaven)"], [20, 1, "the mine's mouth"], [10, 9, "the mill (Ruddle; the loft)"], [8, 10, "the mill wheel"], [4, 5, "the dam"], [18, 16, "the circle stones"], [23, 14, "fountain"], [26, 11, "inn"], [26, 17, "shop (tier 2 from level 5) and smith"], [6, 14, "Tansy's house"], [10, 17, "the brothers' house"], [27, 5, "Old Marl's house"], [6, 20, "the Mossback farms (seed swap)"], [5, 10, "chest by the dam"], [29, 12, "welcome sign"]], entry: [31, 12], notes: "Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain.", patrols: [], stables: [] }, mine1: { flood: null, title: "the mine, floor 1", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXvXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXfXX", "XXXXXcfffXXXXXXXXXXXXXXXXXXXXfXX", "XXXXXffffffffffffffffffXXXXXXfXX", "XXXXXffffXXXfXXXXXXXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXXXXXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXfffXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXffffffffffffffXX", "XXffffffffffRXXXfffXXXXXXXXXXXXX", "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX", "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX", "XXfXXXXXXRRRSXXXXRRRRRXXXXXXXXXX", "XXfXXXXXXXXXRXXXXRXXXRXXXXXXXXXX", "XfffXXXXXXXXRXXXXRXXXRXXXXXXXXXX", "XfffXXXXXXXXRRRRRSRfRSRRRRxXXXXX", "XfffXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XfufXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[2, 18, "up: the mine's mouth"], [26, 16, "Ore's stuck cart (challenge step 1)"], [19, 16, "the broken rail"], [21, 16, "switch: into the loop"], [17, 16, "switch: out of the loop"], [12, 13, "switch: the dead-end siding"], [5, 4, "chest"], [16, 8, "Nugget, haggling over a lantern"], [29, 2, "stairs down"]], entry: [2, 17], notes: "Copper beetles and scouts; Nugget joins here.", patrols: [], stables: [] }, mine2: { flood: null, title: "the mine, floor 2", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXuXX", "XXXXXXXXXXdddddddddddXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXddddddddddXX", "XXXXXXXXXXdXXXXXXXXXXXXXXXXXXdXX", "XXXXdddddddXXXXXXXXXXXXXXXXXXdXX", "XXXXdXXXXXdXXXfffffXXXXXXXXXXdXX", "XXXXdXXXXXdXXXfffffXXXXXddddddXX", "XXXXdXXXXXdddddfCffXXXXXddddddXX", "XXXXdXXXXXXXXXfffffXXXXXddddddXX", "XXXXdXXXXXXXXXXXXXXXXXXXddddddXX", "XXXXdXXXXXXXXXXXXXXXXXXXddddcdXX", "XXXXdXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXvXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[29, 2, "stairs up"], [16, 13, "campfire (one free heal a visit)"], [28, 16, "chest in the dark"], [4, 18, "stairs down"], [20, 5, "glow grubs light the dark tiles"]], entry: [29, 2], notes: "Unlit tiles (d): glow grubs light the area around them. The bounty: the Nettlenose scout leader.", patrols: [], stables: [] }, mine3: { flood: null, title: "the mine, floor 3", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXuXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXfffffffffffXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfffffffffffXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXwwwwfwwwwXXXXXXXXXfffffffffXXX", "XXwwwwwwwwwXXXXXXXXXfxfffffffXXX", "XXwwwwwwwwwXXXXXXXXXffffffPffXXX", "XXwwwcwwwwwXXXXXXXXXfffffffffXXX", "XXwwwwwwwwwXXXXXXXXXffcffffffXXX", "XXwwwwwwwwwXXXXXXXXXfffffffffXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[4, 1, "stairs up"], [24, 15, "Snipe (boss, L8) on his copper cart"], [26, 14, "the copper pile"], [22, 16, "chest behind the cart"], [6, 14, "the flooded gallery: Old Shellback (hidden trial)"], [5, 15, "the trial's prize: the flour-dusted apron"]], entry: [4, 1], notes: "The end of the mine: Snipe, then back up to the circle.", patrols: [], stables: [] } }, ROOMS6 = { bakery: { title: "Mallow's bakery", rows: ["wwwwwwwwwwwww", "wnnqssqaaqqyw", "wqqqqqqqqqqqw", "w___qq___qqgw", "wqqqqqqqqqqqw", "wqzqlqqqzqlqw", "wqqqqqqqqqqqw", "wwwwwweewwwww"], marks: [["n", "the old oven (breaks in the Ordeal)"], ["g", "the cellar door (the flour carts came in here)"], ["a", "flour sacks"], ["_", "the counter; the recipe book on it"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, cellar: { title: "the bakery cellar", rows: ["wwwwwwwwwwwww", "waaqqqqqqqaaw", "wqqqqqqqqqqqw", "wqqqqnqqqqqqw", "wqqqqqqqqqqgw", "waqqqqqqqqqqw", "wwwwwewwwwwww"], marks: [["g", "the flour tunnel (sealed until after the Ordeal)"], ["n", "where Cinder rebuilds the oven frame (act 3)"], ["e", "up to the bakery"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, castle: { title: "the castle hall", rows: ["wwwwwwwwwwwwwwwww", "wmmmmmmmmmmmmmmmw", "wqqqqqqqqqqqqqqqw", "wyqqqqqq|qqqqqqyw", "wqqqqqqqqqqqqqqqw", "wqqyqqqqqqqqqyqqw", "wqqqqqqqqqqqqqqqw", "wwwwwwwweewwwwwww"], marks: [["m", 'the mural of "the dragon smiler" (a tube on a shoulder)'], ["|", "Snatchclaw's seat"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, inn: { title: "the Hearthspire inn", rows: ["wwwwwwwwwwwww", "wHqqqsssqqqow", "wqqq_____qqqw", "wqqqqqqqqqqow", "wlzlqqqqlzlqw", "wqqqqqqqqqqyw", "wpqpqqqqqpqpw", "wwwwwweewwwww"], marks: [["H", "the hearth: campfire chats"], ["p", "beds (rest)"], ["o", "the roster board"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, mill: { title: "the mill (Pebblebrook), ground floor", rows: ["wwwwwwwwwwwwwww", "wsssqqqqqqaaaqw", "wqqqqqqqqqqqqqw", "wqqnnqqqqqqqqgw", "wqqnnqqqzzqqqqw", "wqqqqqqqzzqqqqw", "wwwwwwweewwwwww"], marks: [["n", "the millstones (still)"], ["g", "the ladder to the loft"], ["z", "Ruddle's table, the nine-years chalk"], ["a", "empty flour sacks"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, tower: { title: "the tower top (Hearthspire)", rows: ["wwwwwwwww", "wqqqqqqqw", "wqqHHHqqw", "wqqHHHqqw", "wqqqqqqqw", "wwwweewww"], marks: [["H", "the tower fire (every hearth was lit from it)"], ["e", "the stairs down"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, pebinn: { title: "the Pebblebrook inn", rows: ["wwwwwwwwwwwww", "wHqqqssqqqqow", "wqqq_____qqqw", "wlzlqqqqqlzlw", "wqqqqqqqqqqyw", "wpqpqqqqqpqpw", "wwwwwweewwwww"], marks: [["H", "the hearth: campfire chats"], ["p", "beds"], ["o", "the roster board"], ["_", "the counter (pies are just crust until the mill turns)"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, loft: { title: "the mill loft (Pebblebrook)", rows: ["wwwwwwwwwww", "waaqqqqqaaw", "wqqqqcqqqqw", "wqaqqqqqqqw", "wqqqqqqqaqw", "wwwwweewwww"], marks: [["c", "the old vote bag (with a hole in it)"], ["a", "flour sacks"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] } }, LINKS6 = [["hearthspire", 0, 16, "r1", 0, 12, "step"], ["r1", 0, 12, "hearthspire", 0, 16, "step"], ["r1", 99, 9, "pebblebrook", 31, 12, "step"], ["pebblebrook", 31, 12, "r1", 99, 9, "step"], ["pebblebrook", 20, 1, "mine1", 2, 18, "step"], ["mine1", 2, 18, "pebblebrook", 20, 1, "step"], ["mine1", 29, 2, "mine2", 29, 2, "step"], ["mine2", 29, 2, "mine1", 29, 2, "step"], ["mine2", 4, 18, "mine3", 4, 1, "step"], ["mine3", 4, 1, "mine2", 4, 18, "step"], ["hearthspire", 8, 21, "room:bakery", 6, 7, "step"], ["hearthspire", 20, 6, "room:castle", 8, 7, "step"], ["hearthspire", 30, 21, "room:inn", 6, 7, "step"], ["hearthspire", 27, 5, "room:tower", 4, 5, "bump"], ["room:bakery", 11, 3, "room:cellar", 5, 6, "step"], ["room:cellar", 5, 6, "room:bakery", 11, 3, "step"], ["pebblebrook", 10, 9, "room:mill", 7, 6, "step"], ["pebblebrook", 26, 11, "room:pebinn", 6, 6, "step"], ["room:mill", 13, 3, "room:loft", 5, 5, "step"], ["room:loft", 5, 5, "room:mill", 13, 3, "step"], ["room:loft", 6, 5, "room:mill", 13, 3, "step"], ["room:bakery", 6, 7, "hearthspire", 8, 21, "step"], ["room:bakery", 7, 7, "hearthspire", 8, 21, "step"], ["room:castle", 8, 7, "hearthspire", 20, 6, "step"], ["room:castle", 9, 7, "hearthspire", 20, 6, "step"], ["room:inn", 6, 7, "hearthspire", 30, 21, "step"], ["room:inn", 7, 7, "hearthspire", 30, 21, "step"], ["room:tower", 4, 5, "hearthspire", 27, 5, "step"], ["room:tower", 5, 5, "hearthspire", 27, 5, "step"], ["room:mill", 7, 6, "pebblebrook", 10, 9, "step"], ["room:mill", 8, 6, "pebblebrook", 10, 9, "step"], ["room:pebinn", 6, 6, "pebblebrook", 26, 11, "step"], ["room:pebinn", 7, 6, "pebblebrook", 26, 11, "step"], ["hearthspire", 9, 0, "", 0, 0, "step", "never"], ["hearthspire", 39, 16, "", 0, 0, "step", "never"], ["hearthspire", 20, 29, "", 0, 0, "step", "never"], ["pebblebrook", 14, 23, "", 0, 0, "step", "never"], ["hearthspire", 11, 19, "", 0, 0, "step", "never"], ["room:cellar", 11, 4, "", 0, 0, "step", "never"]];
 
@@ -2574,9 +2659,9 @@ button,.rpb,.pill{touch-action:manipulation}
   function w6PatrolCheck(x, y, c) {
     let p = rp.s.w6;
     for (let t of w6Patrols(p)) {
-      let near = Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1, seen = w6InSight(t, x, y) && c !== '"';
-      if (seen || near)
-        return w6PatrolFight(p, t, seen), !0;
+      let near = Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1, seen2 = w6InSight(t, x, y) && c !== '"';
+      if (seen2 || near)
+        return w6PatrolFight(p, t, seen2), !0;
     }
     return !1;
   }
@@ -2635,7 +2720,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let L = w6LinkAt(p, x, y, "step");
     if (L) return w6Follow(L);
     if (w6StableAt(p, x, y)) return w6Stable(p, x, y);
-    if (w6PatrolCheck(x, y, c)) return !0;
+    if (s6Step(x, y) || w6PatrolCheck(x, y, c)) return !0;
     let E = W6_ENC[p];
     if (!E || rp.grace > 0 || st.since < W6_GAP) return !1;
     let chance = c === '"' ? E.grass || 0 : E.floor && !w6Solid(c) ? E.floor : 0;
@@ -2742,12 +2827,303 @@ button,.rpb,.pill{touch-action:manipulation}
     } }
   });
 
+  // src/game/story6.js
+  var PACK = 4, hero = () => rp.s.party.find((m) => m.hero) || rp.s.party[0], fillHero = (t) => String(t).replace(/\{hero\}/g, hero() ? hero().name : "Pip"), seen = () => rp.s.w6st.seen = rp.s.w6st.seen || {}, story = { q: null, scene: null, busy: !1 };
+  function lineOf(it) {
+    return it.dir ? { who: "", text: fillHero(it.dir) } : { who: fillHero(it.who), text: fillHero(it.text) };
+  }
+  function linesOf(scene, a, b) {
+    return SCRIPT6[scene.from || scene.id].items.slice(a, b + 1).filter((it) => !it.dir || it.show).map(lineOf);
+  }
+  function sceneById(id) {
+    return SCENES6.find((s) => s.id === id);
+  }
+  function play(id) {
+    let sc = sceneById(id);
+    return sc ? (story.scene = sc, story.q = sc.steps.slice(), story.busy = !0, rp.path = null, rp.held = null, next(), !0) : !1;
+  }
+  function done() {
+    let sc = story.scene;
+    sc && !sc.repeat && (seen()[sc.id] = 1), story.scene = null, story.q = null, story.busy = !1, emit("w6:scene", sc && sc.id), rp.mode = rp.mode === "dialog" ? rp.mode : "map";
+  }
+  function next() {
+    let sc = story.scene;
+    if (!sc) return;
+    let st = story.q.shift();
+    if (!st) {
+      done();
+      return;
+    }
+    let [k, a, b] = st;
+    switch (k) {
+      case "say": {
+        let L = linesOf(sc, st[3], st[4]);
+        if (!L.length) {
+          next();
+          return;
+        }
+        rpSay(L, null, next);
+        return;
+      }
+      case "fight":
+        setPiece(a);
+        return;
+      case "class":
+        rp.mode = "w6class";
+        return;
+      case "choice": {
+        rpSay([{ who: "", text: "What do you do?" }], a.map(([label, steps]) => ({ t: label, fn: () => {
+          story.q = steps.concat(story.q), next();
+        } })));
+        return;
+      }
+      case "set":
+        Object.assign(rp.s.q, a);
+        break;
+      case "join":
+        join(a);
+        break;
+      case "give":
+        give(a, b);
+        break;
+      case "deed":
+        deed(DEEDS6[a], a, 1);
+        break;
+      case "kind":
+        deed(KIND6[a], a, 0);
+        break;
+      case "piece": {
+        let st6 = rp.s.w6st;
+        st6.pieces = st6.pieces || [], st6.pieces.includes(a) || st6.pieces.push(a), rpToast("A Smiler piece: the " + a + "!");
+        break;
+      }
+      case "tint":
+        rp.tint = a;
+        break;
+      case "goto":
+        w6Go(a, b, st[3]);
+        break;
+      case "cart": {
+        w6Cart(), rp.s.w6st.cart === "done" && (rp.s.q.cart = 1), story.q = [], done();
+        return;
+      }
+      // the cart's own words play; the scene ends with them
+      case "scene": {
+        let n = sceneById(a);
+        if (n) {
+          sc.repeat || (seen()[sc.id] = 1), story.scene = n, story.q = n.steps.slice(), next();
+          return;
+        }
+        break;
+      }
+    }
+    next();
+  }
+  function setPiece(id) {
+    let S = SETPIECES6[id];
+    if (!S) {
+      next();
+      return;
+    }
+    let s = rp.s, h = hero(), members = (S.solo ? [h] : s.party).map((m) => ({ m, ctl: "me", own: "h" })), has = (tag, t) => !!tag && tag.split("+").includes(t), base = S.boss ? [] : S.foes.map(([f, L, tag]) => {
+      let k = has(tag, "elite") ? v6EliteKey(f, L) : v6FoeKey(f, L), E = RP_E[k], w = (FOES6[f].by[E.L] || {}).w || 1;
+      return { k, w: w * (has(tag, "big") ? 2 : has(tag, "elite") ? 2.57 : 1) };
+    }), total = base.reduce((a, x) => a + x.w, 0), scale = total ? Math.min(1, 0.75 * members.length / total) : 1, keys = S.boss ? [v6BossKey(S.boss)] : S.foes.map(([f, L, tag, name], i) => {
+      let k = base[i].k, E = RP_E[k];
+      if (scale === 1 && !name && !tag) return k;
+      let nk = k + ":" + id + ":" + i, big = has(tag, "big"), m = scale * (big ? 2 : 1);
+      return RP_E[nk] = Object.assign({}, E, { n: name || E.n, tele: has(tag, "tele") ? 1 : 0, hp: Math.max(1, Math.round(E.hp * m)), atk: +(E.atk * scale * (big ? 1.2 : 1)).toFixed(1), xp: Math.max(1, Math.round(E.xp * m)), size: big ? 1.2 : E.size }), nk;
+    });
+    story.fight = id, rpBattle(keys, Object.assign({ members, zone: ",", v6: 1, theme: S.theme, setPiece: 1 }, S.boss ? { boss: keys[0] } : {})), rp.bt && (rp.bt.v6 = 1, rp.bt.story = id);
+  }
+  function join(id) {
+    let C = COMPANIONS6[id], s = rp.s;
+    if (!C || s.party.concat(s.w6st.bench || []).some((m2) => m2.cid === id)) return;
+    let L = Math.min(hero().lvl, Math.max(1, Math.floor(s.party.reduce((a, m2) => a + m2.lvl, 0) / s.party.length))), m = v6Kobold(C.n, C.cls, L, {});
+    m.cid = id, m.colour = C.colour, s.party.length < PACK ? (s.party.push(m), rpToast(C.n + " joins the pack!")) : ((s.w6st.bench = s.w6st.bench || []).push(m), rpToast(C.n + " joins! (waiting at the inn)"));
+  }
+  var ITEMS = { lamp: "Mallow's lamp", ember: "{hero}'s ember (cold)", book: "Mallow's recipe book", bun: "an ember-bun", "clover-ring": "a lucky clover ring" };
+  function give(k, n) {
+    let s = rp.s;
+    if (n = n || 1, k === "gold") {
+      s.gold += n, rpToast("+" + n + " gold");
+      return;
+    }
+    k === "bun" && (s.buns = (s.buns || 0) + n), s.bag[k] = (s.bag[k] || 0) + n, rpToast("Got " + fillHero(ITEMS[k] || k) + ".");
+  }
+  function deed(D, n, bad) {
+    if (!D) return;
+    let m = hero();
+    m.corr = Math.max(0, (m.corr || 0) + D.v), rpToast((bad ? "Corruption +" : "Corruption ") + D.v);
+  }
+  function pickClass(cls) {
+    if (!WAVE16.includes(cls)) return !1;
+    let s = rp.s, old = hero(), i = s.party.indexOf(old), m = v6Kobold(old.name, cls, old.lvl, { hero: 1 });
+    return m.xp = old.xp || 0, m.colour = old.colour, m.corr = old.corr || 0, s.party[i] = m, rp.pk = null, rp.mode = "map", rpToast(fillHero("{hero} the " + CLASSES6[cls].n.toLowerCase() + "!")), next(), !0;
+  }
+  var due = (sc) => !seen()[sc.id] && test(sc.when || null);
+  function sceneAt(kind, p, x, y, npc) {
+    return SCENES6.find((sc) => {
+      let a = sc.at;
+      return !a || a.place !== p || !due(sc) ? !1 : kind === "enter" ? !!a.enter : kind === "npc" ? a.npc === npc : kind === "tile" ? !!a.tile && a.tile[0] === x && a.tile[1] === y : kind === "area" ? !!a.area && Math.hypot(x - a.area[0], y - a.area[1]) <= a.area[2] : kind === "bump" ? !!a.bump && Math.hypot(x - a.bump[0], y - a.bump[1]) <= a.bump[2] : !1;
+    });
+  }
+  function s6Step(x, y) {
+    if (story.busy || rp.bt) return !1;
+    let sc = sceneAt("area", rp.s.w6, x, y);
+    return sc ? play(sc.id) : !1;
+  }
+  function s6Enter(p) {
+    if (story.busy) return !1;
+    let sc = sceneAt("enter", p);
+    return sc ? play(sc.id) : !1;
+  }
+  function s6Bump(x, y) {
+    if (story.busy) return !1;
+    let p = rp.s.w6, n = s6NpcAt(x, y, !0);
+    if (n) {
+      let sc2 = sceneAt("npc", p, x, y, n.id);
+      return sc2 ? play(sc2.id) : npcLine(n);
+    }
+    let sc = sceneAt("tile", p, x, y) || sceneAt("bump", p, x, y);
+    if (sc) return play(sc.id);
+    let c = (rp.grid[y] || [])[x];
+    return c === "H" && p.startsWith("room:") && p !== "room:tower" ? chat(p) : c === "o" && p.startsWith("room:") ? roster() : !1;
+  }
+  function npcLine(n) {
+    if (!n.lines || !n.lines.length)
+      return rpSay([{ who: n.n, text: "..." }]), !0;
+    let st = rp.s.w6st;
+    st.talk = st.talk || {};
+    let i = st.talk[n.id] || 0;
+    st.talk[n.id] = (i + 1) % n.lines.length;
+    let it = SCRIPT6[n.from].items[n.lines[i]], L = lineOf(it), parts2 = L.text.split(/\s*\(after the hatching:\)\s*/);
+    return parts2.length > 1 && (L.text = (rp.s.q.act || 0) >= 5 ? parts2[1] : parts2[0]), rpSay([L]), !0;
+  }
+  function s6Npcs() {
+    let p = rp.s && rp.s.w6;
+    return p ? NPCS6.filter((n) => n.place === p && !n.door && test(n.show || null) && !(n.id === "bork_gate" && rp.s.q.bork)).map((n) => ({ id: "v6:" + n.id, v6id: n.id, name: n.n, x: n.x, y: n.y, team: 2, art: n.id, w: "stick", hat: "none", col: n.colour })) : [];
+  }
+  function s6NpcAt(x, y, withDoors) {
+    let p = rp.s.w6;
+    return NPCS6.find((n) => n.place === p && n.x === x && n.y === y && (withDoors || !n.door) && test(n.show || null));
+  }
+  function chat(inn2) {
+    let s = rp.s, st = s.w6st;
+    st.chats = st.chats || {};
+    let inPack = (id) => s.party.some((m) => m.cid === id), c = CHATS6.find((c2) => c2.inn === inn2 && !st.chats[c2.id] && c2.who.every(inPack) && test(c2.when || null));
+    return c ? (st.chats[c.id] = 1, s.party.filter((m) => c.who.includes(m.cid)).forEach((m) => {
+      m.bond = (m.bond || 0) + 1;
+    }), rpSay(SCRIPT6[c.id].items.filter((it) => !it.dir || it.show).map(lineOf), null, () => rpToast("Bond +1")), !0) : (rpSay([{ who: "", text: "You sit by the fire for a while. Nobody has anything to say tonight." }]), !0);
+  }
+  function roster() {
+    return rp.mode = "w6roster", !0;
+  }
+  function swap(i) {
+    let s = rp.s, b = s.w6st.bench = s.w6st.bench || [], all = s.party.concat(b), m = all[i];
+    !m || m.hero || (s.party.includes(m) ? (s.party.splice(s.party.indexOf(m), 1), b.push(m)) : s.party.length < PACK && (b.splice(b.indexOf(m), 1), s.party.push(m)));
+  }
+  function benchXp(xp) {
+    let s = rp.s, h = hero();
+    for (let m of s.w6st.bench || []) {
+      let floor = m.lvl < h.lvl - 2;
+      for (m.xp = (m.xp || 0) + (floor ? xp : Math.floor(xp / 2)); m.lvl < 30 && m.xp >= Math.round(12 * Math.pow(m.lvl, 1.6)); )
+        m.xp -= Math.round(12 * Math.pow(m.lvl, 1.6)), m.lvl++, m.pend = (m.pend || 0) + 1;
+    }
+  }
+  function goals() {
+    let q = rp.s.q, eq = (w) => Object.entries(w).every(([k, v]) => (q[k] || 0) === v), out = GOALS6.filter((g) => eq(g.when)), miners = ["miner_ore", "miner_tansy", "miner_brothers", "miner_marl"].filter((k) => q[k]).length + (q.pb >= 5 ? 1 : 0);
+    return out.map((g) => ({ goal: g.goal.replace("{miners}", miners), hint: g.hint }));
+  }
+  function s6GoalLine() {
+    let g = goals();
+    return g.length ? g.map((x) => x.goal).join(" ") : "";
+  }
+  function logHtml() {
+    let q = rp.s.q, h = '<div class="rpdlg"><div class="who">What now</div>' + goals().map((g) => "<p><b>" + esc2(g.goal) + "</b><br><small>" + esc2(g.hint) + "</small></p>").join("");
+    if (q.pb === 2) {
+      let done2 = { Ore: q.miner_ore, Tansy: q.miner_tansy, "Flint and Grit": q.miner_brothers, "Old Marl": q.miner_marl, Grubb: q.pb >= 5 };
+      h += "<p>" + MINERS6.map((m) => (done2[m.who] ? "✔ " : "· ") + "<b>" + esc2(m.who) + "</b>: " + esc2(m.hint)).join("<br>") + "</p>";
+    }
+    return h + '</div><div class="tbar"><button class="rpb x" type="button" data-rp="w6back">Back</button></div>';
+  }
+  function classHtml() {
+    return '<div class="rpdlg"><div class="who">Pick up something and show what you are</div><p>Your class shapes your fights and your skills. (The others come later in the game.)</p></div><div class="rpcmd">' + WAVE16.map((c) => '<button class="rpb go" type="button" data-rp="w6cls" data-v="' + c + '">' + esc2(CLASSES6[c].n) + "<small>" + esc2(CLASSES6[c].role || CLASSES6[c].fam || "") + "</small></button>").join("") + "</div>";
+  }
+  function w6RosterHtml() {
+    let s = rp.s;
+    return '<div class="rpdlg"><div class="who">The roster</div><p>Pick the pack (four at most). Those not in it wait here and learn a little anyway.</p></div><div class="rpcmd">' + s.party.concat(s.w6st.bench || []).map((m, i) => '<button class="rpb' + (s.party.includes(m) ? " go" : "") + '" type="button" data-rp="w6swap" data-v="' + i + '"' + (m.hero ? " disabled" : "") + ">" + esc2(m.name) + "<small>" + esc2(CLASSES6[m.cls].n) + " " + m.lvl + (s.party.includes(m) ? " · in the pack" : " · waiting") + "</small></button>").join("") + '<button class="rpb x" type="button" data-rp="w6back">Done</button></div>';
+  }
+  function s6NewGame(name, colour) {
+    let s = rp.s, h = v6Kobold(name || "Pip", "fighter", 1, { hero: 1, skills: [], known: [], passives: [] });
+    h.noclass = 1, h.colour = colour || "orange", s.q = { act: 0, pb: 0 }, s.buns = 0, s.hero = { name: h.name, colour: h.colour }, w6Start([h], { map: "room:bakery", at: [6, 5], gold: 30, bag: { potion: 2 } }), s.w6st.seen = {}, story.busy = !1, play("1.1");
+  }
+  var COLOURS = ["orange", "green", "blue", "pink", "gold", "purple"], newForm = { name: "Pip", colour: "orange" };
+  function newHtml() {
+    return '<div class="rpdlg"><div class="who">A new story</div><p>Name your hero (2 to 12 letters) and pick a scale colour.</p><div class="chatin"><input id="w6-name" maxlength="12" value="' + esc2(newForm.name) + '" aria-label="Hero name"></div><div class="rpcmd">' + COLOURS.map((c) => '<button class="rpb' + (c === newForm.colour ? " on" : "") + '" type="button" data-rp="w6col" data-v="' + c + '">' + c + "</button>").join("") + '</div></div><div class="tbar"><button class="rpb go" type="button" data-rp="w6begin">Begin</button><button class="rpb x" type="button" data-rp="w6back">Back</button></div>';
+  }
+  function s6Continue() {
+    let s = v6Fetch("guest", 0);
+    return s ? (rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, !0) : !1;
+  }
+  feature({
+    id: "story6",
+    menu: [{ order: 4, html: () => (rp.s && rp.s.w6 ? '<button class="rpb go" type="button" data-rp="w6log">What now<small>' + esc2(s6GoalLine() || "the quest log") + "</small></button>" : "") + '<button class="rpb" type="button" data-rp="w6new">New story<small>v6 test: Hearthspire to the tube</small></button>' + (v6Fetch("guest", 0) ? '<button class="rpb" type="button" data-rp="w6cont">Continue story<small>v6 test</small></button>' : "") }],
+    panels: { w6new: { sig: () => JSON.stringify(newForm), html: newHtml }, w6class: { sig: () => "c", html: classHtml }, w6log: { sig: () => JSON.stringify(rp.s && rp.s.q), html: logHtml }, w6roster: { sig: () => JSON.stringify(rp.s && [rp.s.party.map((m) => m.name), (rp.s.w6st.bench || []).map((m) => m.name)]), html: w6RosterHtml } },
+    actions: {
+      w6new: () => {
+        rp.mode = "w6new";
+      },
+      w6col: (d) => {
+        let e = typeof document < "u" && document.getElementById("w6-name");
+        e && (newForm.name = e.value), newForm.colour = d.v;
+      },
+      w6begin: () => {
+        let e = typeof document < "u" && document.getElementById("w6-name"), n = v6HeroName(e ? e.value : newForm.name);
+        if (!n) {
+          rpToast("2 to 12 letters, please.");
+          return;
+        }
+        s6NewGame(n, newForm.colour);
+      },
+      w6cont: () => {
+        s6Continue() || rpToast("No story saved yet.");
+      },
+      w6cls: (d) => {
+        pickClass(d.v);
+      },
+      w6back: () => {
+        rp.mode = "map";
+      },
+      w6swap: (d) => {
+        swap(+d.v);
+      },
+      w6log: () => {
+        rp.s && rp.s.w6 && (rp.mode = "w6log");
+      }
+    },
+    on: {
+      "w6:enter": (p) => {
+        rp.s.w6st && rp.s.w6st.seen && s6Enter(p);
+      },
+      "battle:won": (b) => {
+        b && b.v6 && rp.s.w6 && benchXp(b.xp6 || 0);
+      },
+      "battle:end": (b) => {
+        !b || !b.story || !story.busy || (b.over === "win" ? (story.fight = null, setTimeout0(next)) : (story.busy = !1, story.scene = null, story.q = null));
+      }
+    }
+  });
+  var setTimeout0 = (f) => {
+    rp.headless ? f() : setTimeout(f, 0);
+  };
+
   // src/game/world.js
   function rpArea(x, y) {
     return rp.s.w6 ? w6Title(rp.s.w6) : rp.s.place && RP_PLACES[rp.s.place] ? RP_PLACES[rp.s.place].name : x >= OLD_W || y >= OLD_H ? overworldArea(x, y) : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "Pebble Hills" : x < 14 && y > 16 ? "Burrowhome" : "Hatching Green";
   }
   function rpNpcs() {
-    if (rp.s && rp.s.w6) return [];
+    if (rp.s && rp.s.w6) return s6Npcs();
     let pl = rpPlace();
     return RP_NPC.filter((n) => (n.place || "world") === pl && (!n.show || n.show(rp.s))).map((n) => {
       let p = n.pos && n.pos(rp.s);
@@ -2784,7 +3160,7 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:leave", id), rpSave();
   }
   function rpBfs(tx, ty, toNeighbor) {
-    let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen = 0;
+    let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen2 = 0;
     for (prev[key(s.x, s.y)] = null; q.length; ) {
       let [x, y] = q.shift();
       if (toNeighbor ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty) {
@@ -2795,7 +3171,7 @@ button,.rpb,.pill{touch-action:manipulation}
         }
         return out;
       }
-      if (++seen > 6e3) return null;
+      if (++seen2 > 6e3) return null;
       for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         let nx = x + dx, ny = y + dy, k = key(nx, ny);
         k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40 || (prev[k] = [x, y], q.push([nx, ny]));
@@ -2887,20 +3263,21 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpInteractAt(x, y) {
     if (!rp.grid[y]) return !1;
-    let c = rp.grid[y][x], npc = rpNpcAt(x, y);
+    let c = rp.grid[y][x];
+    if (rp.s.w6)
+      return s6Bump(x, y) || w6Bump(x, y) || w6Use(x, y) ? (rp.path = null, !0) : !1;
+    let npc = rpNpcAt(x, y);
     if (npc)
       return rp.path = null, rpTalk(npc.id), !0;
     let ch = rpChestAt(x, y);
     if (ch)
       return rp.path = null, rpOpenChest(ch), !0;
-    if (rp.s.w6)
-      return w6Bump(x, y) || w6Use(x, y) ? (rp.path = null, !0) : !1;
     let t = tiles[c];
     return t ? (rp.path = null, t.use(x, y), !0) : !1;
   }
   function rpSpecialAt(x, y) {
     let c = rp.grid[y] && rp.grid[y][x];
-    return rp.s.w6 ? !!(c && "FocxpHSC".includes(c)) || !!w6LinkAt(rp.s.w6, x, y, "bump") : !!(rpNpcAt(x, y) || tiles[c] || rpChestAt(x, y));
+    return rp.s.w6 ? !!(c && "FocxpHSC".includes(c)) || !!w6LinkAt(rp.s.w6, x, y, "bump") || !!s6NpcAt(x, y, !0) : !!(rpNpcAt(x, y) || tiles[c] || rpChestAt(x, y));
   }
   function rpEnterTile(tx, ty) {
     let s = rp.s;
@@ -3510,10 +3887,10 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!rp.s || net.paying) return;
     let s = rp.s;
     s.mkPaid = s.mkPaid || [];
-    let due = (net.mine || []).filter((m) => m.status === "sold" && !s.mkPaid.includes(m.id));
-    if (due.length) {
+    let due2 = (net.mine || []).filter((m) => m.status === "sold" && !s.mkPaid.includes(m.id));
+    if (due2.length) {
       net.paying = !0;
-      for (let m of due) {
+      for (let m of due2) {
         s.mkPaid.push(m.id), s.mkPaid.length > 200 && s.mkPaid.shift(), s.gold += Math.max(0, +m.price || 0), rpToast("Your " + netMkLabel(m) + " sold for " + m.price + " gold!");
         try {
           await net.db.collection("market").doc(m.id).delete();
@@ -3842,7 +4219,7 @@ button,.rpb,.pill{touch-action:manipulation}
     T && talk(T.rules, T.who);
   }
   function rpQuestLine() {
-    if (rp.s && rp.s.w6) return "";
+    if (rp.s && rp.s.w6) return s6GoalLine();
     let r = QUEST_LINE.find((r2) => test(r2.if));
     return r ? fill(r.text) : "";
   }
@@ -3890,9 +4267,9 @@ button,.rpb,.pill{touch-action:manipulation}
       q.btyBase = q.kz[B.z] || 0, rpSay([{ who: "Bounty board", text: "WANTED: knock out " + B.n + " monsters in " + B.zn + ". Reward: " + B.xp + " XP for the whole party and " + B.g + " gold." }], null, () => rpToast("New bounty: " + B.zn));
       return;
     }
-    let done = (q.kz[B.z] || 0) - q.btyBase;
-    if (done < B.n) {
-      rpSay([{ who: "Bounty board", text: "Bounty: " + B.zn + ", " + done + " of " + B.n + " knocked out." }]);
+    let done2 = (q.kz[B.z] || 0) - q.btyBase;
+    if (done2 < B.n) {
+      rpSay([{ who: "Bounty board", text: "Bounty: " + B.zn + ", " + done2 + " of " + B.n + " knocked out." }]);
       return;
     }
     s.gold += B.g;
@@ -4016,7 +4393,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T03:46:50Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T04:36:21Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -6708,6 +7085,13 @@ button,.rpb,.pill{touch-action:manipulation}
     if (E.v6trial && E.trick === "old_shellback" && (u.tt = (u.tt || 0) + 1, u.curled = u.tt % 2 === 0, u.curled))
       return tcFloatU(u, "curls up", "#e0c3ff"), u.ap = 0, b.phase = "ai", !0;
     if (E.v6boss) return v6BossTurn(b, u);
+    if (E.tele && (u.tel = (u.tel || 0) + 1, u.tel % 3 === 2)) {
+      let ks = b.units.filter((v) => v.side === 0 && tcLive(v));
+      if (ks.length) {
+        let c = v6Focus(b, u, ks), ch = { u, sk: "v6_bigswing", cx: c.x, cy: c.y, area: 1.5, side: 1 };
+        return u.chan = ch, b.chans.push(ch), b.msg = u.name + " winds up a big swing: step away!", tcFloatU(u, "winds up!", "#ffb347"), u.ap = 0, b.phase = "ai", !0;
+      }
+    }
     let pod = b.units.filter((v) => v.side === 1 && v.pod === u.pod), lost = pod.filter((v) => !tcLive(v)).length / Math.max(1, pod.length);
     if (!E.boss && u.hp < u.max * 0.25 && lost >= 0.5 && (u.fleeing = !0), u.fleeing) {
       if (u.y === 0)
@@ -6723,8 +7107,8 @@ button,.rpb,.pill{touch-action:manipulation}
       return u.ap = 0, b.phase = "ai", !0;
     }
     if (v6Habit(b, u)) return !0;
-    let seen = b.units.filter((v) => v.side === 0 && tcLive(v) && tcSideSees(b, 1, v));
-    return u.focus = v6HabitFocus(b, u, seen) || v6Focus(b, u, seen), !1;
+    let seen2 = b.units.filter((v) => v.side === 0 && tcLive(v) && tcSideSees(b, 1, v));
+    return u.focus = v6HabitFocus(b, u, seen2) || v6Focus(b, u, seen2), !1;
   }
   function v6HabitFocus(b, u, list) {
     if (!list.length) return null;
@@ -6741,7 +7125,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let E = u.E, F = FOES6[E.id] || {}, how = F.how || "";
     if (u.tt = (u.tt || 0) + 1, /curls up/.test(how) && !u.curledOnce && u.hp < u.max * 0.5)
       return u.curledOnce = 1, u.vb = (u.vb || []).concat([{ k: "def", v: 1, turns: 1 }]), tcFloatU(u, "curls up", "#e0c3ff"), b.msg = u.name + " curls up!", u.ap = 0, b.phase = "ai", !0;
-    if (/guards \(dodge/.test(how) && u.hp < u.max * 0.5 && !u.guard)
+    if (/guards \(dodge/.test(how) && u.hp < u.max * 0.5 && !u.guard && !(u.guarded = !u.guarded))
       return u.guard = 1, tcFloatU(u, "guards", "#e0c3ff"), b.msg = u.name + " raises its guard.", u.ap = 0, b.phase = "ai", !0;
     if (/calls a guard if alone/.test(how) && !u.called && !b.units.some((v) => v !== u && v.side === 1 && tcLive(v)))
       return u.called = 1, b.msg = u.name + " shouts for help!", v6Spawn(b, u, 1, "guard recruit"), u.ap = 1, !1;
@@ -6955,16 +7339,16 @@ button,.rpb,.pill{touch-action:manipulation}
       for (let y = 0; y <= 3; y++) for (let x = bx - 1; x <= bx + 2; x++) ok(x, y) && tcT(g[y][x]).solid && (g[y][x] = base);
     }
     for (let it = 0; it < 30; it++) {
-      let seen = /* @__PURE__ */ new Set(), q = [[W >> 1, H - 1]];
-      for (seen.add((H - 1) * W + (W >> 1)); q.length; ) {
+      let seen2 = /* @__PURE__ */ new Set(), q = [[W >> 1, H - 1]];
+      for (seen2.add((H - 1) * W + (W >> 1)); q.length; ) {
         let [x2, y2] = q.pop();
         for (let [dx, dy] of TC_DIR8.slice(0, 4)) {
           let nx = x2 + dx, ny = y2 + dy, k = ny * W + nx;
-          !ok(nx, ny) || seen.has(k) || tcT(g[ny][nx]).solid || (seen.add(k), q.push([nx, ny]));
+          !ok(nx, ny) || seen2.has(k) || tcT(g[ny][nx]).solid || (seen2.add(k), q.push([nx, ny]));
         }
       }
       let lost = null;
-      for (let y2 = 0; y2 < H && !lost; y2++) for (let x2 = 0; x2 < W; x2++) if (!tcT(g[y2][x2]).solid && !seen.has(y2 * W + x2)) {
+      for (let y2 = 0; y2 < H && !lost; y2++) for (let x2 = 0; x2 < W; x2++) if (!tcT(g[y2][x2]).solid && !seen2.has(y2 * W + x2)) {
         lost = [x2, y2];
         break;
       }
@@ -6972,7 +7356,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let [x, y] = lost;
       for (; y < H - 1; )
         if (y++, tcT(g[y][x]).solid) g[y][x] = base;
-        else if (seen.has(y * W + x)) break;
+        else if (seen2.has(y * W + x)) break;
     }
     return g;
   }
@@ -7378,17 +7762,17 @@ button,.rpb,.pill{touch-action:manipulation}
     return V6_THEMES[t] || V6_THEMES.meadow;
   }
   function v6BigReach(g, W, H, sx, sy) {
-    let open = (x, y) => x >= 0 && y >= 0 && x + 1 < W && y + 1 < H && !tcT(g[y][x]).solid && !tcT(g[y][x + 1]).solid && !tcT(g[y + 1][x]).solid && !tcT(g[y + 1][x + 1]).solid, seen = /* @__PURE__ */ new Set();
-    if (!open(sx, sy)) return seen;
+    let open = (x, y) => x >= 0 && y >= 0 && x + 1 < W && y + 1 < H && !tcT(g[y][x]).solid && !tcT(g[y][x + 1]).solid && !tcT(g[y + 1][x]).solid && !tcT(g[y + 1][x + 1]).solid, seen2 = /* @__PURE__ */ new Set();
+    if (!open(sx, sy)) return seen2;
     let q = [[sx, sy]];
-    for (seen.add(sy * W + sx); q.length; ) {
+    for (seen2.add(sy * W + sx); q.length; ) {
       let [x, y] = q.pop();
       for (let [dx, dy] of TC_DIR8) {
         let nx = x + dx, ny = y + dy, k = ny * W + nx;
-        seen.has(k) || !open(nx, ny) || (seen.add(k), q.push([nx, ny]));
+        seen2.has(k) || !open(nx, ny) || (seen2.add(k), q.push([nx, ny]));
       }
     }
-    return seen;
+    return seen2;
   }
   function v6BossRoom(g, W, H, base) {
     let sx = (W >> 1) - 1, sy = 1;
@@ -7428,21 +7812,21 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function v6Reach(g, W, H, base) {
     for (let it = 0; it < 200; it++) {
-      let seen = /* @__PURE__ */ new Set([(H - 1) * W + (W >> 1)]), q = [[W >> 1, H - 1]];
+      let seen2 = /* @__PURE__ */ new Set([(H - 1) * W + (W >> 1)]), q = [[W >> 1, H - 1]];
       for (; q.length; ) {
         let [x, y] = q.pop();
         for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
           let nx = x + dx, ny = y + dy, k = ny * W + nx;
-          nx < 0 || ny < 0 || nx >= W || ny >= H || seen.has(k) || tcT(g[ny][nx]).solid || (seen.add(k), q.push([nx, ny]));
+          nx < 0 || ny < 0 || nx >= W || ny >= H || seen2.has(k) || tcT(g[ny][nx]).solid || (seen2.add(k), q.push([nx, ny]));
         }
       }
       let lost = null;
-      for (let y = 0; y < H && !lost; y++) for (let x = 0; x < W; x++) if (!tcT(g[y][x]).solid && !seen.has(y * W + x)) {
+      for (let y = 0; y < H && !lost; y++) for (let x = 0; x < W; x++) if (!tcT(g[y][x]).solid && !seen2.has(y * W + x)) {
         lost = [x, y];
         break;
       }
       if (!lost) return it;
-      v6Carve(g, W, H, base, lost, seen, 1);
+      v6Carve(g, W, H, base, lost, seen2, 1);
     }
     return -1;
   }
@@ -7604,8 +7988,8 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function tcRound(b) {
     b.round++;
-    let seen = b.units.some((e) => e.side === 1 && tcLive(e) && tcShown(b, e)) || b.units.some((p) => p.side === 0 && tcLive(p) && tcSideSees(b, 1, p));
-    if (b.quiet = seen ? 0 : (b.quiet || 0) + 1, b.quiet >= 3) {
+    let seen2 = b.units.some((e) => e.side === 1 && tcLive(e) && tcShown(b, e)) || b.units.some((p) => p.side === 0 && tcLive(p) && tcSideSees(b, 1, p));
+    if (b.quiet = seen2 ? 0 : (b.quiet || 0) + 1, b.quiet >= 3) {
       b.quiet = 0, b.units.forEach((p) => {
         p.side === 0 && tcLive(p) && tcSeen(b, p);
       });
@@ -7958,13 +8342,13 @@ button,.rpb,.pill{touch-action:manipulation}
     let guest = b.net && b.net.role === "guest";
     if (guest && netGuestFrame(b, dt), !guest && (b.phase === "busy" || b.phase === "ai" || b.phase === "turn" && b.seq.length)) {
       b.phase === "turn" && (b.phase = "busy");
-      let done;
+      let done2;
       try {
-        done = tcStepRun(dt);
+        done2 = tcStepRun(dt);
       } catch (err) {
-        console.error("battle step failed", err), b.step = null, b.seq = [], b.anim = null, done = !0;
+        console.error("battle step failed", err), b.step = null, b.seq = [], b.anim = null, done2 = !0;
       }
-      if (done && !b.over) {
+      if (done2 && !b.over) {
         if (tcCheckEnd()) return;
         let u = b.cur, ctl = u && (u.ctl || (u.side === 0 ? "me" : "ai"));
         !u || !tcLive(u) || u.ap <= 0 || ctl === "ai" ? tcEndTurn() : ctl === "remote" ? (b.phase = "remote", rpUI(!0)) : ctl === "me" ? rp.autoParty ? (b.phase = "ai", rpAiTurn(u), b.seq.length || tcEndTurn()) : (b.phase = "turn", b.msg = u.name + " · " + u.ap + " AP left", rpUI(!0)) : tcEndTurn();
@@ -8001,10 +8385,9 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s;
     s.q.tac = 1;
     let xp = 0, gold = 0;
-    b.units.forEach((f) => {
+    if (b.units.forEach((f) => {
       f.side === 1 && (xp += f.E.xp, gold += f.E.gold);
-    }), xp = Math.round(xp * BAL.xp), gold = Math.round(gold * (b.v6 ? 1 : 1.15)), s.gold += gold;
-    {
+    }), xp = Math.round(xp * BAL.xp), gold = Math.round(gold * (b.v6 ? 1 : 1.15)), s.gold += gold, !b.v6) {
       let n = b.units.filter((f) => f.side === 1).length;
       for (let T of RP_TALLIES) T.zone === b.zone && test(T.if) && (s.q[T.flag] = (s.q[T.flag] || 0) + n);
     }
@@ -8016,17 +8399,17 @@ button,.rpb,.pill{touch-action:manipulation}
         m.hp = Math.min(st.hp, m.hp + 9), ups.push(m.name + " reached level " + m.lvl + "!");
       }
     }), b.v6 || rpBenchXp(xp, rpXpNeed), b.drops = [];
-    let B = b.boss && RP_BOSSES[b.boss], help = "";
+    let B = !b.v6 && b.boss && RP_BOSSES[b.boss], help = "";
     if (b.win && run(b.win), B && (!B.ready || test(B.ready)))
       run(B.win), b.drops.push(...B.drops);
     else if (B)
       B.done && test(B.done) ? (s.dust = (s.dust || 0) + 3, help = " Helper's spark dust +3.") : help = " (This fight isn't part of your story yet.)";
-    else {
+    else if (!b.v6) {
       let z = b.zone === "g" ? "C" : RP_ZONE[b.zone] && RP_ZONE[b.zone].loot || b.zone, it = rpLootRoll(z, 0.3);
       it && b.drops.push(it);
     }
-    let sp = rpBattleSpoils(b);
-    b.drops.forEach(rpGive), b.msg = "Victory! +" + xp + " XP, +" + gold + " gold." + (b.drops.length ? " Found: " + b.drops.map((i) => RP_IT[i].n).join(", ") + "!" : "") + (sp ? " Materials: " + sp + "." : "") + (ups.length ? " " + ups.join(" ") : "") + help, b.units.forEach((u) => {
+    let sp = b.v6 ? "" : rpBattleSpoils(b);
+    b.drops.forEach(rpGive), b.xp6 = xp, b.msg = "Victory! +" + xp + " XP, +" + gold + " gold." + (b.drops.length ? " Found: " + b.drops.map((i) => RP_IT[i].n).join(", ") + "!" : "") + (sp ? " Materials: " + sp + "." : "") + (ups.length ? " " + ups.join(" ") : "") + help, b.units.forEach((u) => {
       u.buff = { atk: 0, def: 0 }, u.guard = 0, u.watch = 0, b.vis.fill(2);
     }), rp.headless || (confetti(), sfx("win")), emit("battle:won", b), rpUI(!0);
   }
