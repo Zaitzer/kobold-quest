@@ -45,7 +45,7 @@ function next(){const sc=story.scene;if(!sc)return;const st=story.q.shift();if(!
     case'give':give(a,b);break;
     case'deed':deed(DEEDS6[a],a,1);break;
     case'kind':deed(KIND6[a],a,0);break;
-    case'piece':{const st6=rp.s.w6st;st6.pieces=st6.pieces||[];if(!st6.pieces.includes(a))st6.pieces.push(a);rpToast('A Smiler piece: the '+a+'!');break}
+    case'piece':{const st6=rp.s.w6st;st6.pieces=st6.pieces||[];if(!st6.pieces.includes(a))st6.pieces.push(a);rpToast('A Smiler piece: the '+a+'!');emit('w6:piece',a);break}
     case'tint':rp.tint=a;break;
     case'chest':{const got=v6OpenChest(a);rpSay([{who:'',text:'You find '+a+': '+got.join(', ')+'.'}],null,next);return}
     case'goto':w6Go(a,b,st[3]);break;
@@ -77,9 +77,10 @@ function s6SharedWin(id){if(!id||!rp.s||!rp.s.w6st||rp.s.test)return;const st=rp
 function join(id){const C=COMPANIONS6[id],s=rp.s;if(!C||s.party.concat(s.w6st.bench||[]).some(m=>m.cid===id))return;
   const L=Math.min(hero().lvl,Math.max(1,Math.floor(s.party.reduce((a,m)=>a+m.lvl,0)/s.party.length)));
   const m=v6Kobold(C.n,C.cls,L,{});m.cid=id;m.colour=C.colour;
+  emit('w6:sound','recruit');
   if(s.party.length<PACK){s.party.push(m);rpToast(C.n+' joins the pack!')}else{(s.w6st.bench=s.w6st.bench||[]).push(m);rpToast(C.n+' joins! (waiting at the inn)')}}
 const ITEMS={lamp:'Mallow\'s lamp',ember:'{hero}\'s ember (cold)',book:'Mallow\'s recipe book',bun:'an ember-bun','clover-ring':'a lucky clover ring'};
-function give(k,n){const s=rp.s;n=n||1;if(k==='gold'){s.gold+=n;rpToast('+'+n+' gold');return}if(k==='bun'){s.buns=(s.buns||0)+n}s.bag[k]=(s.bag[k]||0)+n;rpToast('Got '+fillHero(ITEMS[k]||k)+'.')}
+function give(k,n){const s=rp.s;n=n||1;if(ITEMS[k]&&k!=='bun')emit('w6:sound','item');if(k==='gold'){s.gold+=n;rpToast('+'+n+' gold');return}if(k==='bun'){s.buns=(s.buns||0)+n}s.bag[k]=(s.bag[k]||0)+n;rpToast('Got '+fillHero(ITEMS[k]||k)+'.')}
 /* a deed or a kind deed (corruption.md): the hero did it */
 function deed(D,n,bad){if(!D)return;const m=hero();m.corr=Math.max(0,(m.corr||0)+D.v);rpToast((bad?'Corruption +':'Corruption ')+D.v)}
 /* the class pick at the yard drill (wave 1's eight): the hero becomes that class at its level, keeping its XP and name */

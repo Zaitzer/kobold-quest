@@ -74,16 +74,25 @@ Short jingles: Smiler piece gained, level up, recruit joins, key item, battle wo
 | bump | walking into a barrier | done |
 | Smiler piece | gaining a piece (was the spark sound) | done, renamed |
 | level up | | done (also recruit, key item, battle lost) |
-| egg crack, dragon roar | the hatchings, Glitterbeak | new |
-| Glitterbeak's MINE | each time he says it: a low, greedy blip | new (a talk blip at his own pitch) |
-| tower fire | an ambient crackle at the tower and the bakery oven | new |
-| ember glow | the Reward, once: a soft rising chime | new |
-| stone in the bag | Pebblebrook's circle: a clack per stone | new |
-| mill wheel | creak and splash, on a loop near the mill once it turns | new |
-| raptor | a skree when mounting, and Ghost the chick | new |
+| egg crack, dragon roar | the hatchings, Glitterbeak | done (the CRACK line; his first line in a conversation) |
+| Glitterbeak's MINE | each time he says it: a low, greedy blip | done |
+| tower fire | an ambient crackle at the tower and the bakery oven | done |
+| ember glow | the Reward, once: a soft rising chime | done (the sound; the Reward is after the slice) |
+| stone in the bag | Pebblebrook's circle: a clack per stone | done (a line about the stones at the circle) |
+| mill wheel | creak and splash, on a loop near the mill once it turns | done |
+| raptor | a skree when mounting, and Ghost the chick | done |
 | menu tap | buttons | done |
 
 Music dips indoors, more while someone talks, and nearly vanishes under a jingle (done).
+
+## As built (23 Oct, build step 18)
+
+`src/game/music6.js` holds the rule: a pure function of the game's state picks the track (Hearthspire's four versions by `act`,
+`empty` and `march`; the castle yard and hall; Glitterbeak while he speaks; Mallow's hum and the fire in the bakery; the tower's
+fire alone; Pebblebrook without drums until `pb 6`, then with them, and the wheel's creak within 7 tiles of the mill; R1; the mine,
+the dark floor with a sine lead; fights and bosses, Snatchclaw on the castle track). The rhyme is the `tune` field; Hearthspire's
+morning opens with its first bar; *everyone came* and *the Hatching* play it whole. The story's sounds come from its lines (`CUES`):
+CRACK, Glitterbeak's first line and every MINE, Mallow singing, the circle's stones, skree. Tests: `logic/music6`, `browser/tsound6`.
 
 ## Decision
 

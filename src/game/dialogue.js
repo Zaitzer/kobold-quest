@@ -1,4 +1,5 @@
 /* dialogue */
+import {emit} from '../core/bus.js';
 import {rpInputReset} from '../core/input.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
@@ -12,7 +13,7 @@ function rpDlgNext(){const d=rp.dlg;if(!d)return;if(d.i<d.lines.length-1){d.i++;
 function rpChoose(i){const d=rp.dlg;if(!d||!d.choices)return;const c=d.choices[i];if(!c||(c.ok&&!c.ok()))return;rp.dlg=null;rp.mode='map';c.fn&&c.fn();rpSave();rpUI(true)}
 /* a soft blip per line; each speaker has their own pitch */
 function blipPitch(who){let h=0;for(const c of who||'')h=(h*31+c.charCodeAt(0))|0;return who?.8+((h>>>0)%9)*.07:1}
-function rpBlip(){const d=rp.dlg;if(!rp.headless&&d)sfx('blip',blipPitch(d.lines[d.i].who))}
+function rpBlip(){const d=rp.dlg;if(d)emit('dlg:line',d.lines[d.i]);if(!rp.headless&&d)sfx('blip',blipPitch(d.lines[d.i].who))}
 function rpToast(t){rp.toast={t,life:2.6};if(!rp.headless)sfx('drop')}
 
 feature({id:'dialogue',

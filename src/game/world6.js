@@ -37,7 +37,7 @@ function w6MarkNear(p,x,y){const P=w6Place(p);if(!P||!P.marks)return null;if(isR
 /* the free tile nearest (x, y) that is not a link, so arriving never sends you straight back */
 function w6Arrive(p,x,y){const R=w6Rows(p),solid=c=>isRoom(p)?W6_ROOM_SOLID.has(c):W6_SOLID_OUT.has(c);let best=[x,y],bd=1e9;
   for(let j=0;j<R.length;j++)for(let i=0;i<R[0].length;i++){if(solid(R[j][i])||w6LinkAt(p,i,j))continue;const d=Math.abs(i-x)+Math.abs(j-y)+(j<y&&!isRoom(p)?0.1:0);if(d<bd){bd=d;best=[i,j]}}return best}
-function w6Go(p,x,y){const s=rp.s,from=s.w6;if(!w6Place(p))return false;const [ax,ay]=w6Arrive(p,x,y);
+function w6Go(p,x,y){const s=rp.s,from=s.w6;if(!w6Place(p))return false;if(from&&(isRoom(p)||isRoom(from)))emit('w6:door');const [ax,ay]=w6Arrive(p,x,y);
   s.w6=p;s.x=ax;s.y=ay;s.face=isRoom(p)?'up':'down';rpApplyWorld();rp.pos=null;rp.path=null;rp.held=null;rp.grace=4;
   if(from&&!isRoom(from)&&from!==p&&!isRoom(p))s.w6visit=(s.w6visit||0)+1;   // a new visit: campfires heal again (systems.md §5)
   if(!rp.headless)sfx('door');emit('w6:enter',p,from);return true}
@@ -71,7 +71,7 @@ function w6Stable(p,x,y){const st=rp.s.w6st;if(w6Pieces()<1){rpSay([{who:'',text
 function w6TravelList(kind){const st=rp.s.w6st;if(kind==='stable')return st.stables.map(k=>{const [p,xy]=k.split(':');const [x,y]=xy.split(',').map(Number);return{p,x,y,n:'the stable at '+w6Title(p).replace(/ \(.*\)$/,'')}});
   return w6Pieces()>=2?st.fountains.map(p=>{const F=w6FountainAt(p);return{p,x:F[0],y:F[1]+1,n:'the fountain in '+w6Title(p).replace(/ \(.*\)$/,'')}}):[]}
 function w6FountainAt(p){const R=w6Rows(p);for(let y=0;y<R.length;y++){const x=R[y].indexOf('F');if(x>=0)return[x,y]}return MAPS6[p].entry}
-function w6Travel(i){const L=w6TravelList(rp.w6travel)[i];rp.mode='map';if(!L)return false;w6Go(L.p,L.x,L.y+(rp.w6travel==='stable'?1:0));if(!rp.headless)rpToast('Off you go!');return true}
+function w6Travel(i){const L=w6TravelList(rp.w6travel)[i];rp.mode='map';if(!L)return false;if(rp.w6travel==='stable')emit('w6:stable');w6Go(L.p,L.x,L.y+(rp.w6travel==='stable'?1:0));if(!rp.headless)rpToast('Off you go!');return true}
 
 /* ------------------------------------------------------------------ the flooded south road (systems.md §6) and flavour weather (§15) */
 const w6Dry=()=>test({pb:{gte:6}});
@@ -112,10 +112,10 @@ function w6Use(x,y){const s=rp.s,p=s.w6,c=(rp.grid[y]||[])[x];
 
 /* ------------------------------------------------------------------ fountains, rest, campfires (systems.md §5, §6) */
 function w6HealAll(){rp.s.party.forEach(m=>{const st=rpStats(m);m.hp=st.hp;m.mp=st.mp})}
-function w6Fountain(p){const st=rp.s.w6st;w6HealAll();if(!st.fountains.includes(p))st.fountains.push(p);st.respawn=p;
+function w6Fountain(p){const st=rp.s.w6st;w6HealAll();emit('w6:sound','fountain');if(!st.fountains.includes(p))st.fountains.push(p);st.respawn=p;
   if(w6Pieces()>=2&&st.fountains.length>1){rpToast('Everyone feels better.');rp.w6travel='fountain';rp.mode='w6travel';return true}   // from the second piece: travel from any fountain
   rpSay([{who:'',text:'Cold, clear water. Everyone feels better. ('+w6Title(p)+' is where you will wake if the pack falls.)'}]);return true}
-function w6Rest(p){w6HealAll();rp.s.party.forEach(m=>{m.streak=0});const st=rp.s.w6st;st.patrols={};
+function w6Rest(p){w6HealAll();emit('w6:sound','nom');rp.s.party.forEach(m=>{m.streak=0});const st=rp.s.w6st;st.patrols={};
   rpSay([{who:'',text:'A good sleep. Everyone is rested (and the beaten patrols are back on the roads).'}]);return true}
 function w6Campfire(p){const st=rp.s.w6st,k=p+':'+(rp.s.w6visit||0);if(st.campfire[k]){rpToast('The fire is low. It will be warm again on your next visit.');return true}
   st.campfire[k]=1;w6HealAll();rpSay([{who:'',text:'You sit by the campfire for a while. Everyone is patched up.'}]);return true}

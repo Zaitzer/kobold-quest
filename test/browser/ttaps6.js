@@ -62,7 +62,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
    else f.forEach((o,j)=>{o.x=Math.min(b.W-1,j*2);o.y=0});b.units.forEach(x=>{const h=x.k;});__rp.sig='';return true},[i,near])};
  await fight();
  await row('place the pack ("Auto")',1,async()=>{await btn('[data-tac="auto"]');return until(()=>__rp.bt.phase!=='place')});
- await row('move',1,async()=>{await turn(0,false);const t=await E(()=>{const b=__rp.bt,u=b.cur;for(const [dx,dy] of [[0,-2],[1,-1],[-1,-1],[0,-1],[1,0],[-1,0]]){const x=u.x+dx,y=u.y+dy;if(x>=0&&y>=0&&x<b.W&&y<b.H&&!b.units.some(o=>o.hp>0&&o.x===x&&o.y===y)&&!'#T^'.includes(b.g[y][x]))return[x,y,u.x,u.y]}return null});
+ await row('move',1,async()=>{await turn(0,false);const t=await E(()=>{const u=__rp.bt.cur,c=__rpB.reach().sort((a,b)=>a[2]-b[2]);const x=c.find(q=>q[2]>=1);return x&&[x[0],x[1],u.x,u.y]});if(!t)throw new Error('nowhere to go');
    await board(t[0],t[1]);return until(t=>{const u=__rp.bt.cur;return u&&(u.x!==t[2]||u.y!==t[3])},t)});
  await row('undo a move',1,async()=>{await until(()=>__rp.bt.phase==='turn');const before=await E(()=>__rp.bt.undo&&[__rp.bt.undo.x,__rp.bt.undo.y]);if(!before)throw new Error('no undo');await btn('[data-tac="undo"]');return E(b=>{const u=__rp.bt.cur;return u.x===b[0]&&u.y===b[1]&&u.ap===2},before)});
  await row('basic attack on a foe in reach',1,async()=>{await turn(0,true);const f=await E(()=>{const b=__rp.bt,e=b.units.find(x=>x.side===1&&x.hp>0);return[e.x,e.y]});const ap=await E(()=>__rp.bt.cur.ap);await board(...f);return until(a=>__rp.bt.cur!==null&&(__rp.bt.cur.ap<a||__rp.bt.cur.atkd)||__rp.bt.phase==='busy',ap)});

@@ -1579,6 +1579,8 @@ button,.rpb,.pill{touch-action:manipulation}
     level: [[392, 1], [523, 1], [659, 1], [784, 3]],
     recruit: [[659, 1], [784, 1], [659, 1], [988, 3]],
     item: [[784, 1], [988, 1], [1175, 3]],
+    /* Mallow's rhyme, first two bars, thin (the bakery, her song) */
+    rhyme: [[587, 1], [740, 1], [880, 1], [880, 1], [988, 1], [880, 1], [740, 2]],
     lose: [[392, 2], [370, 2], [349, 2], [262, 6]]
   };
   function sfx(k, p) {
@@ -1607,7 +1609,7 @@ button,.rpb,.pill{touch-action:manipulation}
           let f = R(500, 900);
           tone(f, f * 1.8, 0.08, "sine", 0.04, i * 0.07);
         }
-      else JINGLES[k] ? jingle(JINGLES[k], k === "lose" ? 0.13 : 0.09, k === "lose" ? "triangle" : "square", k === "lose" ? 0.06 : 0.045) : k === "win" && [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, "triangle", 0.06, i * 0.11));
+      else JINGLES[k] ? jingle(JINGLES[k], k === "lose" ? 0.13 : 0.09, k === "lose" ? "triangle" : "square", k === "lose" ? 0.06 : 0.045) : k === "crack" ? (noiseHit(2600, 0.07, 0.12), noiseHit(1400, 0.1, 0.09, 0.09), tone(220, 90, 0.18, "square", 0.04, 0.05)) : k === "roar" ? (tone(160, 70, 0.7, "sawtooth", 0.07), tone(110, 55, 0.8, "square", 0.05, 0.05), noiseHit(500, 0.6, 0.07)) : k === "mine" ? tone(150 * (p || 1), 120 * (p || 1), 0.12, "square", 0.035) : k === "ember" ? ([392, 494, 587, 784, 988].forEach((f, i) => tone(f, f * 1.01, 0.5, "sine", 0.035, i * 0.12)), duckT = (audio() || { currentTime: 0 }).currentTime + 1.2) : k === "clack" ? (noiseHit(3200, 0.03, 0.18), tone(900, 600, 0.03, "square", 0.03)) : k === "skree" ? (tone(1800, 2600, 0.09, "sawtooth", 0.03), tone(2400, 1500, 0.14, "square", 0.025, 0.08)) : k === "win" && [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, "triangle", 0.06, i * 0.11));
   }
   function yip(vol, pan, pitch) {
     if (!soundOn || quiet || !(vol > 0.01)) return;
@@ -1624,6 +1626,30 @@ button,.rpb,.pill{touch-action:manipulation}
       o.type = type, o.frequency.setValueAtTime(f12 * p, t), o.frequency.exponentialRampToValueAtTime(f2 * p, t + d), g.gain.setValueAtTime(1e-4, t), g.gain.exponentialRampToValueAtTime(v2, t + 0.012), g.gain.exponentialRampToValueAtTime(8e-4, t + d), o.connect(g), g.connect(out), o.start(t), o.stop(t + d + 0.03);
     };
     chirp(620, 1450, 0.075, "square", 0.09, 0), chirp(900, 1900, 0.06, "triangle", 0.08, 0.085), chirp(1e3, 1500, 0.05, "sine", 0.05, 0.085);
+  }
+  var noiseBuf = null;
+  function noise(a) {
+    if (!noiseBuf) {
+      noiseBuf = a.createBuffer(1, a.sampleRate * 0.8, a.sampleRate);
+      let d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuf;
+  }
+  function noiseAt(a, dest, f, dur, vol, t, type) {
+    let s = a.createBufferSource(), fl = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = noise(a), fl.type = type || "bandpass", fl.frequency.value = f, g.gain.setValueAtTime(vol, t), g.gain.exponentialRampToValueAtTime(1e-3, t + dur), s.connect(fl), fl.connect(g), g.connect(dest), s.start(t), s.stop(t + dur + 0.02);
+  }
+  function noiseHit(f, dur, vol, delay) {
+    let a = audio();
+    a && noiseAt(a, a.destination, f, dur, vol, a.currentTime + (delay || 0));
+  }
+  function fxCrackle(a, dest, t) {
+    noiseAt(a, dest, 1500 + Math.random() * 2500, 0.02 + Math.random() * 0.04, 0.25 + Math.random() * 0.35, t, "highpass"), Math.random() < 0.3 && noiseAt(a, dest, 300, 0.15, 0.18, t + 0.03, "lowpass");
+  }
+  function fxWheel(a, dest, t) {
+    let o = a.createOscillator(), g = a.createGain();
+    o.type = "sawtooth", o.frequency.setValueAtTime(70, t), o.frequency.linearRampToValueAtTime(95, t + 0.35), g.gain.setValueAtTime(0, t), g.gain.linearRampToValueAtTime(0.05, t + 0.1), g.gain.linearRampToValueAtTime(0, t + 0.4), o.connect(g), g.connect(dest), o.start(t), o.stop(t + 0.45), noiseAt(a, dest, 900, 0.5, 0.22, t + 0.5, "lowpass"), noiseAt(a, dest, 1400, 0.3, 0.12, t + 0.9, "bandpass");
   }
   function set_soundOn(v2) {
     return soundOn = v2;
@@ -4194,6 +4220,7 @@ button,.rpb,.pill{touch-action:manipulation}
   function w6Go(p, x, y) {
     let s = rp.s, from = s.w6;
     if (!w6Place(p)) return !1;
+    from && (isRoom(p) || isRoom(from)) && emit("w6:door");
     let [ax, ay] = w6Arrive(p, x, y);
     return s.w6 = p, s.x = ax, s.y = ay, s.face = isRoom(p) ? "up" : "down", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, from && !isRoom(from) && from !== p && !isRoom(p) && (s.w6visit = (s.w6visit || 0) + 1), rp.headless || sfx("door"), emit("w6:enter", p, from), !0;
   }
@@ -4287,7 +4314,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function w6Travel(i) {
     let L = w6TravelList(rp.w6travel)[i];
-    return rp.mode = "map", L ? (w6Go(L.p, L.x, L.y + (rp.w6travel === "stable" ? 1 : 0)), rp.headless || rpToast("Off you go!"), !0) : !1;
+    return rp.mode = "map", L ? (rp.w6travel === "stable" && emit("w6:stable"), w6Go(L.p, L.x, L.y + (rp.w6travel === "stable" ? 1 : 0)), rp.headless || rpToast("Off you go!"), !0) : !1;
   }
   var w6Dry = () => test({ pb: { gte: 6 } });
   function w6Flooded(p, x, y) {
@@ -4341,10 +4368,10 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function w6Fountain(p) {
     let st = rp.s.w6st;
-    return w6HealAll(), st.fountains.includes(p) || st.fountains.push(p), st.respawn = p, w6Pieces() >= 2 && st.fountains.length > 1 ? (rpToast("Everyone feels better."), rp.w6travel = "fountain", rp.mode = "w6travel", !0) : (rpSay([{ who: "", text: "Cold, clear water. Everyone feels better. (" + w6Title(p) + " is where you will wake if the pack falls.)" }]), !0);
+    return w6HealAll(), emit("w6:sound", "fountain"), st.fountains.includes(p) || st.fountains.push(p), st.respawn = p, w6Pieces() >= 2 && st.fountains.length > 1 ? (rpToast("Everyone feels better."), rp.w6travel = "fountain", rp.mode = "w6travel", !0) : (rpSay([{ who: "", text: "Cold, clear water. Everyone feels better. (" + w6Title(p) + " is where you will wake if the pack falls.)" }]), !0);
   }
   function w6Rest(p) {
-    w6HealAll(), rp.s.party.forEach((m) => {
+    w6HealAll(), emit("w6:sound", "nom"), rp.s.party.forEach((m) => {
       m.streak = 0;
     });
     let st = rp.s.w6st;
@@ -4484,7 +4511,7 @@ button,.rpb,.pill{touch-action:manipulation}
         break;
       case "piece": {
         let st6 = rp.s.w6st;
-        st6.pieces = st6.pieces || [], st6.pieces.includes(a) || st6.pieces.push(a), rpToast("A Smiler piece: the " + a + "!");
+        st6.pieces = st6.pieces || [], st6.pieces.includes(a) || st6.pieces.push(a), rpToast("A Smiler piece: the " + a + "!"), emit("w6:piece", a);
         break;
       }
       case "tint":
@@ -4550,12 +4577,12 @@ button,.rpb,.pill{touch-action:manipulation}
     let C = COMPANIONS6[id], s = rp.s;
     if (!C || s.party.concat(s.w6st.bench || []).some((m2) => m2.cid === id)) return;
     let L = Math.min(hero().lvl, Math.max(1, Math.floor(s.party.reduce((a, m2) => a + m2.lvl, 0) / s.party.length))), m = v6Kobold(C.n, C.cls, L, {});
-    m.cid = id, m.colour = C.colour, s.party.length < PACK ? (s.party.push(m), rpToast(C.n + " joins the pack!")) : ((s.w6st.bench = s.w6st.bench || []).push(m), rpToast(C.n + " joins! (waiting at the inn)"));
+    m.cid = id, m.colour = C.colour, emit("w6:sound", "recruit"), s.party.length < PACK ? (s.party.push(m), rpToast(C.n + " joins the pack!")) : ((s.w6st.bench = s.w6st.bench || []).push(m), rpToast(C.n + " joins! (waiting at the inn)"));
   }
   var ITEMS = { lamp: "Mallow's lamp", ember: "{hero}'s ember (cold)", book: "Mallow's recipe book", bun: "an ember-bun", "clover-ring": "a lucky clover ring" };
   function give(k, n) {
     let s = rp.s;
-    if (n = n || 1, k === "gold") {
+    if (n = n || 1, ITEMS[k] && k !== "bun" && emit("w6:sound", "item"), k === "gold") {
       s.gold += n, rpToast("+" + n + " gold");
       return;
     }
@@ -4958,7 +4985,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T10:31:08Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T11:21:24Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
@@ -6606,7 +6633,7 @@ button,.rpb,.pill{touch-action:manipulation}
     switch (ADM.tab) {
       case "server": {
         let S = D.status;
-        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T10:31:08Z" ? " (this page: " + esc2("2026-10-23T10:31:08Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T11:21:24Z" ? " (this page: " + esc2("2026-10-23T11:21:24Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
         break;
       }
       case "players": {
@@ -6726,7 +6753,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var errN = 0, errSeen = /* @__PURE__ */ new Set();
   function adminReportError(msg, where) {
-    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T10:31:08Z" })));
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T11:21:24Z" })));
   }
   async function adminReport(peer) {
     if (!(!online || !online.account.loggedIn))
@@ -7251,7 +7278,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function rpBlip() {
     let d = rp.dlg;
-    !rp.headless && d && sfx("blip", blipPitch(d.lines[d.i].who));
+    d && emit("dlg:line", d.lines[d.i]), !rp.headless && d && sfx("blip", blipPitch(d.lines[d.i].who));
   }
   function rpToast(t) {
     rp.toast = { t, life: 2.6 }, rp.headless || sfx("drop");
@@ -9359,6 +9386,59 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
 
+  // src/game/music6.js
+  var YARD = [14, 5, 25, 12], MILL = (() => {
+    let L = LINKS6.find((l) => l[0] === "pebblebrook" && l[3] === "room:mill");
+    return L ? [L[1], L[2]] : null;
+  })();
+  function v6Music() {
+    let s = rp.s, q = s.q || {}, p = s.w6 || "", b = rp.bt, d = rp.dlg, line = d && d.lines[d.i];
+    if (rp.mode === "battle" && b) return { key: b.boss ? /snatchclaw/i.test(b.boss) ? "castle_boss" : "boss" : "battle" };
+    if (line && /^glitterbeak$/i.test(line.who || "")) return { key: "glitterbeak" };
+    if (p === "room:tower") return { key: "quiet", amb: "fire" };
+    if (p === "room:bakery") return { key: "hum", amb: "fire" };
+    if (p === "room:castle") return { key: "castle_in" };
+    let town = p === "hearthspire" || p.startsWith("room:") && !/mill|loft|pebinn|marl/.test(p), pebble = p === "pebblebrook" || /^room:(mill|loft|pebinn|marl)/.test(p);
+    if (town)
+      return q.march ? { key: "hs_all" } : q.empty ? { key: "hs_empty" } : p === "hearthspire" && s.x >= YARD[0] && s.x <= YARD[2] && s.y >= YARD[1] && s.y <= YARD[3] ? { key: "castle" } : { key: (q.act || 0) >= 5 ? "hs_guards" : "hs_morning" };
+    if (pebble) {
+      let turning = (q.pb || 0) >= 6, near = MILL && p === "pebblebrook" && Math.hypot(s.x - MILL[0], s.y - MILL[1]) <= 7;
+      return { key: turning ? "pebble_wheel" : "pebble", amb: turning && near ? "wheel" : null };
+    }
+    return p === "mine2" ? { key: "cave_dark" } : p.startsWith("mine") ? { key: "cave" } : { key: "meadow" };
+  }
+  var CUES = [
+    [(l) => /\bCRACK\b/.test(l.text), "crack"],
+    [(l) => /glitterbeak/i.test(l.who || "") && /\bmine\b/i.test(l.text), "mine"],
+    [(l) => /singing|hums?\b/i.test(l.text) && /mallow/i.test(l.who || ""), "rhyme"],
+    [(l) => /\bstones?\b/i.test(l.text) && /circle|clack|vote|drop/i.test(l.text), "clack"],
+    [(l) => /\bskree\b/i.test(l.text), "skree"]
+  ];
+  function v6Cue(line, first) {
+    if (!line) return null;
+    if (first && /glitterbeak/i.test(line.who || "")) return "roar";
+    for (let [t, k] of CUES) if (t(line)) return k;
+    return null;
+  }
+  var lastDlg = null;
+  feature({ id: "music6", on: {
+    "dlg:line": (line) => {
+      if (!rp.s || !rp.s.w6) return;
+      let d = rp.dlg, first = d && d !== lastDlg && !d.lines.slice(0, d.i).some((l) => /glitterbeak/i.test(l.who || ""));
+      /glitterbeak/i.test(line.who || "") && (lastDlg = d);
+      let k = v6Cue(line, first);
+      k && sfx(k);
+    },
+    "w6:piece": () => sfx("spark"),
+    "w6:stable": () => sfx("skree"),
+    "w6:door": () => sfx("door"),
+    "w6:chest": () => sfx("chest"),
+    "w6:sound": (k) => sfx(k),
+    "battle:won": (b) => {
+      b && b.v6 && b.ups6 && b.ups6.length && setTimeout(() => sfx("level"), 700);
+    }
+  } });
+
   // src/engine/music.js
   var RP_SCALES = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], penta: [0, 2, 4, 7, 9], mpenta: [0, 3, 5, 7, 10], harm: [0, 2, 3, 5, 7, 8, 11], phryg: [0, 1, 3, 5, 7, 8, 10] }, RP_TRACKS = {
     village: { bpm: 100, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "square", vol: 0.5, dr: "light" },
@@ -9373,8 +9453,29 @@ button,.rpb,.pill{touch-action:manipulation}
     snow: { bpm: 80, root: 69, sc: "penta", prog: [0, 3, 5, 4], seed: 29, lead: "sine", vol: 0.6, dr: "soft" },
     marsh: { bpm: 84, root: 55, sc: "harm", prog: [0, 1, 5, 4], seed: 31, lead: "triangle", vol: 0.6, dr: "drip" },
     shore: { bpm: 112, root: 65, sc: "major", prog: [0, 4, 5, 3], seed: 37, lead: "triangle", vol: 0.55, dr: "light" },
-    boss: { bpm: 158, root: 52, sc: "phryg", prog: [0, 1, 0, 6], seed: 17, lead: "sawtooth", vol: 0.42, dr: "drive" }
-  }, TOWN_TUNES = {
+    boss: { bpm: 158, root: 52, sc: "phryg", prog: [0, 1, 0, 6], seed: 17, lead: "sawtooth", vol: 0.42, dr: "drive" },
+    /* v6 (audio-plan.md): Hearthspire's four versions share one seed; the castle; Glitterbeak; the rhyme; the slice's places */
+    hs_morning: { bpm: 100, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "triangle", vol: 0.5, dr: "light", open: 1 },
+    hs_guards: { bpm: 88, root: 62, sc: "harm", prog: [0, 3, 4, 0], seed: 3, lead: "square", vol: 0.5, dr: "march" },
+    hs_empty: { bpm: 70, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "triangle", vol: 0.55, dr: "none", bare: 1 },
+    hs_all: { bpm: 108, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "square", vol: 0.5, dr: "march", tune: "rhyme" },
+    castle: { bpm: 96, root: 50, sc: "dorian", prog: [0, 4, 0, 5], seed: 43, lead: "square", vol: 0.5, dr: "march" },
+    castle_in: { bpm: 96, root: 50, sc: "dorian", prog: [0, 4, 0, 5], seed: 43, lead: "square", vol: 0.5, dr: "soft" },
+    castle_boss: { bpm: 140, root: 50, sc: "dorian", prog: [0, 4, 0, 5], seed: 43, lead: "square", vol: 0.45, dr: "drive" },
+    glitterbeak: { bpm: 120, root: 71, sc: "harm", prog: [0, 1, 0, 1], seed: 47, lead: "sine", vol: 0.55, dr: "drip" },
+    hum: { bpm: 80, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "sine", vol: 0.45, dr: "none", bare: 1, tune: "rhyme" },
+    hatching: { bpm: 112, root: 62, sc: "major", prog: [0, 3, 4, 0], seed: 3, lead: "sawtooth", vol: 0.45, dr: "drive", tune: "rhyme" },
+    pebble: { bpm: 92, root: 60, sc: "major", prog: [0, 5, 3, 4], seed: 50, lead: "triangle", vol: 0.5, dr: "none" },
+    pebble_wheel: { bpm: 92, root: 60, sc: "major", prog: [0, 5, 3, 4], seed: 50, lead: "triangle", vol: 0.5, dr: "bounce" },
+    cave_dark: { bpm: 72, root: 52, sc: "mpenta", prog: [0, 0, 5, 4], seed: 5, lead: "sine", vol: 0.6, dr: "drip" }
+  }, TUNES = { rhyme: "0 2 4 4 | 5 4 2 - | 0 2 4 4 | 3 2 1 - | 4 4 5 7 | 7 5 4 - | 3 2 1 2 | 0 - - -" };
+  function tuneMel(t) {
+    let out = [], last2 = null;
+    for (let x of TUNES[t].split(/\s+/).filter((x2) => x2 && x2 !== "|"))
+      x === "-" ? (last2 && (last2.len += 2), out.push(null, null)) : (last2 = { d: +x, len: 2 }, out.push(last2, null));
+    return out;
+  }
+  var TOWN_TUNES = {
     A: { root: 62 },
     B: { root: 60, bpm: 86, sc: "penta" },
     C: { root: 65, bpm: 100, dr: "light" },
@@ -9387,6 +9488,7 @@ button,.rpb,.pill{touch-action:manipulation}
     J: { root: 63, bpm: 104, dr: "light" }
   };
   function rpTrack(key2) {
+    if (key2 === "quiet") return RP_TRACKS.hum;
     if (RP_TRACKS[key2]) return RP_TRACKS[key2];
     let m = /^town:([A-J])$/.exec(key2 || "");
     return m ? Object.assign({}, RP_TRACKS.town, TOWN_TUNES[m[1]], { seed: 40 + m[1].charCodeAt(0) }) : RP_TRACKS.meadow;
@@ -9408,7 +9510,13 @@ button,.rpb,.pill{touch-action:manipulation}
       return out;
     }, A = phrase(), B = phrase();
     for (let i = 24; i < 32; i++) B[i] = A[i];
-    return { T, deg, mel: A.concat(B) };
+    let mel = A.concat(B);
+    if (T.tune) mel = tuneMel(T.tune);
+    else if (T.open) {
+      let R2 = tuneMel("rhyme");
+      for (let i = 0; i < 8; i++) mel[i] = R2[i];
+    }
+    return { T, deg, mel };
   }
   function rpVoice(a, dest, f, t, dur, type, vol) {
     let o = a.createOscillator(), g = a.createGain();
@@ -9432,6 +9540,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var RP_DRUMS = {
     /* 16 steps per bar: k kick, s snare, h hat, d drip */
+    none: Array(16).fill(""),
     light: ["k", "", "h", "", "s", "", "h", "", "k", "", "h", "k", "s", "", "h", ""],
     bounce: ["k", "", "h", "k", "s", "", "h", "", "k", "k", "h", "", "s", "", "h", "h"],
     soft: ["k", "", "", "", "h", "", "", "", "s", "", "", "", "h", "", "", ""],
@@ -9441,13 +9550,17 @@ button,.rpb,.pill{touch-action:manipulation}
   };
   function rpMusicWant() {
     if (!soundOn || rp.headless || rpOpt.music === !1 || view !== "rpg" || !rp.s) return null;
+    if (rp.s.w6) {
+      let W = v6Music();
+      return rpMus.amb = W.amb, W.key;
+    }
     if (rp.mode === "battle" && rp.bt) return rp.bt.boss ? "boss" : "battle";
     if (rp.s.place) return rpMus.outdoor || "village";
     let r = regionMusic(rp.s.x, rp.s.y), a = r || rpArea(rp.s.x, rp.s.y);
     return rpMus.outdoor = r || (a === "Burrowhome" ? "village" : a === "Whisper Woods" ? "woods" : "meadow");
   }
   function rpMusicLevel(now) {
-    return 0.09 * (rp.s && rp.s.place ? 0.7 : 1) * (rp.dlg ? 0.45 : 1) * (now < duckT ? 0.2 : 1);
+    return 0.09 * (rp.s && (rp.s.place || rp.s.w6 && rp.s.w6.startsWith("room:")) ? 0.7 : 1) * (rp.dlg ? 0.45 : 1) * (now < duckT ? 0.2 : 1);
   }
   function rpMusicTick() {
     let want = rpMusicWant(), a = ac;
@@ -9465,16 +9578,27 @@ button,.rpb,.pill{touch-action:manipulation}
     let lv = rpMusicLevel(A.currentTime);
     Math.abs(lv - rpMus.lvl) > 1e-3 && (rpMus.g.gain.setTargetAtTime(lv, A.currentTime, 0.12), rpMus.lvl = lv);
     let S = rpMus.song, T = S.T, st = 60 / T.bpm / 4, dest = rpMus.g;
+    if (want === "quiet") {
+      rpAmbient(A);
+      return;
+    }
     for (; rpMus.next < A.currentTime + 0.18; ) {
       let i = rpMus.step, t = rpMus.next, bar = (i >> 4) % 8, s16 = i % 16, ch = T.prog[bar % 4];
       if (s16 % 2 === 0) {
         let m = S.mel[bar * 8 + (s16 >> 1)];
         m && rpVoice(A, dest, mtof(S.deg(m.d, 1)), t, st * 2 * m.len * 0.92, T.lead, 0.16 * T.vol);
       }
-      s16 % 4 === 0 && rpVoice(A, dest, mtof(S.deg(ch, -1)), t, st * (T.dr === "drip" ? 7 : 3.6), "triangle", 0.42 * T.vol), T.dr === "drive" && s16 % 4 === 2 && rpVoice(A, dest, mtof(S.deg(ch, -1) + 12), t, st * 1.6, "triangle", 0.3 * T.vol), s16 === 0 && bar % 2 === 0 && [0, 2, 4].forEach((o) => rpVoice(A, dest, mtof(S.deg(ch + o, 0)), t, st * 15, "sine", 0.05 * T.vol));
+      s16 % 4 === 0 && !T.bare && rpVoice(A, dest, mtof(S.deg(ch, -1)), t, st * (T.dr === "drip" ? 7 : 3.6), "triangle", 0.42 * T.vol), T.dr === "drive" && s16 % 4 === 2 && rpVoice(A, dest, mtof(S.deg(ch, -1) + 12), t, st * 1.6, "triangle", 0.3 * T.vol), s16 === 0 && bar % 2 === 0 && !T.bare && [0, 2, 4].forEach((o) => rpVoice(A, dest, mtof(S.deg(ch + o, 0)), t, st * 15, "sine", 0.05 * T.vol));
       let dk = RP_DRUMS[T.dr][s16];
       dk && rpDrum(A, dest, dk, t), rpMus.step++, rpMus.next += st;
     }
+    rpAmbient(A);
+  }
+  function rpAmbient(A) {
+    let k = rpMus.amb;
+    if (!k || !rpMus.g) return;
+    let t = A.currentTime;
+    (rpMus.ambT || 0) > t + 0.2 || (k === "fire" ? (fxCrackle(A, rpMus.g, t + 0.05), rpMus.ambT = t + 0.12 + Math.random() * 0.35) : k === "wheel" && (fxWheel(A, rpMus.g, t + 0.05), rpMus.ambT = t + 1.6));
   }
   feature({ id: "music", frame: () => rpMusicTick() });
 
