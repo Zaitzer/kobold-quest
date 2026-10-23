@@ -10,6 +10,7 @@ import {feature,frames} from '../core/registry.js';
 import {SLOTS6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
 import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
+import {SHEET6,byBase,recolour} from '../engine/sheets6.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {s6NewGame,s6TestFight,story} from '../game/story6.js';
@@ -65,31 +66,48 @@ function keepGuest(gi){const free=[0,1,2,3,4,5].find(i=>{const x=slotInfo(i);ret
 /* ------------------------------------------------------------------ the screens */
 const ago=t=>{if(!t)return'never';const d=(Date.now()-t)/DAY;return d<1/24?'just now':d<1?Math.round(d*24)+' h ago':Math.round(d)+' d ago'};
 const hm=s=>{s=Math.floor((s||0)/60);return Math.floor(s/60)+' h '+(s%60)+' min'};
-function selectHtml(){for(let i=0;i<SLOTS6;i++)purge(i);let h='<div class="rpdlg"><div class="who">Your heroes</div><p>'+(net.me?'Six slots on your account.':'Playing on this device as a guest. Log in to keep your heroes everywhere.')+'</p></div><div class="rpcmd">';
+/* the heroes and the new-hero screens fill the screen (the world waits behind them): each hero stands on its card in its colour and
+   class outfit (art/characters/heroes), painted into the card's canvas every frame (paintHeroes) */
+const C6_SWATCH={orange:'#f08a2a',green:'#5fb04a',blue:'#3f8fe0',pink:'#e05aa8',gold:'#e8c13a',purple:'#8a5ae0'};
+const C6_NAMES=['Pip','Wick','Nib','Fizz','Scrap','Cobble','Tinder','Spark','Kip','Twig','Rook','Sooty','Pebble','Dot','Ash','Moss','Clink','Puff'];
+const heroCv=(cls,colour,big)=>'<canvas class="c6hero'+(big?' big':'')+'" width="'+(big?96:48)+'" height="'+(big?192:96)+'" data-hero="'+(cls||'')+'" data-colour="'+(colour||'orange')+'"></canvas>';
+function selectHtml(){for(let i=0;i<SLOTS6;i++)purge(i);
+  let h='<div class="c6screen"><div class="c6head"><h2>Your heroes</h2><p>'+(net.me?'Six heroes on your account. Pick one to play, or make a new one.':'Playing on this device as a guest. Log in to keep your heroes everywhere.')+'</p></div><div class="c6grid">';
   for(let i=0;i<SLOTS6;i++){const x=slotInfo(i);
-    if(!x){h+='<button class="rpb" type="button" data-rp="c6new" data-v="'+i+'">New hero<small>slot '+(i+1)+'</small></button>';continue}
-    if(x.deleted){h+='<button class="rpb x" type="button" data-rp="c6restore" data-v="'+i+'">'+esc2(x.name)+' (deleted)<small>restore · '+Math.max(0,Math.ceil((KEEP-(Date.now()-x.deleted))/DAY))+' days left</small></button>';continue}
-    h+='<button class="rpb go" type="button" data-rp="c6play" data-v="'+i+'">'+esc2(x.name)+'<small>'+(x.cls?esc2(CLASSES6[x.cls].n)+' ':'')+'level '+x.lvl+' · '+esc2(x.where?w6Title(x.where).replace(/ \(.*\)$/,''):'Hearthspire')+' · '+x.pieces+' pieces · '+hm(x.played)+' · '+ago(x.savedAt)+'</small></button>'}
-  h+='</div><div class="rpcmd">';for(let i=0;i<SLOTS6;i++){const x=slotInfo(i);if(x&&!x.deleted)h+='<button class="rpb x" type="button" data-rp="c6delask" data-v="'+i+'">Delete '+esc2(x.name)+'<small>you will type the name</small></button>'}
+    if(!x){h+='<button class="c6card new" type="button" data-rp="c6new" data-v="'+i+'"><span class="plus">+</span><b>New hero</b><small>slot '+(i+1)+'</small></button>';continue}
+    if(x.deleted){h+='<button class="c6card gone" type="button" data-rp="c6restore" data-v="'+i+'">'+heroCv(x.cls,x.colour)+'<b>'+esc2(x.name)+'</b><small>deleted · tap to restore · '+Math.max(0,Math.ceil((KEEP-(Date.now()-x.deleted))/DAY))+' days left</small></button>';continue}
+    h+='<div class="c6slot"><button class="c6card" type="button" data-rp="c6play" data-v="'+i+'">'+heroCv(x.cls,x.colour)+'<b>'+esc2(x.name)+'</b><small>'+(x.cls?esc2(CLASSES6[x.cls].n)+', ':'')+'level '+x.lvl+'<br>'+esc2(x.where?w6Title(x.where).replace(/ \(.*\)$/,''):'Hearthspire')+' · '+x.pieces+' pieces<br>'+hm(x.played)+' · '+ago(x.savedAt)+'</small></button>'+
+      '<button class="c6del" type="button" data-rp="c6delask" data-v="'+i+'" aria-label="Delete '+esc2(x.name)+'">✕</button></div>'}
+  h+='</div>';
   for(const gi of guestHeroes()){const d=store.get(key('guest',gi),null);h+='<button class="rpb go" type="button" data-rp="c6keep" data-v="'+gi+'">Keep this hero: '+esc2(d.hero.name)+'<small>played here as a guest; moves into a free slot</small></button>'}
   return h+'</div>'}
-function c6NewHtml(){const F=C6.form;return'<div class="rpdlg"><div class="who">A new hero (slot '+(F.slot+1)+')</div><p>Name your hero (2 to 12 letters; the story calls them by it) and pick a scale colour. The class is chosen in the story.</p>'+
-  '<div class="chatin"><input id="c6-new" maxlength="12" value="'+esc2(F.name)+'" aria-label="Hero name"></div><div class="rpcmd">'+C6_COLOURS.map(c=>'<button class="rpb'+(c===F.colour?' on':'')+'" type="button" data-rp="c6col" data-v="'+c+'">'+c+'</button>').join('')+'</div></div>'+
-  '<div class="tbar"><button class="rpb go" type="button" data-rp="c6make">Begin</button><button class="rpb x" type="button" data-rp="c6back">Back</button></div>'}
-function delHtml(){const x=slotInfo(C6.del.i);return'<div class="rpdlg"><div class="who">Delete '+esc2(x.name)+'?</div><p>Type the hero\'s name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div>'+
-  '<div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div>'}
-function busyHtml(){const x=slotInfo(C6.ask);return'<div class="rpdlg"><div class="who">'+esc2(x?x.name:'This hero')+' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div>'}
+function c6NewHtml(){const F=C6.form;
+  return'<div class="c6screen c6make"><div class="c6stage">'+heroCv(null,F.colour,true)+'<div class="c6name">'+esc2(F.name||'…')+'</div></div><div class="c6form"><h2>A new hero</h2>'+
+    '<label class="c6lbl" for="c6-new">Name</label><div class="c6row"><input id="c6-new" maxlength="12" value="'+esc2(F.name)+'" aria-label="Hero name" autocomplete="off"><button class="rpb" type="button" data-rp="c6dice" aria-label="Another name">🎲</button></div>'+
+    '<label class="c6lbl">Scales</label><div class="c6sw">'+C6_COLOURS.map(c=>'<button class="sw'+(c===F.colour?' on':'')+'" type="button" data-rp="c6col" data-v="'+c+'" style="--c:'+C6_SWATCH[c]+'" aria-label="'+c+'"></button>').join('')+'</div>'+
+    '<p class="c6note">2 to 12 letters; everyone in the story calls your hero by it. Your class is chosen in the story, at the castle\'s yard drill.</p>'+
+    '<div class="c6btns"><button class="rpb go big" type="button" data-rp="c6make">Begin</button><button class="rpb x" type="button" data-rp="c6back">Back</button></div></div></div>'}
+/* paint every hero canvas on the screen: the battle idle row of the hero's sheet (its class outfit once it has one), in its colour */
+function paintHeroes(){if(typeof document==='undefined'||!/^c6/.test(rp.mode))return;const ni=document.getElementById('c6-new'),nm=document.querySelector('#rp-panel .c6name');if(ni&&nm&&nm.textContent!==(ni.value||'…'))nm.textContent=ni.value||'…';const cvs=document.querySelectorAll('#rp-panel canvas[data-hero]');if(!cvs.length)return;
+  const t=performance.now()/1000;
+  cvs.forEach((c,i)=>{const cls=c.dataset.hero,key=(cls&&byBase('pip-'+cls))||byBase('pip'),g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);
+    if(!key){g.fillStyle=C6_SWATCH[c.dataset.colour]||'#f08a2a';g.beginPath();g.ellipse(c.width/2,c.height*.62,c.width*.32,c.height*.3,0,0,7);g.fill();return}
+    const s=recolour(key,c.dataset.colour);if(!s||!s.img)return;const T=SHEET6.hero,row=T.rows.idle,f=((t*2+i*.37)|0)%T.n[row];
+    g.imageSmoothingEnabled=false;g.drawImage(s.img,f*T.fw,row*T.fh,T.fw,T.fh,0,0,c.width,c.height)})}
+function delHtml(){const x=slotInfo(C6.del.i);return'<div class="c6screen c6ask">'+heroCv(x.cls,x.colour,true)+'<div class="rpdlg"><div class="who">Delete '+esc2(x.name)+'?</div><p>Type the hero\'s name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div>'+
+  '<div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div></div>'}
+function busyHtml(){const x=slotInfo(C6.ask);return'<div class="c6screen c6ask">'+(x?heroCv(x.cls,x.colour,true):'')+'<div class="rpdlg"><div class="who">'+esc2(x?x.name:'This hero')+' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div></div>'}
 /* the select screen sits over Hearthspire, with nobody in it */
 function openSelect(){rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountains:[],stables:[],chests:[],patrols:{},enc:{},switches:{},campfire:{},seen:{}};rp.s.party=[];rp.s.x=19;rp.s.y=17;rpApplyWorld();
   rp.bt=null;rp.dlg=null;rp.pk=null;rp.npcK={};C6.slot=null;rp.mode='c6';show('rpg');rpLayout();requestAnimationFrame(()=>{rpResize();rpUI(true)});cloudLoad().then(()=>rpUI(true))}
 function readName(){const e=typeof document!=='undefined'&&document.getElementById('c6-new');if(e)C6.form.name=e.value}
-feature({id:'chars6',on:{save6:s=>chars6Save(s)},
+feature({id:'chars6',on:{save6:s=>chars6Save(s)},frame:()=>paintHeroes(),
   init(){adminSetHooks(()=>chars6Save(rp.s),c6FixNow);adminSetTestFight(id=>s6TestFight(id));},
   panels:{c6:{sig:()=>JSON.stringify([C6.cloud,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
   menu:[{order:3,html:()=>rp.s&&rp.s.w6&&C6.slot!=null?'<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>':''}],
-  actions:{c6play:d=>{c6Play(+d.v)},c6force:()=>{c6Play(C6.ask,true)},c6new:d=>{C6.form={name:'Pip',colour:'orange',slot:+d.v};rp.mode='c6new'},c6col:d=>{readName();C6.form.colour=d.v},c6make:()=>{readName();c6Create()},
+  actions:{c6play:d=>{c6Play(+d.v)},c6force:()=>{c6Play(C6.ask,true)},c6new:d=>{C6.form={name:'Pip',colour:'orange',slot:+d.v};rp.mode='c6new'},c6col:d=>{readName();C6.form.colour=d.v},c6dice:()=>{readName();const L=C6_NAMES.filter(n=>n!==C6.form.name);C6.form.name=L[Math.floor(Math.random()*L.length)]},c6make:()=>{readName();c6Create()},
     c6back:()=>{rp.mode='c6'},c6delask:d=>askDelete(+d.v),c6del:()=>doDelete(),c6restore:d=>restore(+d.v),c6keep:d=>keepGuest(+d.v),
     c6menu:()=>{chars6Save(rp.s);openSelect()}}});
 /* the lock is renewed while a hero is played, and played time is counted */
 let c6tick=0;frames.push(dt=>{if(C6.slot==null||!rp.s||!rp.s.w6)return;rp.s.played=(rp.s.played||0)+dt;c6tick+=dt;if(c6tick*1000>=RENEW_MS){c6tick=0;lockCheck()}});
-export {C6,C6_COLOURS,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6FixNow,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};
+export {C6,C6_COLOURS,C6_NAMES,C6_SWATCH,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6FixNow,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,heroCv,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,paintHeroes,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};

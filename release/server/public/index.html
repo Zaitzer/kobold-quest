@@ -175,6 +175,43 @@ button,.rpb,.pill{touch-action:manipulation}
 .wmr{min-width:15px;height:15px;padding:0 2px;border-radius:8px;background:rgba(20,10,53,.75);color:#ffe27a;font:800 9.5px/15px system-ui,sans-serif;text-align:center}
 .wmyou{width:12px;height:12px;border-radius:50%;background:#ff3b5c;border:2px solid #fff;box-shadow:0 0 0 2px var(--line);animation:wmpulse 1s ease-in-out infinite alternate}
 @keyframes wmpulse{to{transform:translate(-50%,-50%) scale(1.35)}}
+
+/* the heroes screens (ui/chars6.js): they fill the screen; the world waits behind them */
+#v-rpg[data-mode^="c6"] #rp-panel.rppanel{inset:0;width:auto;height:auto;border:0;border-radius:0;box-shadow:none;padding:0;overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 120%,#6a3fb8 0,#2a1c6e 55%,#170d3a 100%)}
+#v-rpg[data-mode^="c6"] #rp-top{display:none}
+.c6screen{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:14px;padding:max(16px,env(safe-area-inset-top)) 16px 20px;box-sizing:border-box}
+.c6head{text-align:center}
+.c6screen h2{margin:4px 0;font:400 30px/1.1 "Lilita One","Fredoka",system-ui,sans-serif;color:#ffd54a;text-shadow:0 3px 0 #140a35}
+.c6head p{margin:0;opacity:.85;font-size:14px}
+.c6grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(760px,100%)}
+@media (max-aspect-ratio:1/1){.c6grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.c6slot{position:relative;display:flex}
+.c6card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:150px;padding:8px 6px 10px;border:3px solid #140a35;border-radius:16px;
+  background:linear-gradient(#5b44c8,#3b2a92);color:#fff;font:inherit;cursor:pointer;box-shadow:0 4px 0 #140a35;text-align:center}
+.c6card:active{transform:translateY(2px);box-shadow:0 2px 0 #140a35}
+.c6card b{font-size:17px}.c6card small{font-size:11.5px;opacity:.85;line-height:1.3}
+.c6card.new{background:rgba(255,255,255,.06);border-style:dashed;border-color:rgba(255,213,74,.55);box-shadow:none}
+.c6card.new .plus{font:400 40px/1 "Lilita One",system-ui;color:#ffd54a}
+.c6card.gone{opacity:.55}
+.c6del{position:absolute;top:4px;right:4px;width:44px;height:44px;min-height:44px!important;border-radius:50%;border:2px solid #140a35;background:#8a2f4a;color:#fff;font-size:15px;cursor:pointer}
+canvas.c6hero{width:48px;height:96px;image-rendering:pixelated}
+canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
+.c6make{flex-direction:row;justify-content:center;align-items:center;gap:clamp(16px,5vw,60px);flex-wrap:wrap}
+.c6stage{display:flex;flex-direction:column;align-items:center;padding:10px 26px 14px;border-radius:50% 50% 20px 20px/30% 30% 20px 20px;background:radial-gradient(ellipse at 50% 92%,rgba(255,213,74,.28),rgba(255,213,74,0) 65%)}
+.c6name{font:400 24px/1.2 "Lilita One","Fredoka",system-ui;color:#fff;text-shadow:0 2px 0 #140a35;min-height:29px}
+.c6form{display:flex;flex-direction:column;gap:8px;width:min(360px,100%)}
+.c6lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-top:4px}
+.c6row{display:flex;gap:8px}
+.c6row input{flex:1;min-width:0;font:600 20px "Fredoka",system-ui;padding:8px 12px;border-radius:12px;border:3px solid #140a35;background:#fff8e6;color:#2a1c6e}
+.c6sw{display:flex;gap:10px;flex-wrap:wrap}
+.c6sw .sw{width:44px;height:44px;border-radius:50%;border:3px solid #140a35;background:var(--c);cursor:pointer;box-shadow:0 3px 0 #140a35}
+.c6sw .sw.on{outline:3px solid #ffd54a;outline-offset:3px}
+.c6note{font-size:12.5px;opacity:.8;margin:2px 0}
+.c6btns{display:flex;gap:10px}.c6btns .rpb{flex:1}
+.c6ask{justify-content:center}.c6ask .rpdlg,.c6ask .tbar{width:min(520px,100%)}
+.c6btns .rpb{display:flex;align-items:center;justify-content:center;font-size:18px;min-height:52px}
+@media (max-height:460px){.c6screen{gap:8px;padding-top:10px}.c6screen h2{font-size:24px}.c6head p{font-size:12.5px}.c6card{min-height:118px;padding:6px}canvas.c6hero{width:36px;height:72px}.c6grid{gap:8px}}
 /* Tactical battles: turn queue, unit panel, action buttons. */
 .rpcmd.lvl .tic{font-size:20px}
 .tq{display:flex;gap:4px;overflow:hidden;margin-bottom:4px}
@@ -2968,7 +3005,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T17:31:48Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T17:38:22Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
@@ -3517,10 +3554,6 @@ button,.rpb,.pill{touch-action:manipulation}
     let s = rp.s, h = v6Kobold(name || "Pip", "fighter", 1, { hero: 1, skills: [], known: [], passives: [] });
     h.noclass = 1, h.colour = colour || "orange", s.q = { act: 0, pb: 0 }, s.buns = 0, s.hero = { name: h.name, colour: h.colour }, w6Start([h], { map: "room:bakery", at: [6, 5], gold: 30, bag: { potion: 2 } }), s.w6st.seen = {}, story.busy = !1, play("1.1");
   }
-  var COLOURS = ["orange", "green", "blue", "pink", "gold", "purple"], newForm = { name: "Pip", colour: "orange" };
-  function newHtml() {
-    return '<div class="rpdlg"><div class="who">A new story</div><p>Name your hero (2 to 12 letters) and pick a scale colour.</p><div class="chatin"><input id="w6-name" maxlength="12" value="' + esc2(newForm.name) + '" aria-label="Hero name"></div><div class="rpcmd">' + COLOURS.map((c) => '<button class="rpb' + (c === newForm.colour ? " on" : "") + '" type="button" data-rp="w6col" data-v="' + c + '">' + c + "</button>").join("") + '</div></div><div class="tbar"><button class="rpb go" type="button" data-rp="w6begin">Begin</button><button class="rpb x" type="button" data-rp="w6back">Back</button></div>';
-  }
   function s6Continue() {
     let s = v6Fetch("guest", 0);
     return s ? (rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, !0) : !1;
@@ -3544,7 +3577,7 @@ button,.rpb,.pill{touch-action:manipulation}
   feature({
     id: "story6",
     menu: [{ order: 4, html: () => rp.s && rp.s.w6 ? '<button class="rpb go" type="button" data-rp="w6log">What now<small>' + esc2(s6GoalLine() || "the quest log") + "</small></button>" : "" }],
-    panels: { w6shop: { sig: () => JSON.stringify([rp.w6shop, rp.w6tab, rp.s && rp.s.gold, rp.s && (rp.s.inv6 || []).length, rp.s && rp.s.mats6]), html: shopHtml }, w6new: { sig: () => JSON.stringify(newForm), html: newHtml }, w6class: { sig: () => "c" + V6S.cls, html: classHtml }, w6log: { sig: () => JSON.stringify(rp.s && rp.s.q), html: logHtml }, w6roster: { sig: () => JSON.stringify(rp.s && [rp.s.party.map((m) => m.name), (rp.s.w6st.bench || []).map((m) => m.name)]), html: w6RosterHtml } },
+    panels: { w6shop: { sig: () => JSON.stringify([rp.w6shop, rp.w6tab, rp.s && rp.s.gold, rp.s && (rp.s.inv6 || []).length, rp.s && rp.s.mats6]), html: shopHtml }, w6class: { sig: () => "c" + V6S.cls, html: classHtml }, w6log: { sig: () => JSON.stringify(rp.s && rp.s.q), html: logHtml }, w6roster: { sig: () => JSON.stringify(rp.s && [rp.s.party.map((m) => m.name), (rp.s.w6st.bench || []).map((m) => m.name)]), html: w6RosterHtml } },
     actions: {
       w6tab: (d) => {
         rp.w6tab = d.v;
@@ -3558,21 +3591,6 @@ button,.rpb,.pill{touch-action:manipulation}
       w6craft: (d) => {
         let it = v6Craft(rp.w6shop, +d.v);
         it && rpToast("The smith made " + it.n + "!");
-      },
-      w6new: () => {
-        rp.mode = "w6new";
-      },
-      w6col: (d) => {
-        let e = typeof document < "u" && document.getElementById("w6-name");
-        e && (newForm.name = e.value), newForm.colour = d.v;
-      },
-      w6begin: () => {
-        let e = typeof document < "u" && document.getElementById("w6-name"), n = v6HeroName(e ? e.value : newForm.name);
-        if (!n) {
-          rpToast("2 to 12 letters, please.");
-          return;
-        }
-        s6NewGame(n, newForm.colour);
       },
       w6cont: () => {
         s6Continue() || rpToast("No story saved yet.");
@@ -4548,7 +4566,7 @@ button,.rpb,.pill{touch-action:manipulation}
     switch (ADM.tab) {
       case "server": {
         let S = D.status;
-        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T17:31:48Z" ? " (this page: " + esc2("2026-10-23T17:31:48Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T17:38:22Z" ? " (this page: " + esc2("2026-10-23T17:38:22Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
         break;
       }
       case "players": {
@@ -4668,7 +4686,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var errN = 0, errSeen = /* @__PURE__ */ new Set();
   function adminReportError(msg, where) {
-    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T17:31:48Z" })));
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T17:38:22Z" })));
   }
   async function adminReport(peer) {
     if (!(!online || !online.account.loggedIn))
@@ -7333,27 +7351,23 @@ button,.rpb,.pill{touch-action:manipulation}
     if (!t) return "never";
     let d = (Date.now() - t) / DAY;
     return d < 1 / 24 ? "just now" : d < 1 ? Math.round(d * 24) + " h ago" : Math.round(d) + " d ago";
-  }, hm = (s) => (s = Math.floor((s || 0) / 60), Math.floor(s / 60) + " h " + s % 60 + " min");
+  }, hm = (s) => (s = Math.floor((s || 0) / 60), Math.floor(s / 60) + " h " + s % 60 + " min"), C6_SWATCH = { orange: "#f08a2a", green: "#5fb04a", blue: "#3f8fe0", pink: "#e05aa8", gold: "#e8c13a", purple: "#8a5ae0" }, C6_NAMES = ["Pip", "Wick", "Nib", "Fizz", "Scrap", "Cobble", "Tinder", "Spark", "Kip", "Twig", "Rook", "Sooty", "Pebble", "Dot", "Ash", "Moss", "Clink", "Puff"], heroCv = (cls, colour, big) => '<canvas class="c6hero' + (big ? " big" : "") + '" width="' + (big ? 96 : 48) + '" height="' + (big ? 192 : 96) + '" data-hero="' + (cls || "") + '" data-colour="' + (colour || "orange") + '"></canvas>';
   function selectHtml() {
     for (let i = 0; i < SLOTS6; i++) purge(i);
-    let h = '<div class="rpdlg"><div class="who">Your heroes</div><p>' + (net.me ? "Six slots on your account." : "Playing on this device as a guest. Log in to keep your heroes everywhere.") + '</p></div><div class="rpcmd">';
+    let h = '<div class="c6screen"><div class="c6head"><h2>Your heroes</h2><p>' + (net.me ? "Six heroes on your account. Pick one to play, or make a new one." : "Playing on this device as a guest. Log in to keep your heroes everywhere.") + '</p></div><div class="c6grid">';
     for (let i = 0; i < SLOTS6; i++) {
       let x = slotInfo(i);
       if (!x) {
-        h += '<button class="rpb" type="button" data-rp="c6new" data-v="' + i + '">New hero<small>slot ' + (i + 1) + "</small></button>";
+        h += '<button class="c6card new" type="button" data-rp="c6new" data-v="' + i + '"><span class="plus">+</span><b>New hero</b><small>slot ' + (i + 1) + "</small></button>";
         continue;
       }
       if (x.deleted) {
-        h += '<button class="rpb x" type="button" data-rp="c6restore" data-v="' + i + '">' + esc2(x.name) + " (deleted)<small>restore · " + Math.max(0, Math.ceil((KEEP - (Date.now() - x.deleted)) / DAY)) + " days left</small></button>";
+        h += '<button class="c6card gone" type="button" data-rp="c6restore" data-v="' + i + '">' + heroCv(x.cls, x.colour) + "<b>" + esc2(x.name) + "</b><small>deleted · tap to restore · " + Math.max(0, Math.ceil((KEEP - (Date.now() - x.deleted)) / DAY)) + " days left</small></button>";
         continue;
       }
-      h += '<button class="rpb go" type="button" data-rp="c6play" data-v="' + i + '">' + esc2(x.name) + "<small>" + (x.cls ? esc2(CLASSES6[x.cls].n) + " " : "") + "level " + x.lvl + " · " + esc2(x.where ? w6Title(x.where).replace(/ \(.*\)$/, "") : "Hearthspire") + " · " + x.pieces + " pieces · " + hm(x.played) + " · " + ago(x.savedAt) + "</small></button>";
+      h += '<div class="c6slot"><button class="c6card" type="button" data-rp="c6play" data-v="' + i + '">' + heroCv(x.cls, x.colour) + "<b>" + esc2(x.name) + "</b><small>" + (x.cls ? esc2(CLASSES6[x.cls].n) + ", " : "") + "level " + x.lvl + "<br>" + esc2(x.where ? w6Title(x.where).replace(/ \(.*\)$/, "") : "Hearthspire") + " · " + x.pieces + " pieces<br>" + hm(x.played) + " · " + ago(x.savedAt) + '</small></button><button class="c6del" type="button" data-rp="c6delask" data-v="' + i + '" aria-label="Delete ' + esc2(x.name) + '">✕</button></div>';
     }
-    h += '</div><div class="rpcmd">';
-    for (let i = 0; i < SLOTS6; i++) {
-      let x = slotInfo(i);
-      x && !x.deleted && (h += '<button class="rpb x" type="button" data-rp="c6delask" data-v="' + i + '">Delete ' + esc2(x.name) + "<small>you will type the name</small></button>");
-    }
+    h += "</div>";
     for (let gi of guestHeroes()) {
       let d = store.get(key("guest", gi), null);
       h += '<button class="rpb go" type="button" data-rp="c6keep" data-v="' + gi + '">Keep this hero: ' + esc2(d.hero.name) + "<small>played here as a guest; moves into a free slot</small></button>";
@@ -7362,15 +7376,34 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function c6NewHtml() {
     let F = C6.form;
-    return '<div class="rpdlg"><div class="who">A new hero (slot ' + (F.slot + 1) + ')</div><p>Name your hero (2 to 12 letters; the story calls them by it) and pick a scale colour. The class is chosen in the story.</p><div class="chatin"><input id="c6-new" maxlength="12" value="' + esc2(F.name) + '" aria-label="Hero name"></div><div class="rpcmd">' + C6_COLOURS.map((c) => '<button class="rpb' + (c === F.colour ? " on" : "") + '" type="button" data-rp="c6col" data-v="' + c + '">' + c + "</button>").join("") + '</div></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6make">Begin</button><button class="rpb x" type="button" data-rp="c6back">Back</button></div>';
+    return '<div class="c6screen c6make"><div class="c6stage">' + heroCv(null, F.colour, !0) + '<div class="c6name">' + esc2(F.name || "…") + '</div></div><div class="c6form"><h2>A new hero</h2><label class="c6lbl" for="c6-new">Name</label><div class="c6row"><input id="c6-new" maxlength="12" value="' + esc2(F.name) + '" aria-label="Hero name" autocomplete="off"><button class="rpb" type="button" data-rp="c6dice" aria-label="Another name">🎲</button></div><label class="c6lbl">Scales</label><div class="c6sw">' + C6_COLOURS.map((c) => '<button class="sw' + (c === F.colour ? " on" : "") + '" type="button" data-rp="c6col" data-v="' + c + '" style="--c:' + C6_SWATCH[c] + '" aria-label="' + c + '"></button>').join("") + `</div><p class="c6note">2 to 12 letters; everyone in the story calls your hero by it. Your class is chosen in the story, at the castle's yard drill.</p><div class="c6btns"><button class="rpb go big" type="button" data-rp="c6make">Begin</button><button class="rpb x" type="button" data-rp="c6back">Back</button></div></div></div>`;
+  }
+  function paintHeroes() {
+    if (typeof document > "u" || !/^c6/.test(rp.mode)) return;
+    let ni = document.getElementById("c6-new"), nm = document.querySelector("#rp-panel .c6name");
+    ni && nm && nm.textContent !== (ni.value || "…") && (nm.textContent = ni.value || "…");
+    let cvs = document.querySelectorAll("#rp-panel canvas[data-hero]");
+    if (!cvs.length) return;
+    let t = performance.now() / 1e3;
+    cvs.forEach((c, i) => {
+      let cls = c.dataset.hero, key2 = cls && byBase("pip-" + cls) || byBase("pip"), g = c.getContext("2d");
+      if (g.clearRect(0, 0, c.width, c.height), !key2) {
+        g.fillStyle = C6_SWATCH[c.dataset.colour] || "#f08a2a", g.beginPath(), g.ellipse(c.width / 2, c.height * 0.62, c.width * 0.32, c.height * 0.3, 0, 0, 7), g.fill();
+        return;
+      }
+      let s = recolour(key2, c.dataset.colour);
+      if (!s || !s.img) return;
+      let T = SHEET6.hero, row = T.rows.idle, f = (t * 2 + i * 0.37 | 0) % T.n[row];
+      g.imageSmoothingEnabled = !1, g.drawImage(s.img, f * T.fw, row * T.fh, T.fw, T.fh, 0, 0, c.width, c.height);
+    });
   }
   function delHtml() {
     let x = slotInfo(C6.del.i);
-    return '<div class="rpdlg"><div class="who">Delete ' + esc2(x.name) + `?</div><p>Type the hero's name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div><div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div>`;
+    return '<div class="c6screen c6ask">' + heroCv(x.cls, x.colour, !0) + '<div class="rpdlg"><div class="who">Delete ' + esc2(x.name) + `?</div><p>Type the hero's name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div><div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div></div>`;
   }
   function busyHtml() {
     let x = slotInfo(C6.ask);
-    return '<div class="rpdlg"><div class="who">' + esc2(x ? x.name : "This hero") + ' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div>';
+    return '<div class="c6screen c6ask">' + (x ? heroCv(x.cls, x.colour, !0) : "") + '<div class="rpdlg"><div class="who">' + esc2(x ? x.name : "This hero") + ' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div></div>';
   }
   function openSelect() {
     rp.s = rpNewState(), rp.s.w6 = "hearthspire", rp.s.w6st = { fountains: [], stables: [], chests: [], patrols: {}, enc: {}, switches: {}, campfire: {}, seen: {} }, rp.s.party = [], rp.s.x = 19, rp.s.y = 17, rpApplyWorld(), rp.bt = null, rp.dlg = null, rp.pk = null, rp.npcK = {}, C6.slot = null, rp.mode = "c6", show("rpg"), rpLayout(), requestAnimationFrame(() => {
@@ -7384,6 +7417,7 @@ button,.rpb,.pill{touch-action:manipulation}
   feature({
     id: "chars6",
     on: { save6: (s) => chars6Save(s) },
+    frame: () => paintHeroes(),
     init() {
       adminSetHooks(() => chars6Save(rp.s), c6FixNow), adminSetTestFight((id) => s6TestFight(id));
     },
@@ -7401,6 +7435,11 @@ button,.rpb,.pill{touch-action:manipulation}
       },
       c6col: (d) => {
         readName(), C6.form.colour = d.v;
+      },
+      c6dice: () => {
+        readName();
+        let L = C6_NAMES.filter((n) => n !== C6.form.name);
+        C6.form.name = L[Math.floor(Math.random() * L.length)];
       },
       c6make: () => {
         readName(), c6Create();

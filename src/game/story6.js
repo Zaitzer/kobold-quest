@@ -7,7 +7,7 @@ import {v6BossKey,v6EliteKey,v6FoeKey} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
-import {v6Fetch,v6HeroName} from '../core/save6.js';
+import {v6Fetch} from '../core/save6.js';
 import {rp,rpApplyWorld} from '../core/state.js';
 import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
@@ -147,11 +147,6 @@ function s6NewGame(name,colour){const s=rp.s;const h=v6Kobold(name||'Pip','fight
   s.q={act:0,pb:0};s.buns=0;s.hero={name:h.name,colour:h.colour};w6Start([h],{map:'room:bakery',at:[6,5],gold:30,bag:{potion:2}});s.w6st.seen={};story.busy=false;play('1.1')}
 
 /* starting and continuing (until the character select screen, build step 14): ☰ → New story / Continue story */
-const COLOURS=['orange','green','blue','pink','gold','purple'];
-const newForm={name:'Pip',colour:'orange'};
-function newHtml(){return'<div class="rpdlg"><div class="who">A new story</div><p>Name your hero (2 to 12 letters) and pick a scale colour.</p>'+
-  '<div class="chatin"><input id="w6-name" maxlength="12" value="'+esc2(newForm.name)+'" aria-label="Hero name"></div><div class="rpcmd">'+COLOURS.map(c=>'<button class="rpb'+(c===newForm.colour?' on':'')+'" type="button" data-rp="w6col" data-v="'+c+'">'+c+'</button>').join('')+'</div></div>'+
-  '<div class="tbar"><button class="rpb go" type="button" data-rp="w6begin">Begin</button><button class="rpb x" type="button" data-rp="w6back">Back</button></div>'}
 function s6Continue(){const s=v6Fetch('guest',0);if(!s)return false;rp.s=s;rp.bt=null;rp.pk=null;rp.npcK={};rpApplyWorld();rp.mode='map';story.busy=false;story.scene=null;return true}
 /* ------------------------------------------------------------------ the shop and the smith (systems.md §8) */
 function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div class="rpcmd">'+[['buy','Buy'],['sell','Sell']].concat(v6Recipes(town).length?[['smith','Smith']]:[]).map(([k,n])=>'<button class="rpb'+(k===tab?' on':'')+'" type="button" data-rp="w6tab" data-v="'+k+'">'+n+'</button>').join('')+'<button class="rpb x" type="button" data-rp="w6back">Leave</button></div><p><b>'+Math.floor(s.gold)+' gold</b></p>';
@@ -161,14 +156,13 @@ function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div clas
   const mats=s.mats6||{};return h+'<p><small>'+(Object.entries(mats).filter(([k,v])=>v>0).map(([k,v])=>k+' ×'+v).join(' · ')||'No materials yet.')+'</small></p><div class="rpcmd">'+v6Recipes(town).map((R,i)=>{const N=needOf(R),can=N.every(x=>(mats[x.mat]||0)>=x.n);return'<button class="rpb'+(can?' go':'')+'" type="button" data-rp="w6craft" data-v="'+i+'"'+(can?'':' disabled')+'>'+esc2(R.n)+'<small>needs '+esc2(R.need)+'</small></button>'}).join('')+'</div>'}
 feature({id:'story6',
   menu:[{order:4,html:()=>rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="w6log">What now<small>'+esc2(s6GoalLine()||'the quest log')+'</small></button>':''}],
-  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6new:{sig:()=>JSON.stringify(newForm),html:newHtml},w6class:{sig:()=>'c'+V6S.cls,html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
+  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6class:{sig:()=>'c'+V6S.cls,html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
   actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v))rpToast('Bought!')},w6sell:d=>{if(v6Sell(d.v))rpToast('Sold.')},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it)rpToast('The smith made '+it.n+'!')},
-    w6new:()=>{rp.mode='w6new'},w6col:d=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');if(e)newForm.name=e.value;newForm.colour=d.v},
-    w6begin:()=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');const n=v6HeroName(e?e.value:newForm.name);if(!n){rpToast('2 to 12 letters, please.');return}s6NewGame(n,newForm.colour)},w6cont:()=>{if(!s6Continue())rpToast('No story saved yet.')},
+    w6cont:()=>{if(!s6Continue())rpToast('No story saved yet.')},
     w6cls:d=>{if(V6S.cls===d.v){V6S.cls=null;pickClass(d.v)}else V6S.cls=d.v},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
   on:{'w6:enter':p=>{if(rp.s.w6st&&rp.s.w6st.seen)s6Enter(p)},
     'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}b.got6=got;if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6Marker,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
+export {ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6Marker,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
