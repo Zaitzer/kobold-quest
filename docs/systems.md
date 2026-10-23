@@ -133,7 +133,11 @@ The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules wr
 - **Patrols** (visible groups, `balance.md` §5): they stand on a route facing a direction, shown with a strength word. Walking into
   their sight (3 tiles in front of them) starts the fight with them **aware**; reaching one from behind or from tall grass starts it with
   them **unaware** (the ambush). A beaten patrol is gone **until the next inn rest** (then it is back, for players who want the XP).
-  Slice: R1 has two (stretch 2's "+2 patrols"), the mill road one.
+  Slice: R1 has two (stretch 2's "+2 patrols"), the mill road one. **As built (22–23 Oct):** a patrol's sight is the 3 × 3 tiles in
+  front of it (3 deep, one either side); a pack standing in tall grass is not seen. Its group is a **leader** (the elite version of the
+  place's first foe, by the role ratios) plus the place's mix at one weight less, at the place's level + 1, and it pays 1.5× XP. Its
+  strength word compares its level with the pack's: 3 or more under *Few*, 1–2 under *Several*, equal *Pack*, 1–2 over *Lots*, 3 or more
+  over *Overwhelming*.
 - **Bounties:** reading a bounty on a board places its named foe as a patrol (with its escort) at the spot the bounty names; beating it
   pays the bounty at the board. One fight, 1.5× XP.
 - **Barriers** are story, explained before you hit them (`design.md` §2). The slice's: the capital gate opens when Bork joins; **the

@@ -1,6 +1,7 @@
 import {rp} from '../core/state.js';
 import {RP_ADV,RP_CLS,RP_TAL} from '../data/classes.js';
 import {RP_IT,RP_W} from '../data/items.js';
+import {CLASSES6} from '../data/v6/classes.js';
 import {WEAPONS} from '../engine/art.js';
 import {rpSetsOn} from './gear.js';
 import {v6Stats} from './v6sheet.js';
@@ -29,6 +30,8 @@ function rpMemSkills(m){
   if(m.adv&&RP_ADV[m.adv]&&!out.includes(RP_ADV[m.adv].sk))out.push(RP_ADV[m.adv].sk);
   return out;
 }
+/* a kobold's class name, old or v6 */
+function rpClsName(m){return m.v6?(CLASSES6[m.cls]||{n:m.cls}).n:(RP_CLS[m.cls]||{n:m.cls}).n}
 function rpHat(m){const h=m.eq&&m.eq.head&&RP_IT[m.eq.head];return h?h.hat:(RP_CLS[m.cls]||{hat:'none'}).hat}
 function rpOffers(m){
   const P=RP_TAL[m.cls]||{},ks=Object.keys(P).filter(k=>(P[k].rep||!(m.tal||[]).includes(k))&&(P[k].lvl||0)<=m.lvl);
@@ -46,4 +49,4 @@ function rpMember(name,cls,lvl){
 const rpXpNeed=l=>Math.round(12*Math.pow(l,1.6));
 /* ---------- side quests ---------- */
 function rpGiveXp(n){const s=rp.s,ups=[];s.party.forEach(m=>{m.xp+=n;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;ups.push(m.name)}});return ups}
-export {rpAutoTalents,rpClsOfWeapon,rpGiveXp,rpHat,rpMemSkills,rpMember,rpOffers,rpSkills,rpStats,rpXpNeed};
+export {rpAutoTalents,rpClsName,rpClsOfWeapon,rpGiveXp,rpHat,rpMemSkills,rpMember,rpOffers,rpSkills,rpStats,rpXpNeed};

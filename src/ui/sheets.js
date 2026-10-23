@@ -9,12 +9,12 @@ import {esc2} from '../engine/util.js';
 import {rpCanCraft,rpCraft,rpItemTone,rpMats,rpMatsLine,rpReforge,rpReforgeCost,rpReforgeable,rpSetOf} from '../game/gear.js';
 import {rpItemDesc} from '../game/items.js';
 import {rpPendingMember,rpPickClass,rpPickTalent,rpPromote,rpPromoteWho} from '../game/promote.js';
-import {rpOffers} from '../game/stats.js';
+import {rpClsName,rpOffers} from '../game/stats.js';
 import {rpPartyHtml} from './hud.js';
 function rpLevelUpHtml(){
   const m=rpPendingMember();if(!m)return'';if(!m.offer||!m.offer.length)m.offer=rpOffers(m);
   const T=RP_TAL[m.cls];
-  return '<div class="rpdlg lvup"><div class="who">Level up!</div><p><b>'+esc2(m.name)+'</b> the '+RP_CLS[m.cls].n.toLowerCase()+' reached level '+(m.lvl-m.pend+1)+'. Choose a talent:</p></div><div class="rpcmd lvl">'+
+  return '<div class="rpdlg lvup"><div class="who">Level up!</div><p><b>'+esc2(m.name)+'</b> the '+rpClsName(m).toLowerCase()+' reached level '+(m.lvl-m.pend+1)+'. Choose a talent:</p></div><div class="rpcmd lvl">'+
     m.offer.map((k,i)=>'<button class="rpb '+(T[k].sk?'sk':T[k].pas?'it':'go')+'" type="button" data-rp="talent" data-i="'+i+'"><span class="tic">'+(T[k].sk?'✦':T[k].pas?'❖':'▲')+'</span>'+T[k].n+'<small>'+T[k].d+'</small></button>').join('')+'</div>';
 }
 /* class choice for Pip at the start */

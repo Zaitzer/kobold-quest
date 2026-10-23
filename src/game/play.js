@@ -22,7 +22,7 @@ function rpStart(fresh){
 }
 function rpFrame(dt){
   rp.t+=dt;
-  if(rp.mode==='map'){if(rp.s.q.intro&&!rp.s.q.cls){rp.mode='class';rpUI(true)}else if(rpPendingMember()){rp.mode='levelup';rp.held=null;rp.path=null;rpUI(true)}else if(rpPromoteWho()){rp.mode='promote';rp.held=null;rp.path=null;rpUI(true)}}
+  if(rp.mode==='map'&&!rp.s.w6){if(rp.s.q.intro&&!rp.s.q.cls){rp.mode='class';rpUI(true)}else if(rpPendingMember()){rp.mode='levelup';rp.held=null;rp.path=null;rpUI(true)}else if(rpPromoteWho()){rp.mode='promote';rp.held=null;rp.path=null;rpUI(true)}}
   if(rp.mode==='map')rpMoveFrame(dt);
   if(rp.mode==='battle')rpBattleStep(dt);
   if(rp.mode==='battle'&&rp.bt)rpDrawBattle();else rpDrawMap(dt);

@@ -4,6 +4,7 @@ import {v6BossKey} from './v6battle.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {rpStats} from '../game/stats.js';
+import {v6LevelUp} from '../game/v6talent.js';
 
 /* a fall: −1 to the kobold's streak (morale), and the fight is no longer clean */
 function v6Fall(b,t){if(!b||!b.v6||t.side!==0||!t.m)return;t.m.streak=(t.m.streak||0)-1;b.falls=(b.falls||0)+1}
@@ -22,5 +23,10 @@ function v6Retry(){const b=rp.bt;if(!v6CanRetry(b))return false;const S=b.start6
   rp.bt=null;rp.mode='map';rpBattle(keys,boss?Object.assign({},S.opt,{boss:keys[0]}):S.opt);if(rp.bt)rp.bt.v6=1;return true}
 /* the end: a downed kobold stands with 1 HP (carried out when the pack fled); after a loss everyone is healed at the fountain */
 function v6End(b){if(!b||!b.v6)return;b.units.filter(u=>u.side===0&&u.m).forEach(u=>{const m=u.m;if(b.over==='lose'){const st=rpStats(m);m.hp=st.hp;m.mp=st.mp}else if(m.hp<=0)m.hp=1})}
+/* XP (balance.md §3, the level table: XP to the next level = 12 × L^1.6): every kobold in the fight gets the fight's XP, the downed too
+   (systems.md §4); a level brings its pick (v6LevelUp) */
+const v6XpNeed=L=>Math.round(12*Math.pow(L,1.6));
+function v6GiveXp(b,xp,ups){b.units.filter(u=>u.side===0&&u.m&&u.m.v6&&!u.fled).forEach(u=>{const m=u.m;if(m.hp<=0)m.hp=1;m.xp=(m.xp||0)+xp;
+  while(m.lvl<30&&m.xp>=v6XpNeed(m.lvl)){m.xp-=v6XpNeed(m.lvl);v6LevelUp(m);ups.push(m.name+' reached level '+m.lvl+'!')}})}
 feature({id:'v6end',on:{'battle:won':b=>v6Won(b),'battle:lost':b=>v6Lost(b),'battle:end':b=>v6End(b)}});
-export {v6CanRetry,v6End,v6Fall,v6Keep,v6Leave,v6Lost,v6Retry,v6Won};
+export {v6CanRetry,v6End,v6Fall,v6GiveXp,v6Keep,v6Leave,v6Lost,v6Retry,v6Won,v6XpNeed};

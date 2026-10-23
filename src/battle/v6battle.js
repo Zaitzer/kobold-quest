@@ -11,12 +11,13 @@ import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
 import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
-import {BOSSES6,FOES6,PLACES6,TRIALS6} from '../data/v6/foes.js';
+import {BOSSES6,FOES6,PLACES6,ROLES6,TRIALS6} from '../data/v6/foes.js';
 import {SKILLS6} from '../data/v6/skills.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {set_shake,shake} from '../engine/fx.js';
 import {v6Kobold,v6Stats} from '../game/v6sheet.js';
+import {w6Start} from '../game/world6.js';
 import {netFx} from '../net/battle.js';
 
 const v6u=u=>!!u&&((u.m&&u.m.v6)||(u.E&&u.E.v6));
@@ -198,6 +199,10 @@ const v6Soft=id=>Math.max(0.7,1-0.1*(((rp.s&&rp.s.bossDefeats)||{})[id]||0));   
 function v6BossKey(id){const B=BOSSES6[id];if(!B)return null;const key='v6b:'+id;
   RP_E[key]={v6:1,v6boss:1,boss:1,id,n:B.n,L:B.L,w:id==='snipe'?'popgun':'club',team:3,hp:Math.round(B.hp*v6Soft(id)),atk:B.atk,def:B.def,sd:B.sd,
     spd:5+.5*(B.L-1),dodge:B.dodge,init:B.init,move:B.move,res:B.res,xp:B.xp,gold:B.gold,adds:B.adds,ranged:id==='snipe',trick:id,acts:4};return key}
+/* a patrol leader (balance.md §4: a visible group has one tough foe): the elite version of a foe, by the role ratios */
+function v6EliteKey(id,L){const F=FOES6[id];if(!F)return null;const base=v6FoeKey(id,L),B=RP_E[base],E=ROLES6.elite,R=ROLES6[F.role]||ROLES6.normal,key=base.replace('v6:','v6e:');
+  if(!RP_E[key])RP_E[key]=Object.assign({},B,{n:F.n+' leader',role:'elite',hp:Math.round(B.hp*E.hp/R.hp),atk:+(B.atk*E.atk/R.atk).toFixed(1),def:+(B.def*E.def/R.def).toFixed(1),sd:+(B.sd*E.sd/R.sd).toFixed(1),
+    dodge:E.dodge,init:E.init,xp:Math.round(B.xp*E.hp/R.hp),gold:Math.round(B.gold*1.5),size:1.2});return key}
 function v6TrialKey(id){const T=TRIALS6[id];if(!T)return null;const key='v6t:'+id;
   RP_E[key]={v6:1,v6trial:1,id,n:T.n,L:T.L,role:'elite',w:'club',team:3,hp:T.hp,atk:T.atk,def:T.def,sd:T.sd,spd:5+.5*(T.L-1),dodge:T.dodge,init:T.init,move:T.move,res:T.res,xp:T.xp,gold:T.gold,trick:id,size:1.4};return key}
 /* the foes' turn, where it differs from the engine's AI: fleeing, confusion, bosses, trials; otherwise it draws a focus by threat */
@@ -283,11 +288,11 @@ function v6LabHtml(){const opt=(v,list)=>list.map(x=>'<option value="'+x[0]+'"'+
     '<label>Fight <select id="lab-pl">'+opt(v6Lab.place,PLACES6.map((p,i)=>[i,p.place+' (L'+p.L+')']).concat(Object.values(BOSSES6).map(B=>['b:'+B.id,'Boss: '+B.n+' (L'+B.L+')']),Object.values(TRIALS6).map(T=>['t:'+T.id,'Trial: '+T.n+' (L'+T.L+')'])))+'</select></label> '+
     '<label>Board <select id="lab-th">'+opt(v6Lab.theme,[['','by place'],['meadow','meadow'],['woods','woods'],['cave','cave'],['town','town'],['dark','dark'],['flooded','flooded']])+'</select></label>'+
     '</div><div class="rpcmd">'+(v6Lab.ks&&v6Lab.sig===v6Lab.pack.join(',')+'@'+v6Lab.lvl?v6Lab.ks.map((m,i)=>m?'<button class="rpb" type="button" data-rp="v6sheet" data-v="'+i+'">'+m.name+'\'s sheet<small>level '+m.lvl+(m.pend>0?' · ✦ '+m.pend+' pick'+(m.pend>1?'s':''):'')+'</small></button>':'').join(''):'<button class="rpb" type="button" data-rp="labmake">Make the pack<small>then open their sheets</small></button>')+'</div>'+
-    '<div class="tbar"><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
+    '<div class="tbar"><button class="rpb" type="button" data-rp="labwalk">Walk the slice<small>test: Hearthspire, R1, the mine</small></button><button class="rpb go" type="button" data-rp="labgo">Fight</button><button class="rpb x" type="button" data-rp="labclose">Back</button></div>'}
 feature({id:'fightlab',init(){v6RegisterSkills()},
   panels:{lab:{sig:()=>JSON.stringify([v6Lab.pack,v6Lab.lvl,v6Lab.place,v6Lab.theme,v6Lab.sig,(v6Lab.ks||[]).map(m=>m&&[m.lvl,m.pend])]),html:v6LabHtml}},
   menu:[{order:90,html:()=>'<button class="rpb" type="button" data-rp="lab">Fight lab<small>v6 rules, test fights</small></button>'}],
-  actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()}}});
+  actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()},labwalk:()=>{v6LabRead();const ks=v6LabKobolds().filter(Boolean);ks.forEach(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp});w6Start(ks)}}});
 function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
   for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

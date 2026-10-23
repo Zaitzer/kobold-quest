@@ -68,6 +68,7 @@ const mark=(M,x,y,label)=>M.marks.push([x,y,label]);
  m.set(2,15,'o');m.set(37,15,'o');m.set(8,1,'o');m.set(21,28,'o');   // signs at the gates
  for(const [x,y,l] of [[8,21,'bakery (Mallow)'],[11,19,'cellar hatch (flour tunnel)'],[30,21,'inn (rest, roster, campfire chats)'],[30,23,'shop (tier 1)'],[7,23,'smithy'],[14,23,'moon shrine (talent reset)'],[33,7,'barracks'],[20,6,'castle hall (the mural)'],[27,5,'the tower (the tower fire)'],[19,9,'the Great Nest'],[14,9,'the throne (act 2)'],[19,15,'fountain'],[16,18,'Bib\'s bench'],[6,15,'raptor stable (opens with the first piece)'],[24,14,'market and note board'],[0,16,'the capital gate → R1'],[9,0,'north gate → R5'],[39,16,'east gate → R6'],[20,29,'south gate → R4']])mark(M,x,y,l);
  M.notes='No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square.';
+ M.stables=[[6,15]];
  MAPS.hearthspire=M}
 
 /* ================================================================== R1: the capital gate → Pebblebrook (100 × 26), 120 steps */
@@ -93,8 +94,11 @@ const mark=(M,x,y,label)=>M.marks.push([x,y,label]);
  m.rect(72,19,3,2,'r');m.set(73,18,'c');           // the lookout's rocks and a chest
  for(const [x,y,l] of [[0,12,'the capital gate'],[99,9,'→ Pebblebrook (the mill road)'],[33,20,'chest behind the pond'],[73,18,'chest on the lookout'],[88,6,'raptor stable (shut until the first piece)'],[55,16,'the brook bridge'],[13,11,'sign: "PEBBLEBROOK 120 steps. Beetles."'],[66,8,'Grubb\'s toll sign'],[60,18,'the runaway goat\'s meadow']])mark(M,x,y,l);
  M.route={road,ends:10,grassShare:.40};
+ /* patrols (systems.md §6; balance.md §9 stretch 2: "+2 patrols" on R1, one on the mill road): visible groups standing on the road,
+    facing along it; seen from the front (3 tiles) they are aware, reached from behind or from grass they are ambushed */
+ M.patrols=[[35,'east','the hill patrol'],[62,'west','the bridge patrol'],[100,'west','the mill-road patrol']].map(([i,face,n])=>({x:road[i][0],y:road[i][1],face,name:n}));
  M.notes='Grubb\'s toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.';
- MAPS.r1=M}
+ M.stables=[[88,6]];MAPS.r1=M}
 
 /* ================================================================== Pebblebrook (32 × 24) */
 {const m=grid(32,24,'.');const M={title:'Pebblebrook',grid:m,marks:[],entry:[31,12]};
@@ -117,6 +121,7 @@ const mark=(M,x,y,label)=>M.marks.push([x,y,label]);
  m.set(5,10,'c');
  for(const [x,y,l] of [[31,12,'← R1 (the mill road)'],[14,23,'→ R2 (Sunhaven)'],[20,1,'the mine\'s mouth'],[10,9,'the mill (Ruddle; the loft)'],[8,10,'the mill wheel'],[4,5,'the dam'],[18,16,'the circle stones'],[23,14,'fountain'],[26,11,'inn'],[26,17,'shop (tier 2 from level 5) and smith'],[6,14,'Tansy\'s house'],[10,17,'the brothers\' house'],[27,5,'Old Marl\'s house'],[6,20,'the Mossback farms (seed swap)'],[5,10,'chest by the dam'],[29,12,'welcome sign']])mark(M,x,y,l);
  M.notes='Snipe\'s toll box sits by the mine\'s mouth until the twist. The circle is the meeting place; the note board is by the fountain.';
+ M.flood=[[14,13],[14,23]];   // the road south (column 14, rows 13 to 23) is under water while the dam is shut (pb < 6)
  MAPS.pebblebrook=M}
 
 /* ================================================================== the mine: three floors (32 × 20 each) */
@@ -216,6 +221,28 @@ const ROOMS={
 };
 const ROOM_SOLID=['w','n','s','m','p','l','z','y','c','a','_','H','|','o'];
 
+/* ------------------------------------------------------------------ links: where each gate, door, stair and hatch leads (build step 11)
+   [from place, x, y, to place, x, y, how, flag]: place is a map name or 'room:'+name; how is 'step' (walk onto it) or 'bump' (walk
+   into a solid tile); you arrive on the free tile nearest the far end that is not itself a link. flag: the link is shut until it is set. */
+const LINKS=[
+ ['hearthspire',0,16,'r1',0,12,'step'],['r1',0,12,'hearthspire',0,16,'step'],
+ ['r1',99,9,'pebblebrook',31,12,'step'],['pebblebrook',31,12,'r1',99,9,'step'],
+ ['pebblebrook',20,1,'mine1',2,18,'step'],['mine1',2,18,'pebblebrook',20,1,'step'],
+ ['mine1',29,2,'mine2',29,2,'step'],['mine2',29,2,'mine1',29,2,'step'],
+ ['mine2',4,18,'mine3',4,1,'step'],['mine3',4,1,'mine2',4,18,'step'],
+ ['hearthspire',8,21,'room:bakery',6,7,'step'],['hearthspire',20,6,'room:castle',8,7,'step'],['hearthspire',30,21,'room:inn',6,7,'step'],
+ ['hearthspire',27,5,'room:tower',4,5,'bump'],
+ ['room:bakery',11,3,'room:cellar',5,6,'step'],['room:cellar',5,6,'room:bakery',11,3,'step'],
+ ['pebblebrook',10,9,'room:mill',7,6,'step'],['pebblebrook',26,11,'room:pebinn',6,6,'step'],
+ ['room:mill',13,3,'room:loft',5,5,'step'],['room:loft',5,5,'room:mill',13,3,'step'],['room:loft',6,5,'room:mill',13,3,'step'],
+ // a room's way out (both tiles) leads back to its door
+ ...[['bakery','hearthspire',8,21],['castle','hearthspire',20,6],['inn','hearthspire',30,21],['tower','hearthspire',27,5],['mill','pebblebrook',10,9],['pebinn','pebblebrook',26,11]]
+   .flatMap(([r,m,x,y])=>{const R=ROOMS[r],o=[];R.rows.forEach((row,j)=>[...row].forEach((c,i)=>{if(c==='e')o.push(['room:'+r,i,j,m,x,y,'step'])}));return o}),
+ // shut for now: the gates to the rest of the world, the flour tunnel
+ ['hearthspire',9,0,'',0,0,'step','never'],['hearthspire',39,16,'',0,0,'step','never'],['hearthspire',20,29,'',0,0,'step','never'],['pebblebrook',14,23,'',0,0,'step','never'],
+ ['hearthspire',11,19,'',0,0,'step','never'],['room:cellar',11,4,'',0,0,'step','never']];
+const placeRows=p=>p.startsWith('room:')?(ROOMS[p.slice(5)]||{}).rows:(MAPS[p]?MAPS[p].grid.rows():null);
+
 /* ------------------------------------------------------------------ checks */
 const problems=[];const report=[];
 for(const [k,M] of Object.entries(MAPS)){const D=bfs(M.grid,...M.entry);
@@ -228,6 +255,9 @@ for(const [k,M] of Object.entries(MAPS)){const D=bfs(M.grid,...M.entry);
     const mid=M.route.road.slice(11,L-10),onGrass=mid.filter(([x,y])=>M.grid.get(x,y)==='"').length;report.push(`${k}: the road crosses tall grass for ${onGrass} of its ${mid.length} middle steps (plan: ${Math.round(M.route.grassShare*mid.length)})`);
     if(Math.abs(onGrass-M.route.grassShare*mid.length)>3)problems.push(`${k}: ${onGrass} grass steps on the road`);
     const near=M.route.road.filter((p,i)=>i<=10||i>=L-10);for(const [x,y] of near)for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]])if(M.grid.get(x+dx,y+dy)==='"')problems.push(`${k}: tall grass within 10 steps of an end at ${x+dx},${y+dy}`)}}
+for(const L of LINKS){const [a,x,y,b,tx,ty,how,flag]=L,A=placeRows(a);if(!A){problems.push('link from unknown place '+a);continue}if(y>=A.length||x>=A[0].length)problems.push(`link ${a} ${x},${y} is off the map`);
+  if(!flag){const B=placeRows(b);if(!B)problems.push('link to unknown place '+b);else if(ty>=B.length||tx>=B[0].length)problems.push(`link to ${b} ${tx},${ty} is off the map`);
+    else if(!LINKS.some(l=>l[0]===b&&Math.abs(l[1]-tx)+Math.abs(l[2]-ty)<=1&&l[3]===a))problems.push(`link ${a} ${x},${y} → ${b} has no way back`)}}
 for(const [k,R] of Object.entries(ROOMS)){const w=R.rows[0].length;R.rows.forEach((r,i)=>{if(r.length!==w)problems.push(`room ${k}: row ${i} is ${r.length} wide, not ${w}`)});
   if(!R.rows.some(r=>r.includes('e')))problems.push(`room ${k}: no way out`)}
 
@@ -244,11 +274,11 @@ function render(file,rows,legend,markSet,scale){const h=rows.length,w=rows[0].le
   for(const [x,y] of markSet){for(let j=Math.floor(scale*0.3);j<Math.ceil(scale*0.7);j++)for(let i=Math.floor(scale*0.3);i<Math.ceil(scale*0.7);i++){const o=((y*scale+j)*W+(x*scale+i))*3;px[o]=20;px[o+1]=10;px[o+2]=53}}
   pngWrite(file,W,H,px)}
 const legendTxt=used=>[...used].filter(c=>T[c]).map(c=>`\`${c}\` ${T[c][0]}${T[c][2]?' (solid)':''}`).join(' · ');
-const data={maps:{},rooms:{}};let all='';
+const data={maps:{},rooms:{},links:LINKS};let all='';
 for(const [k,M] of Object.entries(MAPS)){const rows=M.grid.rows();const used=new Set(rows.join(''));
   let txt=`# ${M.title}  (${M.grid.w} × ${M.grid.h} tiles)\n# legend: ${[...used].filter(c=>T[c]).map(c=>c+' '+T[c][0]).join(', ')}\n\n${rows.join('\n')}\n\n# marks (x, y: what)\n${M.marks.map(([x,y,l])=>`${x}, ${y}: ${l}`).join('\n')}\n\n# ${M.notes||''}\n`;
   fs.writeFileSync(path.join(OUT,k+'.txt'),txt);render(path.join(OUT,k+'.png'),rows,c=>T[c]&&T[c][1],M.marks.map(m=>[m[0],m[1]]),k==='r1'?8:14);
-  data.maps[k]={title:M.title,w:M.grid.w,h:M.grid.h,rows,marks:M.marks,entry:M.entry,notes:M.notes||''};
+  data.maps[k]={flood:M.flood||null,title:M.title,w:M.grid.w,h:M.grid.h,rows,marks:M.marks,entry:M.entry,notes:M.notes||'',patrols:M.patrols||[],stables:M.stables||[]};
   all+=`## ${M.title}\n\n![${k}](${k}.png)\n\n${legendTxt(used)}\n\n${M.notes||''}\n\n| x, y | what |\n|---|---|\n${M.marks.map(([x,y,l])=>`| ${x}, ${y} | ${l} |`).join('\n')}\n\n`}
 for(const [k,R] of Object.entries(ROOMS)){fs.writeFileSync(path.join(OUT,'room-'+k+'.txt'),`# ${R.title}\n\n${R.rows.join('\n')}\n\n# ${R.marks.map(([c,l])=>c+' '+l).join('; ')}\n`);
   render(path.join(OUT,'room-'+k+'.png'),R.rows,c=>ROOMCOL[c]||(T[c]&&T[c][1]),[],18);data.rooms[k]={title:R.title,rows:R.rows,marks:R.marks,solid:ROOM_SOLID};
@@ -261,6 +291,8 @@ the engine's format (\`src/data/places.js\`). The \`.txt\` files are the maps wi
 slice to load; the \`.png\` files are previews (one square a tile; a dark dot is a mark). Checks run every time: every door, exit and
 mark can be reached; R1 is exactly 120 steps with no encounter grass within 10 steps of either end; each mine floor is about 45
 steps stair to stair.*
+
+**Links** (gates, doors, stairs; \`step\` means walk onto it, \`bump\` walk into it): ${LINKS.filter(l=>!l[7]).map(l=>`${l[0]} ${l[1]},${l[2]} → ${l[3]}`).join(' · ')}. Shut for now: ${LINKS.filter(l=>l[7]).map(l=>`${l[0]} ${l[1]},${l[2]}`).join(', ')}.
 
 **Checks:** ${problems.length?'**problems:** '+problems.join('; '):'all pass'}. ${report.join('; ')}.
 

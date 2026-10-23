@@ -10,6 +10,7 @@ import {R,clamp,rr,seeded} from '../engine/util.js';
 import {rpHat} from '../game/stats.js';
 import {rpChestKey,rpNpcs} from '../game/world.js';
 import {netDrawTags,netPartnerK} from '../net/draw.js';
+import {w6Overlay,w6Tile} from './map6.js';
 import {rpDrawSpot,rpTileRoom} from './rooms.js';
 
 const TILE_ART={'.':'tile-grass',',':'tile-tallgrass',';':'tile-forest-floor',T:'tile-tree',F:'tile-flowers','~':'tile-water','=':'tile-path','#':'tile-rock',
@@ -17,6 +18,7 @@ const TILE_ART={'.':'tile-grass',',':'tile-tallgrass',';':'tile-forest-floor',T:
 const TILE_ON_GROUND=new Set(['T','F','q','P','i','O','n']);
 const GROUND=new Set(['.',',','F',';','z','u','v','=','C']);
 function rpTile(g,c,x,y,X,Y){
+  if(rp.s&&rp.s.w6){w6Tile(g,c,x,y,X,Y);return}
   if(rpTileRoom(g,c,x,y,X,Y))return;
   const r=seeded(x*131+y*977);
   const grass=()=>{g.fillStyle='#6cbf4c';g.fillRect(X,Y,RT+1,RT+1);g.fillStyle='rgba(30,80,20,.25)';for(let i=0;i<3;i++)g.fillRect(X+r()*28,Y+r()*28,3,2)};
@@ -94,7 +96,7 @@ function rpChunk(cx,cy){const M=rp.mapImg,key=cx+','+cy;let c=M.chunks.get(key);
   c=document.createElement('canvas');c.width=Math.ceil((x1-x0)*RT*k);c.height=Math.ceil((y1-y0)*RT*k);
   const g=c.getContext('2d');g.setTransform(k,0,0,k,-x0*RT*k,-y0*RT*k);
   for(let y=y0;y<y1;y++){const row=rp.grid[y];for(let x=x0;x<x1;x++)rpTile(g,row[x],x,y,x*RT,y*RT)}
-  RP_CHESTS.forEach(ch=>{if((ch.place||'world')!==rpPlace()||rp.s.chests.includes(rpChestKey(ch))||ch.x<x0||ch.x>=x1||ch.y<y0||ch.y>=y1)return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
+  if(!rp.s.w6)RP_CHESTS.forEach(ch=>{if((ch.place||'world')!==rpPlace()||rp.s.chests.includes(rpChestKey(ch))||ch.x<x0||ch.x>=x1||ch.y<y0||ch.y>=y1)return;const X=ch.x*RT,Y=ch.y*RT;g.fillStyle=OL;g.fillRect(X+5,Y+10,22,17);g.fillStyle='#a0612a';g.fillRect(X+7,Y+12,18,13);g.fillStyle='#c07a3a';g.fillRect(X+7,Y+12,18,5);g.fillStyle='#ffd54a';g.fillRect(X+7,Y+16,18,2);g.fillRect(X+14,Y+15,4,5)});
   M.chunks.set(key,c);if(M.chunks.size>CHUNK_KEEP)M.chunks.delete(M.chunks.keys().next().value);return c}
 /* draw the chunks the camera sees */
 function rpDrawChunks(cx,cy){const k=rpS*rpDpr,size=CHUNK*RT,W=rp.grid[0].length,H=rp.grid.length;
@@ -125,7 +127,8 @@ function rpDrawMap(dt){
   // quest markers
   rpNpcs().forEach(n=>{const m=rpMarker(n.id);if(!m)return;const x=n.x*RT+16,y=n.y*RT-4+Math.sin(rp.t*4)*2;ctx.font='400 18px "Lilita One","Fredoka",system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle=OL;ctx.strokeText(m,x,y);ctx.fillStyle=m==='!'?'#ffd54a':'#9dff6e';ctx.fillText(m,x,y)});
   ctx.setTransform(k,0,0,k,0,0);
-  const here=rp.grid[s.y][s.x];if(here==='C'||here==='g'||here==='c'){const gr=ctx.createRadialGradient(RPW/2,RPH/2,60,RPW/2,RPH/2,230);gr.addColorStop(0,'rgba(8,4,14,0)');gr.addColorStop(1,'rgba(8,4,14,.75)');ctx.fillStyle=gr;ctx.fillRect(0,0,RPW,RPH)}
+  if(s.w6)w6Overlay(ctx,cx,cy);
+  const here=rp.grid[s.y][s.x];if(!s.w6&&(here==='C'||here==='g'||here==='c')){const gr=ctx.createRadialGradient(RPW/2,RPH/2,60,RPW/2,RPH/2,230);gr.addColorStop(0,'rgba(8,4,14,0)');gr.addColorStop(1,'rgba(8,4,14,.75)');ctx.fillStyle=gr;ctx.fillRect(0,0,RPW,RPH)}
   if(rp.stick&&rp.stick.on){const sx=rp.stick.lx*RPW,sy=rp.stick.ly*RPH,m=Math.min(1,Math.hypot(rp.stick.dx,rp.stick.dy)/40),a=Math.atan2(rp.stick.dy,rp.stick.dx);
     ctx.fillStyle='rgba(20,10,53,.35)';ctx.strokeStyle='rgba(255,226,122,.8)';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(sx,sy,26,0,7);ctx.fill();ctx.stroke();
     ctx.fillStyle='rgba(255,226,122,.9)';ctx.beginPath();ctx.arc(sx+Math.cos(a)*16*m,sy+Math.sin(a)*16*m,10,0,7);ctx.fill()}

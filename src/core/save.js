@@ -29,5 +29,6 @@ function migrate(o){
 function rpLoad(){let best=null;
   for(const src of saveSources){let o=null;try{o=src.get()}catch(e){}if(o&&o.party&&o.party.length&&(o.epoch||0)>=SAVE_EPOCH&&(!best||(o.savedAt||0)>(best.savedAt||0)))best=o}
   try{return migrate(best)}catch(e){return null}}
-function rpSave(){if(rp.headless)return;rp.s.savedAt=Date.now();rp.s.epoch=SAVE_EPOCH;store.set(saveKey,rp.s);emit('save',rp.s)}
+function rpSave(){if(rp.headless||(rp.s&&rp.s.w6))return;   /* a v6 game saves through save6.js (switched on in step 12) */
+  rp.s.savedAt=Date.now();rp.s.epoch=SAVE_EPOCH;store.set(saveKey,rp.s);emit('save',rp.s)}
 export {MIGRATIONS,SAVE_EPOCH,SAVE_KEY,SAVE_VERSION,migrate,rpLoad,rpSave,saveKey,saveSources,setSaveKey};

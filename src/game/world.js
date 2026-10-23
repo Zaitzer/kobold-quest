@@ -11,10 +11,11 @@ import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay} from './dialogue.js';
 import {rpGive,rpItemDesc} from './items.js';
-function rpArea(x,y){if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Hatching Green'}
-function rpNpcs(){const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
+import {w6Solid,w6Title} from './world6.js';
+function rpArea(x,y){if(rp.s.w6)return w6Title(rp.s.w6);if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Hatching Green'}
+function rpNpcs(){if(rp.s&&rp.s.w6)return[];const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
 function rpNpcAt(x,y){return rpNpcs().find(n=>n.x===x&&n.y===y)}
-function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
+function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];if(rp.s&&rp.s.w6)return w6Solid(c,x,y)||!!rpNpcAt(x,y);return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
 /* doors lead into rooms (data/places.js); standing on the way-out tile (e) leads back outside */
 function rpDoor(x,y){const id=RP_DOORS[x+','+y];if(id)rpEnterPlace(id)}
 function rpEnterPlace(id){const P=RP_PLACES[id],s=rp.s;if(!P)return;let ex=1,ey=1;P.rows.forEach((r,y)=>{const i=r.indexOf('e');if(i>=0){ex=i;ey=y}});
@@ -55,7 +56,7 @@ const BARRIER_SAY={
   R:'A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.',
   Z:'The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern.'};
 function barrierSay(t){if(!rp.headless)sfx('bump');rpSay([{who:'',text:BARRIER_SAY[t]}])}
-feature({id:'barriers',on:{'world:apply':rpBarriers},frame(){if(!rp.s)return;const sig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'+(rp.s.place||'');if(sig!==barrierSig)rpBarriers()},
+feature({id:'barriers',on:{'world:apply':()=>{if(!rp.s.w6)rpBarriers()}},frame(){if(!rp.s||rp.s.w6)return;const sig=BARRIERS.map(b=>test(b.until)?1:0).join('')+'|'+(rp.s.place||'');if(sig!==barrierSig)rpBarriers()},
   tiles:{Y:{use:()=>barrierSay('Y')},R:{use:()=>barrierSay('R')},Z:{use:()=>barrierSay('Z')}}});
 
 /* pickups and quest spots: when Pip steps on a tile (see RP_PICKUPS and RP_SPOTS) */

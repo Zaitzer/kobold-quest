@@ -6,6 +6,8 @@ slice to load; the `.png` files are previews (one square a tile; a dark dot is a
 mark can be reached; R1 is exactly 120 steps with no encounter grass within 10 steps of either end; each mine floor is about 45
 steps stair to stair.*
 
+**Links** (gates, doors, stairs; `step` means walk onto it, `bump` walk into it): hearthspire 0,16 → r1 · r1 0,12 → hearthspire · r1 99,9 → pebblebrook · pebblebrook 31,12 → r1 · pebblebrook 20,1 → mine1 · mine1 2,18 → pebblebrook · mine1 29,2 → mine2 · mine2 29,2 → mine1 · mine2 4,18 → mine3 · mine3 4,1 → mine2 · hearthspire 8,21 → room:bakery · hearthspire 20,6 → room:castle · hearthspire 30,21 → room:inn · hearthspire 27,5 → room:tower · room:bakery 11,3 → room:cellar · room:cellar 5,6 → room:bakery · pebblebrook 10,9 → room:mill · pebblebrook 26,11 → room:pebinn · room:mill 13,3 → room:loft · room:loft 5,5 → room:mill · room:loft 6,5 → room:mill · room:bakery 6,7 → hearthspire · room:bakery 7,7 → hearthspire · room:castle 8,7 → hearthspire · room:castle 9,7 → hearthspire · room:inn 6,7 → hearthspire · room:inn 7,7 → hearthspire · room:tower 4,5 → hearthspire · room:tower 5,5 → hearthspire · room:mill 7,6 → pebblebrook · room:mill 8,6 → pebblebrook · room:pebinn 6,6 → pebblebrook · room:pebinn 7,6 → pebblebrook. Shut for now: hearthspire 9,0, hearthspire 39,16, hearthspire 20,29, pebblebrook 14,23, hearthspire 11,19, room:cellar 11,4.
+
 **Checks:** all pass. r1: the road is 120 steps (plan: 120); r1: the road crosses tall grass for 40 of its 99 middle steps (plan: 40); mine1: stairs to stairs 51 steps (plan: about 45); mine2: stairs to stairs 51 steps (plan: about 45); mine3: stairs to stairs 42 steps (plan: about 45).
 
 ## Hearthspire (the capital)

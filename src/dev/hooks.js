@@ -10,6 +10,7 @@ import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
 import {rpTalk} from '../game/npcs.js';
 import {rpEnterPlace} from '../game/world.js';
+import {w6Go} from '../game/world6.js';
 import {net,netBtn} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
 import {rpHeroOpen} from '../ui/hero.js';
@@ -20,5 +21,6 @@ export function installHooks(){
   window.__rpB={battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
   window.__net=net;window.__rpF=(k,o)=>rpFight(k,o);window.__netBtn=d=>{netBtn(d);rpUI(true)};window.__rpS=()=>rpSave();
   window.__kq={talk:rpTalk,say:rpSay,hero:rpHeroOpen,enter:rpEnterPlace,registry,sprite};
+  window.__w6go=(p,x,y)=>{w6Go(p,x,y);rpUI(true)};
   window.__kqA={on:()=>set_soundOn(true),sfx,music:()=>({key:rpMus.key,lvl:rpMus.lvl,outdoor:rpMus.outdoor})};
 }

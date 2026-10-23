@@ -11,10 +11,11 @@ import {v6Stats} from '../game/v6sheet.js';
 import {V6_EQUIP,v6AtRest,v6Cards,v6ChooseSub,v6DarkOpen,v6Equip,v6IsSub,v6Known,v6LeadAdd,v6LeadFree,v6LeadTotal,v6LevelUp,v6Pick,v6SubOptions,v6ToggleDark} from '../game/v6talent.js';
 
 const sheet={i:0,msg:''};
-const cur=()=>(v6Lab.ks||[])[sheet.i]||null;
+const pack=()=>rp.s&&rp.s.w6?rp.s.party:(v6Lab.ks||[]);   // the walking pack in the v6 world, the lab's otherwise
+const cur=()=>pack()[sheet.i]||null;
 const f1=x=>Math.round(x*10)/10;
 function v6SheetHtml(){const m=cur();if(!m)return'<div class="rpdlg"><p>No kobold.</p></div><div class="tbar"><button class="rpb x" type="button" data-rp="v6sheetx">Back</button></div>';
-  const st=v6Stats(m),C=CLASSES6[m.cls],K=KITS6[m.cls],k=v6Known(m),tabs=(v6Lab.ks||[]).map((x,i)=>x?'<button class="rpb'+(i===sheet.i?' on':'')+'" type="button" data-rp="v6sheet" data-v="'+i+'">'+esc2(x.name)+'<small>'+esc2(CLASSES6[x.cls].n)+' '+x.lvl+(x.pend>0?' · ✦'+x.pend:'')+'</small></button>':'').join('');
+  const st=v6Stats(m),C=CLASSES6[m.cls],K=KITS6[m.cls],k=v6Known(m),tabs=pack().map((x,i)=>x?'<button class="rpb'+(i===sheet.i?' on':'')+'" type="button" data-rp="v6sheet" data-v="'+i+'">'+esc2(x.name)+'<small>'+esc2(CLASSES6[x.cls].n)+' '+x.lvl+(x.pend>0?' · ✦'+x.pend:'')+'</small></button>':'').join('');
   const row=(a,b)=>'<div><span>'+a+'</span> <b>'+b+'</b></div>';
   let h='<div class="rpcmd">'+tabs+'</div><div class="rpdlg"><div class="who">'+esc2(m.name)+' · '+esc2(C.n)+(m.sub?' ('+esc2(m.sub)+')':'')+' · level '+m.lvl+'</div>';
   h+='<div class="hh-stats">'+row('HP',m.hp+'/'+st.hp)+row('Mana',(m.mp||0)+'/'+st.mp)+row('Attack',f1(st.atk))+row('Sp. attack',f1(st.spa))+row('Defence',f1(st.def))+row('Sp. defence',f1(st.sd))+
@@ -39,11 +40,11 @@ function v6SheetHtml(){const m=cur();if(!m)return'<div class="rpdlg"><p>No kobol
   if(m.hero){const L=Object.assign({might:0,wits:0,lead:0},m.lead),free=v6LeadFree(m);h+='<div class="who">Leader points ('+free+' of '+v6LeadTotal(m)+' free)</div><div class="rpcmd">'+
     [['might','Might','pack attack and defence +1% each'],['wits','Wits','pack special attack and defence +1% each'],['lead','Leadership','pack morale +1 per 5']].map(([key,n,d])=>'<button class="rpb'+(free?' go':'')+'" type="button" data-rp="v6lead" data-v="'+key+'"'+(free?'':' disabled')+'>'+n+' '+L[key]+'<small>'+d+'</small></button>').join('')+'</div>'}
   if(sheet.msg)h+='<p class="tmsg">'+esc2(sheet.msg)+'</p>';
-  return h+'</div><div class="tbar"><button class="rpb" type="button" data-rp="v6lvl">Level up<small>test</small></button><button class="rpb x" type="button" data-rp="v6sheetx">Back</button></div>'}
-feature({id:'v6sheet',panels:{v6sheet:{sig:()=>JSON.stringify([sheet,(v6Lab.ks||[]).map(m=>m&&[m.lvl,m.pend,m.scores,m.skills,m.known,m.ranks,m.passives,m.dark,m.lead,m.sub,m.hp,m.corr])]),html:v6SheetHtml}},
+  return h+'</div><div class="tbar">'+(rp.s&&rp.s.w6?'':'<button class="rpb" type="button" data-rp="v6lvl">Level up<small>test</small></button>')+'<button class="rpb x" type="button" data-rp="v6sheetx">Back</button></div>'}
+feature({id:'v6sheet',menu:[{order:5,html:()=>rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="v6sheet" data-v="0">The pack<small>sheets, talents'+(rp.s.party.some(m=>m.pend>0)?' · ✦ a pick waiting':'')+'</small></button>':''}],panels:{v6sheet:{sig:()=>JSON.stringify([sheet,pack().map(m=>m&&[m.lvl,m.pend,m.scores,m.skills,m.known,m.ranks,m.passives,m.dark,m.lead,m.sub,m.hp,m.corr])]),html:v6SheetHtml}},
   actions:{
     v6sheet:d=>{if(d.v!=null)sheet.i=+d.v;sheet.pick=null;sheet.msg='';rp.mode='v6sheet'},
-    v6sheetx:()=>{rp.mode='lab'},
+    v6sheetx:()=>{rp.mode=rp.s&&rp.s.w6?'map':'lab'},
     v6pick:d=>{sheet.pick=[d.k,d.v]},
     v6pickok:()=>{const m=cur();if(m&&sheet.pick){sheet.msg=v6Pick(m,sheet.pick[0],sheet.pick[1])?'Taken.':'That card is gone.';sheet.pick=null}},
     v6sub:d=>{const m=cur();if(m)sheet.msg=v6ChooseSub(m,d.v)?m.name+' is a '+d.v+' now.':''},
@@ -51,4 +52,4 @@ feature({id:'v6sheet',panels:{v6sheet:{sig:()=>JSON.stringify([sheet,(v6Lab.ks||
     v6dark:d=>{const m=cur();if(m)v6ToggleDark(m,d.v)},
     v6lead:d=>{const m=cur();if(m)v6LeadAdd(m,d.v)},
     v6lvl:()=>{const m=cur();if(m&&m.lvl<30){v6LevelUp(m);sheet.msg=m.name+' reached level '+m.lvl+'.'}}}});
-export {cur,f1,sheet,v6SheetHtml};
+export {cur,f1,pack,sheet,v6SheetHtml};

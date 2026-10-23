@@ -3,7 +3,7 @@ import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
 import {v6DoSkill,v6HealMul,v6OnTile,v6Queue,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
-import {v6Fall,v6Keep,v6Leave} from './v6end.js';
+import {v6Fall,v6GiveXp,v6Keep,v6Leave} from './v6end.js';
 import {TT} from './view.js';
 import {emit} from '../core/bus.js';
 import {rpInputReset} from '../core/input.js';
@@ -288,9 +288,9 @@ function rpFloat(x,y,t,c,sz){if(!rp.headless)ftext(x,y,t,c,sz)}
 function rpWin(){const b=rp.bt;b.over='win';b.phase='end';b.cur=null;b.seq=[];b.step=null;rpRewards(b)}
 function rpRewards(b){
   const s=rp.s;s.q.tac=1;
-  let xp=0,gold=0;b.units.forEach(f=>{if(f.side===1){xp+=f.E.xp;gold+=f.E.gold}});xp=Math.round(xp*BAL.xp);gold=Math.round(gold*1.15);s.gold+=gold;
+  let xp=0,gold=0;b.units.forEach(f=>{if(f.side===1){xp+=f.E.xp;gold+=f.E.gold}});xp=Math.round(xp*BAL.xp);gold=Math.round(gold*(b.v6?1:1.15));s.gold+=gold;
   {const n=b.units.filter(f=>f.side===1).length;for(const T of RP_TALLIES)if(T.zone===b.zone&&test(T.if))s.q[T.flag]=(s.q[T.flag]||0)+n}
-  const ups=[];s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});rpBenchXp(xp,rpXpNeed);
+  const ups=[];if(b.v6){xp=Math.round(xp*(b.xpMul||1));v6GiveXp(b,xp,ups)}else s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});if(!b.v6)rpBenchXp(xp,rpXpNeed);
   b.drops=[];
   /* a boss counts for you only if you have reached that step of your own story (ready); a friend who is past it
      and came to help gets helper's spark dust instead (done) */
@@ -312,6 +312,7 @@ function rpEndBattle(){
   rp.bt=null;rp.mode='map';rp.grace=8;parts.length=0;texts.length=0;
   s.party.forEach(m=>{if(m.hp<=0&&b.over!=='lose')m.hp=1});
   if(b.over==='duel')rpToast('Duel over.');
+  else if(b.over==='lose'&&s.w6){}
   else if(b.over==='lose'){s.gold=Math.floor(s.gold/2);const f=s.fountain||{name:'Burrowhome',x:10,y:25};if(s.place){delete s.place;rpApplyWorld()}
     s.x=f.x;s.y=f.y;s.face='down';rp.pos=null;rpHealAll();rpSay([{who:'',text:'A passing goat carried your party back to the fountain in '+f.name+'. You lost half your gold, but everyone is patched up.'}])}
   else if(b.over==='run')rpToast('You got away!');

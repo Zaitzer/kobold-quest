@@ -85,7 +85,7 @@ fs.writeFileSync(path.join(OUT,'foes.js'),head('tools/content-tables.js; bestiar
 
 /* ---------------------------------------------------------------- the slice's maps and rooms */
 const slice=JSON.parse(fs.readFileSync(path.join(__dirname,'..','docs','maps','slice.json'),'utf8'));
-fs.writeFileSync(path.join(OUT,'maps.js'),head('tools/slicemaps.js; docs/maps/slice.json')+`export const MAPS6=${J(slice.maps)};\nexport const ROOMS6=${J(slice.rooms)};\n`);
+fs.writeFileSync(path.join(OUT,'maps.js'),head('tools/slicemaps.js; docs/maps/slice.json')+`export const MAPS6=${J(slice.maps)};\nexport const ROOMS6=${J(slice.rooms)};\nexport const LINKS6=${J(slice.links||[])};\n`);
 
 /* ---------------------------------------------------------------- items, parsed from docs/items.md (the design is the source) */
 const ITXT=fs.readFileSync(path.join(__dirname,'..','docs','items.md'),'utf8').split('\n');

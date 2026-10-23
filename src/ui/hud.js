@@ -2,17 +2,16 @@ import {rpResize} from '../core/layout.js';
 import {rpOpt} from '../core/options.js';
 import {actions,feature,panels,routes} from '../core/registry.js';
 import {rp} from '../core/state.js';
-import {RP_CLS} from '../data/classes.js';
 import {sfx} from '../engine/audio.js';
 import {$,clamp,esc2} from '../engine/util.js';
 import {rpActFacing,rpTry} from '../game/move.js';
 import {rpQuestLine} from '../game/npcs.js';
-import {rpStats} from '../game/stats.js';
+import {rpClsName,rpStats} from '../game/stats.js';
 import {rpArea} from '../game/world.js';
 import {net} from '../net/core.js';
 import {netMapRow} from '../net/ui.js';
 function rpBar(v,m,col){const p=clamp(v/m*100,0,100);return '<i class="rpbar"><b style="width:'+p.toFixed(0)+'%;background:'+col+'"></b></i>'}
-function rpPartyHtml(){return '<div class="rpparty">'+rp.s.party.map(m=>{const st=rpStats(m);return '<div class="rpm'+(m.hp<=0?' down':'')+'"><b>'+esc2(m.name)+' <small>'+RP_CLS[m.cls].n+' '+m.lvl+(m.pend?' ★':'')+'</small></b>'+rpBar(m.hp,st.hp,m.hp>st.hp*.5?'#7ad67a':m.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>HP '+Math.max(0,m.hp)+'/'+st.hp+' · MP '+m.mp+'/'+st.mp+'</small></div>'}).join('')+'</div>'}
+function rpPartyHtml(){return '<div class="rpparty">'+rp.s.party.map(m=>{const st=rpStats(m);return '<div class="rpm'+(m.hp<=0?' down':'')+'"><b>'+esc2(m.name)+' <small>'+rpClsName(m)+' '+m.lvl+(m.pend?' ★':'')+'</small></b>'+rpBar(m.hp,st.hp,m.hp>st.hp*.5?'#7ad67a':m.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>HP '+Math.max(0,m.hp)+'/'+st.hp+' · MP '+m.mp+'/'+st.mp+'</small></div>'}).join('')+'</div>'}
 function rpUI(force){
   const top=$('rp-top');if(!top||!rp.s)return;
   const s=rp.s,area=rp.mode==='battle'?(rp.bt&&rp.bt.boss?'Boss battle':'Battle'):rpArea(s.x,s.y);

@@ -19,7 +19,8 @@ function rpBuyItem(k){const it=RP_ITEMS[k];if(!it||it.keep||rp.s.gold<it.price)r
 /* shop: buying puts gear in the backpack */
 /* talking: every villager's lines and quest steps are rules in data/dialogue.js */
 function rpTalk(id){emit('talk',id);const T=TALK[id];if(T)talk(T.rules,T.who)}
-function rpQuestLine(){const r=QUEST_LINE.find(r=>test(r.if));return r?fill(r.text):''}
+function rpQuestLine(){if(rp.s&&rp.s.w6)return'';   // the v6 goal bar arrives with the story (build step 12)
+  const r=QUEST_LINE.find(r=>test(r.if));return r?fill(r.text):''}
 function rpQuestList(){const q=rp.s.q,L=[];
   for(const e of QUEST_LOG){if(!test(e.show))continue;const t=typeof e.text==='function'?e.text(q):e.text;L.push((e.hint?'·':e.done&&test(e.done)?'✔':'•')+' '+t)}
   const B=RP_BOUNTY[q.bty||0];if(B&&q.btyBase!=null)L.push('• Bounty: '+B.zn+' ('+Math.min(B.n,((q.kz||{})[B.z]||0)-q.btyBase)+'/'+B.n+')');else if(B&&test(B.if))L.push('· New bounty on the board by the inn');

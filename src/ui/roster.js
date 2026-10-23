@@ -3,13 +3,13 @@
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
-import {RP_CLS} from '../data/classes.js';
 import {esc2} from '../engine/util.js';
+import {rpClsName} from '../game/stats.js';
 import {rpUI} from './hud.js';
 
 const PARTY_MAX=3;
 function rpOpenRoster(){rp.mode='roster';rpUI(true)}
-function rosterLine(m){return esc2(m.name)+' · '+RP_CLS[m.cls].n+' '+m.lvl}
+function rosterLine(m){return esc2(m.name)+' · '+rpClsName(m)+' '+m.lvl}
 function rosterHtml(){const s=rp.s,bench=s.roster||[],full=s.party.length>=PARTY_MAX;
   return '<div class="rpdlg"><div class="who">Who comes along?</div><p>Three can travel together. The rest wait at the inn and learn from your stories (half the XP of every fight).</p></div><div class="rpcmd">'+
     s.party.map((m,i)=>i===0?'<button class="rpb" type="button" disabled>'+rosterLine(m)+'<small>Always comes along</small></button>':

@@ -1,6 +1,7 @@
 {
  "maps": {
   "hearthspire": {
+   "flood": null,
    "title": "Hearthspire (the capital)",
    "w": 40,
    "h": 30,
@@ -137,9 +138,17 @@
     1,
     16
    ],
-   "notes": "No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square."
+   "notes": "No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square.",
+   "patrols": [],
+   "stables": [
+    [
+     6,
+     15
+    ]
+   ]
   },
   "r1": {
+   "flood": null,
    "title": "R1 (the capital gate → Pebblebrook, 120 steps)",
    "w": 100,
    "h": 26,
@@ -222,9 +231,45 @@
     0,
     12
    ],
-   "notes": "Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end."
+   "notes": "Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.",
+   "patrols": [
+    {
+     "x": 30,
+     "y": 7,
+     "face": "east",
+     "name": "the hill patrol"
+    },
+    {
+     "x": 48,
+     "y": 16,
+     "face": "west",
+     "name": "the bridge patrol"
+    },
+    {
+     "x": 79,
+     "y": 9,
+     "face": "west",
+     "name": "the mill-road patrol"
+    }
+   ],
+   "stables": [
+    [
+     88,
+     6
+    ]
+   ]
   },
   "pebblebrook": {
+   "flood": [
+    [
+     14,
+     13
+    ],
+    [
+     14,
+     23
+    ]
+   ],
    "title": "Pebblebrook",
    "w": 32,
    "h": 24,
@@ -340,9 +385,12 @@
     31,
     12
    ],
-   "notes": "Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain."
+   "notes": "Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain.",
+   "patrols": [],
+   "stables": []
   },
   "mine1": {
+   "flood": null,
    "title": "the mine, floor 1",
    "w": 32,
    "h": 20,
@@ -419,9 +467,12 @@
     2,
     17
    ],
-   "notes": "Copper beetles and scouts; Nugget joins here."
+   "notes": "Copper beetles and scouts; Nugget joins here.",
+   "patrols": [],
+   "stables": []
   },
   "mine2": {
+   "flood": null,
    "title": "the mine, floor 2",
    "w": 32,
    "h": 20,
@@ -478,9 +529,12 @@
     29,
     2
    ],
-   "notes": "Unlit tiles (d): glow grubs light the area around them. The bounty: the Nettlenose scout leader."
+   "notes": "Unlit tiles (d): glow grubs light the area around them. The bounty: the Nettlenose scout leader.",
+   "patrols": [],
+   "stables": []
   },
   "mine3": {
+   "flood": null,
    "title": "the mine, floor 3",
    "w": 32,
    "h": 20,
@@ -542,7 +596,9 @@
     4,
     1
    ],
-   "notes": "The end of the mine: Snipe, then back up to the circle."
+   "notes": "The end of the mine: Snipe, then back up to the circle.",
+   "patrols": [],
+   "stables": []
   }
  },
  "rooms": {
@@ -883,5 +939,364 @@
     "o"
    ]
   }
- }
+ },
+ "links": [
+  [
+   "hearthspire",
+   0,
+   16,
+   "r1",
+   0,
+   12,
+   "step"
+  ],
+  [
+   "r1",
+   0,
+   12,
+   "hearthspire",
+   0,
+   16,
+   "step"
+  ],
+  [
+   "r1",
+   99,
+   9,
+   "pebblebrook",
+   31,
+   12,
+   "step"
+  ],
+  [
+   "pebblebrook",
+   31,
+   12,
+   "r1",
+   99,
+   9,
+   "step"
+  ],
+  [
+   "pebblebrook",
+   20,
+   1,
+   "mine1",
+   2,
+   18,
+   "step"
+  ],
+  [
+   "mine1",
+   2,
+   18,
+   "pebblebrook",
+   20,
+   1,
+   "step"
+  ],
+  [
+   "mine1",
+   29,
+   2,
+   "mine2",
+   29,
+   2,
+   "step"
+  ],
+  [
+   "mine2",
+   29,
+   2,
+   "mine1",
+   29,
+   2,
+   "step"
+  ],
+  [
+   "mine2",
+   4,
+   18,
+   "mine3",
+   4,
+   1,
+   "step"
+  ],
+  [
+   "mine3",
+   4,
+   1,
+   "mine2",
+   4,
+   18,
+   "step"
+  ],
+  [
+   "hearthspire",
+   8,
+   21,
+   "room:bakery",
+   6,
+   7,
+   "step"
+  ],
+  [
+   "hearthspire",
+   20,
+   6,
+   "room:castle",
+   8,
+   7,
+   "step"
+  ],
+  [
+   "hearthspire",
+   30,
+   21,
+   "room:inn",
+   6,
+   7,
+   "step"
+  ],
+  [
+   "hearthspire",
+   27,
+   5,
+   "room:tower",
+   4,
+   5,
+   "bump"
+  ],
+  [
+   "room:bakery",
+   11,
+   3,
+   "room:cellar",
+   5,
+   6,
+   "step"
+  ],
+  [
+   "room:cellar",
+   5,
+   6,
+   "room:bakery",
+   11,
+   3,
+   "step"
+  ],
+  [
+   "pebblebrook",
+   10,
+   9,
+   "room:mill",
+   7,
+   6,
+   "step"
+  ],
+  [
+   "pebblebrook",
+   26,
+   11,
+   "room:pebinn",
+   6,
+   6,
+   "step"
+  ],
+  [
+   "room:mill",
+   13,
+   3,
+   "room:loft",
+   5,
+   5,
+   "step"
+  ],
+  [
+   "room:loft",
+   5,
+   5,
+   "room:mill",
+   13,
+   3,
+   "step"
+  ],
+  [
+   "room:loft",
+   6,
+   5,
+   "room:mill",
+   13,
+   3,
+   "step"
+  ],
+  [
+   "room:bakery",
+   6,
+   7,
+   "hearthspire",
+   8,
+   21,
+   "step"
+  ],
+  [
+   "room:bakery",
+   7,
+   7,
+   "hearthspire",
+   8,
+   21,
+   "step"
+  ],
+  [
+   "room:castle",
+   8,
+   7,
+   "hearthspire",
+   20,
+   6,
+   "step"
+  ],
+  [
+   "room:castle",
+   9,
+   7,
+   "hearthspire",
+   20,
+   6,
+   "step"
+  ],
+  [
+   "room:inn",
+   6,
+   7,
+   "hearthspire",
+   30,
+   21,
+   "step"
+  ],
+  [
+   "room:inn",
+   7,
+   7,
+   "hearthspire",
+   30,
+   21,
+   "step"
+  ],
+  [
+   "room:tower",
+   4,
+   5,
+   "hearthspire",
+   27,
+   5,
+   "step"
+  ],
+  [
+   "room:tower",
+   5,
+   5,
+   "hearthspire",
+   27,
+   5,
+   "step"
+  ],
+  [
+   "room:mill",
+   7,
+   6,
+   "pebblebrook",
+   10,
+   9,
+   "step"
+  ],
+  [
+   "room:mill",
+   8,
+   6,
+   "pebblebrook",
+   10,
+   9,
+   "step"
+  ],
+  [
+   "room:pebinn",
+   6,
+   6,
+   "pebblebrook",
+   26,
+   11,
+   "step"
+  ],
+  [
+   "room:pebinn",
+   7,
+   6,
+   "pebblebrook",
+   26,
+   11,
+   "step"
+  ],
+  [
+   "hearthspire",
+   9,
+   0,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ],
+  [
+   "hearthspire",
+   39,
+   16,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ],
+  [
+   "hearthspire",
+   20,
+   29,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ],
+  [
+   "pebblebrook",
+   14,
+   23,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ],
+  [
+   "hearthspire",
+   11,
+   19,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ],
+  [
+   "room:cellar",
+   11,
+   4,
+   "",
+   0,
+   0,
+   "step",
+   "never"
+  ]
+ ]
 }
