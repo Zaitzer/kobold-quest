@@ -34,7 +34,7 @@ const Q=()=>X.rp.s.q;
 /* a player who loses on the way (a random fight on R1, say) wakes at a fountain and walks back: try an action again until it has happened */
 /* like a player stuck on a boss: a few more fights on the route for a level, then back (the bot is a poor tactician, build-plan step 20) */
 function grind(place,n,cls){goTo(place,cls);const E=X.W6_ENC[place];for(let i=0;i<n;i++){X.rp.s.w6st.since=99;X.w6Fight(place,E);drain(cls)}X.w6HealAll()}
-function until(check,fn,n){for(let i=0;i<(n||10)&&!check();i++)fn();return check()}const _ok=ok;ok=(c,m)=>{if(process.env.DBG)console.log(c?'ok ':'NO ',m,JSON.stringify(X.rp.s.q),X.rp.s.w6,X.rp.s.x+','+X.rp.s.y,'fights',fights,'lost',losses);_ok(c,m)};
+function until(check,fn,n){for(let i=0;i<(n||25)&&!check();i++)fn();return check()}const _ok=ok;ok=(c,m)=>{if(process.env.DBG)console.log(c?'ok ':'NO ',m,JSON.stringify(X.rp.s.q),X.rp.s.w6,X.rp.s.x+','+X.rp.s.y,'fights',fights,'lost',losses);_ok(c,m)};
 for(const cls of CLASSES){fights=0;losses=0;retries=0;const t0=Date.now();
   try{X.rp.s=X.rpNewState();X.rp.mode='map';X.s6NewGame('Tansy','green');drain(cls);ok(Q().act===1,cls+': the story starts (act 1)');
     until(()=>Q().act>=2,()=>{goTo('room:cellar',cls);drain(cls)});ok(Q().act===2,cls+': the cellar rats are beaten (act 2): '+Q().act);

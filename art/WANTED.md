@@ -2,7 +2,7 @@
 
 Every file is already waiting in `art/sprites/` as a copy of its template (grid and all). Open it in Paint.NET, draw on a new layer, hide the grid layer, and save over it. Untouched copies are ignored, so the game keeps its own look until you draw. This list is made by the build, so it always matches the game. ✅ = drawn, ⬜ = still the placeholder.
 
-Done: **2 of 72**
+Done: **6 of 72**
 
 ## Heroes
 
@@ -125,7 +125,7 @@ Done: **2 of 72**
 | ⬜ | `tile-tallgrass.png` | tall grass (fights) | tile-64.png |
 | ⬜ | `tile-forest-floor.png` | forest floor (fights) | tile-64.png |
 | ⬜ | `tile-tree.png` | tree (stands on grass) | tile-64.png |
-| ⬜ | `tile-flowers.png` | flowers (on grass) | tile-64.png |
+| ✅ | `tile-flowers.png` | flowers (on grass) | tile-64.png |
 | ⬜ | `tile-water.png` | water | tile-64.png |
 | ⬜ | `tile-path.png` | dirt path | tile-64.png |
 | ⬜ | `tile-rock.png` | rock / cliff | tile-64.png |
@@ -133,10 +133,10 @@ Done: **2 of 72**
 | ⬜ | `tile-cactus.png` | cactus (on sand) | tile-64.png |
 | ⬜ | `tile-snow.png` | snow | tile-64.png |
 | ⬜ | `tile-pine.png` | snowy pine (on snow) | tile-64.png |
-| ⬜ | `tile-gravel.png` | mountain gravel | tile-64.png |
+| ✅ | `tile-gravel.png` | mountain gravel | tile-64.png |
 | ⬜ | `tile-cave.png` | cave floor | tile-64.png |
-| ⬜ | `tile-bridge.png` | bridge, going up | tile-64.png |
+| ✅ | `tile-bridge.png` | bridge, going up | tile-64.png |
 | ⬜ | `tile-bridge-across.png` | bridge, going across | tile-64.png |
 | ⬜ | `tile-sign.png` | sign (on grass) | tile-64.png |
-| ⬜ | `tile-fountain.png` | healing fountain | tile-64.png |
+| ✅ | `tile-fountain.png` | healing fountain | tile-64.png |
 | ⬜ | `tile-fence.png` | fence post | tile-64.png |
