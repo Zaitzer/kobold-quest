@@ -1,4 +1,4 @@
-/* Loads Joakim's sheets: fetched from the website's art folder, which the server fills from art/v6 on every update (the test
+/* Loads Joakim's sheets: fetched from the website's art folder, which the server fills from art/ on every update (the test
    build has its test sheets built in as KQ_ART). Drawings that arrive redraw the map. */
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';

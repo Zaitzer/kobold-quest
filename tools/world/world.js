@@ -1,7 +1,7 @@
 /* The world's data: the files in world/ that the map editor (tools/editor) edits and tools/gen-data.js turns into the game's data.
    One script for both: node requires it, the editor loads it with a <script> tag (as window.KQWorld).
 
-     world/tiles.json         the tile letters, one legend for maps and one for rooms: name, colour, solid, sheet (art/v6/tiles), under
+     world/tiles.json         the tile letters, one legend for maps and one for rooms: name, colour, solid, sheet (art/tiles), under
      world/maps/<id>.json     a map (outdoors; the game calls it <id>)
      world/rooms/<id>.json    a room (indoors; the game calls it room:<id>)
      world/scenes.json        the story's wiring: companions, the class pick, set pieces, scenes, campfire chats

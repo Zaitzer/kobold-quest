@@ -11,11 +11,10 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
 
 **Every time:**
 1. In GitHub Desktop, press **Fetch origin** (and **Pull** if it offers), so you have my latest changes.
-2. Open the sheet's file in `art\v6\` (e.g. `characters\heroes\pip.png`). Every file is already there, as a simple stand-in at
-   the right size. Import its template from `art\v6\templates\` as a layer (frame borders, the feet line, the safe box), draw
+2. Open the sheet's file in `art\` (e.g. `characters\heroes\pip.png`). Every file is already there, as a simple stand-in at
+   the right size. Import its template from `art\templates\` as a layer (frame borders, the feet line, the safe box), draw
    underneath, then delete the template layer.
-3. **File → Save** (PNG, flatten) over the same file. Stand-ins are ignored, so anything you haven't drawn keeps its look
-   drawn in code. Keep the `.pdn` somewhere outside the repo if you want the layers.
+3. **File → Save** (PNG, flatten) over the same file. Until you do, the game shows the stand-in. Keep the `.pdn` somewhere outside the repo if you want the layers.
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
 5. About **2 minutes** later it's on joakimskar.no (reload the page).
 
@@ -24,7 +23,7 @@ and uses the sheet wherever that character or tile appears (map, battles). Anyth
 drawing keeps its look drawn in code, so you can draw in any order. To change a drawing, save over it and push
 again; to go back, GitHub Desktop's **History** has every version.
 
-`art/v6/ASSETS.md` is the checklist: every sheet the game can use, its size and template.
+`art/ASSETS.md` is the checklist: every sheet the game can use, its size and template.
 
 ## Sizes: pixel art at twice Ruby's resolution (decided 22 Oct 2026)
 
@@ -76,15 +75,15 @@ little red or yellow, or greyer, if they should stay as they are.
 | gold / shiny | `#ffd54a` |
 | UI purple | `#4a35b0` `#2a1a73` |
 
-## The new art folder: `art/v6` (sprite sheets, 22 Oct 2026)
+## The art folder: `art/` (sprite sheets, 22 Oct 2026; moved out of `art/v6` on 23 Oct)
 
-Every asset of the new game is now waiting in **`art/v6/`**, sorted in folders (characters, foes, bosses, tiles, buildings, fx,
+Every asset of the new game is now waiting in **`art/`**, sorted in folders (characters, foes, bosses, tiles, buildings, fx,
 portraits, objects, icons), as an **empty transparent placeholder at the right size**. Each one is a **sprite sheet**: its
 animations in rows (walk down, up and side; battle idle; attack; cast; hurt, down and cheer), frames left to right. The
-templates with frame borders, feet lines and safe boxes are in `art/v6/templates/`; **`art/v6/ASSETS.md`** lists all 469 assets
+templates with frame borders, feet lines and safe boxes are in `art/templates/`; **`art/ASSETS.md`** lists all 469 assets
 with their sheet type and marks the 202 the slice uses (★). To draw one: open the placeholder, import the template as a layer,
 draw underneath, delete the template layer, save, push. The list below says what to draw **first**; ★ in `ASSETS.md` says everything the slice will use
-(what isn't drawn yet keeps a look drawn in code).
+(what isn't drawn yet shows its simple stand-in in the game).
 
 ## What to draw first (the new slice, 22 Oct 2026)
 

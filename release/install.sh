@@ -11,8 +11,8 @@ echo "== updater"
 # refresh the 2-minute updater when this server has one (written beside and moved in, since it may be the script running us)
 if [ -f /usr/local/bin/kq-update ]; then cp kq-update.sh /usr/local/bin/kq-update.new && chmod 755 /usr/local/bin/kq-update.new && mv /usr/local/bin/kq-update.new /usr/local/bin/kq-update; fi
 echo "== drawings"
-# Joakim's sprite sheets live in the repo's art/v6; copy the drawn ones into the website (skipped when installing from a tarball)
-[ -d ../art/v6 ] && node server/art.js ../art/v6 server/public/art || true
+# Joakim's sprite sheets (and the stand-ins) live in the repo's art/; copy them into the website (skipped when installing from a tarball)
+[ -d ../art ] && node server/art.js ../art server/public/art || true
 echo "== game server"
 id -u kobold >/dev/null 2>&1 || useradd --system --home /var/lib/kobold-quest --shell /usr/sbin/nologin kobold
 mkdir -p /opt/kobold-quest /var/lib/kobold-quest

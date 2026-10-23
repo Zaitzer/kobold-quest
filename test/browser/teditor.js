@@ -6,7 +6,7 @@ const R=path.join(__dirname,'../..'),KW=require(R+'/tools/world/world.js');
 const T=fs.mkdtempSync(path.join(os.tmpdir(),'kqed-'));
 for(const d of ['world','docs','src/data/v6'])fs.mkdirSync(path.join(T,d),{recursive:true});
 fs.cpSync(R+'/world',T+'/world',{recursive:true});fs.copyFileSync(R+'/docs/slice-dialogue.md',T+'/docs/slice-dialogue.md');fs.copyFileSync(R+'/src/data/v6/foes.js',T+'/src/data/v6/foes.js');
-fs.cpSync(R+'/art/v6',T+'/art/v6',{recursive:true});
+fs.cpSync(R+'/art',T+'/art',{recursive:true});
 const bad=[],check=(ok,msg)=>{console.log((ok?'ok ':'FAIL ')+msg);if(!ok)bad.push(msg)};
 (async()=>{const br=await chromium.launch(),p=await br.newPage({viewport:{width:1400,height:900}}),errs=[];
   p.on('pageerror',e=>errs.push(e.message));

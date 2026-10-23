@@ -10,10 +10,9 @@ for(const f of order){const t=fs.readFileSync(R+'/styles/'+f,'utf8').replace(/\/
 const tpl=fs.readFileSync(R+'/index.html','utf8');
 /* every build gets an id; the server hands it out and pages from an older build reload themselves */
 const BUILD_ID=process.env.KQ_BUILD||new Date().toISOString().slice(0,19)+'Z';
-/* the website fetches Joakim's sheets (art/v6) from the server; the test build carries test sheets (test/fixtures/art6) built in */
-const {drawn6}=require('../server/art.js');
-const art6=dir=>{const o={};if(fs.existsSync(dir))for(const [rel,b] of drawn6(dir))o['v6/'+rel.slice(0,-4)]='data:image/png;base64,'+b.toString('base64');return o};
-const TEST_ART=art6(R+'/test/fixtures/art6');
+/* the website fetches Joakim's sheets (art/) from the server; the test build carries test sheets (test/fixtures/art) built in */
+const {sheets}=require('../server/art.js');
+const TEST_ART={};for(const [key,b] of sheets(R+'/test/fixtures/art'))TEST_ART[key]='data:image/png;base64,'+b.toString('base64');
 function bundle(test,site){return esbuild.buildSync({entryPoints:[R+'/src/main.js'],bundle:true,format:'iife',target:'es2020',write:false,
   define:{TEST:test?'true':'false',SITE:site?'true':'false',BUILD_ID:JSON.stringify(BUILD_ID),KQ_ART:site?'null':JSON.stringify(TEST_ART)},minifySyntax:!test,legalComments:'none',charset:'utf8'}).outputFiles[0].text}
 fs.mkdirSync(R+'/dist',{recursive:true});

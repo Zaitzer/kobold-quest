@@ -72,7 +72,7 @@
 | draw sprites with `imageSmoothingEnabled = false` and scale by whole numbers where the layout allows | `src/engine/sprites.js`, the map and battle renderers |
 | the feet line and the sprite unit read from the template size instead of 112/128 and 76/128 | `src/engine/sprites.js` (`feetOf`, `SPRITE_UNIT`) |
 | Pip's existing 128 × 128 drawing is retired at the merge (redrawn at 32 × 64) | `art/sprites/pip.png` |
-| the loader reads **sprite sheets from `art/v6`** (sheet types and frame sizes in `art/v6/ASSETS.md`, written by `tools/assets.js`); a fully transparent sheet counts as not drawn; walk cycles (3 frames, 3 directions), battle idle, attack, cast, hurt, down and cheer | `src/engine/sprites.js`, `server/art.js`, `tools/build.js` |
+| the loader reads **sprite sheets from `art/`** (sheet types and frame sizes in `art/ASSETS.md`, written by `tools/assets.js`); the stand-ins show until drawn over; walk cycles (3 frames, 3 directions), battle idle, attack, cast, hurt, down and cheer | `src/engine/sprites.js`, `server/art.js`, `tools/build.js` |
 
 ## The rename list (story v6, for the progress reset)
 

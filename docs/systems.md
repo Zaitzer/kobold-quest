@@ -32,7 +32,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 20 | story, script, chats | `story-hatching.md`, `slice-dialogue.md`, `companions.md` | designed (slice) |
 | 21 | maps | `world/` (the map editor), `world-map.json` | designed (slice) |
 | 22 | music and sound | `audio-plan.md` | designed |
-| 23 | art | `style-guide.md`, `art/v6/ASSETS.md` | designed |
+| 23 | art | `style-guide.md`, `art/ASSETS.md` | designed |
 | 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
 | 25 | what is measured on purpose | §14 | listed |
 | 27 | accounts and characters: six slots, the select screen, one device at a time, what is shared, guests, the move to v6 | §16 | designed 22 Oct |

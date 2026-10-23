@@ -1,6 +1,6 @@
 /* The Kobold Quest map editor (tools/editor/index.html). It works on the repo folder through the browser's file access (Chrome,
    Edge): it reads world/, docs/slice-dialogue.md (the lines), src/data/v6/foes.js (the bestiary's names) and the tile sheets in
-   art/v6/tiles, and writes world/ back on Save. tools/world/world.js formats the files and checks the world as you edit.
+   art/, and writes world/ back on Save. tools/world/world.js formats the files and checks the world as you edit.
    Tests (test/browser/teditor.js) hand it a stand-in folder as window.__kqFs. */
 (function(){'use strict';
 const KW=window.KQWorld,$=s=>document.querySelector(s);
@@ -52,10 +52,10 @@ async function loadAll(){const fs=E.fs,W={tiles:JSON.parse(await fs.read('world/
   E.foes=Object.keys(grab('FOES6')||{});E.bosses=Object.keys(grab('BOSSES6')||{});E.places6=(grab('PLACES6')||[]).map(p=>p.place);E.places6pool=Object.fromEntries((grab('PLACES6')||[]).map(p=>[p.place,p.pool]));
   E.cur=E.cur&&W.places[E.cur]?E.cur:(W.places.hearthspire?'hearthspire':Object.keys(W.places)[0]);
   loadArt()}
-/* the pixel art in art/v6, drawn or still the stand-in (the game shows a sheet once it is drawn; the editor shows them all): found by
+/* the pixel art in art/, drawn or still the stand-in (as in the game): found by
    file name, the way the game finds them (engine/sheets6.js) */
 async function loadArt(){const ix={};
-  for(const p of await (E.fs.walk?E.fs.walk('art/v6'):[]))if(p.endsWith('.png')&&!/\/(templates|portraits|icons|fx)\//.test(p))ix[p.split('/').pop().slice(0,-4)]=p;   // faces and icons share names with the sheets
+  for(const p of await (E.fs.walk?E.fs.walk('art'):[]))if(p.endsWith('.png')&&!/\/(templates|portraits|icons|fx)\//.test(p))ix[p.split('/').pop().slice(0,-4)]=p;   // faces and icons share names with the sheets
   E.art={};E.artIndex=ix;
   for(const kind of ['map','room'])for(const t of Object.values(E.W.tiles[kind]||{}))if(t.sheet)artFor(t.sheet);draw()}
 /* an image by its sheet name; null until it has loaded (then the map is drawn again) */
@@ -341,7 +341,7 @@ function newPlaceDialog(){const b=$('#dlgbox'),L=k=>Object.keys(E.W.tiles[k]);le
 
 /* ---------------------------------------------------------------- tiles */
 function tilesTab(){const kind=place().kind,L=E.W.tiles[kind];
-  return[h('p',{class:'dim'},'The '+kind+' tiles. "Solid" tiles block walking. A sheet is the drawing in art/v6/tiles used once drawn; "stands on" is the ground drawn under it.'),
+  return[h('p',{class:'dim'},'The '+kind+' tiles. "Solid" tiles block walking. A sheet is the drawing in art/tiles (a stand-in until drawn); "stands on" is the ground drawn under it.'),
     ...Object.entries(L).map(([c,t])=>card(h('span',{},h('span',{class:'sw',style:{background:t.colour}},c),' ',t.name),[field('name',t,'name'),field('colour',t,'colour',{type:'color'}),
       field('solid',t,'solid',{type:'check',on:true,parse:v=>!!v}),field('sheet',t,'sheet',{ph:'(none: drawn in code)',parse:v=>v.trim()||undefined,after:()=>loadArt()}),
       field('stands on',t,'under',{type:'select',list:[['','(nothing)']].concat(Object.keys(L)),parse:v=>v||undefined})],

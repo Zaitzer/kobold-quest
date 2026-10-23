@@ -60,7 +60,7 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
   plays it from the bakery to the tube, once per class.
 * **The world** is `game/world6.js` on the maps in `data/v6/maps.js` (generated from `world/`, made in the map editor `tools/editor`; the tile legend, encounters, music, dark floors are per map there): links, fountains, stables, patrols, encounters, chests, the
   dark floor, the flood, the rail puzzle.
-* **Sprite sheets** (`art/v6`, listed in `art/v6/ASSETS.md`) replace the look drawn in code wherever one is drawn
+* **Sprite sheets** (`art/`, listed in `art/ASSETS.md`; a stand-in in each until Joakim draws over it) replace the look drawn in code
   (`engine/sheets6.js`). The website fetches `art/manifest.json` (the test build has test sheets built in as `KQ_ART`), which
   `deploy/install.sh` makes on every update with `server/art.js`.
 

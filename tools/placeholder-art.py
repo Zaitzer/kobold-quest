@@ -1,6 +1,6 @@
-"""Placeholder art for every asset in art/v6 that nobody has drawn yet (22 Oct 2026, Joakim: "draw everything but only as
+"""Placeholder art for every asset in art that nobody has drawn yet (22 Oct 2026, Joakim: "draw everything but only as
 placeholders"). Simple shapes in the style guide's palette and ink outline, one per frame, so a sheet shows something in every
-frame. Each placeholder's hash goes into art/v6/placeholders.json: a file whose content still matches its hash is a placeholder
+frame. Each placeholder's hash goes into art/placeholders.json: a file whose content still matches its hash is a placeholder
 (not drawn) and may be redrawn by this tool; anything else is Joakim's drawing and is never touched.
 
     python3 tools/placeholder-art.py        # fill every empty or placeholder file
@@ -9,7 +9,7 @@ import hashlib, json, math, os, re, sys, zlib
 from PIL import Image, ImageDraw
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
-ART = os.path.join(ROOT, 'art', 'v6')
+ART = os.path.join(ROOT, 'art')
 LIST = os.path.join(ART, 'ASSETS.md')
 MARK = os.path.join(ART, 'placeholders.json')
 INK = (0x14, 0x0a, 0x35, 255)

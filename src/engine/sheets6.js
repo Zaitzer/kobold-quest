@@ -1,5 +1,5 @@
-/* ---------- Kobold Quest v6: sprite sheets (build step 19, art/v6/ASSETS.md, style-guide.md) ----------
-   Joakim's sheets from art/v6: one PNG per character, animations in rows, frames left to right, 32 × 64 frames (bosses 64 × 96),
+/* ---------- Kobold Quest v6: sprite sheets (build step 19, art/ASSETS.md, style-guide.md) ----------
+   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 64 frames (bosses 64 × 96),
    facing right (flipped for left), drawn pixel for pixel with no smoothing. A sheet is used only when it is drawn (the stand-ins are
    left out by the build and the server); anything without one keeps its look drawn in code. The hero's sheet is drawn orange and
    recoloured to the hero's colour (style-guide.md, "The hero's colour"). */
@@ -14,7 +14,7 @@ const SHEET6={
 const FEET=60/64;   // the feet line (row 60 of 64)
 /* every loaded v6 sheet by its last name ("wizzle", "cellar-rat"), so a character finds its sheet without knowing the folder */
 let index=null,indexN=0;
-function byBase(base){const keys=Object.keys(SPR).filter(k=>k.startsWith('v6/'));if(!index||keys.length!==indexN){index={};indexN=keys.length;for(const k of keys)index[k.split('/').pop()]=k}
+function byBase(base){const keys=Object.keys(SPR);if(!index||keys.length!==indexN){index={};indexN=keys.length;for(const k of keys)index[k.split('/').pop()]=k}
   const k=index[base];return k&&sprite(k)?k:null}
 const dash=s=>String(s||'').toLowerCase().replace(/^v6[eb]?:/,'').replace(/:.*$/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 /* the sheet for a v6 kobold: the hero's class outfit, else the plain hero; a companion's own sheet */
@@ -23,7 +23,7 @@ function sheetOfKobold(m){if(!m||!m.v6)return null;if(m.hero)return(m.cls&&!m.no
 function sheetOfFoe(E){if(!E)return null;return byBase(dash(E.v6boss?E.v6boss:E.id||E.n))}
 /* a villager on the map: its id, then the id's parts ("mallow_nest" → "mallow", "guard_castle" → "guard") */
 function sheetOfNpc(id){const d=dash(id);return byBase(d)||d.split('-').map(byBase).find(Boolean)||null}
-function typeOf(key){if(/^v6\/bosses\//.test(key))return'boss';if(/^v6\/foes\//.test(key))return'foe';if(/^v6\/characters\/(heroes|companions)\//.test(key))return'hero';return'villager'}
+function typeOf(key){if(/^bosses\//.test(key))return'boss';if(/^foes\//.test(key))return'foe';if(/^characters\/(heroes|companions)\//.test(key))return'hero';return'villager'}
 
 /* the hero's colour (style-guide.md): pixels of Pip's orange (hue 10°–45°, not grey) take the colour's hue; light and shade stay */
 const HUE={orange:null,green:110,blue:210,pink:330,gold:50,purple:272};

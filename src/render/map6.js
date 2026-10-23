@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: drawing the slice's maps (build step 11) ----------
-   One small drawing per tile letter of world/tiles.json, in the style guide's palette, until the art/v6 tiles are loaded (step 19).
+   One small drawing per tile letter of world/tiles.json, in the style guide's palette, until the art/ tiles are loaded (step 19).
    The dark floor is drawn over the map: unlit tiles outside the light are nearly black (systems.md §9). */
 import {RPH,RPW,RT} from '../core/layout.js';
 import {test} from '../core/rules.js';
@@ -11,7 +11,7 @@ import {sprite} from '../engine/sprites.js';
 import {seeded} from '../engine/util.js';
 import {isRoom,w6Flooded,w6Lit,w6Patrols,w6Strength} from '../game/world6.js';
 
-/* the tile letters (world/tiles.json): each one's colour, the art/v6/tiles sheet it is drawn with once drawn, what a standing thing
+/* the tile letters (world/tiles.json): each one's colour, the art/tiles sheet it is drawn with, what a standing thing
    stands on; a letter with no drawn sheet keeps its drawing in code */
 const T6=(room,c)=>TILES6[room?'room':'map'][c]||null;
 const col6=(room,c,dflt)=>{const t=T6(room,c);return t&&t.colour||dflt};
@@ -26,7 +26,7 @@ function w6Tile(g,c,x,y,X,Y){const room=isRoom(rp.s.w6),r=seeded(x*131+y*977),fi
     else if(c!=='g'){fill('#c9a36a');g.fillStyle=OL;g.fillRect(X+3,Y+3,RT-6,RT-6);g.fillStyle=col6(true,c,'#7a4f27');g.fillRect(X+5,Y+5,RT-10,RT-10);if(c==='H'){g.fillStyle='#ffd54a';g.fillRect(X+11,Y+10,10,10)}}
     else{g.fillStyle='#2a1808';g.fillRect(X+6,Y+6,RT-12,RT-12)}
     return}
-  /* a drawn tile (art/v6/tiles, build step 19): frame 1 of the sheet, pixel for pixel; a standing thing is drawn on its ground first */
+  /* a tile with a sheet (art/tiles, build step 19; a stand-in until drawn): frame 1 of the sheet, pixel for pixel; a standing thing is drawn on its ground first */
   {const key=tileSheet(c);if(key){const under=under6(c),uk=under&&tileSheet(under);if(under&&!uk){fill(col6(false,under,'#6cbf4c'))}else if(uk)tileImg(g,uk,X,Y);tileImg(g,key,X,Y);return}}
   const base=c==='c'&&/mine/.test(rp.s.w6)?'f':under6(c);fill(col6(false,base||c,'#ff00ff'));
   switch(base?base:c){case'.':speck('rgba(30,80,20,.25)',3);break;case'"':g.strokeStyle='#24672d';g.lineWidth=2;for(let i=0;i<5;i++){const a=X+3+r()*26,b=Y+10+r()*20;g.beginPath();g.moveTo(a,b);g.lineTo(a-2,b-8);g.stroke()}break;

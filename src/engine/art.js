@@ -169,7 +169,7 @@ function drawKobold(k){
   ctx.scale(pop*(1+.2*sq)*k.face*k.size,pop*(1-.2*sq)*k.size);
   ctx.translate(0,bob);
   /* a drawing from art/sprites, if there is one for this character */
-  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a sheet from art/v6 (engine/sheets6.js) */}
+  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a sheet from art/ (engine/sheets6.js) */}
   else{
   ctx.lineCap='round';ctx.lineJoin='round';
   // tail

@@ -24,7 +24,7 @@ What the editor does:
   (`act >= 2, goat = 0`), and what happens: lines, fights, choices, joins, items, flags, deeds, chests, moving the hero. The lines
   themselves stay in `docs/slice-dialogue.md`: tap a line to start a scene there, Shift+tap to end it there. Set pieces (the fixed
   fights) and campfire chats are in the same tab.
-- **Tiles**: the tile letters, their colours, which are solid, and which `art/v6/tiles` sheet draws them.
+- **Tiles**: the tile letters, their colours, which are solid, and which `art/tiles` sheet draws them.
 
 ## The files
 
