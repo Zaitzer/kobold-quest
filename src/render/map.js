@@ -27,7 +27,8 @@ function rpChunk(cx,cy){const M=rp.mapImg,key=cx+','+cy;let c=M.chunks.get(key);
 function rpDrawChunks(cx,cy){const k=rpS*rpDpr,size=CHUNK*RT,W=rp.grid[0].length,H=rp.grid.length;
   const a=Math.max(0,Math.floor(cx/size)),b=Math.min(Math.ceil(W/CHUNK)-1,Math.floor((cx+RPW)/size)),c=Math.max(0,Math.floor(cy/size)),d=Math.min(Math.ceil(H/CHUNK)-1,Math.floor((cy+RPH)/size));
   for(let j=c;j<=d;j++)for(let i=a;i<=b;i++){const im=rpChunk(i,j);ctx.drawImage(im,Math.round((i*size-cx)*k),Math.round((j*size-cy)*k),Math.round(im.width/rp.mapImg.k*k),Math.round(im.height/rp.mapImg.k*k))}}
-function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,art:artName(n.art||n.id),weapon:n.w,hat:n.hat,pers:'brave',speed:1,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face;if(String(n.id).startsWith('v6:')){k.sheetFn=()=>sheetOfNpc(n.id);k.onMap=1}rp.npcK[n.id]=k}return k}
+function rpNpcK(n){let k=rp.npcK[n.id];if(!k){k=makeK({team:n.team,name:n.name,art:artName(n.art||n.id),weapon:n.w,hat:n.hat,pers:'brave',speed:1,hp:30,size:(n.size||1)*.72},0,0,false);k.face=n.face||1;   /* never undefined: a scale of NaN is skipped by the canvas, which drew people a third too big until Pip came near */
+  if(String(n.id).startsWith('v6:')){k.sheetFn=()=>sheetOfNpc(n.id,n.sheet);k.onMap=1}rp.npcK[n.id]=k}return k}
 function rpDrawMap(dt){
   const s=rp.s,ctx0=ctx;set_ctx(rpctx);
   if(!rp.mapImg)rpMapImage();

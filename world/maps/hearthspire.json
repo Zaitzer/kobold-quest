@@ -83,7 +83,7 @@
    "colour": "#c9a24a"
   },
   {"id":"guard_castle","n":"Guard","x":18,"y":12,"colour":"#8a2f4a"},
-  {"id":"sergeant","n":"Sergeant","x":16,"y":10,"colour":"#8a2f4a"},
+  {"id":"sergeant","n":"Sergeant","x":16,"y":10,"colour":"#8a2f4a","sheet":"guard"},
   {"id":"snatchclaw","n":"Snatchclaw","x":24,"y":3,"colour":"#4a35b0"},
   {"id":"bramble","n":"Bramble","x":16,"y":8,"show":{"act":{"gte":3,"lte":4}},"colour":"#5fb04a"},
   {"id":"smudge","n":"Smudge","x":23,"y":8,"show":{"act":{"gte":3}},"colour":"#9a7a48"},
@@ -96,7 +96,8 @@
    "from": "1.10",
    "lines": ["Hatching day!"],
    "show": {"act":{"lte":6}},
-   "colour": "#7bb6e6"
+   "colour": "#7bb6e6",
+   "sheet": "villager-hs-1"
   },
   {"id":"smith_hs","n":"Smith","x":7,"y":23,"door":1,"from":"1.10","lines":["Sticks, swords, pans"]},
   {"id":"shrine","n":"Moon shrine keeper","x":14,"y":23,"door":1,"from":"1.10","lines":["Forget what you learned"]},

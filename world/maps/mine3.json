@@ -39,7 +39,7 @@
   [5,15,"the trial's prize: the flour-dusted apron"]
  ],
  "links": [{"x":4,"y":1,"to":"mine2","tx":4,"ty":18,"how":"step"}],
- "npcs": [{"id":"snipe_npc","n":"Snipe","x":24,"y":15,"show":{"pb":{"lte":3}},"colour":"#8a2f4a"}],
+ "npcs": [{"id":"snipe_npc","n":"Snipe","x":24,"y":15,"show":{"pb":{"lte":3}},"colour":"#8a2f4a","sheet":"snipe"}],
  "chests": [
   {
    "name": "behind Snipe's cart",

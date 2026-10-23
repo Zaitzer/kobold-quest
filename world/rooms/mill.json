@@ -33,9 +33,10 @@
    "y": 2,
    "from": "3.13",
    "lines": ["I chalk a new mark"],
-   "colour": "#c9a36a"
+   "colour": "#c9a36a",
+   "sheet": "kid-hs"
   },
-  {"id":"chick","n":"Raptor chick","x":12,"y":2,"show":{"ghost":1},"colour":"#fff3c4"}
+  {"id":"chick","n":"Raptor chick","x":12,"y":2,"show":{"ghost":1},"colour":"#fff3c4","sheet":"raptor"}
  ],
  "chests": []
 }

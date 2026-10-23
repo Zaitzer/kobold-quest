@@ -53,7 +53,15 @@
  "npcs": [
   {"id":"goat","n":"Goat","x":60,"y":18,"show":{"goat":0},"colour":"#eee6d0"},
   {"id":"tansy","n":"Tansy","x":38,"y":15,"show":{"miner_tansy":0},"colour":"#d98a3a"},
-  {"id":"grubb_road","n":"Grubb","x":93,"y":10,"show":{"any":[{"pb":{"lte":2},"grubb":0},{"pb":4}]},"colour":"#d8a868"},
+  {
+   "id": "grubb_road",
+   "n": "Grubb",
+   "x": 93,
+   "y": 10,
+   "show": {"any":[{"pb":{"lte":2},"grubb":0},{"pb":4}]},
+   "colour": "#d8a868",
+   "sheet": "grubb"
+  },
   {"id":"sign_r1a","n":"Sign","x":13,"y":11,"door":1,"from":"2.0","lines":["PEBBLEBROOK 120 steps"]},
   {"id":"sign_r1b","n":"Grubb's sign","x":66,"y":8,"door":1,"from":"2.0","lines":["TOLL: one bun"]},
   {"id":"sign_r1c","n":"Raptor stable sign","x":95,"y":8,"door":1,"from":"2.0","lines":["RAPTOR STABLE"]},

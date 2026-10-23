@@ -59,11 +59,11 @@
   {"x":14,"y":23,"to":"","tx":0,"ty":0,"how":"step","flag":"never"}
  ],
  "npcs": [
-  {"id":"shaky","n":"Shaky kobold","x":11,"y":10,"show":{"ghost":{"lte":1}},"colour":"#b8aec9"},
+  {"id":"shaky","n":"Shaky kobold","x":11,"y":10,"show":{"ghost":{"lte":1}},"colour":"#b8aec9","sheet":"villager-hs-2"},
   {"id":"flint","n":"Flint","x":13,"y":13,"show":{"miner_brothers":0},"colour":"#7d6c8a"},
   {"id":"grit","n":"Grit","x":28,"y":13,"show":{"miner_brothers":0},"colour":"#62526d"},
   {"id":"marl","n":"Old Marl","x":27,"y":6,"show":{"miner_marl":0},"colour":"#9a8aa8"},
-  {"id":"clover","n":"Farmer Clover","x":11,"y":20,"colour":"#3f7f3a"},
+  {"id":"clover","n":"Farmer Clover","x":11,"y":20,"colour":"#3f7f3a","sheet":"mossback"},
   {
    "id": "farmer_fountain",
    "n": "Farmer at the fountain",
@@ -71,7 +71,8 @@
    "y": 16,
    "from": "3.13",
    "lines": ["The guards say the toll","Can't see how"],
-   "colour": "#5fb04a"
+   "colour": "#5fb04a",
+   "sheet": "villager-hs-1"
   },
   {"id":"shop_pb","n":"Shopkeeper","x":26,"y":17,"door":1,"shop":"pebblebrook","from":"3.13","lines":["Picks, lamps"]},
   {"id":"board_pb","n":"Note board","x":13,"y":11,"door":1}

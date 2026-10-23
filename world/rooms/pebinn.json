@@ -23,6 +23,17 @@
   {"x":6,"y":6,"to":"pebblebrook","tx":26,"ty":11,"how":"step"},
   {"x":7,"y":6,"to":"pebblebrook","tx":26,"ty":11,"how":"step"}
  ],
- "npcs": [{"id":"inn_pb","n":"Innkeeper","x":5,"y":3,"from":"3.13","lines":["Beds upstairs"],"colour":"#c4523a"}],
+ "npcs": [
+  {
+   "id": "inn_pb",
+   "n": "Innkeeper",
+   "x": 5,
+   "y": 3,
+   "from": "3.13",
+   "lines": ["Beds upstairs"],
+   "colour": "#c4523a",
+   "sheet": "innkeeper-pb"
+  }
+ ],
  "chests": []
 }

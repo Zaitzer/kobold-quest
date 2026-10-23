@@ -63,7 +63,8 @@ function artFor(base){if(!base||!E.artIndex)return null;if(base in E.art)return 
   E.fs.blob(p).then(b=>b&&createImageBitmap(b)).then(img=>{if(img){E.art[base]=img;draw()}}).catch(()=>{});return null}
 const dash=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 /* a person's sheet: their id, then its parts ("mallow_nest" → mallow, "guard_castle" → guard) */
-function npcArt(id){const d=dash(id);if(E.artIndex&&E.artIndex[d])return artFor(d);for(const p of d.split('-'))if(E.artIndex&&E.artIndex[p])return artFor(p);return null}
+const person=b=>E.artIndex&&E.artIndex[b]&&/^art\/(characters|bosses)\//.test(E.artIndex[b]);
+function npcArt(n){if(n.sheet)return person(n.sheet)?artFor(n.sheet):null;const d=dash(n.id);if(person(d))return artFor(d);for(const p of d.split('-'))if(person(p))return artFor(p);return null}
 /* a patrol looks like the first foe of its map's encounters */
 function patrolArt(P){const en=P.encounters,pl=en&&E.places6pool[en.place];return pl&&pl[0]?artFor(dash(pl[0])):null}
 
@@ -121,7 +122,7 @@ function draw(){if(!E.W)return;const c=cv(),r=$('#mid').getBoundingClientRect(),
     g.moveTo(cx(p.x)+f[0]*z*.4,cy(p.y)+f[1]*z*.4);g.lineTo(cx(p.x)-f[0]*z*.3-f[1]*z*.3,cy(p.y)-f[1]*z*.3-f[0]*z*.3);g.lineTo(cx(p.x)-f[0]*z*.3+f[1]*z*.3,cy(p.y)-f[1]*z*.3+f[0]*z*.3);g.fill();label(p.name,cx(p.x),Y(p.y),'#ff9a9a')}
   if(E.layers.people)for(const n of (P.npcs||[]).slice().sort((a,b)=>a.y-b.y)){g.lineWidth=2;g.strokeStyle='#1a0f24';g.fillStyle=n.colour||'#e0d0ff';
     if(n.door){g.setLineDash([2,2]);g.strokeStyle='#fff';g.strokeRect(X(n.x)+3,Y(n.y)+3,z-6,z-6);g.setLineDash([])}
-    else if(E.layers.art&&npcArt(n.id)){sprite(npcArt(n.id),n.x,n.y);label(n.n||n.id,cx(n.x),Y(n.y)-z,'#fff');continue}
+    else if(E.layers.art&&npcArt(n)){sprite(npcArt(n),n.x,n.y);label(n.n||n.id,cx(n.x),Y(n.y)-z,'#fff');continue}
     else{g.beginPath();g.arc(cx(n.x),cy(n.y),z*0.36,0,7);g.fill();g.stroke();if(z>=14){g.fillStyle='#1a0f24';g.font=`700 ${Math.floor(z*.42)}px system-ui`;g.textAlign='center';g.textBaseline='middle';g.fillText((n.n||n.id)[0].toUpperCase(),cx(n.x),cy(n.y)+1)}}
     label(n.n||n.id,cx(n.x),Y(n.y),'#fff')}
   if(E.layers.scenes)for(const sc of E.W.scenes.scenes||[]){const a=sc.at||{};if(a.place!==E.cur)continue;const on=E.scene===sc.id;g.strokeStyle=on?'#ffd54a':'#b48cff';g.lineWidth=on?3:1.5;g.setLineDash(on?[]:[5,4]);
@@ -265,7 +266,7 @@ function hereTab(){const P=place();if(!E.sel)return[h('p',{class:'dim'},'Click a
 function npcCard(P,n){const sections=Object.keys(E.script);
   return card('Person: '+(n.n||n.id),[field('name',n,'n'),h('div',{class:'row'},h('label',{},'id'),h('input',{value:n.id,title:'Scenes name who you talk to by this',onchange:e=>{const v=e.target.value.trim(),old=n.id;if(!v||allNpcIds().has(v)){alert('An id that is not used yet.');panel();return}
       change(()=>{n.id=v;for(const sc of E.W.scenes.scenes)if(sc.at&&sc.at.npc===old&&sc.at.place===KW.gameId(P))sc.at.npc=v})}})),
-    field('colour',n,'colour',{type:'color'}),flags('shown when',n,'show',{title:'Only there while this holds; empty = always'}),
+    field('colour',n,'colour',{type:'color'}),field('looks like',n,'sheet',{ph:'(their id: '+dash(n.id)+')',parse:v=>v.trim()||undefined,title:'The name of a sheet in art/characters or art/bosses (e.g. guard, villager-hs-1)'}),flags('shown when',n,'show',{title:'Only there while this holds; empty = always'}),
     field('no sprite',n,'door',{type:'check',title:'A door, sign or board: nothing is drawn; its line plays when you bump into it'}),
     field('shop',n,'shop',{ph:'(a shop: hearthspire, pebblebrook)',drop:true}),field('letters',n,'letter',{type:'check',title:'Takes players\' letters to the makers (Quill)'}),
     field('lines from',n,'from',{type:'select',list:[['','(none)']].concat(sections.map(s=>[s,s+' '+E.script[s].title])),title:'The script section their idle lines come from',parse:v=>v||undefined}),

@@ -113,7 +113,7 @@ if(!n.lines||!n.lines.length){rpSay([{who:n.n,text:'...'}]);return true}const st
 
 /* ------------------------------------------------------------------ NPCs on the map */
 function s6Npcs(){const p=rp.s&&rp.s.w6;if(!p)return[];return NPCS6.filter(n=>n.place===p&&!n.door&&test(n.show||null)&&!(n.id==='bork_gate'&&rp.s.q.bork))
-  .map(n=>({id:'v6:'+n.id,v6id:n.id,name:n.n,x:n.x,y:n.y,team:2,art:n.id,w:'stick',hat:'none',col:n.colour}))}
+  .map(n=>({id:'v6:'+n.id,v6id:n.id,name:n.n,x:n.x,y:n.y,team:2,art:n.id,sheet:n.sheet,w:'stick',hat:'none',col:n.colour}))}
 function s6NpcAt(x,y,withDoors){const p=rp.s.w6;return NPCS6.find(n=>n.place===p&&n.x===x&&n.y===y&&(withDoors||!n.door)&&test(n.show||null))}
 
 /* ------------------------------------------------------------------ campfire chats and the roster (slice-dialogue.md §6, systems.md §7) */

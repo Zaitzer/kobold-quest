@@ -21,8 +21,10 @@ const dash=s=>String(s||'').toLowerCase().replace(/^v6[eb]?:/,'').replace(/:.*$/
 function sheetOfKobold(m){if(!m||!m.v6)return null;if(m.hero)return(m.cls&&!m.noclass&&byBase('pip-'+m.cls))||byBase('pip');return m.cid?byBase(dash(m.cid)):byBase(dash(m.name))}
 /* a foe or a boss: its id in the bestiary */
 function sheetOfFoe(E){if(!E)return null;return byBase(dash(E.v6boss?E.v6boss:E.id||E.n))}
-/* a villager on the map: its id, then the id's parts ("mallow_nest" → "mallow", "guard_castle" → "guard") */
-function sheetOfNpc(id){const d=dash(id);return byBase(d)||d.split('-').map(byBase).find(Boolean)||null}
+/* a villager on the map: the sheet named in the world (world/: "sheet"), else its id, then the id's parts ("mallow_nest" → "mallow",
+   "guard_castle" → "guard"); only a character's or a boss's sheet (never a tile that shares a word, like the fountain) */
+const personSheet=b=>{const k=byBase(b);return k&&/^(characters|bosses)\//.test(k)?k:null};
+function sheetOfNpc(id,sheet){if(sheet)return personSheet(sheet);const d=dash(id);return personSheet(d)||d.split('-').map(personSheet).find(Boolean)||null}
 function typeOf(key){if(/^bosses\//.test(key))return'boss';if(/^foes\//.test(key))return'foe';if(/^characters\/(heroes|companions)\//.test(key))return'hero';return'villager'}
 
 /* the hero's colour (style-guide.md): pixels of Pip's orange (hue 10°–45°, not grey) take the colour's hue; light and shade stay */
@@ -53,4 +55,4 @@ function drawSheet(g,key,k,opt){opt=opt||{};const type=typeOf(key),T=SHEET6[type
   const sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;
   g.drawImage(s.img,f*fw,row*fh,fw,fh,-fw/2*u,-fh*FEET*u,fw*u,fh*u);g.imageSmoothingEnabled=sm;sheetDraws.n++;return true}
 const sheetDraws={n:0};   // counted for the test: a drawn sheet really shows
-export {FEET,HUE,SHEET6,UNIT,byBase,dash,drawSheet,frameOf,hsl2rgb,index,indexN,recol,recolour,rgb2hsl,sheetDraws,sheetOfFoe,sheetOfKobold,sheetOfNpc,typeOf};
+export {FEET,HUE,SHEET6,UNIT,byBase,dash,drawSheet,frameOf,hsl2rgb,index,indexN,personSheet,recol,recolour,rgb2hsl,sheetDraws,sheetOfFoe,sheetOfKobold,sheetOfNpc,typeOf};
