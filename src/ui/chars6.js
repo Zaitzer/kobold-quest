@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: accounts and characters (build step 14; systems.md §16) ----------
-   Six character slots per account (the website login or the Claude page's identity; "guest" on a device with neither). Each slot is
+   Six character slots per account (the website login). Each slot is
    one hero and one save: cached in the browser and kept on the server at data/users/<id>/char<n> (the database's documents have an
    even number of path parts, so "chars/<n>" became "char<n>"). Deleting keeps a hero for 7 days. One device at a time per hero:
    a lock document renewed every 30 seconds. Old saves are not carried over (progress was reset for v6). */

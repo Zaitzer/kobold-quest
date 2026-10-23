@@ -1,4 +1,4 @@
-/* a stand-in for claude.use('room'|'user'|'db') that relays through the test runner */
+/* a mock game server (window.__kqMock.use('room'|'user'|'db')) that relays through the test runner */
 module.exports=function(by){return `(()=>{
   const by=${JSON.stringify(by)},peer='p_'+by+'_'+Math.random().toString(36).slice(2,6);
   const handlers={},peerH=[],others={};let mine={};const dbSubs={};
@@ -34,5 +34,5 @@ module.exports=function(by){return `(()=>{
     get:async()=>{let rows=await window.__relay({k:'dbcol',path});rows=rows.filter(r=>(w||[]).every(([f,op,v])=>r.data[f]===v));return{docs:rows.map(r=>snapOf(r.id,r.data)),size:rows.length,empty:!rows.length}},
     onSnapshot:(f)=>{const q={path,w:w||[],f};qSubs.push(q);runQ(q);return()=>{}}});
   const db={doc:docRef,collection:p=>colRef(p,[])};
-  window.claude={use:async n=>n==='room'?room:n==='user'?user:n==='db'?db:null};
+  window.__kqMock={use:async n=>n==='room'?room:n==='user'?user:n==='db'?db:null};
 })();`};

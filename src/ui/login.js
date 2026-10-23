@@ -1,5 +1,4 @@
-/* Website only (SITE build): log in or make an account on the title screen, then play on the shared server.
-   On the Claude page none of this runs; the page's own sign-in is used. */
+/* Website only (SITE build): log in or make an account on the title screen, then play on the shared server. */
 import {createOnline} from '../adapters/online.js';
 import {platform} from '../adapters/platform.js';
 import {view} from '../core/app.js';

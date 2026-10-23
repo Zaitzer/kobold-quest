@@ -17,7 +17,7 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
 3. **File → Save** (PNG, flatten) over the same file. Stand-ins are ignored, so anything you haven't drawn keeps its look
    drawn in code. Keep the `.pdn` somewhere outside the repo if you want the layers.
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
-5. About **2 minutes** later it's on joakimskar.no (reload the page). The Claude page gets it with my next update.
+5. About **2 minutes** later it's on joakimskar.no (reload the page).
 
 The game takes it from there: it flips characters to face left, picks each row and frame by what the character is doing,
 and uses the sheet wherever that character or tile appears (map, battles). Anything without a

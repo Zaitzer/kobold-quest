@@ -1,5 +1,5 @@
-/* The website's link to the game server (server/main.js). It offers the same room / user / db services the
-   Claude page has, so the rest of the game cannot tell the two apart. Logs in, keeps the login token,
+/* The website's link to the game server (server/main.js). It offers the room / user / db services the game
+   uses (adapters/platform.js); the test build swaps in a mock with the same shape. Logs in, keeps the login token,
    reconnects by itself and restores presence and subscriptions after a drop. */
 import {store} from './storage.js';
 
@@ -53,7 +53,7 @@ function createOnline(url){
     resume:()=>S.token?auth({k:'resume',token:S.token}):Promise.reject('Not logged in.'),
     login:(name,pass)=>auth({k:'login',name,pass}),register:(name,pass)=>auth({k:'register',name,pass}),
     logout(){if(S.token)send({k:'logout',token:S.token});S.token=null;store.set(TOKEN_KEY,null);S.closing=true;S.authed=false;S.me=null;try{S.ws&&S.ws.close()}catch(e){}}};
-  /* ---------- room / user / db, shaped like the Claude page's ---------- */
+  /* ---------- room / user / db, the services the game uses ---------- */
   const room={emit:(topic,data)=>{send({k:'emit',topic,data});return Promise.resolve()},
     on:(t,h)=>{(S.handlers[t]=S.handlers[t]||[]).push(h);return()=>{S.handlers[t]=S.handlers[t].filter(x=>x!==h)}},
     presence:p=>{S.mine=Object.assign({},S.mine,p);for(const k in S.mine)if(S.mine[k]===null)delete S.mine[k];if(S.authed)send({k:'pres',presence:S.mine});firePeers();return Promise.resolve()},

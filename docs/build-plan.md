@@ -6,7 +6,7 @@ and say it is fun).*
 
 ## 0. How we build
 
-- **On `main`.** There are no active players (Joakim, 22 Oct), so the live server and the Claude page may be updated whenever a
+- **On `main`.** There are no active players (Joakim, 22 Oct), so the live server may be updated whenever a
   checkpoint is worth showing; until then `release/` stays on the old game, simply because it is the last thing that works.
 - **The design leads.** When the build shows the design is wrong or silent, the fix goes into the design document first, in writing,
   then into the code. Nothing is decided only in code.
@@ -74,7 +74,7 @@ Each step lists what it builds, where, the design it follows, and when it is don
 |---|---|---|---|---|
 | 20 ⏭ | **Balance and the count** (skipped for now: Joakim, 23 Oct, "Skip balancing". The open notes stay: the lab bot wins Grubb about 30% at level 5 against the design's 70%, and finishes the slice at levels 13–16 against 8; set pieces can be retried at once, so the slice is playable) | `balance.md`, `tools/timecount.js` | the sim's results sit inside the documents' goals, or the design is changed in writing first |
 | 21 ✓ | **QA** (23 Oct: `test/qa.js` maps every row of `systems.md` §0 to its tests and `node test/run.js` fails when a row has none; new: `logic/qa6` (the goal bar along the main path, crafting, the Book, settings, the bounties, the tap goals against the count tool), `browser/tsmoke6` (the v6 screens at four sizes down to 568 × 320: no sideways scroll, taps at least 44 px), `browser/tplay6` (the first minutes played through the screen: a new hero, the morning, the cellar's two fights). The old game's scenarios stay until the old game is removed) | roadmap 2.7 | `node test/run.js` covers each row of the checklist |
-| 22 | **Release to friends** | `node tools/package.js`, `release/` committed (the live server picks it up), the Claude page rebuilt and republished, `/status` checked | `CLAUDE.md` | the live build matches `release/server/BUILD` |
+| 22 | **Release to friends** | `node tools/package.js`, `release/` committed (the live server picks it up), `/status` checked | `CLAUDE.md` | the live build matches `release/server/BUILD` |
 
 **Gate 2:** Joakim and friends play the slice and say it is fun.
 

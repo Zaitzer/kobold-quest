@@ -1,5 +1,5 @@
-/* Loads Joakim's drawings (art/sprites): built into the Claude page as KQ_ART, or fetched from the website's art folder,
-   which the server fills from the repo on every update. Drawings that arrive redraw the map. */
+/* Loads Joakim's sheets: fetched from the website's art folder, which the server fills from art/v6 on every update (the test
+   build has its test sheets built in as KQ_ART). Drawings that arrive redraw the map. */
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {onSpriteLoad,spritesInit} from '../engine/sprites.js';

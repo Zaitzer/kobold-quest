@@ -1,11 +1,11 @@
 # Kobold Quest: how the code is put together
 
-One HTML page is still what ships (`dist/kobold-quest.html`). It is built from small ES modules in `src/`,
+One HTML page is what ships: the website, `server/public/index.html`, served by the game server in `server/`. It is built from small ES modules in `src/`,
 seven stylesheets in `styles/` and `index.html`.
 
 ```
 npm i                      # esbuild, acorn, eslint-scope, postcss (dev only)
-node tools/build.js        # → dist/kobold-quest.html (publish this) and dist/kq_test.html (test hooks)
+node tools/build.js        # → server/public/index.html (the website) and dist/kq_test.html, dist/kq_site_test.html (test hooks)
 node tools/imports.js      # rewrites every module's import/export lines from what it uses
 node test/run.js           # everything; `node test/run.js quick` skips the browser scenarios
 ```
@@ -61,7 +61,7 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
 * **The world** is `game/world6.js` on the maps in `data/v6/maps.js`: links, fountains, stables, patrols, encounters, chests, the
   dark floor, the flood, the rail puzzle.
 * **Sprite sheets** (`art/v6`, listed in `art/v6/ASSETS.md`) replace the look drawn in code wherever one is drawn
-  (`engine/sheets6.js`). The Claude page has them built in (`KQ_ART`); the website fetches `art/manifest.json`, which
+  (`engine/sheets6.js`). The website fetches `art/manifest.json` (the test build has test sheets built in as `KQ_ART`), which
   `deploy/install.sh` makes on every update with `server/art.js`.
 
 ## Saves

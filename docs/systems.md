@@ -332,8 +332,7 @@ Each is the smallest version that fills the gap; none changes the balance curve 
 **An account holds up to six characters** (Joakim). A character is one hero with its own class, colour, name, story progress, pack,
 gear and gold: one save (§11). The account holds what belongs to the player rather than the hero.
 
-- **The account** is the website login (name and password, the token kept on the device) or, on the Claude page, the claude.ai
-  identity. Nothing else identifies a player.
+- **The account** is the website login (name and password, the token kept on the device). Nothing else identifies a player.
 - **Naming the hero (Joakim):** the player names the hero when creating the character, **default "Pip"**. Every line in the story that
   says Pip uses the hero's name (`{hero}` in the data; the script writes "Pip" and means the hero); other players see that name above the
   kobold. Rules: 2 to 12 letters, a word filter, unique per account, not across the server (two players may both be Pip). One rename per
@@ -354,7 +353,7 @@ gear and gold: one save (§11). The account holds what belongs to the player rat
 - **Where it lives:** on the server under `data/users/<account>/char<slot>` (one document per character, the v6 save; *as built, 23 Oct:
   the database's documents have an even number of path parts, so `chars/<slot>` became `char<slot>`*), `data/users/<account>/lock<slot>`
   (the one-device lock) and `data/users/<account>/account` (the shared part and the slot list). The browser keeps a cache of each slot; per slot the newest copy wins,
-  as today. On the Claude page the same paths, so both front ends see the same heroes (`CLAUDE.md`: keep the db paths compatible).
+  as today.
 - **Guests:** someone without an account can play one character, saved on the device only. Logging in later offers to *Keep this hero*:
   it moves into a free slot.
 - **The move to v6** (the progress reset, `gate1-review.md` A2): the old single save at `data/users/<id>/save` is not deleted. It is moved

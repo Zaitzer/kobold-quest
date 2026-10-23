@@ -16,7 +16,7 @@ for(const f of files.filter(f=>!/[\\/](main|systems)\.js$/.test(f))){const src=f
     else{const n=declNames(st);n.forEach(x=>names.push(x));if(st.type==='ExportNamedDeclaration')n.forEach(x=>inline.add(x))}}
   let body=src;cut.sort((a,b)=>b[0]-a[0]).forEach(([s,e])=>{body=body.slice(0,s)+body.slice(e)});body=body.replace(/^\s*\n/,'').replace(/\n{3,}/g,'\n\n');
   mods[f]={body,names,inline};for(const n of names){if(owner[n])errs.push(n+' declared in '+path.relative(SRC,owner[n])+' and '+path.relative(SRC,f));owner[n]=f}}
-const GLOBAL=new Set(Object.getOwnPropertyNames(globalThis).concat(['window','document','localStorage','sessionStorage','navigator','screen','innerWidth','innerHeight','requestAnimationFrame','matchMedia','claude','performance','getComputedStyle','devicePixelRatio','TEST','SITE','KQ_ART','BUILD_ID','location','WebSocket','alert','location','history','Image','AudioContext','ResizeObserver','MouseEvent','HTMLElement']));
+const GLOBAL=new Set(Object.getOwnPropertyNames(globalThis).concat(['window','document','localStorage','sessionStorage','navigator','screen','innerWidth','innerHeight','requestAnimationFrame','matchMedia','performance','getComputedStyle','devicePixelRatio','TEST','SITE','KQ_ART','BUILD_ID','location','WebSocket','alert','location','history','Image','AudioContext','ResizeObserver','MouseEvent','HTMLElement']));
 for(const [f,m] of Object.entries(mods)){
   const ast=acorn.parse(m.body,{ecmaVersion:2022,sourceType:'module',ranges:true});const sm=escope.analyze(ast,{ecmaVersion:2022,sourceType:'module'});
   const seen=new Set(),use=new Map();

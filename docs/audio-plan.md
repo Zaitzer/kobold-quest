@@ -6,7 +6,7 @@
 
 The game already makes its own music and sounds in code: little chiptune tracks built from a key, a tempo and a seed
 (`engine/music.js`), and short synth sounds (`engine/audio.js`). That suits the game: it costs nothing to download,
-works offline in the Claude page, and every area can have its own tune. The plan keeps that: all music and sounds are
+works offline, and every area can have its own tune. The plan keeps that: all music and sounds are
 made in code.
 
 Rules:

@@ -19,7 +19,6 @@ the public later.
 | Owner, creative director, producer | **Joakim** (GitHub `Zaitzer`, in-game admin "Zaitzer"), Norway (Europe/Oslo) |
 | Repo | `Zaitzer/kobold-quest`, branch `main` (Joakim also pushes drawings to it directly) |
 | Live website | https://joakimskar.no (Hetzner, 62.238.56.52). It pulls `main` every 2 minutes. `/status` shows the live `build` |
-| The game as a Claude page | https://claude.ai/artifact/Qs7Wi9o685We4R8s6rkzPY (published from `dist/kobold-quest.html`; version 67 on 19 Oct) |
 | The story as a shared doc | "Kobold Quest: The Hatching", https://claude.ai/artifact/4jH2s3L8WUDJtX65Z3EEeb (Claude Docs project `1e3288d2-8eaa-4d81-8f80-0b7558656300`). The repo's `docs/story-hatching.md` is the same story and the source of truth for building |
 | Player data | only on the server (`/var/lib/kobold-quest`), never in the repo |
 
@@ -36,12 +35,10 @@ The cloud sandbox **cannot reach joakimskar.no**, so Joakim checks `/status` him
   also wants **three layers of why** for customs, places and villains.
 - In philosophical discussions he wants a more **Socratic** approach: ask more, tell less.
 - **He draws the art himself** in Paint.NET with a pen on a touch screen, and pushes with **GitHub Desktop** straight
-  to `main`. So before every push, `git pull --rebase origin main`. After his drawings arrive, rebuild and republish
-  the Claude page (the website picks them up by itself).
+  to `main`. So before every push, `git pull --rebase origin main`. The website picks his drawings up by itself.
+- **The game is played only on joakimskar.no** (Joakim, 23 Oct). There is no Claude page of the game any more.
 - He sometimes stops a long tool run (tests). Don't push until he says go.
 - Recent mode (19–22 Oct): **story and design first, no game changes** until Gate 1 is passed again.
-- **Building on `main` (decided 22 Oct):** the live server serves `release/`, so new work can land on `main`, but do not run
-  `tools/package.js` into `release/` or republish the Claude page from the new work until the slice is ready.
 - **Design and balance (21–22 Oct):** he thinks mathematically (a mathematics master's). Look for **a rule before a number**:
   when something is off, find the structural cause instead of tuning a constant. Mark every number D / J / B / U.
 - **No simulations unless he asks.** Use arithmetic; the model and sims are for when he requests them.
@@ -112,7 +109,7 @@ sensitivity, the character sheet, the monk).
 ```
 npm i && (cd server && npm i)
 node tools/imports.js        # after moving code between modules (rewrites import/export lines)
-node tools/build.js          # dist/kobold-quest.html (Claude page), dist/kq_test.html (test hooks)
+node tools/build.js          # server/public/index.html (the website), dist/kq_test.html and dist/kq_site_test.html (test hooks)
 node test/run.js quick       # ~50 s: logic, the story with one class, saves, battle sims. Fine for changes that don't touch screens
 node test/run.js             # ~4 min: plus the browser scenarios, the story with two classes (all jobs side by side, slowest first)
 node test/run.js full        # before a release: the story with all eight classes and the old slice sim
@@ -121,9 +118,7 @@ node tools/package.js        # refresh release/ (what the server runs)
 git pull --rebase origin main && git add -A && git commit && git push   # = deploy; live in ~2 min
 ```
 
-Then publish the Claude page with the Artifact tool: `file_path` = `dist/kobold-quest.html`,
-`url` = https://claude.ai/artifact/Qs7Wi9o685We4R8s6rkzPY. Tell Joakim the build id (`release/server/BUILD`) to look
-for at https://joakimskar.no/status.
+Tell Joakim the build id (`release/server/BUILD`) to look for at https://joakimskar.no/status.
 
 **Commit trailer** (as the session's system reminder asks): end commit messages with
 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` and the session line it gives.
@@ -134,7 +129,7 @@ for at https://joakimskar.no/status.
   live. `tools/build.js` now refuses to build when a sheet's braces don't balance.
 - **Joakim pushes drawings to `main`**, so a push can be rejected. Always `git pull --rebase origin main` first.
 - **Art pipeline:** every sheet the game can use has a stand-in in `art/v6/` (listed in `art/v6/ASSETS.md`). Stand-ins are
-  ignored by the server and the Claude page until Joakim draws over them. File names must
+  ignored by the server until Joakim draws over them. File names must
   be lowercase with dashes (NPC ids go through `artName`, e.g. `keepera.png`).
 - **Saves:** `SAVE_EPOCH` in `src/core/save.js`, plus `"epoch"` in `server/config.json`, reset everyone's progress
   once when bumped. Old saves need no compatibility (Joakim, 23 Oct): progress was reset

@@ -6,7 +6,7 @@
 
 | what | budget |
 |---|---|
-| Devices | phones held sideways (Chrome, Safari), desktop browsers; the Claude page |
+| Devices | phones held sideways (Chrome, Safari), desktop browsers |
 | Frame rate | 60 fps on a mid-range phone; never below 30 |
 | Download | the page under 3 MB with all drawings; the website loads drawings separately, so first load stays small |
 | Start | playable within 3 seconds on a phone |
@@ -15,8 +15,7 @@
 
 ## What stays as it is
 
-- **One codebase, two outputs:** the website (with the game server) and the Claude page. Room topic `kq`, save format and
-  db paths stay compatible.
+- **One output:** the website with its game server (the Claude page was dropped, 23 Oct). Room topic `kq` and the db paths stay.
 - **Modules and the feature registry** (`ARCHITECTURE.md`), **quest rules as data**, **the world as a plan** (`REGION`).
 - **Deploys:** push to `main`, the server pulls within 2 minutes; pages on an older build reload themselves.
 - **Tests:** logic tests in Node, browser tests on phone sizes, battle simulators. Every new system gets tests.
