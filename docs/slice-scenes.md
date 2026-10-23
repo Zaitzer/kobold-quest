@@ -5,7 +5,7 @@
 | scene | where | when | does |
 |---|---|---|---|
 | 1.1 | new game | — | set {act:1} |
-| 1.2 | room:cellar, on entering | {act:1} | fight rats1; fight rats2; give lamp; set {act:2,lamp:1} |
+| 1.2 | room:cellar, on entering | {act:1} | fight rats1; fight rats2; chest Mallow's old box; give lamp; set {act:2,lamp:1} |
 | 1.3 | hearthspire, talk to bib | {act:2} | set {bib1:1} |
 | 1.4 | hearthspire, near 19.5,11 | {act:2,drill:0} | class; fight drill1; fight drill2; set {drill:1} |
 | 1.5a | room:castle, on entering | {act:{gte:2},mural:0} | set {mural:1} |
@@ -30,7 +30,7 @@
 | 3.5c | mine1, talk to ore | {cart:1,miner_ore:0} | set {miner_ore:1} |
 | 3.6 | pebblebrook, talk to flint | {pb:{gte:2},stone:0} | set {stone:1} |
 | 3.6x | pebblebrook, talk to grit | {pb:{gte:2},stone:0} | set {stone:1} |
-| 3.6b | room:loft, the tile 5,2 | {stone:1} | set {stone:2,miner_brothers:1} |
+| 3.6b | room:loft, the tile 5,2 | {stone:1} | chest the loft (needs the vote bag); set {stone:2,miner_brothers:1} |
 | 3.7 | pebblebrook, talk to marl | {pb:{gte:2},marl:0} | set {marl:1} |
 | 3.7b | room:mill, talk to ruddle | {marl:1} | set {marl:2} |
 | 3.7c | pebblebrook, talk to marl | {marl:2} | set {marl:3,miner_marl:1} |

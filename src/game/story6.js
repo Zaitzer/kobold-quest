@@ -15,7 +15,8 @@ import {FOES6} from '../data/v6/foes.js';
 import {CHATS6,COMPANIONS6,DEEDS6,GOALS6,KIND6,MINERS6,NPCS6,SCENES6,SCRIPT6,SETPIECES6,WAVE16} from '../data/v6/story.js';
 import {esc2} from '../engine/util.js';
 import {rpSay,rpToast} from './dialogue.js';
-import {v6Kobold} from './v6sheet.js';
+import {needOf,v6Buy,v6CanWear,v6Craft,v6Drops,v6ItemName,v6OpenChest,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock} from './items6.js';
+import {v6Kobold,v6Stats} from './v6sheet.js';
 import {w6Cart,w6Go,w6Start} from './world6.js';
 
 const PACK=4;
@@ -43,6 +44,7 @@ function next(){const sc=story.scene;if(!sc)return;const st=story.q.shift();if(!
     case'kind':deed(KIND6[a],a,0);break;
     case'piece':{const st6=rp.s.w6st;st6.pieces=st6.pieces||[];if(!st6.pieces.includes(a))st6.pieces.push(a);rpToast('A Smiler piece: the '+a+'!');break}
     case'tint':rp.tint=a;break;
+    case'chest':{const got=v6OpenChest(a);rpSay([{who:'',text:'You find '+a+': '+got.join(', ')+'.'}],null,next);return}
     case'goto':w6Go(a,b,st[3]);break;
     case'cart':{w6Cart();if(rp.s.w6st.cart==='done')rp.s.q.cart=1;story.q=[];done();return}   // the cart's own words play; the scene ends with them
     case'scene':{const n=sceneById(a);if(n){if(!sc.repeat)seen()[sc.id]=1;story.scene=n;story.q=n.steps.slice();next();return}break}}
@@ -90,7 +92,7 @@ function npcLine(n){if(!n.lines||!n.lines.length){rpSay([{who:n.n,text:'...'}]);
   const it=SCRIPT6[n.from].items[n.lines[i]];let L=lineOf(it);
   /* "(after the hatching:)" splits a line in two (slice-dialogue.md §1.10) */
   const parts=L.text.split(/\s*\(after the hatching:\)\s*/);if(parts.length>1)L.text=(rp.s.q.act||0)>=5?parts[1]:parts[0];
-  rpSay([L]);return true}
+  rpSay([L],null,n.shop?()=>{rp.w6shop=n.shop;rp.w6tab='buy';rp.mode='w6shop'}:null);return true}
 
 /* ------------------------------------------------------------------ NPCs on the map */
 function s6Npcs(){const p=rp.s&&rp.s.w6;if(!p)return[];return NPCS6.filter(n=>n.place===p&&!n.door&&test(n.show||null)&&!(n.id==='bork_gate'&&rp.s.q.bork))
@@ -135,16 +137,23 @@ function newHtml(){return'<div class="rpdlg"><div class="who">A new story</div><
   '<div class="chatin"><input id="w6-name" maxlength="12" value="'+esc2(newForm.name)+'" aria-label="Hero name"></div><div class="rpcmd">'+COLOURS.map(c=>'<button class="rpb'+(c===newForm.colour?' on':'')+'" type="button" data-rp="w6col" data-v="'+c+'">'+c+'</button>').join('')+'</div></div>'+
   '<div class="tbar"><button class="rpb go" type="button" data-rp="w6begin">Begin</button><button class="rpb x" type="button" data-rp="w6back">Back</button></div>'}
 function s6Continue(){const s=v6Fetch('guest',0);if(!s)return false;rp.s=s;rp.bt=null;rp.pk=null;rp.npcK={};rpApplyWorld();rp.mode='map';story.busy=false;story.scene=null;return true}
+/* ------------------------------------------------------------------ the shop and the smith (systems.md §8) */
+function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div class="rpcmd">'+[['buy','Buy'],['sell','Sell']].concat(v6Recipes(town).length?[['smith','Smith']]:[]).map(([k,n])=>'<button class="rpb'+(k===tab?' on':'')+'" type="button" data-rp="w6tab" data-v="'+k+'">'+n+'</button>').join('')+'<button class="rpb x" type="button" data-rp="w6back">Leave</button></div><p><b>'+Math.floor(s.gold)+' gold</b></p>';
+  const fits=it=>it.k==='use'?'':s.party.filter(m=>v6CanWear(m,it)).map(m=>m.name).join(', ');
+  if(tab==='buy')return h+'<div class="rpcmd">'+v6ShopStock(town).map((it,i)=>{const p=v6Price(it),f=fits(it);return'<button class="rpb'+(it.k==='use'?' it':'')+'" type="button" data-rp="w6buy" data-v="'+i+'"'+(s.gold<p?' disabled':'')+'>'+esc2(v6ItemName(it))+'<small>'+p+' gold'+(it.k==='use'?'':' · T'+(it.tier+1)+' '+it.slot+(f?' · '+esc2(f):' · nobody can wear it'))+'</small></button>'}).join('')+'</div>';
+  if(tab==='sell'){const L=s.inv6||[];return h+(L.length?'<div class="rpcmd">'+L.map(it=>'<button class="rpb" type="button" data-rp="w6sell" data-v="'+it.id+'">'+esc2(v6ItemName(it))+'<small>sells for '+v6SellPrice(it)+' gold'+(it.uniq||it.set?' · are you sure? it is special':'')+'</small></button>').join('')+'</div>':'<p>Nothing to sell.</p>')}
+  const mats=s.mats6||{};return h+'<p><small>'+(Object.entries(mats).filter(([k,v])=>v>0).map(([k,v])=>k+' ×'+v).join(' · ')||'No materials yet.')+'</small></p><div class="rpcmd">'+v6Recipes(town).map((R,i)=>{const N=needOf(R),can=N.every(x=>(mats[x.mat]||0)>=x.n);return'<button class="rpb'+(can?' go':'')+'" type="button" data-rp="w6craft" data-v="'+i+'"'+(can?'':' disabled')+'>'+esc2(R.n)+'<small>needs '+esc2(R.need)+'</small></button>'}).join('')+'</div>'}
 feature({id:'story6',
   menu:[{order:4,html:()=>(rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="w6log">What now<small>'+esc2(s6GoalLine()||'the quest log')+'</small></button>':'')+
     '<button class="rpb" type="button" data-rp="w6new">New story<small>v6 test: Hearthspire to the tube</small></button>'+(v6Fetch('guest',0)?'<button class="rpb" type="button" data-rp="w6cont">Continue story<small>v6 test</small></button>':'')}],
-  panels:{w6new:{sig:()=>JSON.stringify(newForm),html:newHtml},w6class:{sig:()=>'c',html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
-  actions:{w6new:()=>{rp.mode='w6new'},w6col:d=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');if(e)newForm.name=e.value;newForm.colour=d.v},
+  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6new:{sig:()=>JSON.stringify(newForm),html:newHtml},w6class:{sig:()=>'c',html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
+  actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v))rpToast('Bought!')},w6sell:d=>{if(v6Sell(d.v))rpToast('Sold.')},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it)rpToast('The smith made '+it.n+'!')},
+    w6new:()=>{rp.mode='w6new'},w6col:d=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');if(e)newForm.name=e.value;newForm.colour=d.v},
     w6begin:()=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');const n=v6HeroName(e?e.value:newForm.name);if(!n){rpToast('2 to 12 letters, please.');return}s6NewGame(n,newForm.colour)},w6cont:()=>{if(!s6Continue())rpToast('No story saved yet.')},
     w6cls:d=>{pickClass(d.v)},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
   on:{'w6:enter':p=>{if(rp.s.w6st&&rp.s.w6st.seen)s6Enter(p)},
-    'battle:won':b=>{if(b&&b.v6&&rp.s.w6)benchXp(b.xp6||0)},
+    'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6Step,sceneAt,sceneById,seen,setPiece,setTimeout0,story,swap,w6RosterHtml};
+export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6Step,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};

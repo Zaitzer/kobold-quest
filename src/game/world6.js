@@ -10,8 +10,10 @@ import {test} from '../core/rules.js';
 import {rp,rpApplyWorld} from '../core/state.js';
 import {PLACES6} from '../data/v6/foes.js';
 import {LINKS6,MAPS6,ROOMS6} from '../data/v6/maps.js';
+import {CHESTS6} from '../data/v6/story.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
+import {v6OpenChest} from './items6.js';
 import {rpStats} from './stats.js';
 import {s6Step} from './story6.js';
 
@@ -117,10 +119,11 @@ function w6Rest(p){w6HealAll();rp.s.party.forEach(m=>{m.streak=0});const st=rp.s
 function w6Campfire(p){const st=rp.s.w6st,k=p+':'+(rp.s.w6visit||0);if(st.campfire[k]){rpToast('The fire is low. It will be warm again on your next visit.');return true}
   st.campfire[k]=1;w6HealAll();rpSay([{who:'',text:'You sit by the campfire for a while. Everyone is patched up.'}]);return true}
 
-/* ------------------------------------------------------------------ chests (their contents arrive with items, build step 13) */
+/* ------------------------------------------------------------------ chests (systems.md §8's table, opened by items6.js) */
 function w6ChestAt(p,x,y){const P=w6Place(p);return!!(P&&P.marks&&P.marks.some(([mx,my,l])=>mx===x&&my===y&&/chest/.test(l)))}
 function w6Chest(p,x,y){const st=rp.s.w6st,k=p+':'+x+','+y;if(st.chests.includes(k)){rpToast('Empty.');return true}st.chests.push(k);emit('w6:chest',p,x,y);
-  rpSay([{who:'',text:'You open the chest. (What is inside arrives with the items, build step 13.)'}]);return true}
+  const C=CHESTS6.find(c=>c.place===p&&c.x===x&&c.y===y),got=C?v6OpenChest(C.name):[];
+  rpSay([{who:'',text:got.length?'You open the chest: '+got.join(', ')+'.':'You open the chest. Dust, and a spider who looks offended.'}]);return true}
 
 /* ------------------------------------------------------------------ the rail puzzle (systems.md §9): three switches, one setting brings the cart home */
 const W6_RAIL={loopIn:'21,16',loopOut:'17,16',siding:'12,13'};

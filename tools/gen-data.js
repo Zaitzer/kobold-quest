@@ -140,8 +140,17 @@ console.log(['classes.js','skills.js','foes.js','maps.js','items.js'].map(f=>f+'
   const DEEDS={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | where')).forEach(r=>DEEDS[r[0]]={n:r[1],v:val(r)});
   const KIND={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | in the slice')).forEach(r=>KIND[r[0]]={n:r[1],v:val(r)});
   if(Object.keys(DEEDS).length!==24||Object.keys(KIND).length!==8)problems.push('deeds parsed: '+Object.keys(DEEDS).length+' and '+Object.keys(KIND).length);
+  /* the slice's chests (systems.md §8): where (a map mark with x, y, or a named room opened by a scene) and what is in each */
+  const PLACE_OF={'R1':'r1','Pebblebrook':'pebblebrook','mine floor 1':'mine1','mine floor 2':'mine2','mine floor 3':'mine3'};
+  const CHESTS=mdRows(STXT,l=>l.startsWith('| chest | where (map mark) | contents')).map(r=>{const w=r[1].match(/^(.+?) \((\d+), (\d+)\)/),items=[];
+    for(const part of r[2].replace(/ — .*$/,'').split(/ and /)){const p=part.trim(),g=p.match(/^(?:a |an )?(.+?) \(T(\d) (\w+)(?:, ([^)]*))?\)/),m=p.match(/^(\d+) gold/),u=p.match(/^(\d+|a|an) (potions?|ethers?|Phoenix feather)/i);
+      if(g){const extra=g[4]||'';items.push({gear:g[1],tier:+g[2]-1,slot:g[3]==='armour'?'armour':g[3],set:/Mossback/.test(extra)?'Mossback regalia':/Millers/.test(extra)?"Millers' set":null,bonuses:/both bonuses/.test(extra)?2:/one bonus/.test(extra)?1:0})}
+      else if(m)items.push({gold:+m[1]});else if(u){const n=/^\d+$/.test(u[1])?+u[1]:1;let k=u[2].toLowerCase().replace(/s$/,'');items.push({use:k==='phoenix feather'?'Phoenix feather':k[0].toUpperCase()+k.slice(1),n})}
+      else problems.push('chest contents not understood: '+p)}
+    return{name:r[0],place:w?PLACE_OF[w[1]]||null:null,x:w?+w[2]:null,y:w?+w[3]:null,where:r[1],items}});
+  if(CHESTS.length!==8)problems.push('chests parsed: '+CHESTS.length);
   fs.writeFileSync(path.join(OUT,'story.js'),head('docs/slice-dialogue.md; tools/v6/scenes.js; systems.md §10')+`export const SCRIPT6=${J(S)};\nexport const SCENES6=${J(SC.SCENES)};\nexport const NPCS6=${J(SC.NPCS)};\n`+
-    `export const SETPIECES6=${J(SC.SETPIECES)};\nexport const CHATS6=${J(SC.CHATS)};\nexport const COMPANIONS6=${J(SC.COMPANIONS)};\nexport const WAVE16=${J(SC.WAVE1)};\nexport const GOALS6=${J(GOALS)};\nexport const MINERS6=${J(MINERS)};\nexport const DEEDS6=${J(DEEDS)};\nexport const KIND6=${J(KIND)};\n`);
+    `export const SETPIECES6=${J(SC.SETPIECES)};\nexport const CHATS6=${J(SC.CHATS)};\nexport const COMPANIONS6=${J(SC.COMPANIONS)};\nexport const WAVE16=${J(SC.WAVE1)};\nexport const GOALS6=${J(GOALS)};\nexport const MINERS6=${J(MINERS)};\nexport const DEEDS6=${J(DEEDS)};\nexport const KIND6=${J(KIND)};\nexport const CHESTS6=${J(CHESTS)};\n`);
   /* a readable table of the wiring, for the design */
   const where=a=>a.start?'new game':a.none?'(follows the scene before)':a.place+(a.npc?', talk to '+a.npc:a.enter?', on entering':a.area?', near '+a.area.slice(0,2).join(','):a.tile?', the tile '+a.tile.join(','):a.bump?', bump near '+a.bump.slice(0,2).join(','):'');
   const what=st=>st.map(s=>s[0]==='say'?null:s[0]==='choice'?'choice: '+s[1].map(c=>c[0]).join(' / '):s[0]+(s[1]!=null?' '+(typeof s[1]==='object'?JSON.stringify(s[1]).replace(/"/g,''):s[1]):'')).filter(Boolean).join('; ');

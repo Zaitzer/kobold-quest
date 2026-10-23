@@ -246,8 +246,8 @@ function tcDo(u,act){
   if(act.k==='it'){const t=act.t,m=t.m,k=act.it;if(u.ctl!=='remote')rp.s.bag[k]--;
     tcQ({k:'fn',fn:()=>{const st=rpStats(m);
       if(k==='bun'){const a=st.hp-m.hp;m.hp=st.hp;m.mp=st.mp;tcFloatU(t,'+'+a+' · full MP','#ffcf6a')}
-      else if(k==='potion'){const a=Math.min(45,st.hp-m.hp);m.hp+=a;tcFloatU(t,'+'+a,'#9af0a0')}
-      else if(k==='ether'){const a=Math.min(12,st.mp-m.mp);m.mp+=a;tcFloatU(t,'+'+a+' MP','#9ad0ff')}
+      else if(k==='potion'){const a=Math.min(b.v6?Math.round(st.hp*.35):45,st.hp-m.hp);/* v6: items.md §7, 35% of max HP */m.hp+=a;tcFloatU(t,'+'+a,'#9af0a0')}
+      else if(k==='ether'){const a=Math.min(b.v6?Math.round(st.mp*.3):12,st.mp-m.mp);/* v6: 30% of max mana */m.mp+=a;tcFloatU(t,'+'+a+' MP','#9ad0ff')}
       else if(k==='feather'){m.hp=Math.round(st.hp*.5);t.k.state='idle';t.k.rot=0;t.k.rotT=0;tcFloatU(t,'Back up!','#ffb347')}
       if(!rp.headless)sfx('nom')}});b.msg=u.name+' uses a '+RP_ITEMS[k].n.toLowerCase()+'.';return true}
   if(act.k==='watch'){u.watch=1;b.msg=u.name+' keeps watch.';tcFloatU(u,'watching','#9ad0ff');return true}
@@ -299,7 +299,7 @@ function rpRewards(b){
   if(B&&(!B.ready||test(B.ready))){run(B.win);b.drops.push(...B.drops)}
   else if(B){if(B.done&&test(B.done)){s.dust=(s.dust||0)+3;help=' Helper\'s spark dust +3.'}else help=' (This fight isn\'t part of your story yet.)'}
   else if(!b.v6){const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
-  const sp=b.v6?'':rpBattleSpoils(b);b.drops.forEach(rpGive);b.xp6=xp;
+  const sp=b.v6?'':rpBattleSpoils(b);b.drops.forEach(rpGive);b.xp6=xp;b.gold6=gold;
   b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'')+help;
   b.units.forEach(u=>{u.buff={atk:0,def:0};u.guard=0;u.watch=0;b.vis.fill(2)});
   if(!rp.headless){confetti();sfx('win')}

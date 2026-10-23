@@ -5,6 +5,7 @@ import {SCORES,balanceOf,mbar,modOf} from '../battle/v6rules.js';
 import {BASE6,CLASSES6,FAMILIES,TIER_POWER} from '../data/v6/classes.js';
 import {GEAR6} from '../data/v6/items.js';
 import {KITS6,PASSIVES6} from '../data/v6/skills.js';
+import {v6GearExtras} from './items6.js';
 
 const V6_ARRAY=[15,14,13,12,10,8];
 const V6_TIERS=[1,5,10,16,22,28];
@@ -48,25 +49,26 @@ function v6Gear(m){const out={atk:0,def:0,hp:0,spd:0,mana:0,wpow:0,magic:false,s
     const row=(GEAR6[g.slot||k]||{})[g.v||'plain']||GEAR6[g.slot||k].plain;const p=row&&row[g.tier];if(!p)continue;for(const [s,v] of Object.entries(p.st))out[s==='mana'?'mana':s]+=v}
   return out}
 function v6Stats(m){
-  const C=CLASSES6[m.cls],L=m.lvl,sc=m.scores,st0=m.start||v6StartScores(m.cls),G=v6Gear(m);
+  const C=CLASSES6[m.cls],L=m.lvl,sc=m.scores,st0=m.start||v6StartScores(m.cls),G=v6Gear(m),X=v6GearExtras(m);   // X: bonuses, sets, uniques (items6.js)
   const P={};for(const n of m.passives||[]){const d=(PASSIVES6[m.cls]||[]).find(x=>x.n===n);if(d)for(const [k,v] of Object.entries(d.fx))P[k]=(P[k]||0)+v}
   const mod=k=>k==='mbar'?mbar(sc):modOf(sc[k]),grow=k=>k==='mbar'?mbar(sc)-mbar(st0):modOf(sc[k])-modOf(st0[k]);
   const f=k=>(1+0.05*mod(k))/1.10;             // the level table is the fighter with its scores (×1.10): balance.md §3, "Reconciled"
   const bA=BASE6.atk[0]+BASE6.atk[1]*(L-1),bD=BASE6.def[0]+BASE6.def[1]*(L-1),bH=BASE6.hp[0]+BASE6.hp[1]*(L-1);
-  const atk=(bA+G.atk+(G.magic?0:G.wpow))*C.atk*f(V6_ATK_SCORE[m.cls])*(1+(P.atkP||0));
-  const spa=(bA+G.atk+(G.magic?G.wpow:0))*C.spa*f(V6_CAST_SCORE[m.cls])*(1+(P.spaP||0));
-  const def=(bD+G.def)*C.def*f('CON')*(1+(P.defP||0)),sd=(bD+G.def)*C.sd*f('CON')*(1+(P.defP||0)),hp=(bH+G.hp)*C.hp*f('CON')*(1+(P.hpP||0));
-  const m30=C.mana[1],m1=C.mana[0],baseMana=m1+(m30-m1)*(L-1)/29,mp=baseMana*(1+G.mana/100)*(1+(P.mpP||0));
-  const spd=(5+0.5*(L-1))*C.spd+G.spd+(P.spd||0);
+  const atk=(bA+G.atk+(X.atk||0)+(G.magic?0:G.wpow))*C.atk*f(V6_ATK_SCORE[m.cls])*(1+(P.atkP||0));
+  const spa=(bA+G.atk+(X.spa||0)+(G.magic?G.wpow:0))*C.spa*f(V6_CAST_SCORE[m.cls])*(1+(P.spaP||0));
+  const def=(bD+G.def+(X.def||0))*C.def*f('CON')*(1+(P.defP||0)),sd=(bD+G.def+(X.sd||0))*C.sd*f('CON')*(1+(P.defP||0)),hp=(bH+G.hp+(X.hp||0))*C.hp*f('CON')*(1+(P.hpP||0)+(X.hpP||0));
+  const m30=C.mana[1],m1=C.mana[0],baseMana=m1+(m30-m1)*(L-1)/29,mp=baseMana*(1+(G.mana+(X.mana||0))/100)*(1+(P.mpP||0));
+  const spd=(5+0.5*(L-1))*C.spd+G.spd+(X.spd||0)+(P.spd||0);
   const accScore=G.fam&&G.fam.ranged?'DEX':'STR';
   const S={hp:Math.round(hp),mp:Math.round(mp),atk,spa,def,sd,spd,
     move:Math.min(6,Math.max(3,Math.round(2+0.35*spd))),
     acc:C.acc+2.5*grow(accScore)+(P.acc||0),                                  // the class table includes the starting scores (P21)
-    dodge:Math.min(30,10+2.5*grow('DEX')+(P.dodge||0)),                         // points: 10 base, gear and skills capped at 30
-    res:(V6_CAST_SCORE[m.cls]==='WIS'?0:15*grow('WIS'))+(P.res||0),             // 5 pp a WIS modifier at 3 resistance a pp (balance.md §3)
-    init:10+modOf(sc.DEX)+C.init+(P.init||0),threat:C.threat*(1+0.1*modOf(sc.CHA)),cha:modOf(sc.CHA),
-    crit:0.08+(P.crit||0),critD:1.5+(P.critD||0),pas:P,beta:1,ap:0,luck:m.luck||0,regen:0,mpregen:0,
-    steady:Math.max(1,G.steady+(G.magic?(P.steadySpell||0):(P.steady||0))),magic:G.magic,quick:G.quick,heavy:G.heavy,fam:G.famId,
+    dodge:Math.min(30,10+2.5*grow('DEX')+(P.dodge||0)+(X.dodge||0)),                         // points: 10 base, gear and skills capped at 30
+    res:(V6_CAST_SCORE[m.cls]==='WIS'?0:15*grow('WIS'))+(P.res||0)+(X.res||0),   // 5 pp a WIS modifier at 3 resistance a pp (balance.md §3)
+    init:10+modOf(sc.DEX)+C.init+(P.init||0)+(X.init||0),threat:C.threat*(1+0.1*modOf(sc.CHA)),cha:modOf(sc.CHA),
+    crit:0.08+(P.crit||0)+(X.crit||0),critD:1.5+(P.critD||0),pas:P,beta:1,ap:X.ap||0,luck:(m.luck||0)+(X.luck||0),regen:X.regen||0,mpregen:0,
+    burnP:X.burnP||0,poisonP:X.poisonP||0,goldP:X.goldP||0,rangedTaken:X.rangedTaken||0,morale:X.morale||0,
+    steady:Math.max(1,G.steady+(X.steady||0)+(G.magic?(P.steadySpell||0):(P.steady||0))),magic:G.magic,quick:G.quick,heavy:G.heavy,fam:G.famId,
     balance:balanceOf(sc),corr:m.corr||0,
     // the old engine's names, so code that has not moved yet keeps working
     sight:0,stealth:0,rage:0,mov:0};

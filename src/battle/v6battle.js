@@ -68,6 +68,7 @@ function v6DmgRange(b,a,t,mul,o){o=o||{};const as=tcStat(a),ts=tcStat(t),spell=v
   const A=(spell?as.spa:as.atk)*(1+v6Buff(a,'atk')+v6Buff(a,'atkguard')+v6Buff(a,'rage')+v6Buff(a,'atkdodge'))*(v6Has(a,'weaken')||v6Has(a,'burn')?0.75:1)*v6LeadMul(b,a,spell);
   const D=(spell?ts.sd*(1+v6Buff(t,'defsd')):ts.def*(1+v6Buff(t,'def')+v6Buff(t,'defsd')))*v6LeadMul(b,t,spell);
   let M=(mul||1)*(o.quick?QUICK_MUL:1)*(o.dark?darkMul(a.m?a.m.corr:0):1)*(o.v6&&o.v6.id&&a.m?v6RankMul(a.m,o.v6.id):1);
+  if(t.m&&v6Kind(a,o)==='ranged')M*=1+(tcStat(t).rangedTaken||0);   // the copper-cart wheel (items.md §5)
   M*=(1+v6Buff(t,'dmgtaken')-v6Buff(t,'atkguard'))*(v6Has(t,'hex')?1.25:1)*(t.mark&&a.side===0?1.3:1)*(t.guard?0.75:1)*(t.curled?0.5:1);
   if(t.sz>1&&o.area)M*=1;   // a big foe is hit once per overlapped tile: the area code strikes it per tile
   return[Math.max(1,Math.round(damage(A,M,D,as.ap||0,0))),Math.max(1,Math.round(damage(A,M,D,as.ap||0,1)))]}
@@ -98,6 +99,7 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
   if(sh.fx==='mark')t.mark=sh.hitsLeft||3;
   if(t.mark&&a.side===0&&sh.fx!=='mark'){t.mark--;if(t.mark<=0)t.mark=0}
   if(t.hp>0&&sh.st&&landed&&Math.random()<(sh.st.p==null?1:sh.st.p))v6Status(t,sh.st);
+  if(t.hp>0&&a.m&&!sh.st){const as2=tcStat(a);if(as2.burnP&&Math.random()<as2.burnP)v6Status(t,{k:'burn',turns:2});else if(as2.poisonP&&Math.random()<as2.poisonP)v6Status(t,{k:'poison',turns:2})}   // of Embers, of Venom
   if(t.hp>0&&!sh.st&&a.side===1&&t.side===0){const fs=v6FoeHitStatus(a);if(fs&&Math.random()<v6FoeStatusP(a,t))v6Status(t,fs)}
   if(o.stun&&t.hp>0&&!(t.E&&t.E.boss)){t.stun=1;tcFloatU(t,'stunned','#ffe27a')}
   if(t.hp<=0){tcKo(t);v6OnFell(a,t)}else if(!rp.headless)sfx('hit');
@@ -116,6 +118,7 @@ function v6OnFell(a,t){if(!a.m)return;const P=tcStat(a).pas||{};if(P.killHeal){c
 /* ---------------------------------------------------------------- the start of a unit's turn: morale, statuses, dots, buffs */
 function v6TurnStart(b,u){u.atkN=0;
   if(u.m&&u.side===0){const M=v6PackMorale(b),p=moraleP(M);if(M>0&&Math.random()<p){u.ap++;tcFloatU(u,'+1 AP','#ffe27a')}else if(M<0&&Math.random()<p){u.ap--;tcFloatU(u,'−1 AP','#d7c9e3')}}
+  if(u.m&&u.side===0&&tcLive(u)){const st=tcStat(u);if(st.regen>0&&u.hp<u.max){const h=Math.max(1,Math.round(u.max*st.regen));u.hp=Math.min(u.max,u.hp+h);tcFloatU(u,'+'+h,'#9af0a0')}}   /* sets, Mending (items.md) */
   if(u.dot&&tcLive(u)){const d=Math.max(1,Math.round(u.dot.amt));u.hp=Math.max(0,u.hp-d);tcFx(u,String(d),u.dot.k==='burn'?'#ff8a3a':'#9be36b',13,48);if(u.hp<=0){tcKo(u);return true}}
   if(v6Has(u,'fall')){u.ap=Math.min(u.ap,1);tcFloatU(u,'gets up','#e0c3ff')}
   if(u.vs)for(const k of Object.keys(u.vs)){u.vs[k]--;if(u.vs[k]<=0){delete u.vs[k];if(k==='burn'||k==='poison')u.dot=null}}
