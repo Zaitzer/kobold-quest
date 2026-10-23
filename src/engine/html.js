@@ -4,14 +4,40 @@
    Labels and the small line under them are escaped; {raw:true} takes them as HTML (a bold part, an icon). */
 import {esc2} from './util.js';
 
-const ROUTED=new Set(['net','tac','opt','g']);
-function button(action,label,o){o=o||{};const i=String(action).indexOf(':'),route=i>0&&ROUTED.has(action.slice(0,i))?action.slice(0,i):'rp',name=route==='rp'?action:action.slice(i+1);
-  const text=v=>o.raw?String(v):esc2(String(v));
-  return'<button class="'+(o.pill?'pill':'rpb')+(o.cls?' '+o.cls:'')+'" type="button" data-'+route+'="'+esc2(name)+'"'+(o.v!=null?' data-v="'+esc2(String(o.v))+'"':'')+
-    Object.entries(o.data||{}).map(([k,x])=>' data-'+k+'="'+esc2(String(x))+'"').join('')+(o.disabled?' disabled':'')+(o.aria?' aria-label="'+esc2(o.aria)+'"':'')+'>'+
-    text(label)+(o.sub!=null&&o.sub!==''?'<small>'+text(o.sub)+'</small>':'')+'</button>'}
+const ROUTED = new Set(['net', 'tac', 'opt', 'g']);
+function button(action, label, o) {
+  o = o || {};
+  const i = String(action).indexOf(':'),
+    route = i > 0 && ROUTED.has(action.slice(0, i)) ? action.slice(0, i) : 'rp',
+    name = route === 'rp' ? action : action.slice(i + 1);
+  const text = v => (o.raw ? String(v) : esc2(String(v)));
+  return (
+    '<button class="' +
+    (o.pill ? 'pill' : 'rpb') +
+    (o.cls ? ' ' + o.cls : '') +
+    '" type="button" data-' +
+    route +
+    '="' +
+    esc2(name) +
+    '"' +
+    (o.v != null ? ' data-v="' + esc2(String(o.v)) + '"' : '') +
+    Object.entries(o.data || {})
+      .map(([k, x]) => ' data-' + k + '="' + esc2(String(x)) + '"')
+      .join('') +
+    (o.disabled ? ' disabled' : '') +
+    (o.aria ? ' aria-label="' + esc2(o.aria) + '"' : '') +
+    '>' +
+    text(label) +
+    (o.sub != null && o.sub !== '' ? '<small>' + text(o.sub) + '</small>' : '') +
+    '</button>'
+  );
+}
 /* a row of buttons */
-function buttons(list){return'<div class="rpcmd">'+list.join('')+'</div>'}
+function buttons(list) {
+  return '<div class="rpcmd">' + list.join('') + '</div>';
+}
 /* a panel with a title (escaped) and its body (HTML) */
-function panel(title,body){return'<div class="rpdlg"><div class="who">'+esc2(title)+'</div>'+(body||'')+'</div>'}
-export {ROUTED,button,buttons,panel};
+function panel(title, body) {
+  return '<div class="rpdlg"><div class="who">' + esc2(title) + '</div>' + (body || '') + '</div>';
+}
+export {ROUTED, button, buttons, panel};

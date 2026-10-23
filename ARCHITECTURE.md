@@ -6,7 +6,7 @@ seven stylesheets in `styles/` and `index.html`.
 ```
 npm i                      # esbuild, acorn, eslint-scope, postcss (dev only)
 node tools/build.js        # → server/public/index.html (the website) and dist/kq_test.html, dist/kq_site_test.html (test hooks)
-node tools/imports.js      # rewrites every module's import/export lines from what it uses
+node tools/imports.js      # rewrites every module's import/export lines from what it uses, checks the layers, formats (prettier)
 node test/run.js           # everything; `node test/run.js quick` skips the browser scenarios
 ```
 

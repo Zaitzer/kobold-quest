@@ -1,4 +1,4 @@
-/* Dev tool: rewrite every module's import lines and its trailing `export {...}` from what it actually uses.
+/* Dev tool: rewrite every module's import lines and its trailing `export {...}` from what it actually uses, and format it (prettier).
    Move a function to another file, run `node tools/imports.js`, done.
    Fails loudly on a name declared twice or on code assigning another module's variable. */
 const fs=require('fs'),path=require('path'),acorn=require('acorn'),escope=require('eslint-scope');
@@ -32,10 +32,14 @@ const layerOf=f=>LAYER[path.relative(SRC,f).split(path.sep)[0]];
 for(const [f,m] of Object.entries(mods)){const lf=layerOf(f);if(lf==null){errs.push(path.relative(SRC,f)+' is in no layer (add its folder to LAYER)');continue}
   for(const [o,names] of m.use)if(layerOf(o)>lf)errs.push(path.relative(SRC,f)+' (layer '+lf+') imports '+[...names].join(', ')+' from '+path.relative(SRC,o)+' (layer '+layerOf(o)+'): call it through core/hooks.js')}
 if(errs.length){console.error([...new Set(errs)].join('\n'));process.exit(1)}
+/* every module is written back in one format (prettier, .prettierrc.json), so the import lines it writes and the code agree */
+const prettier=require('prettier');
+(async()=>{const cfg=await prettier.resolveConfig(path.join(SRC,'main.js'));
 for(const [f,m] of Object.entries(mods)){
   let h='';
   for(const [o,ns] of [...m.use].sort((a,b)=>a[0]<b[0]?-1:1)){let rel=path.relative(path.dirname(f),o);if(rel[0]!=='.')rel='./'+rel;h+='import {'+[...ns].sort().join(',')+"} from '"+rel+"';\n"}
   const ex=m.names.filter(n=>!m.inline.has(n));
   const lead=(m.body.match(/^\/\*[\s\S]*?\*\/\n/)||[''])[0];let out=lead+h+m.body.slice(lead.length).replace(/\s+$/,'')+(ex.length?'\nexport {'+[...new Set(ex)].sort().join(',')+'};':'')+'\n';
+  if(!/[\\/]data[\\/]v6[\\/]/.test(f))out=await prettier.format(out,Object.assign({},cfg,{filepath:f}));   // the generated data stays as tools/gen-data.js writes it
   if(out!==fs.readFileSync(f,'utf8'))fs.writeFileSync(f,out)}
-console.log('imports ok:',files.length,'modules');
+console.log('imports ok:',files.length,'modules')})();
