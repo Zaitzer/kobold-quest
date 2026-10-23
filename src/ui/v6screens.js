@@ -1,6 +1,7 @@
 /* ---------- Kobold Quest v6: the screens of build step 17 (ui-design.md §6–8) ----------
    The ☰ menu (the pack, the goal, items, the map, the Book, settings, then the rare things), the class pick, the Book (foes, lore and
    the Smiler, places, stamps), the settings, and the Book's own records (foes met and beaten, places seen, festival stamps). */
+import {rpUI} from '../core/hooks.js';
 import {rpBuzz,rpOpt,rpOptSave} from '../core/options.js';
 import {feature,menuItems,options} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
@@ -12,11 +13,11 @@ import {KITS6,SKILLS6} from '../data/v6/skills.js';
 import {WAVE16} from '../data/v6/story.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {goals} from '../game/story6.js';
+import {goals,pickClass} from '../game/story6.js';
 import {v6Stats} from '../game/v6sheet.js';
 import {w6Pieces} from '../game/world6.js';
 import {net} from '../net/core.js';
-import {rpBar,rpUI} from './hud.js';
+import {rpBar} from './hud.js';
 
 const V6S={book:'foes',item:null,cls:null,page:null};
 const bk=()=>{const st=rp.s.w6st;return st.book=st.book||{foes:{},places:{},stamps:[]}};
@@ -88,8 +89,9 @@ feature({id:'v6screens',
     /* the goal bar opens the quest log (ui-design.md §2: one tap) */
     const top=typeof document!=='undefined'&&document.getElementById('rp-top');if(top)top.addEventListener('click',()=>{if(rp.s&&rp.s.w6&&rp.mode==='map'){rp.mode='w6log';rpUI(true)}})},
   on:{'battle:end':b=>v6BookFight(b),'world:apply':()=>v6BookPlace()},
-  panels:{v6book:{sig:()=>JSON.stringify([V6S.book,V6S.page,rp.s&&rp.s.w6st&&rp.s.w6st.book]),html:v6BookHtml},v6set:{sig:()=>JSON.stringify(rpOpt),html:v6SetHtml}},
+  panels:{w6class:{sig:()=>'c'+V6S.cls,html:v6ClassHtml},v6book:{sig:()=>JSON.stringify([V6S.book,V6S.page,rp.s&&rp.s.w6st&&rp.s.w6st.book]),html:v6BookHtml},v6set:{sig:()=>JSON.stringify(rpOpt),html:v6SetHtml}},
   actions:{
+    w6cls:d=>{if(V6S.cls===d.v){V6S.cls=null;pickClass(d.v)}else V6S.cls=d.v},   // the class pick at the yard drill: tap twice to choose
     v6use:d=>{V6S.item=d.v||null},v6useon:d=>{const m=rp.s.party[+d.v];if(!v6UseOn(m,V6S.item))rpToast(m&&m.hp<=0?'Down; a potion can\'t help.':'Already full.');else rpToast(m.name+' feels better.');if(!(rp.s.bag[V6S.item]>0))V6S.item=null},
     v6book:d=>{if(d.v)V6S.book=d.v;V6S.page=null;rp.mode='v6book'},v6bookpage:d=>{V6S.page=d.v||null},
     v6set:()=>{rp.mode='v6set'},v6opt:d=>{rpOpt[d.v]=!rpOpt[d.v];rpOptSave();v6ApplyOpts();if(d.v==='calm'&&!rpOpt.calm)rpBuzz(20)}}});

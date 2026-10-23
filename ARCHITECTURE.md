@@ -10,22 +10,36 @@ node tools/imports.js      # rewrites every module's import/export lines from wh
 node test/run.js           # everything; `node test/run.js quick` skips the browser scenarios
 ```
 
-## Folders
+## Layers and folders
 
-| folder | what lives there | depends on |
-|---|---|---|
-| `engine/` | kobold art, weapons drawing, sound, music, particles, small helpers | nothing |
-| `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design by `tools/gen-data.js`), the registries the battle code reads, consumables | engine |
-| `core/` | game state, the save format (`save6.js`), event bus, feature registry, story conditions, layout, input, boot | data, engine |
-| `adapters/` | browser storage and the page's online services (room, user, db) | nothing |
-| `game/` | the world (`world6.js`), the story (`story6.js`), the character sheet, talents, items, music choice, movement | core, data |
-| `battle/` | tactical battles: rules, flow, enemy AI, drawing, touch input | core, data |
-| `render/` | map drawing | engine, data |
-| `ui/` | the heroes screen, the HUD, the ☰ menu, the pack's sheets, the Book, settings | everything above |
-| `net/` | friends online: presence, lobby, co-op and duel battles, gifts, chat, market, letters, admin tools | everything above |
-| `dev/` | test hooks, only in the test build | |
+The folders are layers. A module imports only from its own layer and the ones below; `node tools/imports.js` refuses to build
+otherwise. When a lower layer must call up (the battle asks the network to share a fight, the story opens the letter desk, anything
+redraws the panel), it calls a hook in `core/hooks.js`, which the higher module fills in when it loads.
 
-`src/systems.js` lists every module in load order. `src/main.js` imports it, then `core/boot.js` runs
+```
+ 5  app/  dev/            the frame loop, boot, keyboard and touch input; test hooks
+ 4  ui/  render/          screens and panels (the HUD, menus, sheets, the battle's buttons); drawing the map and the battle
+ 3  net/                  friends online: presence, lobby, co-op and duels, gifts, chat, market, letters, admin
+ 2  game/  battle/        the rules: the world, the story, characters, items, music choice; battle rules, flow, AI
+ 1  core/                 state, hooks, event bus, feature registry, conditions, options, layout, the save format
+ 0  engine/  data/  adapters/   drawing kobolds, sound and synth, effects, helpers; generated content; storage and the server link
+```
+
+| folder | what lives there |
+|---|---|
+| `engine/` | the kobold drawn in code, sprite sheets, sound effects, the music synth (it plays what `game/music6.js` asks for), particles, small helpers |
+| `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design and `world/` by `tools/gen-data.js`), the registries the battle code reads, consumables |
+| `adapters/` | browser storage and the page's online services (room, user, db) |
+| `core/` | game state (`state.js`), the hooks (`hooks.js`), event bus, feature registry, story conditions, options, layout and the battle view's size, the save format (`save6.js`) |
+| `game/` | the world (`world6.js`), the story (`story6.js`), the character sheet, talents, items, music choice, movement, dialogue |
+| `battle/` | tactical battles: rules, flow (and its camera), boards, endings, enemy AI |
+| `net/` | friends online (the server link is `net.online`, made by `ui/login.js`) |
+| `render/` | drawing the map (`map.js`, `map6.js`) and the battle (`battle.js`) |
+| `ui/` | the heroes screen, the HUD, the ☰ menu, the pack's sheets, the Book, settings, the battle's buttons (`battle.js`), login |
+| `app/` | boot, the frame (`play.js`), keyboard and touch input |
+| `dev/` | test hooks, only in the test build |
+
+`src/systems.js` lists every module in load order. `src/main.js` imports it, then `app/boot.js` runs
 each feature's `init()` and starts the frame loop.
 
 ## Adding something without touching the core

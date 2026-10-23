@@ -2,10 +2,13 @@
    One rule per place: Hearthspire has four versions of one tune (the morning, under the guards, the empty square, everyone came);
    the castle; Glitterbeak whenever he speaks; Mallow hums the rhyme in the bakery; the tower has only its fire; Pebblebrook's drums
    are the mill wheel, so they are missing until the wheel turns (rule 5); R1 the meadow; the mine its cave, the dark floor thinner. */
+import {view} from '../core/app.js';
+import {rpOpt} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {LINKS6} from '../data/v6/maps.js';
-import {sfx} from '../engine/audio.js';
+import {sfx,soundOn} from '../engine/audio.js';
+import {rpMusicTick} from '../engine/music.js';
 import {w6Place} from './world6.js';
 
 const YARD=[14,5,25,12];   // the castle yard on Hearthspire's map (the Nest, the drill)
@@ -22,14 +25,17 @@ function v6Music(){const s=rp.s,q=s.q||{},p=s.w6||'',b=rp.bt,d=rp.dlg,line=d&&d.
     return{key:(q.act||0)>=5?'hs_guards':'hs_morning'}}   // the hatching (§1.8) sets act 5
   if(pebble){const turning=(q.pb||0)>=6,near=MILL&&p==='pebblebrook'&&Math.hypot(s.x-MILL[0],s.y-MILL[1])<=7;return{key:turning?'pebble_wheel':'pebble',amb:turning&&near?'wheel':null}}
   return{key:'meadow'}}
+/* what plays now: nothing when the sound is off, the page is elsewhere or there is no hero yet; quieter indoors and while someone talks */
+function musicWant(){if(!soundOn||rp.headless||rpOpt.music===false||view!=='rpg'||!rp.s||!rp.s.w6)return null;return v6Music()}
+function musicLoud(){return(rp.s&&rp.s.w6&&rp.s.w6.startsWith('room:')?.7:1)*(rp.dlg?.45:1)}
 /* sounds the script cues, line by line: the egg's CRACK, Glitterbeak's roar the first time he speaks in a conversation and a greedy
    low blip on every MINE, Mallow's rhyme when she sings, a clack for each stone at the circle, a skree for the raptors */
 const CUES=[[l=>/\bCRACK\b/.test(l.text),'crack'],[l=>/glitterbeak/i.test(l.who||'')&&/\bmine\b/i.test(l.text),'mine'],
   [l=>/singing|hums?\b/i.test(l.text)&&/mallow/i.test(l.who||''),'rhyme'],[l=>/\bstones?\b/i.test(l.text)&&/circle|clack|vote|drop/i.test(l.text),'clack'],[l=>/\bskree\b/i.test(l.text),'skree']];
 function v6Cue(line,first){if(!line)return null;if(first&&/glitterbeak/i.test(line.who||''))return'roar';for(const [t,k] of CUES)if(t(line))return k;return null}
 let lastDlg=null;
-feature({id:'music6',on:{'dlg:line':line=>{if(!rp.s||!rp.s.w6)return;const d=rp.dlg,first=d&&d!==lastDlg&&!d.lines.slice(0,d.i).some(l=>/glitterbeak/i.test(l.who||''));
+feature({id:'music6',frame:()=>{const W=musicWant();rpMusicTick(W&&W.key,W&&W.amb,musicLoud())},on:{'dlg:line':line=>{if(!rp.s||!rp.s.w6)return;const d=rp.dlg,first=d&&d!==lastDlg&&!d.lines.slice(0,d.i).some(l=>/glitterbeak/i.test(l.who||''));
     if(/glitterbeak/i.test(line.who||''))lastDlg=d;const k=v6Cue(line,first);if(k)sfx(k)},
   'w6:piece':()=>sfx('spark'),'w6:stable':()=>sfx('skree'),'w6:door':()=>sfx('door'),'w6:chest':()=>sfx('chest'),'w6:sound':k=>sfx(k),
   'battle:won':b=>{if(b&&b.v6&&b.ups6&&b.ups6.length)setTimeout(()=>sfx('level'),700)}}});
-export {CUES,MILL,YARD,lastDlg,v6Cue,v6Music};
+export {CUES,MILL,YARD,lastDlg,musicLoud,musicWant,v6Cue,v6Music};

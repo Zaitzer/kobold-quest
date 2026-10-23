@@ -7,7 +7,7 @@ import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {$} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {netInit} from '../net/core.js';
+import {net,netInit} from '../net/core.js';
 
 let online=null;
 /* a newer version is live: save and reload, but never in the middle of a fight or a lobby */
@@ -31,7 +31,7 @@ async function attempt(kind){
   $('login-go').disabled=$('login-new').disabled=false}
 feature({id:'site-login',init(){
   if(typeof SITE==='undefined'||!SITE)return;
-  online=createOnline(wsUrl());
+  online=net.online=createOnline(wsUrl());
   online.account.onNewVersion=updateWhenSafe;
   $('login').addEventListener('submit',e=>{e.preventDefault();attempt('login')});
   $('login-new').addEventListener('click',()=>attempt('register'));

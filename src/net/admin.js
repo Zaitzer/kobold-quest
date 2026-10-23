@@ -3,6 +3,7 @@
    on the server (server/admin.js). The player's side: the message of the day, announcements, warnings, mutes, the festival,
    the report button, error reports, and the fixes an admin leaves in a hero's save (applied when the hero is played). */
 import {v6XpNeed} from '../battle/v6end.js';
+import {rpUI} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {MAPS6} from '../data/v6/maps.js';
@@ -11,17 +12,15 @@ import {rpSay,rpToast} from '../game/dialogue.js';
 import {v6LevelUp} from '../game/v6talent.js';
 import {net} from './core.js';
 import {adminCall} from './mail.js';
-import {rpUI} from '../ui/hud.js';
-import {online} from '../ui/login.js';
 
 const ADM={tab:'server',d:{},acct:null,hero:null,msg:'',code:null,busy:false};
 const TABS=[['server','Server'],['players','Players'],['mod','Moderation'],['market','Market'],['events','Events'],['letters','Letters'],['tests','Tests'],['log','Log']];
-const me=()=>online&&online.account.me;
+const me=()=>net.online&&net.online.account.me;
 const owner=()=>!!(me()&&me().role==='owner');
 const v=id=>{const i=typeof document!=='undefined'&&document.getElementById(id);return i?i.value.trim():''};
 const day=t=>t?new Date(t).toISOString().slice(0,10):'—';
 const admAgo=t=>{if(!t)return'never';const m=(Date.now()-t)/60e3;return m<2?'now':m<120?Math.round(m)+' min ago':m<2880?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
-async function call(tool,o,keep){ADM.busy=true;rpUI(true);try{const r=await online.account.call(Object.assign({k:'adm',tool},o||{}));ADM.d[keep||tool]=r;ADM.msg=keep===false?'Done.':ADM.msg;ADM.busy=false;rpUI(true);return r}
+async function call(tool,o,keep){ADM.busy=true;rpUI(true);try{const r=await net.online.account.call(Object.assign({k:'adm',tool},o||{}));ADM.d[keep||tool]=r;ADM.msg=keep===false?'Done.':ADM.msg;ADM.busy=false;rpUI(true);return r}
   catch(e){ADM.msg=e.message||'That did not work.';ADM.busy=false;rpUI(true);return null}}
 async function act(tool,o,after){ADM.msg='';const r=await call(tool,Object.assign({why:v('adm-why')},o),false);if(r!==null){ADM.msg='Done.';if(after)await after(r)}rpUI(true)}
 /* each tab loads what it shows */
@@ -48,7 +47,7 @@ function adminScreenHtml(){const M=me();if(!M||!M.role)return'<div class="rpdlg"
       break}
     case'players':{h+='<div class="who">Players</div></div>'+input('adm-q','Search accounts by name')+'<div class="rpcmd">'+btn('admfind','Find')+'</div>';
       if(!ADM.acct&&D.find)h+='<div class="rpcmd">'+(D.find.length?D.find.map((a,i)=>btn('admacct',esc2(a.name)+(a.online?' ●':''),'seen '+admAgo(a.seen)+' · '+a.heroes.length+' heroes'+(a.ban?' · banned':a.mute?' · muted':'')+(a.warns?' · '+a.warns+' warnings':''),'',{v:i})).join(''):'<p class="rptip">Nobody by that name.</p>')+'</div>';
-      const A=ADM.acct;if(A&&!ADM.hero){h+='<div class="rpdlg"><div class="who">'+esc2(A.name)+(A.online?' (online)':'')+'</div><p>Made '+day(A.created)+' · seen '+admAgo(A.seen)+' · warnings '+A.warns+(A.mute?' · muted to '+new Date(A.mute).toLocaleString():'')+(A.ban?' · banned '+(A.ban<0?'for good':'to '+day(A.ban)):'')+(A.deleted?' · deleted '+day(A.deleted):'')+'</p></div>';
+      const A=ADM.acct;if(A&&!ADM.hero){h+='<div class="rpdlg"><div class="who">'+esc2(A.name)+(A.online?' (net.online)':'')+'</div><p>Made '+day(A.created)+' · seen '+admAgo(A.seen)+' · warnings '+A.warns+(A.mute?' · muted to '+new Date(A.mute).toLocaleString():'')+(A.ban?' · banned '+(A.ban<0?'for good':'to '+day(A.ban)):'')+(A.deleted?' · deleted '+day(A.deleted):'')+'</p></div>';
         h+='<div class="rpcmd">'+A.heroes.map(x=>btn('admhero',esc2(x.name||'?')+' · '+x.lvl,'slot '+(x.slot+1)+(x.deleted?' · deleted':'')+(x.test?' · test':''),x.deleted?'x':'',{v:x.slot})).join('')+'</div>'+why;
         h+='<div class="rpcmd">'+btn('admdo','Warn','shown at next login','',{t:'warn'})+['hour','day','week'].map(f=>btn('admdo','Mute a'+(f==='hour'?'n ':' ')+f,'no chat','',{t:'mute',f})).join('')+['day','week','ever'].map(f=>btn('admdo',f==='ever'?'Ban for good':'Ban a '+f,'','x',{t:'ban',f})).join('')+
           ['warn','mute','ban'].map(w=>btn('admdo','Undo the last '+w,'','',{t:'undo',w})).join('')+'</div>'+input('adm-to','New account name')+'<div class="rpcmd">'+btn('admdo','Rename the account','the player is told why','',{t:'rename'})+'</div>';
@@ -116,14 +115,14 @@ function fetchFixes(){if(fixHook)fixHook()}
 function adminSetHooks(save,fix){emitSave=save;fixHook=fix}
 /* the game's errors, reported once each (tech-plan.md, "Before going public") */
 let errN=0;const errSeen=new Set();
-function adminReportError(msg,where){if(!online||!online.account.loggedIn||errN>=10)return;msg=String(msg||'').slice(0,300);if(!msg||errSeen.has(msg))return;errSeen.add(msg);errN++;
-  online.account.send({k:'err',msg,where:String(where||'').slice(0,120),build:typeof BUILD_ID!=='undefined'?BUILD_ID:'?'})}
+function adminReportError(msg,where){if(!net.online||!net.online.account.loggedIn||errN>=10)return;msg=String(msg||'').slice(0,300);if(!msg||errSeen.has(msg))return;errSeen.add(msg);errN++;
+  net.online.account.send({k:'err',msg,where:String(where||'').slice(0,120),build:typeof BUILD_ID!=='undefined'?BUILD_ID:'?'})}
 /* the report button (in the chat) */
-async function adminReport(peer){if(!online||!online.account.loggedIn)return;try{await online.account.call({k:'report',peer,why:'from the chat'});rpToast('Thanks. An admin will look at it.')}catch(e){rpToast('That player is gone.')}}
+async function adminReport(peer){if(!net.online||!net.online.account.loggedIn)return;try{await net.online.account.call({k:'report',peer,why:'from the chat'});rpToast('Thanks. An admin will look at it.')}catch(e){rpToast('That player is gone.')}}
 
 feature({id:'admin-tools',
   init(){if(typeof window!=='undefined'){window.addEventListener('error',e=>adminReportError(e.message,(e.filename||'').split('/').pop()+':'+e.lineno));window.addEventListener('unhandledrejection',e=>adminReportError(e.reason&&e.reason.message||e.reason,'promise'))}
-    setTimeout(()=>{if(online)online.account.onServer=onServer},0)},
+    setTimeout(()=>{if(net.online)net.online.account.onServer=onServer},0)},
   on:{'game:start':()=>{if(pending.length){rpSay(pending);pending=[]}}},
   panels:{admth:{sig:()=>JSON.stringify([rp.s&&rp.s.q,rp.s&&rp.s.party.map(m=>m.lvl),ADM.msg]),html:testHeroHtml},adm:{sig:()=>JSON.stringify([ADM.tab,ADM.d,ADM.acct,ADM.hero,ADM.msg,ADM.code,ADM.busy]),html:adminScreenHtml}},
   menu:[{order:19,html:()=>{const M=me();return M&&M.role?'<button class="rpb" type="button" data-rp="adm">Admin<small>'+(M.role==='owner'?'owner':'moderator')+' tools</small></button>':''}},

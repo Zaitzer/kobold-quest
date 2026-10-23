@@ -1,9 +1,10 @@
 /* everyone else on my map */
 import {view} from '../core/app.js';
 import {RT} from '../core/layout.js';
-import {rp,rpPlace} from '../core/state.js';
+import {rp} from '../core/state.js';
 import {OL,WEAPONS,ctx,makeK} from '../engine/art.js';
 import {R,rr} from '../engine/util.js';
+import {rpPlace} from '../game/world6.js';
 import {net,netName} from './core.js';
 
 /* other players are drawn only when they are on the same map (outdoors, or the same room) */

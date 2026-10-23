@@ -1,8 +1,7 @@
 import {rpAiTurn} from '../battle/ai.js';
-import {tcCamTo} from '../battle/draw.js';
-import {rpFloat,rpRewards,tcDo,tcEndTurn,tcFloatU} from '../battle/flow.js';
+import {rpFloat,rpRewards,tcCamTo,tcDo,tcEndTurn,tcFloatU} from '../battle/flow.js';
 import {tcHome,tcLive,tcMov,tcPath,tcReach,tcShown,tcT,tcUnitAt,tcVis} from '../battle/rules.js';
-import {rpInputReset} from '../core/input.js';
+import {hooks,rpInputReset,rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -20,7 +19,6 @@ import {rpMemSkills,rpStats} from '../game/stats.js';
 import {s6SharedWin} from '../game/story6.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
 import {netCleanParty,netLobFix,netLobSend,netParty} from './lobby.js';
-import {rpUI} from '../ui/hud.js';
 const NET_TURN_MS=20000,NET_LOST_MS=8000;
 /* the tests shorten the waits (window.__kqTurnMs, __kqLostMs in the test build); the game uses the design's */
 const turnMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqTurnMs)||NET_TURN_MS,lostMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqLostMs)||NET_LOST_MS;
@@ -153,4 +151,6 @@ feature({id:'net-battle-io',
     duelok(d,msg){const b=rp.bt,L=net.lob;if(L&&L.host&&L.duel&&L.id===d.id&&!L.g){{const gp=netCleanParty(d.party);L.g={peer:msg.peer,by:msg.by,party:gp,sel:[Math.max(0,gp.findIndex(m=>m.hp>0))]}}netLobFix(L,'g');netLobSend();rp.sig=''}}},
   actions:{
     'net:duel'(d){netDuelAsk()}}});
+
+Object.assign(hooks,{netFx,hostFrame:netHostFrame,guestFrame:netGuestFrame});
 export {NET_LOST_MS,NET_TURN_MS,lostMs,netApplySnap,netBuildMirror,netClean6E,netDuelAccept,netDuelAsk,netFx,netGuestEnd,netGuestFrame,netHostAct,netHostFrame,netOver,netSendAct,netSendSnap,netSendStart,netSerAct,netSnapSig,turnMs};

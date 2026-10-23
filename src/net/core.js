@@ -3,17 +3,19 @@
    Everything is optional: without them the game is the same single-player game. */
 import {platform} from '../adapters/platform.js';
 import {view} from '../core/app.js';
+import {hooks,rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {actions,feature,netHandlers} from '../core/registry.js';
-import {rp,rpPlace} from '../core/state.js';
+import {rp} from '../core/state.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpArea} from '../game/world.js';
+import {rpPlace} from '../game/world6.js';
 import {netGiftTick} from './gift.js';
 import {netLobSend} from './lobby.js';
 import {netMarketInit} from './market.js';
-import {rpUI} from '../ui/hud.js';
 
-const net={room:null,user:null,db:null,me:null,myPeer:null,on:false,names:{},partner:null,pk:null,pkPos:null,lastPres:0,presSig:'',
+const net={online:null,   /* the link to the game server (adapters/online.js), made by ui/login.js */
+  room:null,user:null,db:null,me:null,myPeer:null,on:false,names:{},partner:null,pk:null,pkPos:null,lastPres:0,presSig:'',
   others:[],pks:{},ops:{},focus:null,bubbles:{},peerNames:{},chatLog:[],market:[],mine:[],mkBusy:false,cloud:null,cloudRef:null,cloudBusy:false,cloudT:0,pickFor:null,mkTab:'buy',mkSell:null,
   lob:null,gifts:{},giftsIn:new Set(),wref:null,wremote:null,wsent:'',wbusy:false,wtimer:0,fx:[],snapN:0,snapSig:'',snapT:0,actN:0,lastOp:null,duelAsk:null};
 function netRid(){return Math.random().toString(36).slice(2,9)}
@@ -80,4 +82,6 @@ feature({id:'net-buttons',routes:{net:d=>netBtn(d)}});
 
 feature({id:'net-presence-after-battle',on:{'battle:end':()=>setTimeout(()=>netPresence(true),0)}});
 feature({id:'net-live',init:()=>netInit(),frame:dt=>netFrame(dt),on:{'game:start':()=>netPresence(true)}});
+
+hooks.partnerName=netName;
 export {net,netBtn,netByPeer,netEmit,netFocus,netFrame,netInit,netLeaveRpg,netMsg,netName,netNameOf,netOnline,netPartnerFree,netPeers,netPresence,netRid};

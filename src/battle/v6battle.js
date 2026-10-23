@@ -4,6 +4,7 @@
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
 import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
 import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
+import {shareFx} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
@@ -17,7 +18,6 @@ import {sfx} from '../engine/audio.js';
 import {set_shake,shake} from '../engine/fx.js';
 import {v6Kobold,v6Stats} from '../game/v6sheet.js';
 import {w6Start} from '../game/world6.js';
-import {netFx} from '../net/battle.js';
 
 const V6_WEAK=new Set(['cleric','druid','bard']);           // their basic attack is a melee bonk with the focus (−10 accuracy)
 const V6_ROLE_LOOK={normal:'stick',brute:'club',quick:'spoon',ranged:'popgun',caster:'firewand',elite:'sword',swarm:'fish'};
@@ -95,7 +95,7 @@ function v6Strike(a,t,o){const b=rp.bt;if(!t||!tcLive(t))return;o=o||{};const sh
   const [lo,hi]=v6DmgRange(b,a,t,o.mul||1,o);let d=lo+Math.random()*(hi-lo);
   if(!landed){d*=0.5;tcFloatU(t,'resisted','#d7c9e3')}
   const as=tcStat(a);if(Math.random()<v6Crit(b,a,t,fl,unseen)){d*=as.critD||1.5;tcFx(t,'CRIT!','#ffb347',14,62)}else d*=as.beta==null?1:as.beta;
-  d=Math.max(1,Math.round(d));t.hp=Math.max(0,t.hp-d);t.k.hurt=.3;t.k.squash=1;tcFx(t,String(d),'#ffffff',16,48);netFx({u:b.units.indexOf(t),h:1});
+  d=Math.max(1,Math.round(d));t.hp=Math.max(0,t.hp-d);t.k.hurt=.3;t.k.squash=1;tcFx(t,String(d),'#ffffff',16,48);shareFx({u:b.units.indexOf(t),h:1});
   if(sh.fx==='drain'||sh.fx==='self_heal'){const h=Math.round(d*(sh.v||0.3));if(a.m){a.m.hp=Math.min(tcStat(a).hp,a.m.hp+h)}else a.hp=Math.min(a.max,a.hp+h);tcFloatU(a,'+'+h,'#9af0a0')}
   if(sh.fx==='mark')t.mark=sh.hitsLeft||3;
   if(t.mark&&a.side===0&&sh.fx!=='mark'){t.mark--;if(t.mark<=0)t.mark=0}

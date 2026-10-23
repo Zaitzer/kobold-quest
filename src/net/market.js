@@ -1,4 +1,5 @@
 /* ---------- market board: listings live in the database, so they stay up while the seller is offline ---------- */
+import {rpUI} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
@@ -7,7 +8,6 @@ import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {tradeLabel,tradeList,tradePrice,tradePut,tradeTake,tradeValid} from '../game/items6.js';
 import {net} from './core.js';
-import {rpUI} from '../ui/hud.js';
 
 function netMarketInit(){try{const col=net.db.collection('market');
     col.where('status','==','open').onSnapshot(sn=>{net.market=sn.docs.map(d=>Object.assign({id:d.id},d.data()));const ids=[...new Set(net.market.map(m=>m.seller))].filter(i=>i&&!(i in net.names));

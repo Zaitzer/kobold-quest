@@ -1,11 +1,11 @@
 /* Boot: the title screen, the sound toggle and the one frame loop. */
-import {view} from './app.js';
-import {inits} from './registry.js';
+import {rpFrame} from './play.js';
+import {view} from '../core/app.js';
+import {inits} from '../core/registry.js';
 import {installHooks} from '../dev/hooks.js';
 import {ctx,drawKobold,makeK,set_ctx} from '../engine/art.js';
 import {audio,set_soundOn,sfx,soundOn} from '../engine/audio.js';
 import {$} from '../engine/util.js';
-import {rpFrame} from '../game/play.js';
 
 const TITLE_KS=[
   {team:0,weapon:'stick',x:70,y:112,face:1},

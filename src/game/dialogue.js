@@ -1,12 +1,11 @@
 /* dialogue */
 import {emit} from '../core/bus.js';
-import {rpInputReset} from '../core/input.js';
+import {rpInputReset,rpUI} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
 import {esc2} from '../engine/util.js';
-import {rpUI} from '../ui/hud.js';
 
 function rpSay(lines,choices,after){if(typeof rpInputReset==='function')rpInputReset();rp.dlg={lines:lines.map(l=>typeof l==='string'?{who:'',text:l}:l),i:0,choices:choices||null,after:after||null};rp.mode='dialog';rpBlip();rpUI(true)}
 function rpDlgNext(){const d=rp.dlg;if(!d)return;if(d.i<d.lines.length-1){d.i++;rpBlip();rpUI(true);return}if(d.choices)return;rp.dlg=null;rp.mode='map';rpSave();if(d.after)d.after();rpUI(true)}

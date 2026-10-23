@@ -1,16 +1,14 @@
-import {tcHitBadge,tcTargets} from './input.js';
-import {tcBase,tcHome,tcLive,tcMov,tcReach,tcShown,tcT} from './rules.js';
-import {v6LegalTiles} from './v6battle.js';
-import {BVH,BVW,TT} from './view.js';
-import {RT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
+/* ---------- drawing ---------- */
+import {tcBase,tcHome,tcLive,tcMov,tcReach,tcShown,tcT} from '../battle/rules.js';
+import {v6LegalTiles} from '../battle/v6battle.js';
+import {BVH,BVW,RT,TT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {rp} from '../core/state.js';
 import {OL,ctx,drawKobold,el,set_ctx} from '../engine/art.js';
 import {parts,shake,texts} from '../engine/fx.js';
 import {R,RM,clamp,heartPath,rr,starPath} from '../engine/util.js';
-import {rpTile} from '../render/map.js';
-function tcCamTo(b,u,snap){const h=u.k?{x:u.k.x,y:u.k.y}:{x:(u.x+.5)*TT,y:(u.y+.5)*TT};
-  const t={x:clamp(h.x-BVW/2,0,Math.max(0,b.W*TT-BVW)),y:clamp(h.y-BVH*.55,0,Math.max(0,b.H*TT-BVH))};b.camT=t;if(snap){b.cam.x=t.x;b.cam.y=t.y}}
-/* ---------- drawing ---------- */
+import {rpTile} from './map.js';
+import {tcHitBadge,tcTargets} from '../ui/battle.js';
+
 function tcTile(g,c,x,y,X,Y,th){
   const base=tcBase(th),S=TT/RT;g.save();g.translate(X,Y);g.scale(S,S);
   const under=ch=>rpTile(g,ch,x,y,0,0);
@@ -82,4 +80,4 @@ function rpFloatStatic(x,y,t,c){ctx.font='800 15px "Fredoka",system-ui,sans-seri
 function tcShield(x,y,c){ctx.fillStyle=OL;ctx.beginPath();ctx.moveTo(x-7,y-7);ctx.lineTo(x+7,y-7);ctx.lineTo(x+7,y+1);ctx.quadraticCurveTo(x,y+9,x,y+9);ctx.quadraticCurveTo(x-7,y+5,x-7,y+1);ctx.closePath();ctx.fill();
   ctx.fillStyle=c===2?'#6fb8ff':'#9ad0ff';ctx.beginPath();ctx.moveTo(x-5,y-5);ctx.lineTo(x+5,y-5);ctx.lineTo(x+5,y+1);ctx.quadraticCurveTo(x,y+6.5,x,y+6.5);ctx.quadraticCurveTo(x-5,y+3.5,x-5,y+1);ctx.closePath();ctx.fill();
   if(c===1){ctx.fillStyle=OL;ctx.fillRect(x,y-5,5,12)}}
-export {rpDrawBattle,rpFloatStatic,tcBoardImg,tcCamTo,tcShield,tcTile};
+export {rpDrawBattle,rpFloatStatic,tcBoardImg,tcShield,tcTile};

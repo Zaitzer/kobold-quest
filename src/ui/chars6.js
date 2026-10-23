@@ -5,20 +5,20 @@
    a lock document renewed every 30 seconds. Old saves are not carried over (progress was reset for v6). */
 import {store} from '../adapters/storage.js';
 import {show} from '../core/app.js';
+import {rpUI} from '../core/hooks.js';
 import {rpLayout,rpResize} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {SLOTS6,key6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
-import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
+import {rp,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {SHEET6,byBase,recolour} from '../engine/sheets6.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {s6NewGame,s6TestFight,story} from '../game/story6.js';
-import {w6Title} from '../game/world6.js';
+import {rpApplyWorld,w6Title} from '../game/world6.js';
 import {adminApplyFixes,adminLetter,adminSetHooks,adminSetTestFight} from '../net/admin.js';
 import {net} from '../net/core.js';
-import {rpUI} from './hud.js';
 
 const DAY=864e5,KEEP=7*DAY,LOCK_MS=60000,RENEW_MS=30000,C6_COLOURS=['orange','green','blue','pink','gold','purple'];
 const C6={slot:null,cloud:{},form:{name:'Pip',colour:'orange',slot:0},del:null,lockT:0,dev:null,ask:null};

@@ -1,8 +1,8 @@
 /* Test hooks (only in the test build): window handles (__rp, __v6, __rpB...) the browser tests drive the game with. */
 import {rpBattle} from '../battle/flow.js';
-import {rpTacBtn,rpTacTap} from '../battle/input.js';
 import {tcMov,tcReach} from '../battle/rules.js';
 import {v6FoeKey,v6Mix} from '../battle/v6battle.js';
+import {rpUI} from '../core/hooks.js';
 import {rpSave} from '../core/save.js';
 import {rp,rpNewState} from '../core/state.js';
 import {registry} from './registry_view.js';
@@ -20,7 +20,7 @@ import {rpBfs,rpSolid} from '../game/world.js';
 import {w6Go,w6Start} from '../game/world6.js';
 import {net,netBtn} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
-import {rpUI} from '../ui/hud.js';
+import {rpTacBtn,rpTacTap} from '../ui/battle.js';
 
 export function installHooks(){
   window.__rp=rp;

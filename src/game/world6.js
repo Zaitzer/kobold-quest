@@ -4,9 +4,10 @@
    this module. */
 import {v6EliteKey,v6Mix} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
+import {startFight} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
-import {rp,rpApplyWorld} from '../core/state.js';
+import {PHASE,rp} from '../core/state.js';
 import {PLACES6} from '../data/v6/foes.js';
 import {LINKS6,MAPS6,ROOMS6,TILES6} from '../data/v6/maps.js';
 import {CHESTS6} from '../data/v6/story.js';
@@ -15,7 +16,6 @@ import {rpSay,rpToast} from './dialogue.js';
 import {v6OpenChest} from './items6.js';
 import {rpStats} from './stats.js';
 import {s6Step} from './story6.js';
-import {rpFight} from '../net/lobby.js';
 
 /* ------------------------------------------------------------------ places and tiles */
 /* the tile letters (world/tiles.json): one legend for maps and one for rooms */
@@ -34,6 +34,9 @@ function w6LinkAt(p,x,y,how){return LINKS6.find(l=>l[0]===p&&l[1]===x&&l[2]===y&
 function w6MarkNear(p,x,y){const P=w6Place(p);if(!P||!P.marks)return null;if(isRoom(p)){const c=P.rows[y]&&P.rows[y][x];const m=P.marks.find(m=>m[0]===c);return m?m[1]:null}
   let best=null,bd=2.01;P.marks.forEach(([mx,my,l])=>{const d=Math.hypot(mx-x,my-y);if(d<bd){bd=d;best=l}});return best}
 
+/* the place as the network sees it (net/core.js: who is where) and the grid the engine walks on */
+function rpPlace(){if(!rp.s||!rp.s.w6)return'none';return'w6:'+rp.s.w6+((rp.s.q.act||0)<7?':own:'+PHASE:'')}
+function rpApplyWorld(){const R=rp.s&&rp.s.w6&&w6Rows(rp.s.w6);if(R)rp.grid=R.map(r=>r.split(''));rp.mapImg=null;emit('world:apply')}
 /* ------------------------------------------------------------------ entering a place */
 /* the free tile nearest (x, y) that is not a link, so arriving never sends you straight back */
 function w6Arrive(p,x,y){const R=w6Rows(p),solid=c=>w6SolidIn(p,c);let best=[x,y],bd=1e9;
@@ -61,7 +64,7 @@ function w6PatrolCheck(x,y,c){const p=rp.s.w6;for(const t of w6Patrols(p)){const
 function w6PatrolFight(p,t,aware){const E=w6Enc(p),P=PLACES6[E.place],L=w6PatrolLevel(p),keys=[v6EliteKey(P.pool[0],L)].concat(v6Mix(Object.assign({},P,{L,target:P.target-1})));
   rp.path=null;rp.held=null;rp.s.w6st.fighting=t.id;
   /* shared with a friend in the same place when one is free (systems.md §12) */
-  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:w6Theme(p),patrol:t.id,xpMul:1.5,aware:!!aware,title:t.name,
+  startFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:w6Theme(p),patrol:t.id,xpMul:1.5,aware:!!aware,title:t.name,
     msg:aware?t.name+' saw you coming!':'You catch '+t.name+' unawares!'})}
 
 /* ------------------------------------------------------------------ stables, raptors and fast travel (systems.md §6) */
@@ -97,7 +100,7 @@ function w6Fight(p,E){const P=PLACES6[E.place],L=Math.max(1,Math.round(rp.s.part
   /* the foes' level: the place's, nudged toward the pack (levels 3–6 on R1, 6–8 in the mine; balance.md §5) */
   const lv=Math.max(P.L-1,Math.min(P.L+2,L)),keys=v6Mix(Object.assign({},P,{L:lv}));
   rp.s.w6st.enc[p]=(rp.s.w6st.enc[p]||0)+1;rp.path=null;rp.held=null;
-  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||w6Theme(p),first,title:P.n||'A fight'})}
+  startFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||w6Theme(p),first,title:P.n||'A fight'})}
 /* walking into something solid: bump links (the tower), and the things on the maps */
 function w6Bump(x,y){const s=rp.s,p=s.w6,c=(rp.grid[y]||[])[x];
   const L=w6LinkAt(p,x,y,'bump');if(L){w6Follow(L);return true}
@@ -156,4 +159,4 @@ feature({id:'world6',panels:{w6travel:{sig:()=>rp.w6travel+JSON.stringify(rp.s&&
   on:{'battle:end':b=>{if(!rp.s||!rp.s.w6||!b||!b.v6)return;
     if(b.patrol&&b.over==='win')rp.s.w6st.patrols[b.patrol]=1;
     if(b.over==='lose'){const st=rp.s.w6st;const p=st.respawn||'hearthspire';w6HealAll();rp.s.gold=Math.floor(rp.s.gold/2);w6Go(p,...MAPS6[p].entry)}}}});
-export {W6_DIR,W6_GAP,W6_RAIL,isRoom,linkOpen,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Enc,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6SolidIn,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Theme,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};
+export {W6_DIR,W6_GAP,W6_RAIL,isRoom,linkOpen,rpApplyWorld,rpPlace,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Enc,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6SolidIn,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Theme,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};

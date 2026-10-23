@@ -1,5 +1,5 @@
 import {rpBattle} from '../battle/flow.js';
-import {rpInputReset} from '../core/input.js';
+import {hooks,rpInputReset,rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {v6PackKobold} from '../core/save6.js';
@@ -13,7 +13,6 @@ import {rpToast} from '../game/dialogue.js';
 import {rpStats} from '../game/stats.js';
 import {netSendStart} from './battle.js';
 import {net,netByPeer,netEmit,netFocus,netName,netPartnerFree,netPresence,netRid} from './core.js';
-import {rpUI} from '../ui/hud.js';
 function netParty(){return rp.s.party.map(v6PackKobold)}
 function netCleanParty(p){return Array.isArray(p)?netClean6(p):[]}
 /* a friend's v6 kobolds: only the saved fields (save6.js), checked so a bad message can't break the fight */
@@ -109,4 +108,6 @@ feature({id:'net-lobby-io',
       if(L.g){netEmit({t:'nolob',id:L.id,to:L.g.peer,why:netName()+' went ahead alone.'});L.g=null;netStart();return}
       net.lob=null;rpBattle(L.keys,L.opt);return}},
     'net:lobleave'(d){{const L=net.lob;if(L)netEmit({t:'leave',id:L.id,to:L.hostPeer});net.lob=null;rp.mode='map';return}}}});
+
+hooks.fight=rpFight;   // a fight is offered to a friend in the same place first
 export {clsName,netClean6,netCleanParty,netLevelSync,netLobFix,netLobHtml,netLobPick,netLobSend,netLobTitle,netOpenLobby,netParty,netStart,rpFight};

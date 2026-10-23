@@ -1,15 +1,15 @@
 /* The game's frame: walking or fighting, drawing, the panel; Play opens the heroes screen (ui/chars6.js). */
-import {rpDrawBattle} from '../battle/draw.js';
 import {rpBattleStep} from '../battle/flow.js';
 import {set_uiT,uiT} from '../core/app.js';
+import {rpUI} from '../core/hooks.js';
 import {rpGoFull} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {$} from '../engine/util.js';
-import {rpMoveFrame} from './move.js';
+import {rpMoveFrame} from '../game/move.js';
+import {rpDrawBattle} from '../render/battle.js';
 import {rpDrawMap} from '../render/map.js';
 import {openSelect} from '../ui/chars6.js';
-import {rpUI} from '../ui/hud.js';
 
 function rpFrame(dt){
   rp.t+=dt;

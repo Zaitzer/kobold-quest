@@ -25,6 +25,12 @@ for(const [f,m] of Object.entries(mods)){
     if(r.isWrite())errs.push(path.relative(SRC,f)+' assigns '+n+' (owned by '+path.relative(SRC,o)+'): use a setter or an object');
     if(!use.has(o))use.set(o,new Set());use.get(o).add(n)}
   m.use=use}
+/* the layers (ARCHITECTURE.md): a module may import from its own layer and the ones below, never from above. A lower layer that has to
+   call up does it through core/hooks.js (the higher module fills the hook in). */
+const LAYER={data:0,adapters:0,engine:0,core:1,game:2,battle:2,net:3,render:4,ui:4,app:5,dev:5};
+const layerOf=f=>LAYER[path.relative(SRC,f).split(path.sep)[0]];
+for(const [f,m] of Object.entries(mods)){const lf=layerOf(f);if(lf==null){errs.push(path.relative(SRC,f)+' is in no layer (add its folder to LAYER)');continue}
+  for(const [o,names] of m.use)if(layerOf(o)>lf)errs.push(path.relative(SRC,f)+' (layer '+lf+') imports '+[...names].join(', ')+' from '+path.relative(SRC,o)+' (layer '+layerOf(o)+'): call it through core/hooks.js')}
 if(errs.length){console.error([...new Set(errs)].join('\n'));process.exit(1)}
 for(const [f,m] of Object.entries(mods)){
   let h='';

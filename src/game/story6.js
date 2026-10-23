@@ -5,6 +5,7 @@
 import {rpBattle} from '../battle/flow.js';
 import {v6BossKey,v6EliteKey,v6FoeKey} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
+import {openLetter,partnerName,startFight} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
@@ -18,10 +19,6 @@ import {rpSay,rpToast} from './dialogue.js';
 import {needOf,v6Buy,v6CanWear,v6Craft,v6Drops,v6ItemName,v6OpenChest,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock} from './items6.js';
 import {v6Kobold,v6Stats} from './v6sheet.js';
 import {w6Cart,w6Go,w6Start} from './world6.js';
-import {netName} from '../net/core.js';
-import {rpFight} from '../net/lobby.js';
-import {rpOpenLetter} from '../net/mail.js';
-import {V6S,v6ClassHtml} from '../ui/v6screens.js';
 
 const PACK=4;
 const hero=()=>rp.s.party.find(m=>m.hero)||rp.s.party[0];
@@ -65,12 +62,12 @@ function setPiece(id){const S=SETPIECES6[id];if(!S){next();return}const s=rp.s,h
     const big=has(tag,'big'),m=scale*(big?2:1);RP_E[nk]=Object.assign({},E,{n:name||E.n,tele:has(tag,'tele')?1:0,hp:Math.max(1,Math.round(E.hp*m)),atk:+(E.atk*scale*(big?1.2:1)).toFixed(1),xp:Math.max(1,Math.round(E.xp*m)),size:big?1.2:E.size});return nk});
   /* a boss can be fought together (systems.md §12): the lobby opens when a friend is free in the same place */
   story.fight=id;const opt=Object.assign({members,zone:',',v6:1,theme:S.theme,setPiece:1,story:id},S.boss?{boss:keys[0],title:RP_E[keys[0]].n}:{});
-  if(S.boss&&!S.solo)rpFight(keys,opt);else rpBattle(keys,opt)}
+  if(S.boss&&!S.solo)startFight(keys,opt);else rpBattle(keys,opt)}
 /* the test hero's "any fight" (systems.md §17): a set piece outside its scene */
 function s6TestFight(id){if(rp.s&&rp.s.test&&SETPIECES6[id])setPiece(id)}
 /* a shared boss won as the friend: it counts if this player's story has reached that scene, else a helper's mark */
 function s6SharedWin(id){if(!id||!rp.s||!rp.s.w6st||rp.s.test)return;const st=rp.s.w6st,sc=SCENES6.find(c=>c.steps.some(x=>x[0]==='fight'&&x[1]===id));
-  if(sc&&due(sc)&&!(st.beat||{})[id]){st.beat=st.beat||{};st.beat[id]=1;st.beat[id+':who']=netName();rpToast('This counts for your story!')}
+  if(sc&&due(sc)&&!(st.beat||{})[id]){st.beat=st.beat||{};st.beat[id]=1;st.beat[id+':who']=partnerName();rpToast('This counts for your story!')}
   else{st.helps=(st.helps||0)+1;rpToast('A helper\'s mark! ('+st.helps+')')}}
 /* ------------------------------------------------------------------ what scenes do */
 /* a companion joins (systems.md §7): at the pack's mean level rounded down, never above the hero, with its kit and this tier's gear;
@@ -104,7 +101,7 @@ function s6Bump(x,y){if(story.busy)return false;const p=rp.s.w6,n=s6NpcAt(x,y,tr
   const c=(rp.grid[y]||[])[x];if(c==='H'&&p.startsWith('room:')&&p!=='room:tower')return chat(p);
   if(c==='o'&&p.startsWith('room:'))return roster();
   return false}
-function npcLine(n){if(n.letter){rpOpenLetter();return true}   /* Quill the scribe: the letter desk (net/mail.js) */
+function npcLine(n){if(n.letter){openLetter();return true}   /* Quill the scribe: the letter desk (net/mail.js) */
 if(!n.lines||!n.lines.length){rpSay([{who:n.n,text:'...'}]);return true}const st=rp.s.w6st;st.talk=st.talk||{};const i=st.talk[n.id]||0;st.talk[n.id]=(i+1)%n.lines.length;
   const it=SCRIPT6[n.from].items[n.lines[i]];let L=lineOf(it);
   /* "(after the hatching:)" splits a line in two (slice-dialogue.md §1.10) */
@@ -137,7 +134,6 @@ function logHtml(){const q=rp.s.q,G=goals();let h='<div class="rpdlg"><div class
   if(q.pb===2){const done={Ore:q.miner_ore,Tansy:q.miner_tansy,'Flint and Grit':q.miner_brothers,'Old Marl':q.miner_marl,Grubb:q.pb>=5};
     h+='<p>'+MINERS6.map(m=>(done[m.who]?'✔ ':'· ')+'<b>'+esc2(m.who)+'</b>: '+esc2(m.hint)).join('<br>')+'</p>'}
   return h+'</div><div class="tbar"><button class="rpb x" type="button" data-rp="w6back">Back</button></div>'}
-function classHtml(){return v6ClassHtml()}   // the cards live in ui/v6screens.js
 function w6RosterHtml(){const s=rp.s,all=s.party.concat(s.w6st.bench||[]);return'<div class="rpdlg"><div class="who">The roster</div><p>Pick the pack (four at most). Those not in it wait here and learn a little anyway.</p></div><div class="rpcmd">'+
   all.map((m,i)=>'<button class="rpb'+(s.party.includes(m)?' go':'')+'" type="button" data-rp="w6swap" data-v="'+i+'"'+(m.hero?' disabled':'')+'>'+esc2(m.name)+'<small>'+esc2(CLASSES6[m.cls].n)+' '+m.lvl+(s.party.includes(m)?' · in the pack':' · waiting')+'</small></button>').join('')+
   '<button class="rpb x" type="button" data-rp="w6back">Done</button></div>'}
@@ -155,12 +151,12 @@ function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div clas
   const mats=s.mats6||{};return h+'<p><small>'+(Object.entries(mats).filter(([k,v])=>v>0).map(([k,v])=>k+' ×'+v).join(' · ')||'No materials yet.')+'</small></p><div class="rpcmd">'+v6Recipes(town).map((R,i)=>{const N=needOf(R),can=N.every(x=>(mats[x.mat]||0)>=x.n);return'<button class="rpb'+(can?' go':'')+'" type="button" data-rp="w6craft" data-v="'+i+'"'+(can?'':' disabled')+'>'+esc2(R.n)+'<small>needs '+esc2(R.need)+'</small></button>'}).join('')+'</div>'}
 feature({id:'story6',
   menu:[{order:4,html:()=>rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="w6log">What now<small>'+esc2(s6GoalLine()||'the quest log')+'</small></button>':''}],
-  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6class:{sig:()=>'c'+V6S.cls,html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
+  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
   actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v)){rpToast('Bought!');rpSave()}},w6sell:d=>{if(v6Sell(d.v)){rpToast('Sold.');rpSave()}},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it){rpToast('The smith made '+it.n+'!');rpSave()}},
-    w6cls:d=>{if(V6S.cls===d.v){V6S.cls=null;pickClass(d.v)}else V6S.cls=d.v},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
+    w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
   on:{'w6:enter':p=>{if(rp.s.w6st&&rp.s.w6st.seen)s6Enter(p)},
     'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}b.got6=got;if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Enter,s6GoalLine,s6Marker,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
+export {ITEMS,PACK,benchXp,chat,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Enter,s6GoalLine,s6Marker,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,s6TestFight,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};

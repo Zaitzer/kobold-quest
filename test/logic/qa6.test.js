@@ -19,7 +19,7 @@ X.rp.s=X.rpNewState();X.w6Start([X.v6Kobold('Pip','fighter',5,{hero:1})]);const 
  s.w6='pebblebrook';X.v6BookPlace();ok(!!B.places.pebblebrook,'the Book: places seen');
  X.net.festival={name:'Lantern week',stamp:'f1',until:Date.now()+1e6};X.v6BookPlace();X.v6BookPlace();ok(B.stamps.length===1&&B.stamps[0].n==='Lantern week','one festival stamp');X.net.festival=null}
 /* row 18: settings that change behaviour: reduced motion stops the shake and confetti; the colour-blind palette changes the bars */
-{X.rpOpt.calm=true;ok(X.set_shake(3)===0,'reduced motion: no shake');X.rpOpt.calm=false;ok(X.set_shake(3)===3,'shake otherwise');X.set_shake(0);
+{X.rpOpt.calm=true;X.rpOptSave();ok(X.set_shake(3)===0,'reduced motion: no shake');X.rpOpt.calm=false;X.rpOptSave();ok(X.set_shake(3)===3,'shake otherwise');X.set_shake(0);
  X.rpOpt.cb=true;ok(/5fb0ff/.test(X.rpBar(5,10,'#7ad67a'))&&/ff9f1c/.test(X.rpBar(1,10,'#ff6b6b')),'colour-blind bars: blue and orange');X.rpOpt.cb=false;ok(/7ad67a/.test(X.rpBar(5,10,'#7ad67a')),'normal bars')}
 /* row 8: the bounties: the board's scene sets both, each has its fight and its reward */
 {const d=X.SCENES6.find(c=>c.id==='3.14d'),e=X.SCENES6.find(c=>c.id==='3.14e'),f=X.SCENES6.find(c=>c.id==='3.14f');

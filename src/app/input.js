@@ -1,20 +1,20 @@
-import {rpTacClick} from '../battle/input.js';
-import {view} from './app.js';
-import {RPH,RPW,RT,rpLayout,rpLoc,rpResize,rpVec,rpcv} from './layout.js';
-import {feature} from './registry.js';
-import {rp} from './state.js';
+import {view} from '../core/app.js';
+import {hooks,rpInputReset,rpUI} from '../core/hooks.js';
+import {RPH,RPW,RT,rpLayout,rpLoc,rpResize,rpVec,rpcv} from '../core/layout.js';
+import {feature} from '../core/registry.js';
+import {rp} from '../core/state.js';
 import {$} from '../engine/util.js';
 import {rpChoose,rpDlgNext} from '../game/dialogue.js';
 import {rpTapTile} from '../game/move.js';
 import {netSay} from '../net/chat.js';
-import {rpMenuClick,rpUI} from '../ui/hud.js';
+import {rpTacClick} from '../ui/battle.js';
+import {rpMenuClick} from '../ui/hud.js';
 function rpStickEnd(e){const S=rp.stick;if(!S||(e&&S.id!==e.pointerId))return;if(S.on){rp.held=null;rp.stickUsed=true;setTimeout(()=>{rp.stickUsed=false},0)}rp.stick=null}
 const RP_KEYS={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
 function rpJoyKnob(dx,dy){const j=document.querySelector?document.querySelector('#rp-panel [data-joy]'):null;if(!j||!j.style)return;j.style.setProperty('--jx',dx+'px');j.style.setProperty('--jy',dy+'px');j.classList.toggle('on',!!(dx||dy))}
 function rpJoyMove(e){const P=rp.joyP;if(!P)return;const v=rpVec(e.clientX-P.cx,e.clientY-P.cy);let dx=v.x,dy=v.y;const d=Math.hypot(dx,dy);if(d>P.R){dx*=P.R/d;dy*=P.R/d}rp.joy={x:dx/P.R,y:dy/P.R};rpJoyKnob(dx,dy)}
 function rpJoyEnd(e){const P=rp.joyP;if(!P||(e&&e.pointerId!==P.id))return;rp.joyP=null;rp.joy=null;rpJoyKnob(0,0)}
 /* never keep walking once no finger is on the screen */
-function rpInputReset(){rp.joy=null;rp.joyP=null;rp.held=null;rp.keys.clear();if(rp.stick)rp.stick=null;rpJoyKnob(0,0)}
 feature({id:'core-input',init(){
 rp.stick=null;
 rpcv.addEventListener('pointerdown',e=>{if(rp.mode!=='map')return;{const L=rpLoc(e,rpcv);rp.stick={id:e.pointerId,x:e.clientX,y:e.clientY,lx:L.x/L.w,ly:L.y/L.h,dx:0,dy:0,on:false}}try{rpcv.setPointerCapture(e.pointerId)}catch(_){}});
@@ -52,4 +52,6 @@ window.addEventListener('pointercancel',rpJoyEnd);
 window.addEventListener('blur',rpInputReset);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)rpInputReset()});
 }});
-export {RP_KEYS,rpInputReset,rpJoyEnd,rpJoyKnob,rpJoyMove,rpStickEnd};
+
+hooks.joyKnob=rpJoyKnob;
+export {RP_KEYS,rpJoyEnd,rpJoyKnob,rpJoyMove,rpStickEnd};

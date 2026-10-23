@@ -1,10 +1,10 @@
 /* ---------- player input ---------- */
-import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from './flow.js';
-import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcHome,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from './rules.js';
-import {v6LegalTiles,v6ReviveOK,v6TogetherOpts} from './v6battle.js';
-import {v6CanRetry,v6Retry} from './v6end.js';
-import {BVH,BVW,TT} from './view.js';
-import {rpLoc,rpVec,rpcv} from '../core/layout.js';
+import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from '../battle/flow.js';
+import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcHome,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from '../battle/rules.js';
+import {v6LegalTiles,v6ReviveOK,v6TogetherOpts} from '../battle/v6battle.js';
+import {v6CanRetry,v6Retry} from '../battle/v6end.js';
+import {rpUI} from '../core/hooks.js';
+import {BVH,BVW,TT,rpLoc,rpVec,rpcv} from '../core/layout.js';
 import {rpOpt,rpOptSave} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -17,7 +17,7 @@ import {clamp,esc2} from '../engine/util.js';
 import {rpMemSkills,rpStats} from '../game/stats.js';
 import {netSendAct,netSerAct} from '../net/battle.js';
 import {net,netEmit,netName} from '../net/core.js';
-import {rpBar,rpUI} from '../ui/hud.js';
+import {rpBar} from './hud.js';
 
 function tcTargets(b,u){
   const m=b.mode;

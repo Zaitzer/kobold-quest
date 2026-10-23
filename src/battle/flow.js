@@ -1,13 +1,11 @@
 import {rpAiTurn,tcPosScore} from './ai.js';
-import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTiles,tcVis,tcW} from './rules.js';
 import {v6DoSkill,v6HealMul,v6OnTile,v6Queue,v6Revive,v6Strike,v6Together,v6TurnStart,v6Upcoming} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
 import {v6Fall,v6GiveXp,v6Keep,v6Leave} from './v6end.js';
-import {TT} from './view.js';
 import {emit} from '../core/bus.js';
-import {rpInputReset} from '../core/input.js';
-import {rpResize} from '../core/layout.js';
+import {hooks,partnerName,rpInputReset,rpUI,shareFx} from '../core/hooks.js';
+import {BVH,BVW,TT,rpResize} from '../core/layout.js';
 import {rpBuzz,rpOpt} from '../core/options.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
@@ -23,9 +21,6 @@ import {artName} from '../engine/sprites.js';
 import {R,clamp} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpStats} from '../game/stats.js';
-import {netFx,netGuestFrame,netHostFrame} from '../net/battle.js';
-import {netName} from '../net/core.js';
-import {rpUI} from '../ui/hud.js';
 function rpBattle(keys,opt){
   opt=opt||{};const s=rp.s,boss=opt.boss||null,duel=!!opt.duel,T6=opt.v6&&opt.theme?v6Theme(opt.theme):null,theme=T6?T6.base:'meadow';
   const members=opt.members||s.party.map(m=>({m,ctl:'me',own:'h'})),foes=opt.foes||[];
@@ -64,7 +59,7 @@ function rpBattle(keys,opt){
   b.units.forEach(u=>{const h=tcHome(u);u.k.x=h.x;u.k.y=h.y});
   tcVis(b);tcCamTo(b,b.units[0],true);
   rp.mode='battle';rp.path=null;rp.held=null;rpInputReset();
-  b.msg=duel?'Duel with '+netName()+'! Place your kobolds, then start.':boss?RP_E[boss].n+' blocks the way! Place your kobolds, then start.':'Ambush! Something lurks in the fog. Place your kobolds, then start.';
+  b.msg=duel?'Duel with '+partnerName()+'! Place your kobolds, then start.':boss?RP_E[boss].n+' blocks the way! Place your kobolds, then start.':'Ambush! Something lurks in the fog. Place your kobolds, then start.';
   if(!rp.headless)sfx('crit');rpBuzz(boss?[60,40,90]:40);
   if(opt.aware)b.units.forEach(u=>{if(u.side===1)u.aware=true});if(opt.msg)b.msg=opt.msg;
   if(rp.headless)rpTacBegin();
@@ -83,7 +78,7 @@ function tcRound(b){b.round++;
 function tcUpcoming(b,n){return v6Upcoming(b,n+1)}
 function tcCheckEnd(){const b=rp.bt;if(!b||b.over)return true;
   if(b.duel){const a=b.units.some(u=>u.side===0&&tcLive(u)),c=b.units.some(u=>u.side===1&&tcLive(u));
-    if(!a||!c){b.over=a?'duelwin':'duellose';b.phase='end';b.cur=null;b.seq=[];b.step=null;b.msg=a?'You won the duel against '+netName()+'!':netName()+' won the duel. Good fight!';if(a&&!rp.headless)confetti();rpUI(true);return true}return false}
+    if(!a||!c){b.over=a?'duelwin':'duellose';b.phase='end';b.cur=null;b.seq=[];b.step=null;b.msg=a?'You won the duel against '+partnerName()+'!':partnerName()+' won the duel. Good fight!';if(a&&!rp.headless)confetti();rpUI(true);return true}return false}
   if(!b.units.some(u=>u.side===1&&tcLive(u))){rpWin();return true}
   const on=b.units.filter(u=>u.side===0&&tcLive(u));
   if(!on.length){if(b.units.some(u=>u.side===0&&u.fled&&u.hp>0)){b.over='run';b.phase='end';b.msg='Your party slipped away.';rpUI(true)}else rpLose();return true}
@@ -105,7 +100,7 @@ function tcNext(){
   const ctl=u.ctl||(u.side===0?'me':'ai');b.turnT=performance.now();b.warned=0;
   /* a player who left mid-fight: their kobolds guard until the fight ends (systems.md §12) */
   if(ctl==='guard'){u.guard=1;u.ap=0;b.msg=u.name+' guards.';tcFloatU(u,'guard','#9ad0ff');tcQ({k:'wait',d:.4});b.phase='busy';rpUI(true);return}
-  if(ctl==='remote'){b.phase=b.seq.length?'busy':'remote';b.msg=netName()+' is moving '+u.name+'…';tcCamTo(b,u);rpUI(true);return}
+  if(ctl==='remote'){b.phase=b.seq.length?'busy':'remote';b.msg=partnerName()+' is moving '+u.name+'…';tcCamTo(b,u);rpUI(true);return}
   if(ctl==='me'){b.phase=b.seq.length?'busy':'turn';b.msg=u.name+'\'s turn · '+u.ap+' AP'+(rp.s.q.tac?'':'. Tap a blue tile to move there, a foe to attack it (its hit chance is over its head). Drag the board to look around.');tcCamTo(b,u);if(rp.autoParty)rpAiTurn(u)}
   else{b.phase='ai';if(tcShown(b,u))tcCamTo(b,u);rpAiTurn(u)}
   rpUI(true);
@@ -115,7 +110,7 @@ function tcEndTurn(){const b=rp.bt;if(!b)return;const u=b.cur;if(u)u.ap=0;b.pend
 function tcQ(st){rp.bt.seq.push(st)}
 function tcSpeed(u){const b=rp.bt;if(rp.headless)return 0;if(u&&!u.m&&!tcShown(b,u))return 0;return u&&(u.ctl==='ai'||!u.m)?(rpOpt.bspd||1):1}
 function tcFloatU(u,t,c){tcFx(u,t,c,13)}
-function tcFx(u,t,c,sz,dy){rpFloat(u.k.x,u.k.y-(dy||46*(u.sz>1?1.6:1)),t,c,sz||13);netFx({u:rp.bt.units.indexOf(u),t,c,s:sz||13,dy:dy||0})}
+function tcFx(u,t,c,sz,dy){rpFloat(u.k.x,u.k.y-(dy||46*(u.sz>1?1.6:1)),t,c,sz||13);shareFx({u:rp.bt.units.indexOf(u),t,c,s:sz||13,dy:dy||0})}
 function tcStepRun(dt){
   const b=rp.bt;
   for(let guard=0;guard<200;guard++){
@@ -202,7 +197,7 @@ function tcStrike(a,t,o){
   if(!o.spell){const H=tcHit(b,a,t,o);fl=H.fl;if(Math.random()*100>=H.h){tcFloatU(t,'miss','#d7c9e3');if(!rp.headless)sfx('pop');tcWake(b,t);return}}
   const [lo,hi]=tcDmg(b,a,t,o.mul||1,o);let d=Math.round(R(lo,hi));
   if(Math.random()<tcCrit(b,a,t,fl)&&!o.spell){d=Math.round(d*1.5);tcFx(t,'CRIT!','#ffb347',14,62)}
-  t.hp=Math.max(0,t.hp-d);t.k.hurt=.3;t.k.squash=1;tcFx(t,String(d),'#ffffff',16,48);netFx({u:b.units.indexOf(t),h:1});
+  t.hp=Math.max(0,t.hp-d);t.k.hurt=.3;t.k.squash=1;tcFx(t,String(d),'#ffffff',16,48);shareFx({u:b.units.indexOf(t),h:1});
   if(a.m&&o.drain){const st=rpStats(a.m),h=Math.round(d*o.drain);a.m.hp=Math.min(st.hp,a.m.hp+h);tcFloatU(a,'+'+h,'#9af0a0')}
   if(t.hp>0&&(o.stun||(o.stunP&&Math.random()<o.stunP))&&!(t.E&&t.E.boss)){t.stun=1;tcFloatU(t,'stunned','#ffe27a')}
   if(t.hp>0&&o.slow){t.slow=1;tcFloatU(t,'brr!','#bfeaff')}
@@ -259,7 +254,7 @@ function rpBattleStep(dt){
       const gun=WEAPONS[k.weapon]&&WEAPONS[k.weapon].ranged&&!WEAPONS[k.weapon].magic;k.wa+=((b.over==='win'&&u.side===0?-.5+Math.sin(k.t*10)*.3:gun?1.45:.35)-k.wa)*Math.min(1,dt*10);
       if(b.over==='win'&&u.side===0&&tcLive(u)&&k.z===0&&Math.random()<dt*1.5)k.vz=150}
     if(k.z>0||k.vz>0){k.vz-=720*dt;k.z+=k.vz*dt;if(k.z<=0){k.z=0;k.vz=0}}}
-  const guest=b.net&&b.net.role==='guest';if(guest)netGuestFrame(b,dt);
+  const guest=b.net&&b.net.role==='guest';if(guest)hooks.guestFrame(b,dt);
   if(!guest&&(b.phase==='busy'||b.phase==='ai'||(b.phase==='turn'&&b.seq.length))){
     if(b.phase==='turn')b.phase='busy';
     let done;try{done=tcStepRun(dt)}catch(err){console.error('battle step failed',err);b.step=null;b.seq=[];b.anim=null;done=true}
@@ -269,7 +264,7 @@ function rpBattleStep(dt){
       else if(ctl==='remote'){b.phase='remote';rpUI(true)}
       else if(ctl==='me'){if(rp.autoParty){b.phase='ai';rpAiTurn(u);if(!b.seq.length)tcEndTurn()}else{b.phase='turn';b.msg=u.name+' · '+u.ap+' AP left';rpUI(true)}}
       else tcEndTurn()}}
-  if(b.net&&b.net.role==='host')netHostFrame(b,dt);
+  if(b.net&&b.net.role==='host')hooks.hostFrame(b,dt);
   if(b.camT){b.cam.x+=(b.camT.x-b.cam.x)*Math.min(1,dt*6);b.cam.y+=(b.camT.y-b.cam.y)*Math.min(1,dt*6)}
   if(!rp.headless){
     for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.life-=dt;if(p.life<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt;p.rot+=p.vr*dt}
@@ -299,4 +294,9 @@ function rpEndBattle(){
   emit('battle:end',b);
   rpSave();rpUI(true);requestAnimationFrame(rpResize);
 }
-export {rpBattle,rpBattleStep,rpEndBattle,rpFloat,rpLose,rpRewards,rpTacBegin,rpWin,tcAlert,tcAnim,tcCheckEnd,tcDo,tcEndTurn,tcFloatU,tcFx,tcKo,tcNext,tcOnStep,tcQ,tcResolve,tcRound,tcSeen,tcSpeed,tcSpot,tcStepRun,tcStrike,tcUpcoming,tcWake};
+
+if(!hooks.fight)hooks.fight=rpBattle;   // alone (net/lobby.js takes over when the network is loaded)
+/* the camera: centre on a unit (smoothly, or at once with snap) */
+function tcCamTo(b,u,snap){const h=u.k?{x:u.k.x,y:u.k.y}:{x:(u.x+.5)*TT,y:(u.y+.5)*TT};
+  const t={x:clamp(h.x-BVW/2,0,Math.max(0,b.W*TT-BVW)),y:clamp(h.y-BVH*.55,0,Math.max(0,b.H*TT-BVH))};b.camT=t;if(snap){b.cam.x=t.x;b.cam.y=t.y}}
+export {rpBattle,rpBattleStep,rpEndBattle,rpFloat,rpLose,rpRewards,rpTacBegin,rpWin,tcAlert,tcAnim,tcCamTo,tcCheckEnd,tcDo,tcEndTurn,tcFloatU,tcFx,tcKo,tcNext,tcOnStep,tcQ,tcResolve,tcRound,tcSeen,tcSpeed,tcSpot,tcStepRun,tcStrike,tcUpcoming,tcWake};

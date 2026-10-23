@@ -1,4 +1,5 @@
 /* the colour-blind palette (ui-design.md §10): blue and orange for green and red */
+import {hooks,rpUI} from '../core/hooks.js';
 import {rpResize} from '../core/layout.js';
 import {rpOpt} from '../core/options.js';
 import {actions,feature,panels,routes} from '../core/registry.js';
@@ -18,7 +19,7 @@ import {v6PackHtml} from './v6screens.js';
 const CB={'#7ad67a':'#5fb0ff','#ff6b6b':'#ff9f1c','#ffc857':'#ffe066'};
 function rpBar(v,m,col){const p=clamp(v/m*100,0,100);if(rpOpt.cb)col=CB[col]||col;return '<i class="rpbar"><b style="width:'+p.toFixed(0)+'%;background:'+col+'"></b></i>'}
 function rpPartyHtml(){if(rp.s.w6)return v6PackHtml();return '<div class="rpparty">'+rp.s.party.map(m=>{const st=rpStats(m);return '<div class="rpm'+(m.hp<=0?' down':'')+'"><b>'+esc2(m.name)+' <small>'+rpClsName(m)+' '+m.lvl+(m.pend?' ★':'')+'</small></b>'+rpBar(m.hp,st.hp,m.hp>st.hp*.5?'#7ad67a':m.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>HP '+Math.max(0,m.hp)+'/'+st.hp+' · MP '+m.mp+'/'+st.mp+'</small></div>'}).join('')+'</div>'}
-function rpUI(force){
+function hudRender(force){
   const top=$('rp-top');if(!top||!rp.s)return;
   const s=rp.s,area=rp.mode==='battle'?(rp.bt&&rp.bt.boss?'Boss battle':'Battle'):rpArea(s.x,s.y);
   const tt='<b>'+area+'</b><span>'+Math.floor(s.gold)+' gold</span><span class="rpq">'+s6GoalLine()+'</span>';
@@ -47,4 +48,6 @@ const MAP_PANEL={
   html:()=>netMapRow()+rpPartyHtml()+'<p class="rpkeys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, or click, to walk · <kbd>E</kbd> talk · <kbd>I</kbd> the pack · <kbd>M</kbd> menu</p><div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div>'+
     '<div class="rpside"><button class="pill go big" type="button" data-rp="act">Talk / Use</button><div class="rprow2">'+(net.on?'<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>':'')+''+(rp.s.w6==='mine1'&&rp.s.w6st&&rp.s.w6st.cart!=='done'?'<button class="pill" type="button" data-rp="w6hint">Hint</button>':'')+'<button class="pill" type="button" data-rp="v6sheet" data-v="0">⚔ Pack</button>'+'<button class="pill" type="button" data-rp="menu">☰ Menu</button></div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'};
 feature({id:'hud',panels:{map:MAP_PANEL},routes:{dir:d=>rpTry(d.dir)},actions:{act:()=>rpActFacing(),w6hint:()=>{rpSay([{who:'',text:w6RailHint()}])}}});
-export {CB,MAP_PANEL,rpBar,rpMenuClick,rpPartyHtml,rpUI};
+
+hooks.ui=hudRender;
+export {CB,MAP_PANEL,hudRender,rpBar,rpMenuClick,rpPartyHtml};

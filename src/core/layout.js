@@ -1,5 +1,4 @@
 /* ---------- Kobold Quest (RPG) ---------- */
-import {rpViewH,rpViewW} from '../battle/view.js';
 import {rpOpt} from './options.js';
 import {rp} from './state.js';
 import {$} from '../engine/util.js';
@@ -31,4 +30,9 @@ function rpGoFull(force){if(rpOpt.full===false&&!force)return;if(!force&&!(windo
   const el=document.documentElement;try{const p=el.requestFullscreen?el.requestFullscreen({navigationUI:'hide'}):el.webkitRequestFullscreen?el.webkitRequestFullscreen():null;
     if(p&&p.then)p.then(()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}catch(e){}}
 function rpExitFull(){try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(e){}}
-export {RPH,RPW,RP_MAXTILE,RP_TILES,RT,RVH,RVW,rpDpr,rpExitFull,rpGoFull,rpLayout,rpLoc,rpResize,rpS,rpVec,rpctx,rpcv};
+
+/* the battle board's view: tiles of 40 points, 9 × 11 of them on screen; the canvas is that size in a fight, the map's otherwise */
+const TT=40,TVW=9,TVH=11,BVW=TT*TVW,BVH=TT*TVH;
+function rpViewW(){return rp.mode==='battle'&&rp.bt?BVW:RPW}
+function rpViewH(){return rp.mode==='battle'&&rp.bt?BVH:RPH}
+export {BVH,BVW,RPH,RPW,RP_MAXTILE,RP_TILES,RT,RVH,RVW,TT,TVH,TVW,rpDpr,rpExitFull,rpGoFull,rpLayout,rpLoc,rpResize,rpS,rpVec,rpViewH,rpViewW,rpctx,rpcv};

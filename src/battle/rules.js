@@ -1,5 +1,5 @@
 import {v6AtkCost,v6Crit,v6DmgRange,v6FoeStat,v6Hit,v6InReach,v6Move} from './v6battle.js';
-import {TT} from './view.js';
+import {TT} from '../core/layout.js';
 import {RP_ST,RP_TT,RP_TW,TC_DIR8} from '../data/battle.js';
 import {WEAPONS} from '../engine/art.js';
 import {seeded} from '../engine/util.js';
