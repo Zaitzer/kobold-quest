@@ -260,6 +260,12 @@ kobolds and four players sharing the places; **the timeline** (§1) decides whos
 beside a downed friend's kobold (1 AP, 25%); buffs from two players do not stack; XP and loot are personal; a player who leaves mid-fight
 leaves their kobolds guarding until the fight ends.
 
+As built (build step 15): a road fight or a patrol opens the lobby when another player is on the map in the same place; story fights
+and bosses stay personal for now. Each side brings up to three kobolds, four together; the friend's kobolds above the host hero's
+level fight at it (scores, skills and gear stay; HP and mana keep their share). One more foe from the same fight joins for each of the
+friend's kobolds. Buffs: one player's add up, and for two players the strongest player's total counts. Revive is for another player's
+kobold only (your own need the healer's skills). The timer warns at 15 seconds; at 20 the kobold guards and the turn passes.
+
 ## 13. Settings, difficulty, accessibility
 
 - **One difficulty.** The curve is tuned for a pack of four; the player's levers are the pack, the gear, leaving fights, the bond and

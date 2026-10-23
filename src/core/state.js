@@ -9,7 +9,7 @@ function rpNewState(){return{v:2,x:7,y:23,face:'down',gold:30,party:[rpMember('P
 /* state */
 const rp={grid:null,s:null,mode:'map',dlg:null,bt:null,move:null,path:null,held:null,grace:4,cam:{x:0,y:0},mapImg:null,npcK:{},pk:null,t:0,headless:false,sig:''};
 /* which map Pip is on: 'world', or a room id from data/places.js */
-function rpPlace(){return rp.s&&rp.s.place||'world'}
+function rpPlace(){if(rp.s&&rp.s.w6)return'w6:'+rp.s.w6;return rp.s&&rp.s.place||'world'}
 function rpApplyWorld(){if(rp.s.w6){const R=w6Rows(rp.s.w6);if(R){rp.grid=R.map(r=>r.split(''));rp.mapImg=null;emit('world:apply');return}}const P=rp.s.place&&RP_PLACES[rp.s.place];if(rp.s.place&&!P)delete rp.s.place;
   if(P)rp.grid=P.rows.map(r=>r.split(''));
   else{const old=rpBuildWorld();rpWorldExtras(old);rp.grid=makeWorldGrid(old)}

@@ -2,18 +2,16 @@
    Six character slots per account (the website login or the Claude page's identity; "guest" on a device with neither). Each slot is
    one hero and one save: cached in the browser and kept on the server at data/users/<id>/char<n> (the database's documents have an
    even number of path parts, so "chars/<n>" became "char<n>"). Deleting keeps a hero for 7 days. One device at a time per hero:
-   a lock document renewed every 30 seconds. The old game's save is the legacy hero, played from the same screen. */
+   a lock document renewed every 30 seconds. Old saves are not carried over (progress was reset for v6). */
 import {store} from '../adapters/storage.js';
 import {show} from '../core/app.js';
 import {rpGoFull,rpLayout,rpResize} from '../core/layout.js';
 import {feature,frames} from '../core/registry.js';
-import {rpLoad} from '../core/save.js';
-import {SLOTS6,v6HeroName,v6Legacy,v6Load,v6SaveOf} from '../core/save6.js';
+import {SLOTS6,v6HeroName,v6Load,v6SaveOf} from '../core/save6.js';
 import {rp,rpApplyWorld,rpNewState} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {$,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {rpStart} from '../game/play.js';
 import {s6NewGame,story} from '../game/story6.js';
 import {w6Title} from '../game/world6.js';
 import {net} from '../net/core.js';
@@ -30,7 +28,7 @@ function slotInfo(i){const s=raw(i);if(!s)return null;const h=(s.party||[]).find
   return{slot:i,name:(s.hero&&s.hero.name)||h.name||'Pip',colour:s.hero&&s.hero.colour,cls:h.noclass?null:h.cls,lvl:h.lvl||1,where:s.w6st&&s.w6st.respawn||s.w6,pieces:(s.w6st&&s.w6st.pieces||[]).length,played:s.played||0,savedAt:s.savedAt||0,deleted:s.deletedAt||null}}
 function cloudRef(i){return net.db&&net.me?net.db.doc('data/users/'+net.me+'/char'+i):null}
 async function cloudLoad(){if(!net.db||!net.me)return;for(let i=0;i<SLOTS6;i++){try{const sn=await cloudRef(i).get();C6.cloud[i]=sn.exists?sn.data():null}catch(e){}}
-  try{const sn=await net.db.doc('data/users/'+net.me+'/save').get();C6.oldCloud=sn.exists?sn.data():null}catch(e){}rp.sig=''}
+  rp.sig=''}
 let saveT=0;
 function chars6Save(s){if(C6.slot==null)return;const a=acct(),d=v6SaveOf(s);store.set(key(a,C6.slot),d);const ref=cloudRef(C6.slot);if(!ref)return;
   clearTimeout(saveT);saveT=setTimeout(()=>{ref.set(JSON.parse(JSON.stringify(d))).then(()=>{C6.cloud[C6.slot]=d}).catch(()=>{})},2500)}
@@ -57,8 +55,6 @@ function purge(i){const info=slotInfo(i);if(info&&info.deleted&&Date.now()-info.
 /* a guest's hero kept on this device moves into a free slot when its player logs in (systems.md §16, "Keep this hero") */
 function guestHeroes(){if(acct()==='guest')return[];const out=[];for(let i=0;i<SLOTS6;i++){const d=store.get(key('guest',i),null);if(d&&!d.deletedAt)out.push(i)}return out}
 function keepGuest(gi){const free=[0,1,2,3,4,5].find(i=>{const x=slotInfo(i);return!x});if(free==null){rpToast('All six slots are full.');return}write(free,store.get(key('guest',gi),null));store.set(key('guest',gi),null);rpToast('Kept!')}
-/* the legacy hero (systems.md §16): the old game's save, read-only, played as the first story */
-function legacy(){const old=C6.oldCloud||rpLoad();return old?v6Legacy(old):null}
 /* ------------------------------------------------------------------ the screens */
 const ago=t=>{if(!t)return'never';const d=(Date.now()-t)/DAY;return d<1/24?'just now':d<1?Math.round(d*24)+' h ago':Math.round(d)+' d ago'};
 const hm=s=>{s=Math.floor((s||0)/60);return Math.floor(s/60)+' h '+(s%60)+' min'};
@@ -69,7 +65,6 @@ function selectHtml(){for(let i=0;i<SLOTS6;i++)purge(i);let h='<div class="rpdlg
     h+='<button class="rpb go" type="button" data-rp="c6play" data-v="'+i+'">'+esc2(x.name)+'<small>'+(x.cls?esc2(CLASSES6[x.cls].n)+' ':'')+'level '+x.lvl+' · '+esc2(x.where?w6Title(x.where).replace(/ \(.*\)$/,''):'Hearthspire')+' · '+x.pieces+' pieces · '+hm(x.played)+' · '+ago(x.savedAt)+'</small></button>'}
   h+='</div><div class="rpcmd">';for(let i=0;i<SLOTS6;i++){const x=slotInfo(i);if(x&&!x.deleted)h+='<button class="rpb x" type="button" data-rp="c6delask" data-v="'+i+'">Delete '+esc2(x.name)+'<small>you will type the name</small></button>'}
   for(const gi of guestHeroes()){const d=store.get(key('guest',gi),null);h+='<button class="rpb go" type="button" data-rp="c6keep" data-v="'+gi+'">Keep this hero: '+esc2(d.hero.name)+'<small>played here as a guest; moves into a free slot</small></button>'}
-  const L=legacy();if(L)h+='<button class="rpb" type="button" data-rp="c6legacy">Your hero from the first story<small>'+esc2(L.name)+', level '+L.lvl+' · the old game, as it was</small></button>';
   return h+'</div>'}
 function c6NewHtml(){const F=C6.form;return'<div class="rpdlg"><div class="who">A new hero (slot '+(F.slot+1)+')</div><p>Name your hero (2 to 12 letters; the story calls them by it) and pick a scale colour. The class is chosen in the story.</p>'+
   '<div class="chatin"><input id="c6-new" maxlength="12" value="'+esc2(F.name)+'" aria-label="Hero name"></div><div class="rpcmd">'+C6_COLOURS.map(c=>'<button class="rpb'+(c===F.colour?' on':'')+'" type="button" data-rp="c6col" data-v="'+c+'">'+c+'</button>').join('')+'</div></div>'+
@@ -83,11 +78,11 @@ function openSelect(){rp.s=rpNewState();rp.s.w6='hearthspire';rp.s.w6st={fountai
 function readName(){const e=typeof document!=='undefined'&&document.getElementById('c6-new');if(e)C6.form.name=e.value}
 feature({id:'chars6',on:{save6:s=>chars6Save(s)},
   init(){const b=typeof document!=='undefined'&&$('go-rpg');if(!b)return;b.addEventListener('click',e=>{if(window.__kqOldTitle)return;e.stopImmediatePropagation();rpGoFull();openSelect()},true)},
-  panels:{c6:{sig:()=>JSON.stringify([C6.cloud,C6.oldCloud&&1,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
+  panels:{c6:{sig:()=>JSON.stringify([C6.cloud,store.get('kq6:'+acct()+':0',null)&&1]),html:selectHtml},c6new:{sig:()=>JSON.stringify(C6.form),html:c6NewHtml},c6del:{sig:()=>'d'+(C6.del&&C6.del.i),html:delHtml},c6busy:{sig:()=>'b'+C6.ask,html:busyHtml}},
   menu:[{order:3,html:()=>rp.s&&rp.s.w6&&C6.slot!=null?'<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>':''}],
   actions:{c6play:d=>{c6Play(+d.v)},c6force:()=>{c6Play(C6.ask,true)},c6new:d=>{C6.form={name:'Pip',colour:'orange',slot:+d.v};rp.mode='c6new'},c6col:d=>{readName();C6.form.colour=d.v},c6make:()=>{readName();c6Create()},
     c6back:()=>{rp.mode='c6'},c6delask:d=>askDelete(+d.v),c6del:()=>doDelete(),c6restore:d=>restore(+d.v),c6keep:d=>keepGuest(+d.v),
-    c6legacy:()=>{window.__kqOldTitle=1;C6.slot=null;rpStart(false);window.__kqOldTitle=0},c6menu:()=>{chars6Save(rp.s);openSelect()}}});
+    c6menu:()=>{chars6Save(rp.s);openSelect()}}});
 /* the lock is renewed while a hero is played, and played time is counted */
 let c6tick=0;frames.push(dt=>{if(C6.slot==null||!rp.s||!rp.s.w6)return;rp.s.played=(rp.s.played||0)+dt;c6tick+=dt;if(c6tick*1000>=RENEW_MS){c6tick=0;lockCheck()}});
-export {C6,C6_COLOURS,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,hm,keepGuest,key,legacy,lockCheck,lockFree,lockRef,lockTake,openSelect,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};
+export {C6,C6_COLOURS,DAY,KEEP,LOCK_MS,RENEW_MS,acct,ago,askDelete,busyHtml,c6Create,c6NewHtml,c6Play,c6tick,chars6Save,cloudLoad,cloudRef,delHtml,devId,doDelete,guestHeroes,hm,keepGuest,key,lockCheck,lockFree,lockRef,lockTake,openSelect,purge,raw,readName,restore,saveT,selectHtml,slotInfo,write};

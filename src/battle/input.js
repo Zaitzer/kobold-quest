@@ -1,7 +1,7 @@
 /* ---------- player input ---------- */
 import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from './flow.js';
 import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from './rules.js';
-import {v6LegalTiles,v6TogetherOpts} from './v6battle.js';
+import {v6LegalTiles,v6ReviveOK,v6TogetherOpts} from './v6battle.js';
 import {v6CanRetry,v6Retry} from './v6end.js';
 import {BVH,BVW,TT} from './view.js';
 import {rpLoc,rpVec,rpcv} from '../core/layout.js';
@@ -68,6 +68,9 @@ function rpTacTap(x,y){
     if(!tcInReach(b,u,t)){b.msg=t.name+' is out of reach. '+(tcMelee(u)?'Walk next to it first.':'Get closer or find a clear line.');b.pend=null;return}
     if(!tcCanPay(u,tcActCost(u,{k:'atk'}))){b.msg='Not enough AP to attack with that weapon.';return}
     b.pend=Object.assign(tcPreviewAttack(b,u,t,{k:'atk',t}),{tx:x,ty:y});return}
+  const dn=!t&&b.v6&&b.units.find(v=>v.side===0&&v.m&&v.hp<=0&&!v.fled&&v.x===x&&v.y===y);
+  if(dn){if(v6ReviveOK(b,u,dn)&&u.ap>=1)b.pend={act:{k:'revive',t:dn},t:dn,tx:x,ty:y,info:'<b>Help up</b> '+esc2(dn.name)+': gets up with 25% HP · 1 AP'};
+    else{b.msg=(dn.own||'h')===(u.own||'h')?dn.name+' is down. In a shared fight a friend\'s kobold can help it up.':'Stand next to '+dn.name+' to help it up (1 AP).';b.pend=null}return}
   if(t&&t.side===0){b.msg=t===u?u.name+' · '+u.ap+' AP left.':t.name+': '+t.hp+'/'+t.max+' HP.';b.pend=null;return}
   /* move */
   const mov=tcMov(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov),d=R2.dist.get(y*b.W+x);

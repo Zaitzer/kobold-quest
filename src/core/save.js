@@ -9,7 +9,7 @@ import {rpAutoTalents,rpClsOfWeapon,rpStats} from '../game/stats.js';
 const SAVE_KEY='kobold-pit-rpg',SAVE_VERSION=2;
 /* a progress reset: saves from before the current epoch (local or cloud) are ignored, so everyone starts fresh.
    Bump it (and "epoch" in server/config.json, which also clears the website's market and cloud saves) to reset again. */
-const SAVE_EPOCH=1;
+const SAVE_EPOCH=2;
 /* where this browser keeps its copy: the website keeps one per account */
 let saveKey=SAVE_KEY;
 function setSaveKey(k){saveKey=k}

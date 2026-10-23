@@ -42,7 +42,9 @@ function v6Kind(a,o){if(o&&o.spell)return'spell';const s=tcStat(a);
   return a.E.caster?'spell':a.E.ranged?'ranged':'melee'}
 const v6Light=a=>a.m&&['daggers','fists'].includes(tcStat(a).fam);
 const v6Lvl=u=>u.m?u.m.lvl:u.E.L||1;
-function v6Buff(u,k){return(u.vb||[]).filter(x=>x.k===k).reduce((a,x)=>a+x.v,0)}
+/* buffs (systems.md §12): one player's buffs add up; two players' buffs on the same stat do not stack, the strongest counts */
+function v6Buff(u,k){const by={};(u.vb||[]).forEach(x=>{if(x.k===k)by[x.own||'']=(by[x.own||'']||0)+x.v});const v=Object.values(by);if(!v.length)return 0;
+  return Math.max(0,...v)+Math.min(0,...v)}
 function v6Has(u,k){return!!(u.vs&&u.vs[k]>0)}
 
 /* ---------------------------------------------------------------- hit, spells, damage, crits (balance.md §4a) */
@@ -142,6 +144,10 @@ function v6TogetherOpts(b,u){if(!b||!b.v6||!u||u.side!==0||!u.m||u.ap<1)return[]
 function v6Together(b,u,f,t){u.ap+=1;if(!v6TogetherOpts(b,u).some(o=>o.f===f&&o.t===t))return false;u.ap-=1;b.together[v6PairKey(u,f)]=1;   // tcDo has paid the 1 AP
   f.ct=(f.ct||0)-100;b.queue=b.queue.filter(x=>x!==f);b.msg=u.name+' and '+f.name+' strike together!';tcFloatU(u,'together!','#ffd54a');
   [u,f].forEach(a=>tcQ({k:'atk',a,tg:t,o:{mul:1,flank:1,quick:!!tcStat(a).quick,name:'Together'}}));return true}
+/* revive (systems.md §12): in a shared fight, standing beside another player's downed kobold, 1 AP, it gets up with 25% HP */
+function v6ReviveOK(b,u,t){return!!(b&&b.v6&&u&&t&&u.side===0&&t.side===0&&t!==u&&t.m&&t.hp<=0&&!t.fled&&(t.own||'h')!==(u.own||'h')&&tcCheb(u,t)<=1)}
+function v6Revive(b,u,t){if(!v6ReviveOK(b,u,t)){u.ap+=1;return false}t.hp=Math.max(1,Math.round(t.max*0.25));t.k.state='idle';t.k.rot=0;t.k.rotT=0;
+  b.msg=u.name+' helps '+t.name+' up!';tcFloatU(t,'+'+t.hp,'#9af0a0');return true}
 /* the turn-order bar: the unit acting now, the rest of this tick, then the clock run forward on copies (systems.md §1: it never lies) */
 function v6Upcoming(b,n){v6Seat(b);const out=[];if(b.cur&&tcLive(b.cur))out.push(b.cur);b.queue.forEach(u=>{if(tcLive(u)&&out.length<n)out.push(u)});
   const c=b.units.filter(tcLive).map(u=>({ref:u,hp:1,ct:u.ct||0,init:u.init,side:u.side,seat:u.seat}));
@@ -175,7 +181,7 @@ function v6RegisterSkills(){RP_SK.v6_bigswing={n:'Big swing',mp:0,t:'foes',mul:0
 /* the parts of a v6 skill the old engine does not know: buffs, lines, tiles, statuses on pure-status skills */
 function v6DoSkill(b,u,act,S,T){const s=T.v6;
   if(s.buff&&(T.self||s.t==='ally')){const al=s.t==='ally'?[act.t]:b.units.filter(t=>t.side===u.side&&tcLive(t)&&(T.self<1?t===u:tcCheb(u,t)<=T.self));
-    tcQ({k:'fn',fn:()=>{al.forEach(t=>{(t.vb=t.vb||[]).push({k:s.buff.k,v:s.buff.v,turns:s.buff.turns});tcFloatU(t,S.n,'#ffe27a')});if(!rp.headless)sfx('win')}});return true}
+    tcQ({k:'fn',fn:()=>{al.forEach(t=>{(t.vb=t.vb||[]).push({k:s.buff.k,v:s.buff.v,turns:s.buff.turns,own:u.own||''});tcFloatU(t,S.n,'#ffe27a')});if(!rp.headless)sfx('win')}});return true}
   if(T.line){const dx=Math.sign(act.cx-u.x),dy=Math.sign(act.cy-u.y),hit=[];
     for(let i=1;i<=T.line;i++){const x=u.x+dx*i,y=u.y+dy*i,v=tcUnitAt(b,x,y,u);if(v&&v.side!==u.side&&!hit.includes(v))hit.push(v)}
     hit.forEach(v=>tcQ({k:'atk',a:u,tg:v,o:{mul:S.mul,spell:T.spell,name:S.n,v6:s,area:1}}));if(!hit.length)tcFloatU(u,'nothing there','#d7c9e3');return true}
@@ -300,4 +306,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()},labwalk:()=>{v6LabRead();const ks=v6LabKobolds().filter(Boolean);ks.forEach(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp});w6Start(ks)}}});
 function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
   for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Revive,v6ReviveOK,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

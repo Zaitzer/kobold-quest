@@ -1,7 +1,7 @@
 import {rpAiTurn,tcPosScore} from './ai.js';
 import {tcCamTo} from './draw.js';
 import {rpTW,tcActCost,tcBase,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcFits,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcTheme,tcTiles,tcVis,tcW} from './rules.js';
-import {v6DoSkill,v6HealMul,v6OnTile,v6Queue,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
+import {v6DoSkill,v6HealMul,v6OnTile,v6Queue,v6Revive,v6Strike,v6Together,v6TurnStart,v6Upcoming,v6u} from './v6battle.js';
 import {v6Gen,v6Theme} from './v6board.js';
 import {v6Fall,v6GiveXp,v6Keep,v6Leave} from './v6end.js';
 import {TT} from './view.js';
@@ -45,10 +45,11 @@ function rpBattle(keys,opt){
   const b={win:opt.win||null,W,H,g:T6?v6Gen(opt.theme,W,H,boss,Math.random()*1e9|0):tcGen(theme,W,H,boss,Math.random()*1e9|0),theme,dark:!!(T6&&T6.dark),theme6:T6?opt.theme:null,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,
     seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,boss,zone:opt.zone||null,msg:'',exits:!boss&&!duel,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel,v6:!!opt.v6};
   if(opt.net)b.net={role:'host',id:opt.nid,peer:opt.net,gParty:opt.gParty||[]};
+  for(const k of ['story','patrol','xpMul'])if(opt[k]!=null)b[k]=opt[k];   // v6: carried in the options so a lobby or a retry keeps them
   rp.bt=b;v6Keep(b,keys,opt);
   const px=(W>>1)-1;
   const addKob=(mem,i,side)=>{const m=mem.m,st=rpStats(m);
-    const u={side,m,own:mem.own,ctl:mem.ctl,name:m.name,x:0,y:0,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,
+    const u={side,m,own:mem.own,ctl:mem.ctl,gi:mem.gi,name:m.name,x:0,y:0,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,
       get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
     u.k=makeK({team:side===1?3:0,name:m.name,art:artName(m.name),weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:st.hp,size:.62},0,0,!rp.headless);u.k.face=side?-1:1;
     if(m.hp<=0){u.k.state='ko';u.k.rot=-Math.PI/2}
@@ -76,6 +77,7 @@ function rpBattle(keys,opt){
   rp.mode='battle';rp.path=null;rp.held=null;rpInputReset();
   b.msg=duel?'Duel with '+netName()+'! Place your kobolds, then start.':boss?RP_E[boss].n+' blocks the way! Place your kobolds, then start.':'Ambush! Something lurks in the fog. Place your kobolds, then start.';
   if(!rp.headless)sfx('crit');rpBuzz(boss?[60,40,90]:40);
+  if(opt.aware)b.units.forEach(u=>{if(u.side===1)u.aware=true});if(opt.msg)b.msg=opt.msg;
   if(rp.headless)rpTacBegin();
   rpUI(true);
 }
@@ -112,7 +114,9 @@ function tcNext(){
   if(u.slow){u.slow=0;u.ap=1;tcFloatU(u,'slowed','#bfeaff')}
   if(u.chan){const c=u.chan;u.chan=null;b.chans=b.chans.filter(x=>x!==c);u.ap=Math.min(u.ap,1);tcQ({k:'area',a:u,sk:c.sk,cx:c.cx,cy:c.cy})}
   if(u.stun){u.stun=0;u.ap=0;b.msg=u.name+' is stunned and loses the turn!';tcFloatU(u,'stunned','#ffe27a');tcQ({k:'wait',d:.6});b.phase='busy';rpUI(true);return}
-  const ctl=u.ctl||(u.side===0?'me':'ai');
+  const ctl=u.ctl||(u.side===0?'me':'ai');b.turnT=performance.now();b.warned=0;
+  /* a player who left mid-fight: their kobolds guard until the fight ends (systems.md §12) */
+  if(ctl==='guard'){u.guard=1;u.ap=0;b.msg=u.name+' guards.';tcFloatU(u,'guard','#9ad0ff');tcQ({k:'wait',d:.4});b.phase='busy';rpUI(true);return}
   if(ctl==='remote'){b.phase=b.seq.length?'busy':'remote';b.msg=netName()+' is moving '+u.name+'…';tcCamTo(b,u);rpUI(true);return}
   if(ctl==='me'){b.phase=b.seq.length?'busy':'turn';b.msg=u.name+'\'s turn · '+u.ap+' AP'+(rp.s.q.tac?'':'. Tap a tile to see the path, tap again to go. Tap an enemy to see your hit chance. Drag the board to look around.');tcCamTo(b,u);if(rp.autoParty)rpAiTurn(u)}
   else{b.phase='ai';if(tcShown(b,u))tcCamTo(b,u);rpAiTurn(u)}
@@ -254,6 +258,7 @@ function tcDo(u,act){
   if(act.k==='guard'){u.guard=1;b.msg=u.name+' takes cover and guards.';tcFloatU(u,'guard','#9ad0ff');return true}
   if(act.k==='end'){u.ap=0;b.msg=u.name+' ends the turn.';return true}
   if(act.k==='together')return v6Together(b,u,act.f,act.t);
+  if(act.k==='revive')return v6Revive(b,u,act.t);
   if(act.k==='leave'){u.fled=true;b.msg=u.name+' slips off the edge of the field.';v6Leave(b,u);if(!rp.headless)sfx('pop');return true}
   return false;
 }

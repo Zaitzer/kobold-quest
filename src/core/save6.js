@@ -5,7 +5,7 @@
    Server paths (step 14): data/users/<account>/chars/<slot>, data/users/<account>/account, data/users/<account>/legacy. */
 import {store} from '../adapters/storage.js';
 
-const SAVE6_VERSION=1,SAVE6_EPOCH=2,SLOTS6=6;
+const SAVE6_VERSION=1,SAVE6_EPOCH=3,SLOTS6=6;
 /* the kobold fields a save keeps (systems.md §11: level, XP, scores, talents, skills equipped and known, dark or plain, gear, HP, mana,
    bond, streak, corruption); everything else on a kobold is rebuilt from these */
 const KOBOLD_KEYS=['v6','name','cls','lvl','xp','scores','start','passives','gear','skills','known','ranks','sub','dark','bond','streak','corr','luck','pend','hero','lead','hp','mp','colour','cid','noclass','w'];

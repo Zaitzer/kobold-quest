@@ -1406,7 +1406,7 @@ button,.rpb,.pill{touch-action:manipulation}
   };
 
   // src/core/save.js
-  var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 1, saveKey = SAVE_KEY;
+  var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 2, saveKey = SAVE_KEY;
   function setSaveKey(k) {
     saveKey = k;
   }
@@ -2146,7 +2146,8 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var v6XpNeed = (L) => Math.round(12 * Math.pow(L, 1.6));
   function v6GiveXp(b, xp, ups) {
-    b.units.filter((u) => u.side === 0 && u.m && u.m.v6 && !u.fled).forEach((u) => {
+    let mine = b.net && b.net.role === "guest" ? "g" : "h";
+    b.units.filter((u) => u.side === 0 && u.m && u.m.v6 && !u.fled && (u.own || "h") === mine).forEach((u) => {
       let m = u.m;
       for (m.hp <= 0 && (m.hp = 1), m.xp = (m.xp || 0) + xp; m.lvl < 30 && m.xp >= v6XpNeed(m.lvl); )
         m.xp -= v6XpNeed(m.lvl), v6LevelUp(m), ups.push(m.name + " reached level " + m.lvl + "!");
@@ -2760,7 +2761,7 @@ button,.rpb,.pill{touch-action:manipulation}
   ];
 
   // src/core/save6.js
-  var SAVE6_VERSION = 1, SAVE6_EPOCH = 2, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass", "w"];
+  var SAVE6_VERSION = 1, SAVE6_EPOCH = 3, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass", "w"];
   function v6NewSave(opt) {
     opt = opt || {};
     let name = v6HeroName(opt.name) || "Pip";
@@ -2819,11 +2820,6 @@ button,.rpb,.pill{touch-action:manipulation}
     for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
     return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
   }
-  function v6Legacy(old) {
-    if (!old || typeof old != "object" || !Array.isArray(old.party) || !old.party.length) return null;
-    let p = old.party[0];
-    return { legacy: !0, name: p.name || "Pip", lvl: p.lvl || 1, pack: old.party.map((m) => m.name), gold: old.gold || 0, seals: old.seals || 0, savedAt: old.savedAt || 0, data: JSON.parse(JSON.stringify(old)) };
-  }
   var key6 = (acct2, slot) => "kq6:" + (acct2 || "guest") + ":" + slot;
   function v6Fetch(acct2, slot) {
     try {
@@ -2838,6 +2834,1133 @@ button,.rpb,.pill{touch-action:manipulation}
 
   // src/data/v6/maps.js
   var MAPS6 = { hearthspire: { flood: null, title: "Hearthspire (the capital)", w: 40, h: 30, rows: ["#########G##############################", "#.......oM.............................#", "#.T......MKKKKKKKKKKKKKKKKKKKK.......T.#", "#..T.....MKkkBBBBBBBBBBBBBBtkK......T..#", "#...BBBBBMKkkBBBBBBBBBBBBBBtkK.BBBBB...#", "#...BBBBBMKkkBBBBBBBBBBBBBBtkK.BBBBB...#", "#...BBBBBMKkkBBBBBBBDBBBBBBkkK.BBBBB...#", "#...BBDBBMKkkkkkkkkkkkkkkkkkkK.BBDBB...#", "#........MKkkkkkkNNNNNNkkkkkkK.........#", "#...BBBB.MKkkk|kkNNNNNNkkkkkkK...BBBB..#", "#...BBBB.MKkkkkkkkkkkkkkkkkkkK...BBBB..#", "#...BDBB.MKKKKKKKKKkkKKKKKKKKK...BDBB..#", "#........M..........M..................#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#..M.BBBB......MMMMMMMMMoM..........M..#", "#.oM.BDBB......MMMMFFMMMMM..........Mo.#", "GMMMMMMMMMMMMMMMMMMFFMMMMMMMMMMMMMMMMMMG", "#..M...........MMMMMMMMMMM..........M..#", "#..M.BBBBBB....MbMMMMMMMMM..BBBBBB..M..#", "#..M.BBBBBBh...MMMMMMMMMMM..BBBBBB..M..#", "#.TM.BBBBBB.........M.......BBBBBB..MT.#", "#..M.BBBDBB.........M.......BBDBBB..M..#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#..M.BBDBBB..BDBB...M..BDBB.BBDBBB..M..#", "#..M.BBBBBB..BBBB...M..BBBB.BBBBBB..M..#", "#..M.BBBBBB..BBBB...M..BBBB.BBBBBB..M..#", "#..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..#", "#.T.........T...T...M...T..T.........T.#", "#...................Mo.................#", "####################G###################"], marks: [[8, 21, "bakery (Mallow)"], [11, 19, "cellar hatch (flour tunnel)"], [30, 21, "inn (rest, roster, campfire chats)"], [30, 23, "shop (tier 1)"], [7, 23, "smithy"], [14, 23, "moon shrine (talent reset)"], [33, 7, "barracks"], [20, 6, "castle hall (the mural)"], [27, 5, "the tower (the tower fire)"], [19, 9, "the Great Nest"], [14, 9, "the throne (act 2)"], [19, 15, "fountain"], [16, 18, "Bib's bench"], [6, 15, "raptor stable (opens with the first piece)"], [24, 14, "market and note board"], [0, 16, "the capital gate → R1"], [9, 0, "north gate → R5"], [39, 16, "east gate → R6"], [20, 29, "south gate → R4"]], entry: [1, 16], notes: "No random fights. Set-piece fights: the cellar (rats), the yard drill (recruits), the gate. Players meet at the fountain square.", patrols: [], stables: [[6, 15]] }, r1: { flood: null, title: "R1 (the capital gate → Pebblebrook, 120 steps)", w: 100, h: 26, rows: ["TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT", "T......................................................~...........................................T", "T......................................................~...........................................T", "T.....................................T................~..............................BBBBBB.......T", "T..........T...............T........................T..~..............................BBBBBB.......T", 'T.........T............................................~....................""""""....BBBBBB.......T', 'T......................................................~....................""""""....BBDBBB.......T', 'T.....................,,,"""""""",,,,,,,,,,,,""........~...................."""""".................T', 'T.............""""""..,......................."........~..........o............................o...T', 'T.............""""""..,."""""..........."""""."........~........,"""""",,,,,,"""",,,,,,,,,,,,,,,,,,,', 'T.............""""""..,."""""..........."""""."."""""".~........,..."""""""".......................T', 'T............o........,."""""..........."""""."."""""".~........,...""""""""........"""""..........T', ',,,,,,,,,,,,,,"""""""",."""""..........."""""."."""""".~........,...""""""""........"""""..........T', 'T.......................................""""".,........~........,..................."""""..........T', "T.............................~~~~~~~~........,........~........,..................................T", "T.............................~~~~~~~~........,........~........,...........................T......T", 'T.......T.....................~~~~~~~~........,,,,,,,,,=,""""""",...............T..................T', 'T.............................~~~~~~~~.................~.."""""....................................T', 'T...........T.................~~~~~~~~.................~..""""".......T..c.........................T', 'T......................................................~..""""".........rrr........................T', "T.................T..............c.........T...........~................rrr........................T", "T......................................................~....T......................................T", "T......................................................~...........................................T", "T......................................................~...........................................T", "T......................................................~...........................................T", "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"], marks: [[0, 12, "the capital gate"], [99, 9, "→ Pebblebrook (the mill road)"], [33, 20, "chest behind the pond"], [73, 18, "chest on the lookout"], [88, 6, "raptor stable (shut until the first piece)"], [55, 16, "the brook bridge"], [13, 11, 'sign: "PEBBLEBROOK 120 steps. Beetles."'], [66, 8, "Grubb's toll sign"], [60, 18, "the runaway goat's meadow"]], entry: [0, 12], notes: "Grubb's toll (boss, L5) stands on the mill road at the Pebblebrook end, after the bridge. Encounters only on tall grass: the road crosses it for 40 of its 100 middle steps, at 7.5% a grass step (3 fights one way); none within 10 steps of either end.", patrols: [{ x: 30, y: 7, face: "east", name: "the hill patrol" }, { x: 48, y: 16, face: "west", name: "the bridge patrol" }, { x: 79, y: 9, face: "west", name: "the mill-road patrol" }], stables: [[88, 6]] }, pebblebrook: { flood: [[14, 13], [14, 23]], title: "Pebblebrook", w: 32, h: 24, rows: ["TTTTTT~~TTTTTTTTTTTTTTTTTTTTTTTT", "T.....~~..........rrGrr........T", "T.T~~~~~....T.....rr,rr...BBBB.T", "T..~~~~~............,.....BBBBTT", "T..~~~~~........T...,.....BBBB.T", "T..rrrrrr...........,......D...T", "T.....~~BBBBB.......,..........T", "T.....~~BBBBB.......,...BBBBB..T", "T.....~~BBBBB.......,...BBBBB..T", "T.....~~BBDBB.......,...BBBBB..T", "T....c..WW,.........,...BBBBB..T", "T.........,..o......,.....D....T", "T..,,,,,,,,,,,,,,,,,,,,,,,,,,o,,", "T.............,................T", "T...BBDBB.....,...O....FF......T", "T...BBBBB.....,.O...O..FF......T", "T...BBBBB.....,................T", "T........BDBB.,.O...O...BBDBB..T", "T........BBBB.,...O.....BBBBB..T", 'T."""""""""BB.,.........BBBBB..T', 'T."""""""""...,................T', 'T."""""""""...,.......T......T.T', "T.............,................T", "TTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTT"], marks: [[31, 12, "← R1 (the mill road)"], [14, 23, "→ R2 (Sunhaven)"], [20, 1, "the mine's mouth"], [10, 9, "the mill (Ruddle; the loft)"], [8, 10, "the mill wheel"], [4, 5, "the dam"], [18, 16, "the circle stones"], [23, 14, "fountain"], [26, 11, "inn"], [26, 17, "shop (tier 2 from level 5) and smith"], [6, 14, "Tansy's house"], [10, 17, "the brothers' house"], [27, 5, "Old Marl's house"], [6, 20, "the Mossback farms (seed swap)"], [5, 10, "chest by the dam"], [29, 12, "welcome sign"]], entry: [31, 12], notes: "Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain.", patrols: [], stables: [] }, mine1: { flood: null, title: "the mine, floor 1", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXvXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXfXX", "XXXXXcfffXXXXXXXXXXXXXXXXXXXXfXX", "XXXXXffffffffffffffffffXXXXXXfXX", "XXXXXffffXXXfXXXXXXXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXXXXXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXfffXXXfXXXXXXfXX", "XXXXXXXXXXXXfXXXffffffffffffffXX", "XXffffffffffRXXXfffXXXXXXXXXXXXX", "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX", "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX", "XXfXXXXXXRRRSXXXXRRRRRXXXXXXXXXX", "XXfXXXXXXXXXRXXXXRXXXRXXXXXXXXXX", "XfffXXXXXXXXRXXXXRXXXRXXXXXXXXXX", "XfffXXXXXXXXRRRRRSRfRSRRRRxXXXXX", "XfffXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XfufXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[2, 18, "up: the mine's mouth"], [26, 16, "Ore's stuck cart (challenge step 1)"], [19, 16, "the broken rail"], [21, 16, "switch: into the loop"], [17, 16, "switch: out of the loop"], [12, 13, "switch: the dead-end siding"], [5, 4, "chest"], [16, 8, "Nugget, haggling over a lantern"], [29, 2, "stairs down"]], entry: [2, 17], notes: "Copper beetles and scouts; Nugget joins here.", patrols: [], stables: [] }, mine2: { flood: null, title: "the mine, floor 2", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXuXX", "XXXXXXXXXXdddddddddddXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXdXXXXXXXXdXX", "XXXXXXXXXXdXXXXXXXXXddddddddddXX", "XXXXXXXXXXdXXXXXXXXXXXXXXXXXXdXX", "XXXXdddddddXXXXXXXXXXXXXXXXXXdXX", "XXXXdXXXXXdXXXfffffXXXXXXXXXXdXX", "XXXXdXXXXXdXXXfffffXXXXXddddddXX", "XXXXdXXXXXdddddfCffXXXXXddddddXX", "XXXXdXXXXXXXXXfffffXXXXXddddddXX", "XXXXdXXXXXXXXXXXXXXXXXXXddddddXX", "XXXXdXXXXXXXXXXXXXXXXXXXddddcdXX", "XXXXdXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXvXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[29, 2, "stairs up"], [16, 13, "campfire (one free heal a visit)"], [28, 16, "chest in the dark"], [4, 18, "stairs down"], [20, 5, "glow grubs light the dark tiles"]], entry: [29, 2], notes: "Unlit tiles (d): glow grubs light the area around them. The bounty: the Nettlenose scout leader.", patrols: [], stables: [] }, mine3: { flood: null, title: "the mine, floor 3", w: 32, h: 20, rows: ["XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXuXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXfXXXXXXXXXfffffffffffXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX", "XXXXfffffffffffXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX", "XXwwwwfwwwwXXXXXXXXXfffffffffXXX", "XXwwwwwwwwwXXXXXXXXXfxfffffffXXX", "XXwwwwwwwwwXXXXXXXXXffffffPffXXX", "XXwwwcwwwwwXXXXXXXXXfffffffffXXX", "XXwwwwwwwwwXXXXXXXXXffcffffffXXX", "XXwwwwwwwwwXXXXXXXXXfffffffffXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"], marks: [[4, 1, "stairs up"], [24, 15, "Snipe (boss, L8) on his copper cart"], [26, 14, "the copper pile"], [22, 16, "chest behind the cart"], [6, 14, "the flooded gallery: Old Shellback (hidden trial)"], [5, 15, "the trial's prize: the flour-dusted apron"]], entry: [4, 1], notes: "The end of the mine: Snipe, then back up to the circle.", patrols: [], stables: [] } }, ROOMS6 = { bakery: { title: "Mallow's bakery", rows: ["wwwwwwwwwwwww", "wnnqssqaaqqyw", "wqqqqqqqqqqqw", "w___qq___qqgw", "wqqqqqqqqqqqw", "wqzqlqqqzqlqw", "wqqqqqqqqqqqw", "wwwwwweewwwww"], marks: [["n", "the old oven (breaks in the Ordeal)"], ["g", "the cellar door (the flour carts came in here)"], ["a", "flour sacks"], ["_", "the counter; the recipe book on it"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, cellar: { title: "the bakery cellar", rows: ["wwwwwwwwwwwww", "waaqqqqqqqaaw", "wqqqqqqqqqqqw", "wqqqqnqqqqqqw", "wqqqqqqqqqqgw", "waqqqqqqqqqqw", "wwwwwewwwwwww"], marks: [["g", "the flour tunnel (sealed until after the Ordeal)"], ["n", "where Cinder rebuilds the oven frame (act 3)"], ["e", "up to the bakery"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, castle: { title: "the castle hall", rows: ["wwwwwwwwwwwwwwwww", "wmmmmmmmmmmmmmmmw", "wqqqqqqqqqqqqqqqw", "wyqqqqqq|qqqqqqyw", "wqqqqqqqqqqqqqqqw", "wqqyqqqqqqqqqyqqw", "wqqqqqqqqqqqqqqqw", "wwwwwwwweewwwwwww"], marks: [["m", 'the mural of "the dragon smiler" (a tube on a shoulder)'], ["|", "Snatchclaw's seat"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, inn: { title: "the Hearthspire inn", rows: ["wwwwwwwwwwwww", "wHqqqsssqqqow", "wqqq_____qqqw", "wqqqqqqqqqqow", "wlzlqqqqlzlqw", "wqqqqqqqqqqyw", "wpqpqqqqqpqpw", "wwwwwweewwwww"], marks: [["H", "the hearth: campfire chats"], ["p", "beds (rest)"], ["o", "the roster board"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, mill: { title: "the mill (Pebblebrook), ground floor", rows: ["wwwwwwwwwwwwwww", "wsssqqqqqqaaaqw", "wqqqqqqqqqqqqqw", "wqqnnqqqqqqqqgw", "wqqnnqqqzzqqqqw", "wqqqqqqqzzqqqqw", "wwwwwwweewwwwww"], marks: [["n", "the millstones (still)"], ["g", "the ladder to the loft"], ["z", "Ruddle's table, the nine-years chalk"], ["a", "empty flour sacks"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, tower: { title: "the tower top (Hearthspire)", rows: ["wwwwwwwww", "wqqqqqqqw", "wqqHHHqqw", "wqqHHHqqw", "wqqqqqqqw", "wwwweewww"], marks: [["H", "the tower fire (every hearth was lit from it)"], ["e", "the stairs down"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, pebinn: { title: "the Pebblebrook inn", rows: ["wwwwwwwwwwwww", "wHqqqssqqqqow", "wqqq_____qqqw", "wlzlqqqqqlzlw", "wqqqqqqqqqqyw", "wpqpqqqqqpqpw", "wwwwwweewwwww"], marks: [["H", "the hearth: campfire chats"], ["p", "beds"], ["o", "the roster board"], ["_", "the counter (pies are just crust until the mill turns)"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] }, loft: { title: "the mill loft (Pebblebrook)", rows: ["wwwwwwwwwww", "waaqqqqqaaw", "wqqqqcqqqqw", "wqaqqqqqqqw", "wqqqqqqqaqw", "wwwwweewwww"], marks: [["c", "the old vote bag (with a hole in it)"], ["a", "flour sacks"]], solid: ["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"] } }, LINKS6 = [["hearthspire", 0, 16, "r1", 0, 12, "step"], ["r1", 0, 12, "hearthspire", 0, 16, "step"], ["r1", 99, 9, "pebblebrook", 31, 12, "step"], ["pebblebrook", 31, 12, "r1", 99, 9, "step"], ["pebblebrook", 20, 1, "mine1", 2, 18, "step"], ["mine1", 2, 18, "pebblebrook", 20, 1, "step"], ["mine1", 29, 2, "mine2", 29, 2, "step"], ["mine2", 29, 2, "mine1", 29, 2, "step"], ["mine2", 4, 18, "mine3", 4, 1, "step"], ["mine3", 4, 1, "mine2", 4, 18, "step"], ["hearthspire", 8, 21, "room:bakery", 6, 7, "step"], ["hearthspire", 20, 6, "room:castle", 8, 7, "step"], ["hearthspire", 30, 21, "room:inn", 6, 7, "step"], ["hearthspire", 27, 5, "room:tower", 4, 5, "bump"], ["room:bakery", 11, 3, "room:cellar", 5, 6, "step"], ["room:cellar", 5, 6, "room:bakery", 11, 3, "step"], ["pebblebrook", 10, 9, "room:mill", 7, 6, "step"], ["pebblebrook", 26, 11, "room:pebinn", 6, 6, "step"], ["room:mill", 13, 3, "room:loft", 5, 5, "step"], ["room:loft", 5, 5, "room:mill", 13, 3, "step"], ["room:loft", 6, 5, "room:mill", 13, 3, "step"], ["room:bakery", 6, 7, "hearthspire", 8, 21, "step"], ["room:bakery", 7, 7, "hearthspire", 8, 21, "step"], ["room:castle", 8, 7, "hearthspire", 20, 6, "step"], ["room:castle", 9, 7, "hearthspire", 20, 6, "step"], ["room:inn", 6, 7, "hearthspire", 30, 21, "step"], ["room:inn", 7, 7, "hearthspire", 30, 21, "step"], ["room:tower", 4, 5, "hearthspire", 27, 5, "step"], ["room:tower", 5, 5, "hearthspire", 27, 5, "step"], ["room:mill", 7, 6, "pebblebrook", 10, 9, "step"], ["room:mill", 8, 6, "pebblebrook", 10, 9, "step"], ["room:pebinn", 6, 6, "pebblebrook", 26, 11, "step"], ["room:pebinn", 7, 6, "pebblebrook", 26, 11, "step"], ["hearthspire", 9, 0, "", 0, 0, "step", "never"], ["hearthspire", 39, 16, "", 0, 0, "step", "never"], ["hearthspire", 20, 29, "", 0, 0, "step", "never"], ["pebblebrook", 14, 23, "", 0, 0, "step", "never"], ["hearthspire", 11, 19, "", 0, 0, "step", "never"], ["room:cellar", 11, 4, "", 0, 0, "step", "never"]];
+
+  // src/adapters/platform.js
+  var platform = {
+    provider: null,
+    available() {
+      let p = this.provider || typeof window < "u" && window.claude;
+      return !!(p && typeof p.use == "function");
+    },
+    use(name) {
+      return (this.provider || window.claude).use(name);
+    }
+  };
+
+  // src/game/world.js
+  function rpArea(x, y) {
+    return rp.s.w6 ? w6Title(rp.s.w6) : rp.s.place && RP_PLACES[rp.s.place] ? RP_PLACES[rp.s.place].name : x >= OLD_W || y >= OLD_H ? overworldArea(x, y) : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "Pebble Hills" : x < 14 && y > 16 ? "Burrowhome" : "Hatching Green";
+  }
+  function rpNpcs() {
+    if (rp.s && rp.s.w6) return s6Npcs();
+    let pl = rpPlace();
+    return RP_NPC.filter((n) => (n.place || "world") === pl && (!n.show || n.show(rp.s))).map((n) => {
+      let p = n.pos && n.pos(rp.s);
+      return p ? Object.assign({}, n, p) : n;
+    });
+  }
+  function rpNpcAt(x, y) {
+    return rpNpcs().find((n) => n.x === x && n.y === y);
+  }
+  function rpSolid(x, y) {
+    if (x < 0 || y < 0 || !rp.grid[y] || x >= rp.grid[y].length) return !0;
+    let c = rp.grid[y][x];
+    return rp.s && rp.s.w6 ? w6Solid(c, x, y) || !!rpNpcAt(x, y) : RP_SOLID.has(c) || c === "d" || !!rpNpcAt(x, y) || !!(rp.s && rp.s.chests && rpChestAt(x, y));
+  }
+  function rpDoor(x, y) {
+    let id = RP_DOORS[x + "," + y];
+    id && rpEnterPlace(id);
+  }
+  function rpEnterPlace(id) {
+    let P = RP_PLACES[id], s = rp.s;
+    if (!P) return;
+    let ex = 1, ey = 1;
+    P.rows.forEach((r, y) => {
+      let i = r.indexOf("e");
+      i >= 0 && (ex = i, ey = y);
+    }), s.place = id, s.x = ex, s.y = ey - 1, s.face = "up", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:enter", id), rpSave();
+  }
+  function rpLeavePlace() {
+    let s = rp.s, id = s.place, door = Object.keys(RP_DOORS).find((k) => RP_DOORS[k] === id);
+    if (delete s.place, s.face = "down", rpApplyWorld(), door) {
+      let [x, y] = door.split(",").map(Number), spot = [[0, 1], [-1, 1], [1, 1], [0, 2], [-1, 2], [1, 2]].find(([dx, dy]) => !rpSolid(x + dx, y + dy)) || [0, 1];
+      s.x = x + spot[0], s.y = y + spot[1];
+    }
+    rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:leave", id), rpSave();
+  }
+  function rpBfs(tx, ty, toNeighbor) {
+    let s = rp.s, key2 = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen2 = 0;
+    for (prev[key2(s.x, s.y)] = null; q.length; ) {
+      let [x, y] = q.shift();
+      if (toNeighbor ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty) {
+        let out = [], k = key2(x, y);
+        for (; prev[k] !== null; ) {
+          let [px, py] = prev[k];
+          out.unshift([+k.split(",")[0], +k.split(",")[1]]), k = key2(px, py);
+        }
+        return out;
+      }
+      if (++seen2 > 6e3) return null;
+      for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        let nx = x + dx, ny = y + dy, k = key2(nx, ny);
+        k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40 || (prev[k] = [x, y], q.push([nx, ny]));
+      }
+    }
+    return null;
+  }
+  function rpChestKey(c) {
+    return (c.place ? c.place + ":" : "") + c.x + "," + c.y;
+  }
+  function rpChestAt(x, y) {
+    let pl = rpPlace();
+    return RP_CHESTS.find((c) => (c.place || "world") === pl && c.x === x && c.y === y && !rp.s.chests.includes(rpChestKey(c)));
+  }
+  function rpOpenChest(c) {
+    let s = rp.s;
+    s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("chest");
+  }
+  feature({ id: "world-fit", on: { "game:start"() {
+    let s = rp.s;
+    s.place && !RP_PLACES[s.place] && (delete s.place, rpApplyWorld()), !s.place && (s.y >= WH || s.x >= WW || rpSolid(s.x, s.y)) && (s.x = 7, s.y = 23, s.face = "down", rp.pos = null, rpSave());
+  } } });
+  feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) } } });
+  var barrierSig = "";
+  function rpBarriers() {
+    if (barrierSig = BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || ""), rp.s.place || !rp.grid) return;
+    let B = build().G, changed = !1;
+    for (let b of BARRIERS) {
+      let shut = !test(b.until);
+      for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
+        let base = B[y][x];
+        if (SOLID_HERE.has(base)) continue;
+        let want = shut ? b.tile : base;
+        rp.grid[y][x] !== want && (rp.grid[y][x] = want, changed = !0);
+      }
+    }
+    changed && (rp.mapImg = null);
+  }
+  var BARRIER_SAY = {
+    Y: `A toll gate of planks and rope. "ONE SHINY THING PER KOBOLD, for Glitterbeak's hoard." The bandits behind it want your shiniest things, and there are a lot of them.`,
+    R: "A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.",
+    Z: "The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern."
+  };
+  function barrierSay(t) {
+    rp.headless || sfx("bump"), rpSay([{ who: "", text: BARRIER_SAY[t] }]);
+  }
+  feature({
+    id: "barriers",
+    on: { "world:apply": () => {
+      rp.s.w6 || rpBarriers();
+    } },
+    frame() {
+      if (!rp.s || rp.s.w6) return;
+      BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || "") !== barrierSig && rpBarriers();
+    },
+    tiles: { Y: { use: () => barrierSay("Y") }, R: { use: () => barrierSay("R") }, Z: { use: () => barrierSay("Z") } }
+  });
+  feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
+    if (c === "e" && rp.s.place) {
+      rpLeavePlace();
+      return;
+    }
+    let P = RP_PICKUPS[c];
+    P && (rp.grid[y][x] = P.becomes, rp.s.taken.push([x, y]), rp.mapImg = null, run(P.do));
+    for (let sp of RP_SPOTS) (sp.place || "world") === rpPlace() && sp.x === x && sp.y === y && test(sp.if) && (sp.sfx && !rp.headless && sfx(sp.sfx), run(sp.do));
+  } } });
+
+  // src/game/move.js
+  var RP_SPEED = 4.6, RP_R = 0.28;
+  function rpSyncPos() {
+    let s = rp.s;
+    if (rpSolid(s.x, s.y)) {
+      let best = null, bd = 1e9;
+      for (let y = Math.max(1, s.y - 4); y <= Math.min(rp.grid.length - 2, s.y + 4); y++) for (let x = Math.max(1, s.x - 4); x <= Math.min(rp.grid[0].length - 2, s.x + 4); x++) {
+        if (rpSolid(x, y)) continue;
+        let d = Math.abs(x - s.x) + Math.abs(y - s.y);
+        d < bd && (bd = d, best = [x, y]);
+      }
+      best && (s.x = best[0], s.y = best[1]);
+    }
+    rp.pos = { x: s.x + 0.5, y: s.y + 0.5 }, rp.pt = [s.x, s.y];
+  }
+  function rpBlockedAt(x, y) {
+    for (let [ox, oy] of [[-RP_R, -RP_R * 0.6], [RP_R, -RP_R * 0.6], [-RP_R, RP_R], [RP_R, RP_R]]) {
+      let tx = Math.floor(x + ox), ty = Math.floor(y + oy);
+      if (rpSolid(tx, ty)) return [tx, ty];
+    }
+    return null;
+  }
+  function rpInteractAt(x, y) {
+    if (!rp.grid[y]) return !1;
+    let c = rp.grid[y][x];
+    if (rp.s.w6)
+      return s6Bump(x, y) || w6Bump(x, y) || w6Use(x, y) ? (rp.path = null, !0) : !1;
+    let npc = rpNpcAt(x, y);
+    if (npc)
+      return rp.path = null, rpTalk(npc.id), !0;
+    let ch = rpChestAt(x, y);
+    if (ch)
+      return rp.path = null, rpOpenChest(ch), !0;
+    let t = tiles[c];
+    return t ? (rp.path = null, t.use(x, y), !0) : !1;
+  }
+  function rpSpecialAt(x, y) {
+    let c = rp.grid[y] && rp.grid[y][x];
+    return rp.s.w6 ? !!(c && "FocxpHSC".includes(c)) || !!w6LinkAt(rp.s.w6, x, y, "bump") || !!s6NpcAt(x, y, !0) : !!(rpNpcAt(x, y) || tiles[c] || rpChestAt(x, y));
+  }
+  function rpEnterTile(tx, ty) {
+    let s = rp.s;
+    s.x = tx, s.y = ty, rp.pt = [tx, ty], s.steps++;
+    let c = rp.grid[ty][tx];
+    if (emit("tile:enter", tx, ty, c), s.w6) {
+      let g = rp.grace > 0;
+      if (w6Step(tx, ty, c)) {
+        s.steps % 10 === 0 && rpSave();
+        return;
+      }
+      g && rp.grace--, s.steps % 10 === 0 && rpSave();
+      return;
+    }
+    if (rp.grace > 0) rp.grace--;
+    else {
+      let z = rp.s.place ? c : regionZone(tx, ty, c);
+      if (RP_ZONE[z] && Math.random() < (rp.encRate || 0.06)) {
+        rp.path = null, rp.held = null, rpEncounter(z);
+        return;
+      }
+    }
+    s.steps % 10 === 0 && rpSave();
+  }
+  function rpWant() {
+    let s = rp.s;
+    if (rp.joy && !rp.joyP && (rp.joy = null), rp.joy) {
+      let m = Math.hypot(rp.joy.x, rp.joy.y);
+      if (m > 0.18) {
+        rp.path = null;
+        let k = clamp((m - 0.18) / 0.62, 0.35, 1);
+        return { x: rp.joy.x / m * k, y: rp.joy.y / m * k };
+      }
+    }
+    if (rp.stick && rp.stick.on) {
+      let d = Math.hypot(rp.stick.dx, rp.stick.dy);
+      if (d > 0) {
+        let m = clamp((d - 8) / 40, 0.35, 1);
+        return { x: rp.stick.dx / d * m, y: rp.stick.dy / d * m };
+      }
+    }
+    let x = 0, y = 0, add = (dir) => {
+      let v = RP_DIR[dir];
+      x += v[0], y += v[1];
+    };
+    if (rp.keys.forEach(add), rp.held && !rp.keys.has(rp.held) && add(rp.held), x || y) {
+      let d = Math.hypot(x, y);
+      return { x: x / d, y: y / d };
+    }
+    if (rp.path) {
+      if (!rp.path.length) {
+        if (rp.path = null, rp.pathEnd) {
+          let [tx, ty] = rp.pathEnd;
+          rp.pathEnd = null, s.face = tx > s.x ? "right" : tx < s.x ? "left" : ty > s.y ? "down" : "up", rpInteractAt(tx, ty);
+        }
+        return { x: 0, y: 0 };
+      }
+      let [nx, ny] = rp.path[0], dx = nx + 0.5 - rp.pos.x, dy = ny + 0.5 - rp.pos.y, d = Math.hypot(dx, dy);
+      return d < 0.14 ? (rp.path.shift(), rpWant()) : { x: dx / d, y: dy / d, path: 1 };
+    }
+    return { x: 0, y: 0 };
+  }
+  function rpMoveFrame(dt) {
+    let s = rp.s;
+    rp.pos || rpSyncPos(), (rp.pt[0] !== s.x || rp.pt[1] !== s.y) && rpSyncPos();
+    let w = rpWant();
+    if (rp.moving = !1, !w.x && !w.y) {
+      rp.bumpT = 0, rp.bumpLock = null;
+      return;
+    }
+    Math.abs(w.x) > Math.abs(w.y) * 1.05 ? s.face = w.x > 0 ? "right" : "left" : Math.abs(w.y) > 0.01 && (s.face = w.y > 0 ? "down" : "up");
+    let step = RP_SPEED * dt, p = rp.pos, moved = !1, hit = null, n = Math.max(1, Math.ceil(step / 0.2));
+    for (let i = 0; i < n; i++) {
+      let sx = w.x * step / n, sy = w.y * step / n;
+      if (sx) {
+        let b = rpBlockedAt(p.x + sx, p.y);
+        if (!b)
+          p.x += sx, moved = !0;
+        else if (hit = b, Math.abs(w.y) < 0.3) {
+          let cy = Math.floor(p.y) + 0.5, dy = cy - p.y;
+          Math.abs(dy) > 0.02 && !rpBlockedAt(p.x, p.y + Math.sign(dy) * Math.min(Math.abs(dy), step / n)) && (p.y += Math.sign(dy) * Math.min(Math.abs(dy), step / n), moved = !0);
+        }
+      }
+      if (sy) {
+        let b = rpBlockedAt(p.x, p.y + sy);
+        if (!b)
+          p.y += sy, moved = !0;
+        else if (hit = b, Math.abs(w.x) < 0.3) {
+          let cx = Math.floor(p.x) + 0.5, dx = cx - p.x;
+          Math.abs(dx) > 0.02 && !rpBlockedAt(p.x + Math.sign(dx) * Math.min(Math.abs(dx), step / n), p.y) && (p.x += Math.sign(dx) * Math.min(Math.abs(dx), step / n), moved = !0);
+        }
+      }
+    }
+    rp.moving = moved;
+    let tx = Math.floor(p.x), ty = Math.floor(p.y);
+    if (!((tx !== s.x || ty !== s.y) && (rpEnterTile(tx, ty), rp.mode !== "map"))) {
+      if (hit && !w.path) {
+        let fx = s.x + RP_DIR[s.face][0], fy = s.y + RP_DIR[s.face][1];
+        if (rpSpecialAt(fx, fy)) {
+          let key2 = fx + "," + fy;
+          rp.bumpLock !== key2 && (rp.bumpT += dt, rp.bumpT > 0.12 && (rp.bumpT = 0, rp.bumpLock = key2, rp.held = null, rpInteractAt(fx, fy)));
+        } else rp.bumpT = 0;
+      } else hit || (rp.bumpT = 0, rp.bumpLock = null);
+      rp.path && !moved && hit && (rp.path = null);
+    }
+  }
+  function rpTry(dir) {
+    let s = rp.s, [dx, dy] = RP_DIR[dir], nx = s.x + dx, ny = s.y + dy;
+    return s.face = dir, rpInteractAt(nx, ny) || rpSolid(nx, ny) ? !1 : (rp.path = [[nx, ny]], rp.pathEnd = null, !0);
+  }
+  function rpTapTile(tx, ty) {
+    if (rp.mode !== "map" || (rp.grid[ty] && rp.grid[ty][tx]) == null) return;
+    if (rpSpecialAt(tx, ty)) {
+      let p2 = rpBfs(tx, ty, !0);
+      p2 && (rp.path = p2, rp.pathEnd = [tx, ty]);
+      return;
+    }
+    if (rpSolid(tx, ty)) return;
+    let p = rpBfs(tx, ty, !1);
+    p && p.length && (rp.path = p, rp.pathEnd = null);
+  }
+  function rpActFacing() {
+    let s = rp.s, [dx, dy] = RP_DIR[s.face];
+    if (!rpInteractAt(s.x + dx, s.y + dy))
+      for (let d of ["up", "down", "left", "right"]) {
+        let v = RP_DIR[d];
+        if (rpSpecialAt(s.x + v[0], s.y + v[1])) {
+          s.face = d, rpInteractAt(s.x + v[0], s.y + v[1]);
+          return;
+        }
+      }
+  }
+  feature({ id: "game-move", init() {
+    rp.pos = null, rp.pt = null, rp.keys = /* @__PURE__ */ new Set(), rp.bumpT = 0, rp.bumpLock = null, rp.moving = !1;
+  } });
+
+  // src/game/promote.js
+  function rpPendingMember() {
+    return rp.s.party.find((m) => m.pend > 0);
+  }
+  function rpPickTalent(i) {
+    rpBuzz([25, 30, 25]);
+    let m = rpPendingMember();
+    if (!m) return;
+    (!m.offer || !m.offer.length) && (m.offer = rpOffers(m));
+    let k = m.offer[i];
+    if (!k) return;
+    m.tal.push(k), m.pend--, m.offer = null;
+    let st = rpStats(m);
+    m.hp = Math.min(st.hp, m.hp + 12), m.mp = Math.min(st.mp, m.mp + 4), rp.headless || sfx("win"), rpPendingMember() || (rp.mode = "map", rpToast(m.name + " learned " + RP_TAL[m.cls][k].n + "!")), rpSave();
+  }
+  function rpPickClass(k) {
+    let s = rp.s, m = s.party[0], C = RP_CLS[k];
+    if (!C) return;
+    m.cls = k, m.w = C.start, m.tal = [];
+    let st = rpStats(m);
+    m.hp = st.hp, m.mp = st.mp, s.q.cls = 1, rp.pk = null, rp.mode = "map", rpToast("Pip the " + C.n.toLowerCase() + " sets out!"), rpSave();
+  }
+  function rpPromoteWho() {
+    return rp.s.party.find((m) => m.lvl >= 8 && !m.adv);
+  }
+  function rpPromote(k) {
+    let m = rpPromoteWho();
+    if (!m || !RP_ADV[k] || RP_ADV[k].base !== m.cls) return;
+    m.adv = k;
+    let st = rpStats(m);
+    m.hp = st.hp, m.mp = st.mp, rpBuzz([40, 40, 80]), rp.headless || (sfx("win"), confetti()), rpToast(m.name + " is now a " + RP_ADV[k].n + "!"), rpPromoteWho() || (rp.mode = "map"), rpSave();
+  }
+
+  // src/net/ui.js
+  function netMapRow() {
+    if (!netOnline()) return "";
+    let O = net.others, open = O.find((p) => p.presence.op && p.presence.m === "lobby"), P = open || netFocus() || O[0];
+    if (!P) return "";
+    let pr = P.presence || {};
+    return '<div class="netrow"><span><i></i>' + (O.length > 1 ? O.length + " friends online" : esc2(netName(P)) + " · " + (pr.m === "battle" ? "in a battle" : pr.m === "lobby" ? "getting ready to fight" : esc2(pr.a || ""))) + "</span>" + (open && rp.mode === "map" ? '<button class="pill go" type="button" data-net="join" data-p="' + esc2(open.peer) + '">⚔ Join ' + esc2(netName(open)) + "</button>" : "") + "</div>";
+  }
+  function netMenuButtons() {
+    let n = netOnline() ? net.others.length > 1 ? "a friend" : esc2(netName()) : "", h = "";
+    return net.db && net.me && (h += '<button class="rpb go" type="button" data-net="market">Market board<small>Buy and sell with other players</small></button>'), net.on && (h += '<button class="rpb sk" type="button" data-net="chat">Chat<small>' + (netOnline() ? "Talk to " + n : "Nobody else is online") + "</small></button>"), netOnline() && (h += '<button class="rpb it" type="button" data-net="' + (net.others.length > 1 ? 'who" data-for="trade' : "trade") + '">Give to ' + n + '<small>Items, materials or gold</small></button><button class="rpb sk" type="button" data-net="' + (net.others.length > 1 ? 'who" data-for="duel' : "duel") + '">Duel ' + n + "<small>Your party against theirs</small></button>", h += '<p class="rptip online">Online: ' + net.others.map((p) => esc2(netName(p)) + " (level " + (p.presence.lv || "?") + ", " + esc2(p.presence.a || "") + ")").join(" · ") + "</p>"), h;
+  }
+  function netWhoHtml() {
+    return '<div class="rpdlg"><div class="who">' + (net.pickFor === "duel" ? "Duel" : "Give to") + ' who?</div></div><div class="rpcmd">' + (net.others || []).map((p) => '<button class="rpb go" type="button" data-net="whopick" data-p="' + esc2(p.peer) + '">' + esc2(netName(p)) + "<small>Level " + (p.presence.lv || "?") + " · " + esc2(p.presence.a || "") + "</small></button>").join("") + '<button class="rpb x" type="button" data-net="whoback">✕ Back</button></div>';
+  }
+  feature({ id: "who", panels: { who: { sig: () => "" + (net.others || []).length, html: () => netWhoHtml() } } });
+  feature({ id: "net-menu", menu: [{ order: 10, html: () => netMenuButtons() }] });
+  feature({
+    id: "net-ui-io",
+    actions: {
+      "net:who"(d) {
+        net.pickFor = d.for, rp.mode = "who";
+      },
+      "net:whopick"(d) {
+        net.focus = d.p, netFocus(), net.pickFor === "duel" ? netDuelAsk() : rp.mode = "trade";
+      },
+      "net:whoback"(d) {
+        rp.mode = "menu";
+      }
+    }
+  });
+
+  // src/ui/hud.js
+  function rpBar(v, m, col) {
+    return '<i class="rpbar"><b style="width:' + clamp(v / m * 100, 0, 100).toFixed(0) + "%;background:" + col + '"></b></i>';
+  }
+  function rpPartyHtml() {
+    return '<div class="rpparty">' + rp.s.party.map((m) => {
+      let st = rpStats(m);
+      return '<div class="rpm' + (m.hp <= 0 ? " down" : "") + '"><b>' + esc2(m.name) + " <small>" + rpClsName(m) + " " + m.lvl + (m.pend ? " ★" : "") + "</small></b>" + rpBar(m.hp, st.hp, m.hp > st.hp * 0.5 ? "#7ad67a" : m.hp > st.hp * 0.25 ? "#ffc857" : "#ff6b6b") + "<small>HP " + Math.max(0, m.hp) + "/" + st.hp + " · MP " + m.mp + "/" + st.mp + "</small></div>";
+    }).join("") + "</div>";
+  }
+  function rpUI(force) {
+    let top = $("rp-top");
+    if (!top || !rp.s) return;
+    let s = rp.s, tt = "<b>" + (rp.mode === "battle" ? rp.bt && rp.bt.boss ? "Boss battle" : "Battle" : rpArea(s.x, s.y)) + "</b><span>" + Math.floor(s.gold) + ' gold</span><span class="rpq">' + rpQuestLine() + "</span>";
+    top.dataset.h !== tt && (top.dataset.h = tt, $("rp-topt").innerHTML = tt);
+    {
+      let v = $("v-rpg");
+      v.classList.toggle("lefty", rpOpt.hand === "right"), v.dataset && v.dataset.mode !== rp.mode && (v.dataset.mode = rp.mode, requestAnimationFrame(rpResize));
+    }
+    let P = $("rp-panel"), pn = panels[rp.mode], h = pn && pn.html();
+    h == null && (pn = panels.map, h = pn.html());
+    let sig = rp.mode + "|" + (pn.sig ? pn.sig() : "");
+    if (!(rp.joyP && rp.mode === "map" && P.querySelector && P.querySelector("[data-joy]")) && (force || sig !== rp.sig)) {
+      rp.sig = sig;
+      let ae = document.activeElement, keep = ae && ae.id && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? { id: ae.id, v: ae.value } : null;
+      if (P.innerHTML = h, keep) {
+        let i = document.getElementById(keep.id);
+        i && (i.value = keep.v, i.focus());
+      }
+    }
+  }
+  function rpMenuClick(e) {
+    let b = e.target.closest && e.target.closest("button");
+    if (!b || b.disabled) return;
+    let d = b.dataset;
+    !rp.headless && d.rp !== "next" && sfx("tap");
+    for (let k in routes) if (d[k] != null) {
+      routes[k](d, b), rpUI(!0);
+      return;
+    }
+    let a = actions[d.rp];
+    a && a(d, b) === !1 || rpUI(!0);
+  }
+  var MAP_PANEL = {
+    sig: () => rp.s.party.map((m) => m.hp + "/" + m.mp + "/" + m.lvl).join(",") + "|" + netMapRow(),
+    html: () => netMapRow() + rpPartyHtml() + '<p class="rpkeys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, or click, to walk · <kbd>E</kbd> talk · <kbd>I</kbd> heroes &amp; gear · <kbd>M</kbd> menu</p><div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div><div class="rpside"><button class="pill go big" type="button" data-rp="act">Talk / Use</button><div class="rprow2">' + (net.on ? '<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>' : "") + '<button class="pill" type="button" data-rp="hero">⚔ Gear</button><button class="pill" type="button" data-rp="menu">☰ Menu</button></div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'
+  };
+  feature({ id: "hud", panels: { map: MAP_PANEL }, routes: { dir: (d) => rpTry(d.dir) }, actions: { act: () => rpActFacing() } });
+
+  // src/game/play.js
+  function rpIntro() {
+    rpSay([{ who: "", text: "Burrowhome is a sleepy kobold village, and today is hatching day: once in a lifetime the village hatches a dragon to guard the kobolds, from one of three dragon eggs." }, { who: "", text: "You are Pip: a small kobold with a big stick and strong opinions. Every morning Old Mallow bakes, and every morning Pip eats two ember-buns. Life is good." }, { who: "", text: "Elder Mumble is waiting by his house, just south of here." }, { who: "", text: "Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk." }], null, () => {
+      rp.s.q.intro = 1, rp.mode = "class", rpSave(), rpUI(!0);
+    });
+  }
+  function rpStart(fresh) {
+    let sv = fresh ? null : rpLoad();
+    rp.s = sv || rpNewState(), rpApplyWorld(), rp.mode = "map", rp.bt = null, $("rp-hero").hidden = !0, rp.dlg = null, rp.pk = null, rp.npcK = {}, rp.grace = 4, rp.pos = null, rp.path = null, rp.keys.clear(), rp.sig = "", parts.length = 0, texts.length = 0, show("rpg"), rpLayout(), requestAnimationFrame(() => {
+      rpResize(), rpUI(!0);
+    }), emit("game:start"), rp.s.q.intro ? rpUI(!0) : rpIntro();
+  }
+  function rpFrame(dt) {
+    rp.t += dt, rp.mode === "map" && !rp.s.w6 && (rp.s.q.intro && !rp.s.q.cls ? (rp.mode = "class", rpUI(!0)) : rpPendingMember() ? (rp.mode = "levelup", rp.held = null, rp.path = null, rpUI(!0)) : rpPromoteWho() && (rp.mode = "promote", rp.held = null, rp.path = null, rpUI(!0))), rp.mode === "map" && rpMoveFrame(dt), rp.mode === "battle" && rpBattleStep(dt), rp.mode === "battle" && rp.bt ? rpDrawBattle() : rpDrawMap(dt), set_uiT(uiT + dt), uiT > 0.15 && (set_uiT(0), rpUI());
+    for (let f of frames) f(dt);
+  }
+  feature({ id: "game-play", init() {
+    $("go-rpg").addEventListener("click", () => {
+      rpGoFull(), rpStart(!1);
+    });
+  } });
+
+  // src/net/cloud.js
+  async function netCloudInit() {
+    try {
+      net.cloudRef = net.db.doc("data/users/" + net.me + "/save");
+      let sn = await net.cloudRef.get();
+      net.cloud = sn.exists ? sn.data() : null, net.cloud && rp.s && view === "rpg" && (net.cloud.savedAt || 0) > (rp.s.savedAt || 0) + 2e3 && (rpStart(!1), rpToast("Loaded your save from the cloud"));
+    } catch {
+    }
+  }
+  function netCloudSave() {
+    !net.cloudRef || !rp.s || rp.headless || rp.s.w6 || (clearTimeout(net.cloudT), net.cloudT = setTimeout(async () => {
+      if (net.cloudBusy) {
+        netCloudSave();
+        return;
+      }
+      net.cloudBusy = !0;
+      try {
+        let d = JSON.parse(JSON.stringify(rp.s));
+        await net.cloudRef.set(d), net.cloud = d;
+      } catch {
+      }
+      net.cloudBusy = !1;
+    }, 2500));
+  }
+  feature({ id: "cloud-save", on: { save: () => netCloudSave() } });
+  saveSources.push({ id: "cloud", get: () => net.cloud });
+
+  // src/net/gift.js
+  function netGive(kind, val2) {
+    if (!netOnline()) return;
+    let s = rp.s, label = "";
+    if (kind === "gold") {
+      if (val2 = Math.min(+val2, Math.floor(s.gold)), val2 <= 0) return;
+      s.gold -= val2, label = val2 + " gold";
+    } else if (kind === "mat") {
+      let M = rpMats();
+      if (!(M[val2] > 0)) return;
+      M[val2]--, label = "a " + RP_MATS[val2].n.toLowerCase();
+    } else if (kind === "item") {
+      let i = s.inv.indexOf(val2);
+      if (i < 0) return;
+      s.inv.splice(i, 1), label = RP_IT[val2].n;
+    } else if (kind === "bag") {
+      if (!(s.bag[val2] > 0) || !RP_ITEMS[val2] || RP_ITEMS[val2].keep) return;
+      s.bag[val2]--, label = "a " + RP_ITEMS[val2].n.toLowerCase();
+    }
+    if (!net.partner) return;
+    let gid = netRid();
+    net.gifts[gid] = { kind, val: val2, label, t: performance.now(), last: performance.now(), to: net.partner.peer }, netEmit({ t: "gift", gid, to: net.partner.peer, kind, val: val2 }), rpToast("Sent " + label + " to " + netName() + "."), rpSave();
+  }
+  function netGotGift(d, msg) {
+    if (!rp.s) return;
+    let ack = () => netEmit({ t: "gack", gid: d.gid, to: msg.peer });
+    if (net.giftsIn.has(d.gid)) {
+      ack();
+      return;
+    }
+    let s = rp.s, label = "";
+    if (d.kind === "gold") {
+      let v = clamp(+d.val | 0, 0, 1e5);
+      s.gold += v, label = v + " gold";
+    } else if (d.kind === "mat" && RP_MATS[d.val])
+      rpMats()[d.val]++, label = "a " + RP_MATS[d.val].n.toLowerCase();
+    else if (d.kind === "item" && RP_IT[d.val])
+      rpGive(d.val), label = RP_IT[d.val].n;
+    else if (d.kind === "bag" && RP_ITEMS[d.val] && !RP_ITEMS[d.val].keep)
+      s.bag[d.val] = (s.bag[d.val] || 0) + 1, label = "a " + RP_ITEMS[d.val].n.toLowerCase();
+    else return;
+    net.giftsIn.add(d.gid), ack(), rpSave(), rpToast(netName() + " gave you " + label + "!"), rp.headless || sfx("win"), rpBuzz(30);
+  }
+  function netGiftTick() {
+    let now = performance.now();
+    for (let gid in net.gifts) {
+      let G = net.gifts[gid];
+      if (now - G.t > 3e4) {
+        delete net.gifts[gid];
+        let s = rp.s;
+        G.kind === "gold" ? s.gold += G.val : G.kind === "mat" ? rpMats()[G.val]++ : G.kind === "item" ? rpGive(G.val) : G.kind === "bag" && (s.bag[G.val] = (s.bag[G.val] || 0) + 1), rpToast(G.label + " couldn't be delivered, so you kept it."), rpSave();
+        continue;
+      }
+      now - G.last > 2e3 && (G.last = now, netEmit({ t: "gift", gid, to: G.to, kind: G.kind, val: G.val }));
+    }
+  }
+  function netTradeHtml() {
+    let s = rp.s, M = rpMats(), h = '<div class="rpdlg"><div class="who">Give to ' + esc2(netName()) + '</div><p>Tap to send. It arrives in their backpack right away.</p></div><div class="rpcmd shop">';
+    return h += [10, 50].map((v) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v + '"' + (s.gold < v ? " disabled" : "") + ">" + v + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
+  }
+  feature({ id: "trade", panels: { trade: { sig: () => rp.s.gold + JSON.stringify(rpMats()) + rp.s.inv.join() + JSON.stringify(rp.s.bag), html: () => netTradeHtml() } } });
+  feature({
+    id: "net-gift-io",
+    net: {
+      gift(d, msg) {
+        let b = rp.bt, L = net.lob;
+        netGotGift(d, msg);
+      },
+      gack(d, msg) {
+        let b = rp.bt, L = net.lob;
+        if (net.gifts[d.gid]) {
+          let G = net.gifts[d.gid];
+          delete net.gifts[d.gid], rpToast(netNameOf(G.to) + " got " + G.label + ".");
+        }
+      }
+    },
+    actions: {
+      "net:trade"(d) {
+        rp.mode = "trade";
+      },
+      "net:tradeclose"(d) {
+        rp.mode = "map";
+      },
+      "net:give"(d) {
+        netGive(d.k, d.k === "gold" ? +d.v : d.v);
+      }
+    }
+  });
+
+  // src/net/market.js
+  function netMarketInit() {
+    try {
+      let col = net.db.collection("market");
+      col.where("status", "==", "open").onSnapshot((sn) => {
+        net.market = sn.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+        let ids = [...new Set(net.market.map((m) => m.seller))].filter((i) => i && !(i in net.names));
+        ids.length && net.user && (ids.forEach((i) => net.names[i] = ""), net.user.profiles(ids).then((r) => {
+          ids.forEach((i) => net.names[i] = r[i] && r[i].name || "");
+        }).catch(() => {
+        })), rp.sig = "";
+      }, () => {
+      }), col.where("seller", "==", net.me).onSnapshot((sn) => {
+        net.mine = sn.docs.map((d) => Object.assign({ id: d.id }, d.data())), netMarketPayouts(), rp.sig = "";
+      }, () => {
+      });
+    } catch {
+    }
+  }
+  function netMkLabel(m) {
+    return m.kind === "item" ? (RP_IT[m.val] || { n: "?" }).n : m.kind === "mat" ? (RP_MATS[m.val] || { n: "?" }).n : m.kind === "bag" ? (RP_ITEMS[m.val] || { n: "?" }).n : "?";
+  }
+  function netMkValid(m) {
+    return m && Number.isFinite(+m.price) && +m.price > 0 && (m.kind === "item" && RP_IT[m.val] || m.kind === "mat" && RP_MATS[m.val] || m.kind === "bag" && RP_ITEMS[m.val] && !RP_ITEMS[m.val].keep);
+  }
+  function netMarketPrice(kind, val2) {
+    let base = kind === "item" ? (RP_IT[val2] || {}).price || 40 : kind === "mat" ? 12 : (RP_ITEMS[val2] || {}).price || 15;
+    return Math.max(1, Math.round(base * 0.6));
+  }
+  function netTake(kind, val2) {
+    let s = rp.s;
+    if (kind === "gold") return !1;
+    if (kind === "mat") {
+      let M = rpMats();
+      return M[val2] > 0 ? (M[val2]--, !0) : !1;
+    }
+    if (kind === "bag")
+      return s.bag[val2] > 0 ? (s.bag[val2]--, !0) : !1;
+    let i = s.inv.indexOf(val2);
+    return i < 0 ? !1 : (s.inv.splice(i, 1), !0);
+  }
+  function netPut(kind, val2) {
+    let s = rp.s;
+    kind === "mat" ? rpMats()[val2]++ : kind === "bag" ? s.bag[val2] = (s.bag[val2] || 0) + 1 : rpGive(val2);
+  }
+  async function netMarketList() {
+    let S = net.mkSell;
+    if (!(!S || net.mkBusy || !net.db)) {
+      if ((net.mine || []).filter((m) => m.status === "open").length >= 8) {
+        rpToast("You can have 8 things for sale at once.");
+        return;
+      }
+      if (netTake(S.kind, S.val)) {
+        net.mkBusy = !0, rpSave();
+        try {
+          await net.db.collection("market").add({ seller: net.me, kind: S.kind, val: S.val, price: Math.round(S.price), status: "open", buyer: null, t: Date.now() }), rpToast(netMkLabel(S) + " is on the market for " + Math.round(S.price) + " gold."), net.mkSell = null, net.mkTab = "mine";
+        } catch {
+          netPut(S.kind, S.val), rpSave(), rpToast("Couldn't reach the market. Try again.");
+        }
+        net.mkBusy = !1, rpUI(!0);
+      }
+    }
+  }
+  async function netMarketBuy(id) {
+    if (net.mkBusy) return;
+    let m = net.market.find((x) => x.id === id);
+    if (!m || !netMkValid(m) || m.seller === net.me) return;
+    if (rp.s.gold < m.price) {
+      rpToast("Not enough gold.");
+      return;
+    }
+    net.mkBusy = !0, rpUI(!0);
+    let ref = net.db.collection("market").doc(id);
+    try {
+      if (!(await ref.acquire({ holder: net.me, ttlMs: 6e3 })).acquired)
+        rpToast("Someone else is buying that right now.");
+      else {
+        let sn = await ref.get(), d = sn.exists && sn.data();
+        !d || d.status !== "open" || rp.s.gold < d.price ? rpToast("That was just sold.") : (await ref.update({ status: "sold", buyer: net.me, soldAt: Date.now() }), rp.s.gold -= d.price, netPut(d.kind, d.val), rpSave(), rp.headless || sfx("win"), rpToast("Bought " + netMkLabel(d) + " for " + d.price + " gold!"));
+      }
+    } catch {
+      rpToast("Couldn't reach the market. Try again.");
+    }
+    net.mkBusy = !1, rpUI(!0);
+  }
+  async function netMarketCancel(id) {
+    if (net.mkBusy) return;
+    let ref = net.db.collection("market").doc(id);
+    net.mkBusy = !0;
+    try {
+      if ((await ref.acquire({ holder: net.me, ttlMs: 6e3 })).acquired) {
+        let sn = await ref.get(), d = sn.exists && sn.data();
+        if (d && d.status === "open" && d.seller === net.me) {
+          await ref.update({ status: "cancel" }), netPut(d.kind, d.val), rpSave(), rpToast(netMkLabel(d) + " is back in your backpack.");
+          try {
+            await ref.delete();
+          } catch {
+          }
+        }
+      }
+    } catch {
+    }
+    net.mkBusy = !1, rpUI(!0);
+  }
+  async function netMarketPayouts() {
+    if (!rp.s || net.paying) return;
+    let s = rp.s;
+    s.mkPaid = s.mkPaid || [];
+    let due2 = (net.mine || []).filter((m) => m.status === "sold" && !s.mkPaid.includes(m.id));
+    if (due2.length) {
+      net.paying = !0;
+      for (let m of due2) {
+        s.mkPaid.push(m.id), s.mkPaid.length > 200 && s.mkPaid.shift(), s.gold += Math.max(0, +m.price || 0), rpToast("Your " + netMkLabel(m) + " sold for " + m.price + " gold!");
+        try {
+          await net.db.collection("market").doc(m.id).delete();
+        } catch {
+        }
+      }
+      rpSave(), net.paying = !1, rp.sig = "";
+    }
+  }
+  function netMarketHtml() {
+    let s = rp.s, T = net.mkTab, tab = (k, n) => '<button class="pill' + (T === k ? " go" : "") + '" type="button" data-net="mktab" data-v="' + k + '">' + n + "</button>", h = '<div class="rpdlg"><div class="who">Market board</div><div class="mktabs">' + tab("buy", "Buy") + tab("sell", "Sell") + tab("mine", "My stall") + '<span class="mkgold">' + Math.floor(s.gold) + ' gold</span></div></div><div class="rpcmd shop">';
+    if (T === "buy") {
+      let L = net.market.filter((m) => netMkValid(m) && m.seller !== net.me).sort((a, b) => b.t - a.t);
+      h += L.length ? L.map((m) => {
+        let it = m.kind === "item" ? m.val : null;
+        return '<button class="rpb' + (it ? rpItemTone(it) : " go") + '" type="button" data-net="mkbuy" data-id="' + esc2(m.id) + '"' + (s.gold < m.price || net.mkBusy ? " disabled" : "") + ">" + esc2(netMkLabel(m)) + " · " + m.price + "g<small>" + (it ? rpItemDesc(it) + " · " : "") + "from " + esc2(net.names[m.seller] || "a friend") + "</small></button>";
+      }).join("") : '<p class="rptip">Nothing for sale yet. Be the first: open the Sell tab.</p>';
+    } else if (T === "sell")
+      if (net.mkSell) {
+        let S = net.mkSell;
+        h += '<p class="mksell"><b>' + esc2(netMkLabel(S)) + '</b> for <b class="hp">' + S.price + " gold</b></p>" + [-50, -10, -1, 1, 10, 50].map((v) => '<button class="pill" type="button" data-net="mkprice" data-v="' + v + '">' + (v > 0 ? "+" : "") + v + "</button>").join("") + '<button class="rpb go" type="button" data-net="mklist"' + (net.mkBusy ? " disabled" : "") + `>Put it up for sale<small>Stays up while you're away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>`;
+      } else {
+        let M = rpMats();
+        h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="mkpick" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join("") + Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join("") || '<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>';
+      }
+    else {
+      let L = (net.mine || []).filter((m) => m.status === "open" && netMkValid(m));
+      h += L.length ? L.map((m) => '<button class="rpb" type="button" data-net="mkcancel" data-id="' + esc2(m.id) + '">' + esc2(netMkLabel(m)) + " · " + m.price + "g<small>Tap to take it back</small></button>").join("") : '<p class="rptip">You have nothing for sale.</p>';
+    }
+    return h + '<button class="rpb x" type="button" data-net="mkclose">Leave</button></div>';
+  }
+  feature({ id: "market", panels: { market: { sig: () => net.mkTab + JSON.stringify(net.mkSell) + net.market.length + net.market.map((m) => m.id).join() + (net.mine || []).length + rp.s.gold + net.mkBusy + rp.s.inv.length + JSON.stringify(rpMats()), html: () => netMarketHtml() } } });
+  feature({ id: "market-stall", tiles: { M: { use() {
+    net.db && net.me ? (rp.mode = "market", net.mkTab = "buy", net.mkSell = null, rpUI(!0)) : rpSay([{ who: "Market board", text: "An empty trading board. It only works when you play online, on the shared page." }]);
+  } } } });
+  feature({
+    id: "net-market-io",
+    actions: {
+      "net:market"(d) {
+        rp.mode = "market", net.mkTab = "buy", net.mkSell = null;
+      },
+      "net:mktab"(d) {
+        net.mkTab = d.v, net.mkSell = null;
+      },
+      "net:mkbuy"(d) {
+        netMarketBuy(d.id);
+      },
+      "net:mkcancel"(d) {
+        netMarketCancel(d.id);
+      },
+      "net:mkpick"(d) {
+        net.mkSell = { kind: d.k, val: d.v, price: netMarketPrice(d.k, d.v) };
+      },
+      "net:mkprice"(d) {
+        net.mkSell && (net.mkSell.price = clamp(net.mkSell.price + +d.v, 1, 99999));
+      },
+      "net:mklist"(d) {
+        netMarketList();
+      },
+      "net:mkclose"(d) {
+        rp.mode = "map";
+      }
+    }
+  });
+
+  // src/net/core.js
+  var net = {
+    room: null,
+    user: null,
+    db: null,
+    me: null,
+    myPeer: null,
+    on: !1,
+    names: {},
+    partner: null,
+    pk: null,
+    pkPos: null,
+    lastPres: 0,
+    presSig: "",
+    others: [],
+    pks: {},
+    ops: {},
+    focus: null,
+    bubbles: {},
+    peerNames: {},
+    chatLog: [],
+    market: [],
+    mine: [],
+    mkBusy: !1,
+    cloud: null,
+    cloudRef: null,
+    cloudBusy: !1,
+    cloudT: 0,
+    pickFor: null,
+    mkTab: "buy",
+    mkSell: null,
+    lob: null,
+    gifts: {},
+    giftsIn: /* @__PURE__ */ new Set(),
+    wref: null,
+    wremote: null,
+    wsent: "",
+    wbusy: !1,
+    wtimer: 0,
+    fx: [],
+    snapN: 0,
+    snapSig: "",
+    snapT: 0,
+    actN: 0,
+    lastOp: null,
+    duelAsk: null
+  };
+  function netRid() {
+    return Math.random().toString(36).slice(2, 9);
+  }
+  async function netInit() {
+    if (platform.available())
+      try {
+        let [room, user, db] = await Promise.all([platform.use("room"), platform.use("user"), platform.use("db")]);
+        if (net.room = room, net.user = user, net.db = db, user)
+          try {
+            net.me = await user.id();
+          } catch {
+          }
+        room && (room.on("kq", netMsg, () => {
+        }), room.onPeers(netPeers, () => {
+        }), net.on = !0), db && net.me && (await netCloudInit(), netMarketInit());
+      } catch (e) {
+        console.warn("online features unavailable", e);
+      }
+  }
+  function netPeers() {
+    if (!net.room) return;
+    let ps = net.room.peers(), me = ps.find((p) => p.sameTab);
+    me && (net.myPeer = me.peer);
+    let others = ps.filter((p) => !p.isMe && p.kind === "viewer" && p.presence && p.presence.kq), before = new Set((net.others || []).map((p) => p.peer)), now = new Set(others.map((p) => p.peer)), playing = rp.s && view === "rpg";
+    others.forEach((P) => {
+      P.by && !(P.by in net.names) && net.user && (net.names[P.by] = "", net.user.profiles([P.by]).then((r) => {
+        net.names[P.by] = r[P.by] && r[P.by].name || "", rp.sig = "";
+      }).catch(() => {
+      })), !before.has(P.peer) && playing && setTimeout(() => {
+        rp.mode === "map" && rpToast(netName(P) + " is here!");
+      }, 700);
+      let op = P.presence.op || null, lastOp = net.ops[P.peer] || null;
+      op && op !== lastOp && playing && rp.mode === "map" && (setTimeout(() => {
+        P.presence.op && rpToast(netName(P) + " is in a fight! ⚔ Join");
+      }, 300), rpBuzz([30, 40, 30])), net.ops[P.peer] = op;
+    }), (net.others || []).forEach((P) => {
+      now.has(P.peer) || (playing && rpToast(netName(P) + " left."), delete net.pks[P.peer], delete net.ops[P.peer]);
+    }), net.others = others, netFocus();
+  }
+  function netFocus() {
+    let O = net.others || [], P = net.focus && O.find((p) => p.peer === net.focus);
+    if (!P && O.length && !rp.s && (P = O[0]), !P && rp.s) {
+      let s = rp.s;
+      P = O.slice().sort((a, b) => Math.hypot(a.presence.x - s.x, a.presence.y - s.y) - Math.hypot(b.presence.x - s.x, b.presence.y - s.y))[0];
+    }
+    return net.partner = P || null, net.partner;
+  }
+  function netByPeer(peer) {
+    return (net.others || []).find((p) => p.peer === peer) || null;
+  }
+  function netName(p) {
+    return p = p || net.partner, p && (p.by && net.names[p.by] || p.presence.nm) || "Your friend";
+  }
+  function netNameOf(peer) {
+    let p = netByPeer(peer);
+    return p ? netName(p) : net.peerNames[peer] || "Your friend";
+  }
+  function netOnline() {
+    return !!(net.on && net.others && net.others.length);
+  }
+  function netPartnerFree() {
+    return netOnline() && net.others.some((p) => p.presence.m === "map" && (p.presence.pl || "world") === rpPlace()) && net.room.connected();
+  }
+  function netEmit(data) {
+    if (net.room)
+      try {
+        net.room.emit("kq", data).catch(() => {
+        });
+      } catch {
+      }
+  }
+  function netPresence(force) {
+    if (!net.room || !rp.s) return;
+    let now = performance.now();
+    if (!force && now - net.lastPres < 120) return;
+    let s = rp.s, m = s.party[0], p = rp.pos || { x: s.x + 0.5, y: s.y + 0.5 }, pr = {
+      kq: 1,
+      pl: rpPlace(),
+      x: Math.round(p.x * 100) / 100,
+      y: Math.round(p.y * 100) / 100,
+      f: s.face,
+      a: rpArea(s.x, s.y),
+      m: rp.mode === "battle" || rp.mode === "lobby" ? rp.mode : rp.mode === "map" ? "map" : "busy",
+      lv: m.lvl,
+      cl: m.cls,
+      w: m.w,
+      h: rpHat(m),
+      op: net.lob && net.lob.host && !net.lob.duel && !net.lob.g && rp.mode === "lobby" ? net.lob.id : null,
+      nm: "",
+      pn: s.party.length
+    }, sig = JSON.stringify(pr);
+    sig === net.presSig && !force || (net.presSig = sig, net.lastPres = now, net.room.presence(pr).catch(() => {
+    }));
+  }
+  function netLeaveRpg() {
+    net.room && (net.presSig = "", net.room.presence({ kq: null, op: null }).catch(() => {
+    }));
+  }
+  function netMsg(msg) {
+    let d = msg.data;
+    if (!d || typeof d != "object" || msg.sameTab || d.to && d.to !== net.myPeer) return;
+    let h = netHandlers[d.t];
+    h && h(d, msg), rp.s && view === "rpg" && rpUI();
+  }
+  function netBtn(d) {
+    let a = actions["net:" + d.net];
+    a && a(d), netPresence(!0);
+  }
+  function netFrame(dt) {
+    if (!net.on || !rp.s) return;
+    netPresence(), netGiftTick(), performance.now() - (net.focusT || 0) > 1e3 && (net.focusT = performance.now(), netFocus());
+    let L = net.lob;
+    L && L.host && rp.mode === "lobby" && performance.now() - (L.sent || 0) > 1500 && netLobSend(), L && !L.host && rp.mode === "lobby" && performance.now() - (L.seen || 0) > 9e3 && (net.lob = null, rp.mode = "map", rpToast("Couldn't reach " + netName() + "."), rpUI(!0));
+  }
+  feature({ id: "net-buttons", routes: { net: (d) => netBtn(d) } });
+  feature({ id: "net-presence-after-battle", on: { "battle:end": () => setTimeout(() => netPresence(!0), 0) } });
+  feature({ id: "net-live", init: () => netInit(), frame: (dt) => netFrame(dt), on: { "game:start": () => netPresence(!0) } });
+
+  // src/net/lobby.js
+  function netParty() {
+    return rp.s.w6 ? rp.s.party.map(v6PackKobold) : rp.s.party.map((m) => ({ name: m.name, cls: m.cls, w: m.w, lvl: m.lvl, xp: m.xp, hp: m.hp, mp: m.mp, tal: (m.tal || []).slice(), eq: Object.assign({}, m.eq), adv: m.adv || null }));
+  }
+  function netCleanParty(p) {
+    return Array.isArray(p) ? p.some((m) => m && m.v6) ? netClean6(p) : p.slice(0, 3).map((m) => ({
+      name: String(m.name || "Kobold").slice(0, 16),
+      cls: RP_CLS[m.cls] ? m.cls : "warrior",
+      w: WEAPONS[m.w] ? m.w : "stick",
+      lvl: clamp(+m.lvl || 1, 1, 40),
+      xp: +m.xp || 0,
+      hp: +m.hp || 0,
+      mp: +m.mp || 0,
+      tal: Array.isArray(m.tal) ? m.tal.filter((t) => typeof t == "string").slice(0, 40) : [],
+      eq: typeof m.eq == "object" && m.eq ? Object.fromEntries(Object.entries(m.eq).filter(([k, v]) => RP_SLOTS9.includes(k) && RP_IT[v])) : {},
+      adv: RP_ADV[m.adv] ? m.adv : null,
+      pend: 0,
+      offer: null
+    })) : [];
+  }
+  function netClean6(p) {
+    let num = (v, a, b, d) => (v = +v, Number.isFinite(v) ? clamp(Math.round(v), a, b) : d), obj = (v) => v && typeof v == "object" && !Array.isArray(v) ? v : {}, ids = (v) => Array.isArray(v) ? v.filter((id) => typeof id == "string" && SKILLS6[id]) : [];
+    return p.filter((m) => m && m.v6 && CLASSES6[m.cls]).slice(0, 3).map((m) => {
+      let c = v6PackKobold(m);
+      Object.assign(c, {
+        v6: 1,
+        name: String(m.name || "Kobold").slice(0, 16),
+        lvl: num(m.lvl, 1, 30, 1),
+        xp: num(m.xp, 0, 1e7, 0),
+        hp: num(m.hp, 0, 1e5, 0),
+        mp: num(m.mp, 0, 1e5, 0),
+        scores: Object.fromEntries(Object.entries(obj(m.scores)).map(([k, v]) => [k, num(v, 1, 40, 10)])),
+        skills: ids(m.skills).slice(0, 4),
+        known: ids(m.known),
+        ranks: obj(m.ranks),
+        dark: obj(m.dark),
+        gear: obj(m.gear),
+        lead: obj(m.lead),
+        passives: Array.isArray(m.passives) ? m.passives.filter((x) => typeof x == "string") : [],
+        w: WEAPONS[m.w] ? m.w : "stick",
+        pend: 0
+      });
+      try {
+        rpStats(c);
+      } catch {
+        return null;
+      }
+      return c;
+    }).filter(Boolean);
+  }
+  var clsName = (c) => (CLASSES6[c] || RP_CLS[c] || { n: "" }).n;
+  function rpFight(keys, opt) {
+    netPartnerFree() && !opt.duel ? netOpenLobby(keys, opt) : rpBattle(keys, opt);
+  }
+  function netOpenLobby(keys, opt, duel) {
+    let alive = rp.s.party.map((m, i) => m.hp > 0 ? i : -1).filter((i) => i >= 0);
+    net.lob = { id: netRid(), host: !0, duel: !!duel, keys, opt: opt || {}, hsel: alive.slice(0, 3), g: null }, rp.mode = "lobby", rp.path = null, rpInputReset(), netPresence(!0), netLobSend(), rpUI(!0);
+  }
+  function netLobFix(L, who) {
+    let H = rp.s.party;
+    if (!L.hsel.length) {
+      let i = H.findIndex((m) => m.hp > 0);
+      i >= 0 && (L.hsel = [i]);
+    }
+    if (L.g) {
+      if (!L.g.sel.length) {
+        let i = L.g.party.findIndex((m) => m.hp > 0);
+        L.g.sel = [i >= 0 ? i : 0];
+      }
+      if (!L.duel)
+        for (; L.hsel.length + L.g.sel.length > 4; )
+          who === "g" && L.hsel.length > 1 ? L.hsel.pop() : L.g.sel.length > 1 ? L.g.sel.pop() : L.hsel.pop();
+    }
+  }
+  function netLobSend() {
+    let L = net.lob;
+    if (!L || !L.host) return;
+    let sum = (p) => p.map((m) => ({ n: m.name, c: m.cls, l: m.lvl, hp: Math.max(0, m.hp), mx: rpStats(m).hp }));
+    netEmit({ t: "lob", id: L.id, duel: L.duel, title: netLobTitle(L), hp: sum(rp.s.party), hsel: L.hsel, g: L.g ? { peer: L.g.peer, sel: L.g.sel } : null, cap: L.duel ? 0 : rp.s.party[0].lvl }), L.sent = performance.now();
+  }
+  function netLobTitle(L) {
+    let o = L.opt || {};
+    return L.duel ? "Duel" : o.title ? o.title : o.boss && RP_E[o.boss] ? RP_E[o.boss].n : (RP_ZONE[o.zone] || { n: "Battle" }).n;
+  }
+  function netLobHtml() {
+    let L = net.lob;
+    if (!L) return "";
+    let host = L.host, V = L.view || {}, chips = (party, sel, mine, who) => party.map((m, i) => {
+      let on2 = sel.includes(i), hp = m.hp != null ? m.hp : 0, mx = m.mx || rpStats(m).hp, dn = hp <= 0;
+      return '<button class="lobk' + (on2 ? " on" : "") + (dn ? " dn" : "") + '" type="button"' + (mine && !dn ? ' data-net="pick" data-who="' + who + '" data-i="' + i + '"' : " disabled") + "><b>" + esc2(m.n || m.name) + "</b><small>" + clsName(m.c || m.cls) + " " + (m.l || m.lvl) + " · " + Math.max(0, hp) + " HP</small></button>";
+    }).join(""), h = '<div class="rpdlg"><div class="who">' + esc2(host ? netLobTitle(L) : V.title || "Battle") + (L.duel ? " ⚔" : "") + "</div>";
+    if (host) {
+      let g = L.g, tot = L.hsel.length + (g ? g.sel.length : 0);
+      h += "<p>" + (L.duel ? g ? "Pick 1 to 3 kobolds each, then start." : "Waiting for " + esc2(netName()) + " to answer…" : g ? "Pick who fights: at least one each, up to 4 together (" + tot + "/4)." : "Pick your kobolds. " + esc2(netName()) + " can join now, or start without them.") + "</p></div>", h += '<div class="lobp"><small>Your party</small>' + chips(rp.s.party, L.hsel, !0, "h") + "</div>", g && (h += '<div class="lobp"><small>' + esc2(netName()) + "</small>" + chips(g.party.map((m) => ({ n: m.name, c: m.cls, l: m.lvl, hp: m.hp, mx: rpStats(m).hp })), g.sel, !1) + "</div>"), g && !L.duel && g.party.some((m) => m.lvl > rp.s.party[0].lvl) && (h += '<p class="rptip">' + esc2(netName()) + "'s kobolds fight at level " + rp.s.party[0].lvl + " (level sync).</p>"), h += '<div class="tbar two"><button class="rpb x" type="button" data-net="lobcancel">' + (L.duel ? "✕ Cancel duel" : "✕ " + (g ? "Fight alone" : "Back")) + '</button><button class="rpb go" type="button" data-net="lobstart"' + (L.duel && !g ? " disabled" : "") + ">Start battle ▸<small>" + (g ? "with " + esc2(netName()) : "on your own") + "</small></button></div>", !L.duel && !g && L.keys && L.opt && !L.opt.boss && (h = h.replace("✕ Back", "✕ Back"));
+    } else {
+      if (!V.hp)
+        return h += "<p>Joining " + esc2(netName()) + '…</p></div><div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>', h;
+      let mySel = L.sel || [0], tot = (V.hsel || []).length + mySel.length;
+      h += "<p>" + (L.duel ? "Pick 1 to 3 kobolds. " : "Pick at least one kobold (" + tot + "/4 together). ") + esc2(netName()) + " starts the battle.</p></div>", h += '<div class="lobp"><small>' + esc2(netName()) + "</small>" + chips(V.hp, V.hsel || [], !1) + "</div>", h += '<div class="lobp"><small>Your party</small>' + chips(rp.s.party, mySel, !0, "g") + "</div>", V.cap && rp.s.party.some((m) => m.lvl > V.cap) && (h += '<p class="rptip">Your kobolds fight at level ' + V.cap + " to match " + esc2(netName()) + " (level sync). You still get your rewards.</p>"), h += '<div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>';
+    }
+    return h;
+  }
+  function netLobPick(who, i) {
+    let L = net.lob;
+    if (L) {
+      if (who === "h" && L.host) {
+        let s = L.hsel, j = s.indexOf(i);
+        j >= 0 ? s.length > 1 && s.splice(j, 1) : (s.push(i), s.sort()), netLobFix(L, "h"), L.g && !L.duel && s.length + L.g.sel.length > 4 && s.splice(s.indexOf(i), 1), L.duel && s.length > 3 && s.splice(s.indexOf(i), 1), netLobSend();
+      } else if (who === "g" && !L.host) {
+        let s = (L.sel || [0]).slice(), j = s.indexOf(i);
+        j >= 0 ? s.length > 1 && s.splice(j, 1) : (s.push(i), s.sort()), L.duel && s.length > 3 && (s = s.slice(0, 3)), L.sel = s, netEmit({ t: "pick", id: L.id, sel: s, to: L.hostPeer });
+      }
+    }
+  }
+  function netLevelSync(m, cap) {
+    if (!m || m.lvl <= cap) return m;
+    if (m.v6) {
+      let c2 = JSON.parse(JSON.stringify(m)), a2 = rpStats(m);
+      c2.lvl = cap, c2.synced = m.lvl;
+      let b2 = rpStats(c2);
+      return c2.hp = Math.max(1, Math.round(b2.hp * Math.min(1, m.hp / a2.hp))), c2.mp = Math.round(b2.mp * Math.min(1, (m.mp || 0) / Math.max(1, a2.mp))), c2;
+    }
+    let c = Object.assign({}, m, { lvl: cap, tal: (m.tal || []).slice(0, Math.max(0, cap - 1)), adv: cap >= 10 ? m.adv : null, synced: m.lvl }), a = rpStats(m), b = rpStats(c);
+    return c.hp = Math.max(1, Math.round(b.hp * Math.min(1, m.hp / a.hp))), c.mp = Math.round(b.mp * Math.min(1, (m.mp || 0) / Math.max(1, a.mp))), c;
+  }
+  function netStart() {
+    let L = net.lob;
+    if (!L || !L.host) return;
+    let s = rp.s, mine = L.hsel.filter((i) => s.party[i] && s.party[i].hp > 0).map((i) => ({ m: s.party[i], ctl: "me", own: "h" }));
+    if (!mine.length) return;
+    let cap = s.party[0].lvl, theirs = L.g ? L.g.sel.filter((i) => L.g.party[i] && L.g.party[i].hp > 0).map((i) => ({ m: L.duel ? L.g.party[i] : netLevelSync(L.g.party[i], cap), ctl: "remote", own: "g", gi: i })) : [];
+    if (net.lob = null, L.duel) {
+      if (!theirs.length) return rpToast("Waiting for " + netName() + ".");
+      rpBattle([], { duel: !0, members: mine, foes: theirs, net: L.g.peer, nid: L.id, gParty: L.g.party });
+    } else {
+      let keys = L.keys, o = L.opt || {};
+      if (o.v6) {
+        if (!o.boss && !o.setPiece && theirs.length && keys.length) {
+          keys = keys.slice();
+          let k0 = keys.slice();
+          theirs.forEach((x, i) => keys.push(k0[i % k0.length]));
+        }
+      } else if (!o.boss && theirs.length) {
+        let Z = RP_ZONE[o.zone], lvl = s.party[0].lvl, n = clamp(mine.length + theirs.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0), 1, (Z.base || o.zone) === "," ? 3 : 5);
+        keys = [];
+        for (let i = 0; i < n; i++) keys.push(wpick(Z.t));
+      }
+      rpBattle(keys, Object.assign({}, o, { members: mine.concat(theirs), net: theirs.length ? L.g.peer : null, nid: L.id, gParty: L.g ? L.g.party : [] }));
+    }
+    rp.bt && rp.bt.net && netSendStart(rp.bt), netPresence(!0);
+  }
+  feature({ id: "lobby", panels: { lobby: { sig: () => JSON.stringify(net.lob && [net.lob.hsel, net.lob.g && net.lob.g.sel, net.lob.sel, net.lob.view]) + netName(), html: () => netLobHtml() } } });
+  feature({
+    id: "net-lobby-io",
+    net: {
+      join(d, msg) {
+        let b = rp.bt, L = net.lob;
+        if (L && L.host && L.id === d.id && L.g && L.g.peer !== msg.peer) {
+          netEmit({ t: "nolob", id: d.id, to: msg.peer, why: "That fight is already full." });
+          return;
+        }
+        if (L && L.host && L.id === d.id && rp.mode === "lobby" && !L.duel && (!L.g || L.g.peer === msg.peer)) {
+          net.focus = msg.peer, netFocus();
+          let gp = netCleanParty(d.party);
+          L.g = { peer: msg.peer, by: msg.by, party: gp, sel: L.g ? L.g.sel : [Math.max(0, gp.findIndex((m) => m.hp > 0))] }, netLobFix(L, "g"), netLobSend(), rpBuzz(30), rpToast(netName() + " joins!"), rp.sig = "";
+        }
+      },
+      leave(d, msg) {
+        let b = rp.bt, L = net.lob;
+        L && L.host && L.id === d.id && L.g && L.g.peer === msg.peer && (L.g = null, netLobSend(), rpToast(netName() + " left the lobby."), rp.sig = "", L.duel && (net.lob = null, rp.mode = "map"));
+      },
+      pick(d, msg) {
+        let b = rp.bt, L = net.lob;
+        L && L.host && L.id === d.id && L.g && L.g.peer === msg.peer && Array.isArray(d.sel) && (L.g.sel = d.sel.filter((i) => Number.isInteger(i) && L.g.party[i] && L.g.party[i].hp > 0), netLobFix(L, "g"), netLobSend(), rp.sig = "");
+      },
+      lob(d, msg) {
+        let b = rp.bt, L = net.lob;
+        L && !L.host && L.id === d.id && rp.mode === "lobby" && (L.view = d, L.hostPeer = msg.peer, L.seen = performance.now(), d.g && d.g.peer === net.myPeer && (L.sel = d.g.sel), rp.sig = "");
+      },
+      nolob(d, msg) {
+        let b = rp.bt, L = net.lob;
+        L && !L.host && L.id === d.id && (net.lob = null, rp.mode === "lobby" && (rp.mode = "map"), rpToast(d.why || "The lobby closed."), rp.sig = "");
+      }
+    },
+    actions: {
+      "net:join"(d) {
+        {
+          let P = netByPeer(d.p) || (net.others || []).find((p) => p.presence.op);
+          if (!P || !P.presence.op || rp.mode !== "map") return;
+          net.focus = P.peer, netFocus(), net.lob = { id: P.presence.op, host: !1, duel: !1, sel: [rp.s.party.findIndex((m) => m.hp > 0)].filter((i) => i >= 0), hostPeer: P.peer, seen: performance.now() }, netEmit({ t: "join", id: P.presence.op, to: P.peer, party: netParty() }), rp.mode = "lobby", rpInputReset();
+          return;
+        }
+      },
+      "net:pick"(d) {
+        netLobPick(d.who, +d.i);
+      },
+      "net:lobstart"(d) {
+        netStart();
+      },
+      "net:lobcancel"(d) {
+        {
+          let L = net.lob;
+          if (!L) return;
+          if (L.duel) {
+            L.g && netEmit({ t: "nolob", id: L.id, to: L.g.peer, why: netName() + " cancelled the duel." }), net.lob = null, rp.mode = "map";
+            return;
+          }
+          if (L.g) {
+            netEmit({ t: "nolob", id: L.id, to: L.g.peer, why: netName() + " went ahead alone." }), L.g = null, netStart();
+            return;
+          }
+          net.lob = null, rpBattle(L.keys, L.opt);
+          return;
+        }
+      },
+      "net:lobleave"(d) {
+        {
+          let L = net.lob;
+          L && netEmit({ t: "leave", id: L.id, to: L.hostPeer }), net.lob = null, rp.mode = "map";
+          return;
+        }
+      }
+    }
+  });
 
   // src/game/world6.js
   var W6_SOLID_OUT = /* @__PURE__ */ new Set(["#", "K", "B", "T", "~", "F", "b", "o", "t", "r", "O", "W", "X", "x", "P"]), W6_ROOM_SOLID = /* @__PURE__ */ new Set(["w", "n", "s", "m", "p", "l", "z", "y", "c", "a", "_", "H", "|", "o"]), isRoom = (p) => String(p).startsWith("room:");
@@ -2932,11 +4055,17 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function w6PatrolFight(p, t, aware) {
     let E = W6_ENC[p], P = PLACES6[E.place], L = w6PatrolLevel(p), keys = [v6EliteKey(P.pool[0], L)].concat(v6Mix(Object.assign({}, P, { L, target: P.target - 1 })));
-    rp.path = null, rp.held = null, rp.s.w6st.fighting = t.id, rpBattle(keys, { members: rp.s.party.map((m) => ({ m, ctl: "me", own: "h" })), zone: ",", v6: 1, theme: W6_THEME[p] || "meadow" });
-    let b = rp.bt;
-    b && (b.v6 = 1, b.patrol = t.id, b.xpMul = 1.5, aware && b.units.forEach((u) => {
-      u.side === 1 && (u.aware = !0);
-    }), b.msg = aware ? t.name + " saw you coming!" : "You catch " + t.name + " unawares!");
+    rp.path = null, rp.held = null, rp.s.w6st.fighting = t.id, rpFight(keys, {
+      members: rp.s.party.map((m) => ({ m, ctl: "me", own: "h" })),
+      zone: ",",
+      v6: 1,
+      theme: W6_THEME[p] || "meadow",
+      patrol: t.id,
+      xpMul: 1.5,
+      aware: !!aware,
+      title: t.name,
+      msg: aware ? t.name + " saw you coming!" : "You catch " + t.name + " unawares!"
+    });
   }
   function w6StableAt(p, x, y) {
     let P = MAPS6[p];
@@ -2997,7 +4126,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function w6Fight(p, E) {
     let P = PLACES6[E.place], L = Math.max(1, Math.round(rp.s.party.reduce((a, m) => a + m.lvl, 0) / rp.s.party.length)), first = !rp.s.w6st.enc[p], lv = Math.max(P.L - 1, Math.min(P.L + 2, L)), keys = v6Mix(Object.assign({}, P, { L: lv }));
-    rp.s.w6st.enc[p] = (rp.s.w6st.enc[p] || 0) + 1, rp.path = null, rp.held = null, rpBattle(keys, { members: rp.s.party.map((m) => ({ m, ctl: "me", own: "h" })), zone: ",", v6: 1, theme: E.theme || W6_THEME[p] || "meadow", first }), rp.bt && (rp.bt.v6 = 1);
+    rp.s.w6st.enc[p] = (rp.s.w6st.enc[p] || 0) + 1, rp.path = null, rp.held = null, rpFight(keys, { members: rp.s.party.map((m) => ({ m, ctl: "me", own: "h" })), zone: ",", v6: 1, theme: E.theme || W6_THEME[p] || "meadow", first, title: P.n || "A fight" });
   }
   function w6Bump(x, y) {
     let s = rp.s, p = s.w6, c = (rp.grid[y] || [])[x], L = w6LinkAt(p, x, y, "bump");
@@ -3431,1090 +4560,6 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.headless ? f() : setTimeout(f, 0);
   };
 
-  // src/game/world.js
-  function rpArea(x, y) {
-    return rp.s.w6 ? w6Title(rp.s.w6) : rp.s.place && RP_PLACES[rp.s.place] ? RP_PLACES[rp.s.place].name : x >= OLD_W || y >= OLD_H ? overworldArea(x, y) : x < 17 && y < 15 ? "Whisper Woods" : y < 15 ? "Pebble Hills" : x < 14 && y > 16 ? "Burrowhome" : "Hatching Green";
-  }
-  function rpNpcs() {
-    if (rp.s && rp.s.w6) return s6Npcs();
-    let pl = rpPlace();
-    return RP_NPC.filter((n) => (n.place || "world") === pl && (!n.show || n.show(rp.s))).map((n) => {
-      let p = n.pos && n.pos(rp.s);
-      return p ? Object.assign({}, n, p) : n;
-    });
-  }
-  function rpNpcAt(x, y) {
-    return rpNpcs().find((n) => n.x === x && n.y === y);
-  }
-  function rpSolid(x, y) {
-    if (x < 0 || y < 0 || !rp.grid[y] || x >= rp.grid[y].length) return !0;
-    let c = rp.grid[y][x];
-    return rp.s && rp.s.w6 ? w6Solid(c, x, y) || !!rpNpcAt(x, y) : RP_SOLID.has(c) || c === "d" || !!rpNpcAt(x, y) || !!(rp.s && rp.s.chests && rpChestAt(x, y));
-  }
-  function rpDoor(x, y) {
-    let id = RP_DOORS[x + "," + y];
-    id && rpEnterPlace(id);
-  }
-  function rpEnterPlace(id) {
-    let P = RP_PLACES[id], s = rp.s;
-    if (!P) return;
-    let ex = 1, ey = 1;
-    P.rows.forEach((r, y) => {
-      let i = r.indexOf("e");
-      i >= 0 && (ex = i, ey = y);
-    }), s.place = id, s.x = ex, s.y = ey - 1, s.face = "up", rpApplyWorld(), rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:enter", id), rpSave();
-  }
-  function rpLeavePlace() {
-    let s = rp.s, id = s.place, door = Object.keys(RP_DOORS).find((k) => RP_DOORS[k] === id);
-    if (delete s.place, s.face = "down", rpApplyWorld(), door) {
-      let [x, y] = door.split(",").map(Number), spot = [[0, 1], [-1, 1], [1, 1], [0, 2], [-1, 2], [1, 2]].find(([dx, dy]) => !rpSolid(x + dx, y + dy)) || [0, 1];
-      s.x = x + spot[0], s.y = y + spot[1];
-    }
-    rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:leave", id), rpSave();
-  }
-  function rpBfs(tx, ty, toNeighbor) {
-    let s = rp.s, key2 = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen2 = 0;
-    for (prev[key2(s.x, s.y)] = null; q.length; ) {
-      let [x, y] = q.shift();
-      if (toNeighbor ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty) {
-        let out = [], k = key2(x, y);
-        for (; prev[k] !== null; ) {
-          let [px, py] = prev[k];
-          out.unshift([+k.split(",")[0], +k.split(",")[1]]), k = key2(px, py);
-        }
-        return out;
-      }
-      if (++seen2 > 6e3) return null;
-      for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        let nx = x + dx, ny = y + dy, k = key2(nx, ny);
-        k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40 || (prev[k] = [x, y], q.push([nx, ny]));
-      }
-    }
-    return null;
-  }
-  function rpChestKey(c) {
-    return (c.place ? c.place + ":" : "") + c.x + "," + c.y;
-  }
-  function rpChestAt(x, y) {
-    let pl = rpPlace();
-    return RP_CHESTS.find((c) => (c.place || "world") === pl && c.x === x && c.y === y && !rp.s.chests.includes(rpChestKey(c)));
-  }
-  function rpOpenChest(c) {
-    let s = rp.s;
-    s.chests.push(rpChestKey(c)), s.gold += c.gold, rpGive(c.it), rp.mapImg = null, rpSay([{ who: "", text: "A treasure chest! Inside: " + RP_IT[c.it].n + " and " + c.gold + " gold. (" + rpItemDesc(c.it) + ")" }, { who: "", text: "Open ☰ Heroes & gear to put it on." }]), rp.headless || sfx("chest");
-  }
-  feature({ id: "world-fit", on: { "game:start"() {
-    let s = rp.s;
-    s.place && !RP_PLACES[s.place] && (delete s.place, rpApplyWorld()), !s.place && (s.y >= WH || s.x >= WW || rpSolid(s.x, s.y)) && (s.x = 7, s.y = 23, s.face = "down", rp.pos = null, rpSave());
-  } } });
-  feature({ id: "doors", tiles: { d: { use: (x, y) => rpDoor(x, y) } } });
-  var barrierSig = "";
-  function rpBarriers() {
-    if (barrierSig = BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || ""), rp.s.place || !rp.grid) return;
-    let B = build().G, changed = !1;
-    for (let b of BARRIERS) {
-      let shut = !test(b.until);
-      for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
-        let base = B[y][x];
-        if (SOLID_HERE.has(base)) continue;
-        let want = shut ? b.tile : base;
-        rp.grid[y][x] !== want && (rp.grid[y][x] = want, changed = !0);
-      }
-    }
-    changed && (rp.mapImg = null);
-  }
-  var BARRIER_SAY = {
-    Y: `A toll gate of planks and rope. "ONE SHINY THING PER KOBOLD, for Glitterbeak's hoard." The bandits behind it want your shiniest things, and there are a lot of them.`,
-    R: "A rockslide fills the pass. The miners of Copperhollow could clear it, if anyone ever asked them.",
-    Z: "The tunnel goes pitch black. Something drips. Something else breathes. You would need a lantern."
-  };
-  function barrierSay(t) {
-    rp.headless || sfx("bump"), rpSay([{ who: "", text: BARRIER_SAY[t] }]);
-  }
-  feature({
-    id: "barriers",
-    on: { "world:apply": () => {
-      rp.s.w6 || rpBarriers();
-    } },
-    frame() {
-      if (!rp.s || rp.s.w6) return;
-      BARRIERS.map((b) => test(b.until) ? 1 : 0).join("") + "|" + (rp.s.place || "") !== barrierSig && rpBarriers();
-    },
-    tiles: { Y: { use: () => barrierSay("Y") }, R: { use: () => barrierSay("R") }, Z: { use: () => barrierSay("Z") } }
-  });
-  feature({ id: "pickups", on: { "tile:enter"(x, y, c) {
-    if (c === "e" && rp.s.place) {
-      rpLeavePlace();
-      return;
-    }
-    let P = RP_PICKUPS[c];
-    P && (rp.grid[y][x] = P.becomes, rp.s.taken.push([x, y]), rp.mapImg = null, run(P.do));
-    for (let sp of RP_SPOTS) (sp.place || "world") === rpPlace() && sp.x === x && sp.y === y && test(sp.if) && (sp.sfx && !rp.headless && sfx(sp.sfx), run(sp.do));
-  } } });
-
-  // src/game/move.js
-  var RP_SPEED = 4.6, RP_R = 0.28;
-  function rpSyncPos() {
-    let s = rp.s;
-    if (rpSolid(s.x, s.y)) {
-      let best = null, bd = 1e9;
-      for (let y = Math.max(1, s.y - 4); y <= Math.min(rp.grid.length - 2, s.y + 4); y++) for (let x = Math.max(1, s.x - 4); x <= Math.min(rp.grid[0].length - 2, s.x + 4); x++) {
-        if (rpSolid(x, y)) continue;
-        let d = Math.abs(x - s.x) + Math.abs(y - s.y);
-        d < bd && (bd = d, best = [x, y]);
-      }
-      best && (s.x = best[0], s.y = best[1]);
-    }
-    rp.pos = { x: s.x + 0.5, y: s.y + 0.5 }, rp.pt = [s.x, s.y];
-  }
-  function rpBlockedAt(x, y) {
-    for (let [ox, oy] of [[-RP_R, -RP_R * 0.6], [RP_R, -RP_R * 0.6], [-RP_R, RP_R], [RP_R, RP_R]]) {
-      let tx = Math.floor(x + ox), ty = Math.floor(y + oy);
-      if (rpSolid(tx, ty)) return [tx, ty];
-    }
-    return null;
-  }
-  function rpInteractAt(x, y) {
-    if (!rp.grid[y]) return !1;
-    let c = rp.grid[y][x];
-    if (rp.s.w6)
-      return s6Bump(x, y) || w6Bump(x, y) || w6Use(x, y) ? (rp.path = null, !0) : !1;
-    let npc = rpNpcAt(x, y);
-    if (npc)
-      return rp.path = null, rpTalk(npc.id), !0;
-    let ch = rpChestAt(x, y);
-    if (ch)
-      return rp.path = null, rpOpenChest(ch), !0;
-    let t = tiles[c];
-    return t ? (rp.path = null, t.use(x, y), !0) : !1;
-  }
-  function rpSpecialAt(x, y) {
-    let c = rp.grid[y] && rp.grid[y][x];
-    return rp.s.w6 ? !!(c && "FocxpHSC".includes(c)) || !!w6LinkAt(rp.s.w6, x, y, "bump") || !!s6NpcAt(x, y, !0) : !!(rpNpcAt(x, y) || tiles[c] || rpChestAt(x, y));
-  }
-  function rpEnterTile(tx, ty) {
-    let s = rp.s;
-    s.x = tx, s.y = ty, rp.pt = [tx, ty], s.steps++;
-    let c = rp.grid[ty][tx];
-    if (emit("tile:enter", tx, ty, c), s.w6) {
-      let g = rp.grace > 0;
-      if (w6Step(tx, ty, c)) {
-        s.steps % 10 === 0 && rpSave();
-        return;
-      }
-      g && rp.grace--, s.steps % 10 === 0 && rpSave();
-      return;
-    }
-    if (rp.grace > 0) rp.grace--;
-    else {
-      let z = rp.s.place ? c : regionZone(tx, ty, c);
-      if (RP_ZONE[z] && Math.random() < (rp.encRate || 0.06)) {
-        rp.path = null, rp.held = null, rpEncounter(z);
-        return;
-      }
-    }
-    s.steps % 10 === 0 && rpSave();
-  }
-  function rpWant() {
-    let s = rp.s;
-    if (rp.joy && !rp.joyP && (rp.joy = null), rp.joy) {
-      let m = Math.hypot(rp.joy.x, rp.joy.y);
-      if (m > 0.18) {
-        rp.path = null;
-        let k = clamp((m - 0.18) / 0.62, 0.35, 1);
-        return { x: rp.joy.x / m * k, y: rp.joy.y / m * k };
-      }
-    }
-    if (rp.stick && rp.stick.on) {
-      let d = Math.hypot(rp.stick.dx, rp.stick.dy);
-      if (d > 0) {
-        let m = clamp((d - 8) / 40, 0.35, 1);
-        return { x: rp.stick.dx / d * m, y: rp.stick.dy / d * m };
-      }
-    }
-    let x = 0, y = 0, add = (dir) => {
-      let v = RP_DIR[dir];
-      x += v[0], y += v[1];
-    };
-    if (rp.keys.forEach(add), rp.held && !rp.keys.has(rp.held) && add(rp.held), x || y) {
-      let d = Math.hypot(x, y);
-      return { x: x / d, y: y / d };
-    }
-    if (rp.path) {
-      if (!rp.path.length) {
-        if (rp.path = null, rp.pathEnd) {
-          let [tx, ty] = rp.pathEnd;
-          rp.pathEnd = null, s.face = tx > s.x ? "right" : tx < s.x ? "left" : ty > s.y ? "down" : "up", rpInteractAt(tx, ty);
-        }
-        return { x: 0, y: 0 };
-      }
-      let [nx, ny] = rp.path[0], dx = nx + 0.5 - rp.pos.x, dy = ny + 0.5 - rp.pos.y, d = Math.hypot(dx, dy);
-      return d < 0.14 ? (rp.path.shift(), rpWant()) : { x: dx / d, y: dy / d, path: 1 };
-    }
-    return { x: 0, y: 0 };
-  }
-  function rpMoveFrame(dt) {
-    let s = rp.s;
-    rp.pos || rpSyncPos(), (rp.pt[0] !== s.x || rp.pt[1] !== s.y) && rpSyncPos();
-    let w = rpWant();
-    if (rp.moving = !1, !w.x && !w.y) {
-      rp.bumpT = 0, rp.bumpLock = null;
-      return;
-    }
-    Math.abs(w.x) > Math.abs(w.y) * 1.05 ? s.face = w.x > 0 ? "right" : "left" : Math.abs(w.y) > 0.01 && (s.face = w.y > 0 ? "down" : "up");
-    let step = RP_SPEED * dt, p = rp.pos, moved = !1, hit = null, n = Math.max(1, Math.ceil(step / 0.2));
-    for (let i = 0; i < n; i++) {
-      let sx = w.x * step / n, sy = w.y * step / n;
-      if (sx) {
-        let b = rpBlockedAt(p.x + sx, p.y);
-        if (!b)
-          p.x += sx, moved = !0;
-        else if (hit = b, Math.abs(w.y) < 0.3) {
-          let cy = Math.floor(p.y) + 0.5, dy = cy - p.y;
-          Math.abs(dy) > 0.02 && !rpBlockedAt(p.x, p.y + Math.sign(dy) * Math.min(Math.abs(dy), step / n)) && (p.y += Math.sign(dy) * Math.min(Math.abs(dy), step / n), moved = !0);
-        }
-      }
-      if (sy) {
-        let b = rpBlockedAt(p.x, p.y + sy);
-        if (!b)
-          p.y += sy, moved = !0;
-        else if (hit = b, Math.abs(w.x) < 0.3) {
-          let cx = Math.floor(p.x) + 0.5, dx = cx - p.x;
-          Math.abs(dx) > 0.02 && !rpBlockedAt(p.x + Math.sign(dx) * Math.min(Math.abs(dx), step / n), p.y) && (p.x += Math.sign(dx) * Math.min(Math.abs(dx), step / n), moved = !0);
-        }
-      }
-    }
-    rp.moving = moved;
-    let tx = Math.floor(p.x), ty = Math.floor(p.y);
-    if (!((tx !== s.x || ty !== s.y) && (rpEnterTile(tx, ty), rp.mode !== "map"))) {
-      if (hit && !w.path) {
-        let fx = s.x + RP_DIR[s.face][0], fy = s.y + RP_DIR[s.face][1];
-        if (rpSpecialAt(fx, fy)) {
-          let key2 = fx + "," + fy;
-          rp.bumpLock !== key2 && (rp.bumpT += dt, rp.bumpT > 0.12 && (rp.bumpT = 0, rp.bumpLock = key2, rp.held = null, rpInteractAt(fx, fy)));
-        } else rp.bumpT = 0;
-      } else hit || (rp.bumpT = 0, rp.bumpLock = null);
-      rp.path && !moved && hit && (rp.path = null);
-    }
-  }
-  function rpTry(dir) {
-    let s = rp.s, [dx, dy] = RP_DIR[dir], nx = s.x + dx, ny = s.y + dy;
-    return s.face = dir, rpInteractAt(nx, ny) || rpSolid(nx, ny) ? !1 : (rp.path = [[nx, ny]], rp.pathEnd = null, !0);
-  }
-  function rpTapTile(tx, ty) {
-    if (rp.mode !== "map" || (rp.grid[ty] && rp.grid[ty][tx]) == null) return;
-    if (rpSpecialAt(tx, ty)) {
-      let p2 = rpBfs(tx, ty, !0);
-      p2 && (rp.path = p2, rp.pathEnd = [tx, ty]);
-      return;
-    }
-    if (rpSolid(tx, ty)) return;
-    let p = rpBfs(tx, ty, !1);
-    p && p.length && (rp.path = p, rp.pathEnd = null);
-  }
-  function rpActFacing() {
-    let s = rp.s, [dx, dy] = RP_DIR[s.face];
-    if (!rpInteractAt(s.x + dx, s.y + dy))
-      for (let d of ["up", "down", "left", "right"]) {
-        let v = RP_DIR[d];
-        if (rpSpecialAt(s.x + v[0], s.y + v[1])) {
-          s.face = d, rpInteractAt(s.x + v[0], s.y + v[1]);
-          return;
-        }
-      }
-  }
-  feature({ id: "game-move", init() {
-    rp.pos = null, rp.pt = null, rp.keys = /* @__PURE__ */ new Set(), rp.bumpT = 0, rp.bumpLock = null, rp.moving = !1;
-  } });
-
-  // src/adapters/platform.js
-  var platform = {
-    provider: null,
-    available() {
-      let p = this.provider || typeof window < "u" && window.claude;
-      return !!(p && typeof p.use == "function");
-    },
-    use(name) {
-      return (this.provider || window.claude).use(name);
-    }
-  };
-
-  // src/game/promote.js
-  function rpPendingMember() {
-    return rp.s.party.find((m) => m.pend > 0);
-  }
-  function rpPickTalent(i) {
-    rpBuzz([25, 30, 25]);
-    let m = rpPendingMember();
-    if (!m) return;
-    (!m.offer || !m.offer.length) && (m.offer = rpOffers(m));
-    let k = m.offer[i];
-    if (!k) return;
-    m.tal.push(k), m.pend--, m.offer = null;
-    let st = rpStats(m);
-    m.hp = Math.min(st.hp, m.hp + 12), m.mp = Math.min(st.mp, m.mp + 4), rp.headless || sfx("win"), rpPendingMember() || (rp.mode = "map", rpToast(m.name + " learned " + RP_TAL[m.cls][k].n + "!")), rpSave();
-  }
-  function rpPickClass(k) {
-    let s = rp.s, m = s.party[0], C = RP_CLS[k];
-    if (!C) return;
-    m.cls = k, m.w = C.start, m.tal = [];
-    let st = rpStats(m);
-    m.hp = st.hp, m.mp = st.mp, s.q.cls = 1, rp.pk = null, rp.mode = "map", rpToast("Pip the " + C.n.toLowerCase() + " sets out!"), rpSave();
-  }
-  function rpPromoteWho() {
-    return rp.s.party.find((m) => m.lvl >= 8 && !m.adv);
-  }
-  function rpPromote(k) {
-    let m = rpPromoteWho();
-    if (!m || !RP_ADV[k] || RP_ADV[k].base !== m.cls) return;
-    m.adv = k;
-    let st = rpStats(m);
-    m.hp = st.hp, m.mp = st.mp, rpBuzz([40, 40, 80]), rp.headless || (sfx("win"), confetti()), rpToast(m.name + " is now a " + RP_ADV[k].n + "!"), rpPromoteWho() || (rp.mode = "map"), rpSave();
-  }
-
-  // src/game/play.js
-  function rpIntro() {
-    rpSay([{ who: "", text: "Burrowhome is a sleepy kobold village, and today is hatching day: once in a lifetime the village hatches a dragon to guard the kobolds, from one of three dragon eggs." }, { who: "", text: "You are Pip: a small kobold with a big stick and strong opinions. Every morning Old Mallow bakes, and every morning Pip eats two ember-buns. Life is good." }, { who: "", text: "Elder Mumble is waiting by his house, just south of here." }, { who: "", text: "Walk with the arrows (or the keyboard), or tap anywhere on the map. Bump into someone to talk." }], null, () => {
-      rp.s.q.intro = 1, rp.mode = "class", rpSave(), rpUI(!0);
-    });
-  }
-  function rpStart(fresh) {
-    let sv = fresh ? null : rpLoad();
-    rp.s = sv || rpNewState(), rpApplyWorld(), rp.mode = "map", rp.bt = null, $("rp-hero").hidden = !0, rp.dlg = null, rp.pk = null, rp.npcK = {}, rp.grace = 4, rp.pos = null, rp.path = null, rp.keys.clear(), rp.sig = "", parts.length = 0, texts.length = 0, show("rpg"), rpLayout(), requestAnimationFrame(() => {
-      rpResize(), rpUI(!0);
-    }), emit("game:start"), rp.s.q.intro ? rpUI(!0) : rpIntro();
-  }
-  function rpFrame(dt) {
-    rp.t += dt, rp.mode === "map" && !rp.s.w6 && (rp.s.q.intro && !rp.s.q.cls ? (rp.mode = "class", rpUI(!0)) : rpPendingMember() ? (rp.mode = "levelup", rp.held = null, rp.path = null, rpUI(!0)) : rpPromoteWho() && (rp.mode = "promote", rp.held = null, rp.path = null, rpUI(!0))), rp.mode === "map" && rpMoveFrame(dt), rp.mode === "battle" && rpBattleStep(dt), rp.mode === "battle" && rp.bt ? rpDrawBattle() : rpDrawMap(dt), set_uiT(uiT + dt), uiT > 0.15 && (set_uiT(0), rpUI());
-    for (let f of frames) f(dt);
-  }
-  feature({ id: "game-play", init() {
-    $("go-rpg").addEventListener("click", () => {
-      rpGoFull(), rpStart(!1);
-    });
-  } });
-
-  // src/net/cloud.js
-  async function netCloudInit() {
-    try {
-      net.cloudRef = net.db.doc("data/users/" + net.me + "/save");
-      let sn = await net.cloudRef.get();
-      net.cloud = sn.exists ? sn.data() : null, net.cloud && rp.s && view === "rpg" && (net.cloud.savedAt || 0) > (rp.s.savedAt || 0) + 2e3 && (rpStart(!1), rpToast("Loaded your save from the cloud"));
-    } catch {
-    }
-  }
-  function netCloudSave() {
-    !net.cloudRef || !rp.s || rp.headless || rp.s.w6 || (clearTimeout(net.cloudT), net.cloudT = setTimeout(async () => {
-      if (net.cloudBusy) {
-        netCloudSave();
-        return;
-      }
-      net.cloudBusy = !0;
-      try {
-        let d = JSON.parse(JSON.stringify(rp.s));
-        await net.cloudRef.set(d), net.cloud = d;
-      } catch {
-      }
-      net.cloudBusy = !1;
-    }, 2500));
-  }
-  feature({ id: "cloud-save", on: { save: () => netCloudSave() } });
-  saveSources.push({ id: "cloud", get: () => net.cloud });
-
-  // src/net/gift.js
-  function netGive(kind, val2) {
-    if (!netOnline()) return;
-    let s = rp.s, label = "";
-    if (kind === "gold") {
-      if (val2 = Math.min(+val2, Math.floor(s.gold)), val2 <= 0) return;
-      s.gold -= val2, label = val2 + " gold";
-    } else if (kind === "mat") {
-      let M = rpMats();
-      if (!(M[val2] > 0)) return;
-      M[val2]--, label = "a " + RP_MATS[val2].n.toLowerCase();
-    } else if (kind === "item") {
-      let i = s.inv.indexOf(val2);
-      if (i < 0) return;
-      s.inv.splice(i, 1), label = RP_IT[val2].n;
-    } else if (kind === "bag") {
-      if (!(s.bag[val2] > 0) || !RP_ITEMS[val2] || RP_ITEMS[val2].keep) return;
-      s.bag[val2]--, label = "a " + RP_ITEMS[val2].n.toLowerCase();
-    }
-    if (!net.partner) return;
-    let gid = netRid();
-    net.gifts[gid] = { kind, val: val2, label, t: performance.now(), last: performance.now(), to: net.partner.peer }, netEmit({ t: "gift", gid, to: net.partner.peer, kind, val: val2 }), rpToast("Sent " + label + " to " + netName() + "."), rpSave();
-  }
-  function netGotGift(d, msg) {
-    if (!rp.s) return;
-    let ack = () => netEmit({ t: "gack", gid: d.gid, to: msg.peer });
-    if (net.giftsIn.has(d.gid)) {
-      ack();
-      return;
-    }
-    let s = rp.s, label = "";
-    if (d.kind === "gold") {
-      let v = clamp(+d.val | 0, 0, 1e5);
-      s.gold += v, label = v + " gold";
-    } else if (d.kind === "mat" && RP_MATS[d.val])
-      rpMats()[d.val]++, label = "a " + RP_MATS[d.val].n.toLowerCase();
-    else if (d.kind === "item" && RP_IT[d.val])
-      rpGive(d.val), label = RP_IT[d.val].n;
-    else if (d.kind === "bag" && RP_ITEMS[d.val] && !RP_ITEMS[d.val].keep)
-      s.bag[d.val] = (s.bag[d.val] || 0) + 1, label = "a " + RP_ITEMS[d.val].n.toLowerCase();
-    else return;
-    net.giftsIn.add(d.gid), ack(), rpSave(), rpToast(netName() + " gave you " + label + "!"), rp.headless || sfx("win"), rpBuzz(30);
-  }
-  function netGiftTick() {
-    let now = performance.now();
-    for (let gid in net.gifts) {
-      let G = net.gifts[gid];
-      if (now - G.t > 3e4) {
-        delete net.gifts[gid];
-        let s = rp.s;
-        G.kind === "gold" ? s.gold += G.val : G.kind === "mat" ? rpMats()[G.val]++ : G.kind === "item" ? rpGive(G.val) : G.kind === "bag" && (s.bag[G.val] = (s.bag[G.val] || 0) + 1), rpToast(G.label + " couldn't be delivered, so you kept it."), rpSave();
-        continue;
-      }
-      now - G.last > 2e3 && (G.last = now, netEmit({ t: "gift", gid, to: G.to, kind: G.kind, val: G.val }));
-    }
-  }
-  function netTradeHtml() {
-    let s = rp.s, M = rpMats(), h = '<div class="rpdlg"><div class="who">Give to ' + esc2(netName()) + '</div><p>Tap to send. It arrives in their backpack right away.</p></div><div class="rpcmd shop">';
-    return h += [10, 50].map((v) => '<button class="rpb go" type="button" data-net="give" data-k="gold" data-v="' + v + '"' + (s.gold < v ? " disabled" : "") + ">" + v + " gold<small>You have " + Math.floor(s.gold) + "</small></button>").join(""), h += Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="give" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join(""), h += Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="give" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join(""), h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="give" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join(""), h + '<button class="rpb x" type="button" data-net="tradeclose">Done</button></div>';
-  }
-  feature({ id: "trade", panels: { trade: { sig: () => rp.s.gold + JSON.stringify(rpMats()) + rp.s.inv.join() + JSON.stringify(rp.s.bag), html: () => netTradeHtml() } } });
-  feature({
-    id: "net-gift-io",
-    net: {
-      gift(d, msg) {
-        let b = rp.bt, L = net.lob;
-        netGotGift(d, msg);
-      },
-      gack(d, msg) {
-        let b = rp.bt, L = net.lob;
-        if (net.gifts[d.gid]) {
-          let G = net.gifts[d.gid];
-          delete net.gifts[d.gid], rpToast(netNameOf(G.to) + " got " + G.label + ".");
-        }
-      }
-    },
-    actions: {
-      "net:trade"(d) {
-        rp.mode = "trade";
-      },
-      "net:tradeclose"(d) {
-        rp.mode = "map";
-      },
-      "net:give"(d) {
-        netGive(d.k, d.k === "gold" ? +d.v : d.v);
-      }
-    }
-  });
-
-  // src/net/lobby.js
-  function netParty() {
-    return rp.s.party.map((m) => ({ name: m.name, cls: m.cls, w: m.w, lvl: m.lvl, xp: m.xp, hp: m.hp, mp: m.mp, tal: (m.tal || []).slice(), eq: Object.assign({}, m.eq), adv: m.adv || null }));
-  }
-  function netCleanParty(p) {
-    return Array.isArray(p) ? p.slice(0, 3).map((m) => ({
-      name: String(m.name || "Kobold").slice(0, 16),
-      cls: RP_CLS[m.cls] ? m.cls : "warrior",
-      w: WEAPONS[m.w] ? m.w : "stick",
-      lvl: clamp(+m.lvl || 1, 1, 40),
-      xp: +m.xp || 0,
-      hp: +m.hp || 0,
-      mp: +m.mp || 0,
-      tal: Array.isArray(m.tal) ? m.tal.filter((t) => typeof t == "string").slice(0, 40) : [],
-      eq: typeof m.eq == "object" && m.eq ? Object.fromEntries(Object.entries(m.eq).filter(([k, v]) => RP_SLOTS9.includes(k) && RP_IT[v])) : {},
-      adv: RP_ADV[m.adv] ? m.adv : null,
-      pend: 0,
-      offer: null
-    })) : [];
-  }
-  function rpFight(keys, opt) {
-    netPartnerFree() && !opt.duel ? netOpenLobby(keys, opt) : rpBattle(keys, opt);
-  }
-  function netOpenLobby(keys, opt, duel) {
-    let alive = rp.s.party.map((m, i) => m.hp > 0 ? i : -1).filter((i) => i >= 0);
-    net.lob = { id: netRid(), host: !0, duel: !!duel, keys, opt: opt || {}, hsel: alive.slice(0, 3), g: null }, rp.mode = "lobby", rp.path = null, rpInputReset(), netPresence(!0), netLobSend(), rpUI(!0);
-  }
-  function netLobFix(L, who) {
-    let H = rp.s.party;
-    if (!L.hsel.length) {
-      let i = H.findIndex((m) => m.hp > 0);
-      i >= 0 && (L.hsel = [i]);
-    }
-    if (L.g) {
-      if (!L.g.sel.length) {
-        let i = L.g.party.findIndex((m) => m.hp > 0);
-        L.g.sel = [i >= 0 ? i : 0];
-      }
-      if (!L.duel)
-        for (; L.hsel.length + L.g.sel.length > 4; )
-          who === "g" && L.hsel.length > 1 ? L.hsel.pop() : L.g.sel.length > 1 ? L.g.sel.pop() : L.hsel.pop();
-    }
-  }
-  function netLobSend() {
-    let L = net.lob;
-    if (!L || !L.host) return;
-    let sum = (p) => p.map((m) => ({ n: m.name, c: m.cls, l: m.lvl, hp: Math.max(0, m.hp), mx: rpStats(m).hp }));
-    netEmit({ t: "lob", id: L.id, duel: L.duel, title: netLobTitle(L), hp: sum(rp.s.party), hsel: L.hsel, g: L.g ? { peer: L.g.peer, sel: L.g.sel } : null, cap: L.duel ? 0 : rp.s.party[0].lvl }), L.sent = performance.now();
-  }
-  function netLobTitle(L) {
-    let o = L.opt || {};
-    return L.duel ? "Duel" : o.boss ? RP_E[o.boss].n : (RP_ZONE[o.zone] || { n: "Battle" }).n;
-  }
-  function netLobHtml() {
-    let L = net.lob;
-    if (!L) return "";
-    let host = L.host, V = L.view || {}, chips = (party, sel, mine, who) => party.map((m, i) => {
-      let on2 = sel.includes(i), hp = m.hp != null ? m.hp : 0, mx = m.mx || rpStats(m).hp, dn = hp <= 0;
-      return '<button class="lobk' + (on2 ? " on" : "") + (dn ? " dn" : "") + '" type="button"' + (mine && !dn ? ' data-net="pick" data-who="' + who + '" data-i="' + i + '"' : " disabled") + "><b>" + esc2(m.n || m.name) + "</b><small>" + (RP_CLS[m.c || m.cls] || { n: "" }).n + " " + (m.l || m.lvl) + " · " + Math.max(0, hp) + " HP</small></button>";
-    }).join(""), h = '<div class="rpdlg"><div class="who">' + esc2(host ? netLobTitle(L) : V.title || "Battle") + (L.duel ? " ⚔" : "") + "</div>";
-    if (host) {
-      let g = L.g, tot = L.hsel.length + (g ? g.sel.length : 0);
-      h += "<p>" + (L.duel ? g ? "Pick 1 to 3 kobolds each, then start." : "Waiting for " + esc2(netName()) + " to answer…" : g ? "Pick who fights: at least one each, up to 4 together (" + tot + "/4)." : "Pick your kobolds. " + esc2(netName()) + " can join now, or start without them.") + "</p></div>", h += '<div class="lobp"><small>Your party</small>' + chips(rp.s.party, L.hsel, !0, "h") + "</div>", g && (h += '<div class="lobp"><small>' + esc2(netName()) + "</small>" + chips(g.party.map((m) => ({ n: m.name, c: m.cls, l: m.lvl, hp: m.hp, mx: rpStats(m).hp })), g.sel, !1) + "</div>"), g && !L.duel && g.party.some((m) => m.lvl > rp.s.party[0].lvl) && (h += '<p class="rptip">' + esc2(netName()) + "'s kobolds fight at level " + rp.s.party[0].lvl + " (level sync).</p>"), h += '<div class="tbar two"><button class="rpb x" type="button" data-net="lobcancel">' + (L.duel ? "✕ Cancel duel" : "✕ " + (g ? "Fight alone" : "Back")) + '</button><button class="rpb go" type="button" data-net="lobstart"' + (L.duel && !g ? " disabled" : "") + ">Start battle ▸<small>" + (g ? "with " + esc2(netName()) : "on your own") + "</small></button></div>", !L.duel && !g && L.keys && L.opt && !L.opt.boss && (h = h.replace("✕ Back", "✕ Back"));
-    } else {
-      if (!V.hp)
-        return h += "<p>Joining " + esc2(netName()) + '…</p></div><div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>', h;
-      let mySel = L.sel || [0], tot = (V.hsel || []).length + mySel.length;
-      h += "<p>" + (L.duel ? "Pick 1 to 3 kobolds. " : "Pick at least one kobold (" + tot + "/4 together). ") + esc2(netName()) + " starts the battle.</p></div>", h += '<div class="lobp"><small>' + esc2(netName()) + "</small>" + chips(V.hp, V.hsel || [], !1) + "</div>", h += '<div class="lobp"><small>Your party</small>' + chips(rp.s.party, mySel, !0, "g") + "</div>", V.cap && rp.s.party.some((m) => m.lvl > V.cap) && (h += '<p class="rptip">Your kobolds fight at level ' + V.cap + " to match " + esc2(netName()) + " (level sync). You still get your rewards.</p>"), h += '<div class="tbar"><button class="rpb x" type="button" data-net="lobleave">✕ Leave</button></div>';
-    }
-    return h;
-  }
-  function netLobPick(who, i) {
-    let L = net.lob;
-    if (L) {
-      if (who === "h" && L.host) {
-        let s = L.hsel, j = s.indexOf(i);
-        j >= 0 ? s.length > 1 && s.splice(j, 1) : (s.push(i), s.sort()), netLobFix(L, "h"), L.g && !L.duel && s.length + L.g.sel.length > 4 && s.splice(s.indexOf(i), 1), L.duel && s.length > 3 && s.splice(s.indexOf(i), 1), netLobSend();
-      } else if (who === "g" && !L.host) {
-        let s = (L.sel || [0]).slice(), j = s.indexOf(i);
-        j >= 0 ? s.length > 1 && s.splice(j, 1) : (s.push(i), s.sort()), L.duel && s.length > 3 && (s = s.slice(0, 3)), L.sel = s, netEmit({ t: "pick", id: L.id, sel: s, to: L.hostPeer });
-      }
-    }
-  }
-  function netLevelSync(m, cap) {
-    if (!m || m.lvl <= cap) return m;
-    let c = Object.assign({}, m, { lvl: cap, tal: (m.tal || []).slice(0, Math.max(0, cap - 1)), adv: cap >= 10 ? m.adv : null, synced: m.lvl }), a = rpStats(m), b = rpStats(c);
-    return c.hp = Math.max(1, Math.round(b.hp * Math.min(1, m.hp / a.hp))), c.mp = Math.round(b.mp * Math.min(1, (m.mp || 0) / Math.max(1, a.mp))), c;
-  }
-  function netStart() {
-    let L = net.lob;
-    if (!L || !L.host) return;
-    let s = rp.s, mine = L.hsel.filter((i) => s.party[i] && s.party[i].hp > 0).map((i) => ({ m: s.party[i], ctl: "me", own: "h" }));
-    if (!mine.length) return;
-    let cap = s.party[0].lvl, theirs = L.g ? L.g.sel.map((i) => L.g.party[i]).filter((m) => m && m.hp > 0).map((m) => ({ m: L.duel ? m : netLevelSync(m, cap), ctl: "remote", own: "g" })) : [];
-    if (net.lob = null, L.duel) {
-      if (!theirs.length) return rpToast("Waiting for " + netName() + ".");
-      rpBattle([], { duel: !0, members: mine, foes: theirs, net: L.g.peer, nid: L.id, gParty: L.g.party });
-    } else {
-      let keys = L.keys, o = L.opt || {};
-      if (!o.boss && theirs.length) {
-        let Z = RP_ZONE[o.zone], lvl = s.party[0].lvl, n = clamp(mine.length + theirs.length + (lvl >= 2 ? 1 : 0) - (Math.random() < 0.4 ? 1 : 0), 1, (Z.base || o.zone) === "," ? 3 : 5);
-        keys = [];
-        for (let i = 0; i < n; i++) keys.push(wpick(Z.t));
-      }
-      rpBattle(keys, Object.assign({}, o, { members: mine.concat(theirs), net: theirs.length ? L.g.peer : null, nid: L.id, gParty: L.g ? L.g.party : [] }));
-    }
-    rp.bt && rp.bt.net && netSendStart(rp.bt), netPresence(!0);
-  }
-  feature({ id: "lobby", panels: { lobby: { sig: () => JSON.stringify(net.lob && [net.lob.hsel, net.lob.g && net.lob.g.sel, net.lob.sel, net.lob.view]) + netName(), html: () => netLobHtml() } } });
-  feature({
-    id: "net-lobby-io",
-    net: {
-      join(d, msg) {
-        let b = rp.bt, L = net.lob;
-        if (L && L.host && L.id === d.id && L.g && L.g.peer !== msg.peer) {
-          netEmit({ t: "nolob", id: d.id, to: msg.peer, why: "That fight is already full." });
-          return;
-        }
-        if (L && L.host && L.id === d.id && rp.mode === "lobby" && !L.duel && (!L.g || L.g.peer === msg.peer)) {
-          net.focus = msg.peer, netFocus();
-          let gp = netCleanParty(d.party);
-          L.g = { peer: msg.peer, by: msg.by, party: gp, sel: L.g ? L.g.sel : [Math.max(0, gp.findIndex((m) => m.hp > 0))] }, netLobFix(L, "g"), netLobSend(), rpBuzz(30), rpToast(netName() + " joins!"), rp.sig = "";
-        }
-      },
-      leave(d, msg) {
-        let b = rp.bt, L = net.lob;
-        L && L.host && L.id === d.id && L.g && L.g.peer === msg.peer && (L.g = null, netLobSend(), rpToast(netName() + " left the lobby."), rp.sig = "", L.duel && (net.lob = null, rp.mode = "map"));
-      },
-      pick(d, msg) {
-        let b = rp.bt, L = net.lob;
-        L && L.host && L.id === d.id && L.g && L.g.peer === msg.peer && Array.isArray(d.sel) && (L.g.sel = d.sel.filter((i) => Number.isInteger(i) && L.g.party[i] && L.g.party[i].hp > 0), netLobFix(L, "g"), netLobSend(), rp.sig = "");
-      },
-      lob(d, msg) {
-        let b = rp.bt, L = net.lob;
-        L && !L.host && L.id === d.id && rp.mode === "lobby" && (L.view = d, L.hostPeer = msg.peer, L.seen = performance.now(), d.g && d.g.peer === net.myPeer && (L.sel = d.g.sel), rp.sig = "");
-      },
-      nolob(d, msg) {
-        let b = rp.bt, L = net.lob;
-        L && !L.host && L.id === d.id && (net.lob = null, rp.mode === "lobby" && (rp.mode = "map"), rpToast(d.why || "The lobby closed."), rp.sig = "");
-      }
-    },
-    actions: {
-      "net:join"(d) {
-        {
-          let P = netByPeer(d.p) || (net.others || []).find((p) => p.presence.op);
-          if (!P || !P.presence.op || rp.mode !== "map") return;
-          net.focus = P.peer, netFocus(), net.lob = { id: P.presence.op, host: !1, duel: !1, sel: [rp.s.party.findIndex((m) => m.hp > 0)].filter((i) => i >= 0), hostPeer: P.peer, seen: performance.now() }, netEmit({ t: "join", id: P.presence.op, to: P.peer, party: netParty() }), rp.mode = "lobby", rpInputReset();
-          return;
-        }
-      },
-      "net:pick"(d) {
-        netLobPick(d.who, +d.i);
-      },
-      "net:lobstart"(d) {
-        netStart();
-      },
-      "net:lobcancel"(d) {
-        {
-          let L = net.lob;
-          if (!L) return;
-          if (L.duel) {
-            L.g && netEmit({ t: "nolob", id: L.id, to: L.g.peer, why: netName() + " cancelled the duel." }), net.lob = null, rp.mode = "map";
-            return;
-          }
-          if (L.g) {
-            netEmit({ t: "nolob", id: L.id, to: L.g.peer, why: netName() + " went ahead alone." }), L.g = null, netStart();
-            return;
-          }
-          net.lob = null, rpBattle(L.keys, L.opt);
-          return;
-        }
-      },
-      "net:lobleave"(d) {
-        {
-          let L = net.lob;
-          L && netEmit({ t: "leave", id: L.id, to: L.hostPeer }), net.lob = null, rp.mode = "map";
-          return;
-        }
-      }
-    }
-  });
-
-  // src/net/market.js
-  function netMarketInit() {
-    try {
-      let col = net.db.collection("market");
-      col.where("status", "==", "open").onSnapshot((sn) => {
-        net.market = sn.docs.map((d) => Object.assign({ id: d.id }, d.data()));
-        let ids = [...new Set(net.market.map((m) => m.seller))].filter((i) => i && !(i in net.names));
-        ids.length && net.user && (ids.forEach((i) => net.names[i] = ""), net.user.profiles(ids).then((r) => {
-          ids.forEach((i) => net.names[i] = r[i] && r[i].name || "");
-        }).catch(() => {
-        })), rp.sig = "";
-      }, () => {
-      }), col.where("seller", "==", net.me).onSnapshot((sn) => {
-        net.mine = sn.docs.map((d) => Object.assign({ id: d.id }, d.data())), netMarketPayouts(), rp.sig = "";
-      }, () => {
-      });
-    } catch {
-    }
-  }
-  function netMkLabel(m) {
-    return m.kind === "item" ? (RP_IT[m.val] || { n: "?" }).n : m.kind === "mat" ? (RP_MATS[m.val] || { n: "?" }).n : m.kind === "bag" ? (RP_ITEMS[m.val] || { n: "?" }).n : "?";
-  }
-  function netMkValid(m) {
-    return m && Number.isFinite(+m.price) && +m.price > 0 && (m.kind === "item" && RP_IT[m.val] || m.kind === "mat" && RP_MATS[m.val] || m.kind === "bag" && RP_ITEMS[m.val] && !RP_ITEMS[m.val].keep);
-  }
-  function netMarketPrice(kind, val2) {
-    let base = kind === "item" ? (RP_IT[val2] || {}).price || 40 : kind === "mat" ? 12 : (RP_ITEMS[val2] || {}).price || 15;
-    return Math.max(1, Math.round(base * 0.6));
-  }
-  function netTake(kind, val2) {
-    let s = rp.s;
-    if (kind === "gold") return !1;
-    if (kind === "mat") {
-      let M = rpMats();
-      return M[val2] > 0 ? (M[val2]--, !0) : !1;
-    }
-    if (kind === "bag")
-      return s.bag[val2] > 0 ? (s.bag[val2]--, !0) : !1;
-    let i = s.inv.indexOf(val2);
-    return i < 0 ? !1 : (s.inv.splice(i, 1), !0);
-  }
-  function netPut(kind, val2) {
-    let s = rp.s;
-    kind === "mat" ? rpMats()[val2]++ : kind === "bag" ? s.bag[val2] = (s.bag[val2] || 0) + 1 : rpGive(val2);
-  }
-  async function netMarketList() {
-    let S = net.mkSell;
-    if (!(!S || net.mkBusy || !net.db)) {
-      if ((net.mine || []).filter((m) => m.status === "open").length >= 8) {
-        rpToast("You can have 8 things for sale at once.");
-        return;
-      }
-      if (netTake(S.kind, S.val)) {
-        net.mkBusy = !0, rpSave();
-        try {
-          await net.db.collection("market").add({ seller: net.me, kind: S.kind, val: S.val, price: Math.round(S.price), status: "open", buyer: null, t: Date.now() }), rpToast(netMkLabel(S) + " is on the market for " + Math.round(S.price) + " gold."), net.mkSell = null, net.mkTab = "mine";
-        } catch {
-          netPut(S.kind, S.val), rpSave(), rpToast("Couldn't reach the market. Try again.");
-        }
-        net.mkBusy = !1, rpUI(!0);
-      }
-    }
-  }
-  async function netMarketBuy(id) {
-    if (net.mkBusy) return;
-    let m = net.market.find((x) => x.id === id);
-    if (!m || !netMkValid(m) || m.seller === net.me) return;
-    if (rp.s.gold < m.price) {
-      rpToast("Not enough gold.");
-      return;
-    }
-    net.mkBusy = !0, rpUI(!0);
-    let ref = net.db.collection("market").doc(id);
-    try {
-      if (!(await ref.acquire({ holder: net.me, ttlMs: 6e3 })).acquired)
-        rpToast("Someone else is buying that right now.");
-      else {
-        let sn = await ref.get(), d = sn.exists && sn.data();
-        !d || d.status !== "open" || rp.s.gold < d.price ? rpToast("That was just sold.") : (await ref.update({ status: "sold", buyer: net.me, soldAt: Date.now() }), rp.s.gold -= d.price, netPut(d.kind, d.val), rpSave(), rp.headless || sfx("win"), rpToast("Bought " + netMkLabel(d) + " for " + d.price + " gold!"));
-      }
-    } catch {
-      rpToast("Couldn't reach the market. Try again.");
-    }
-    net.mkBusy = !1, rpUI(!0);
-  }
-  async function netMarketCancel(id) {
-    if (net.mkBusy) return;
-    let ref = net.db.collection("market").doc(id);
-    net.mkBusy = !0;
-    try {
-      if ((await ref.acquire({ holder: net.me, ttlMs: 6e3 })).acquired) {
-        let sn = await ref.get(), d = sn.exists && sn.data();
-        if (d && d.status === "open" && d.seller === net.me) {
-          await ref.update({ status: "cancel" }), netPut(d.kind, d.val), rpSave(), rpToast(netMkLabel(d) + " is back in your backpack.");
-          try {
-            await ref.delete();
-          } catch {
-          }
-        }
-      }
-    } catch {
-    }
-    net.mkBusy = !1, rpUI(!0);
-  }
-  async function netMarketPayouts() {
-    if (!rp.s || net.paying) return;
-    let s = rp.s;
-    s.mkPaid = s.mkPaid || [];
-    let due2 = (net.mine || []).filter((m) => m.status === "sold" && !s.mkPaid.includes(m.id));
-    if (due2.length) {
-      net.paying = !0;
-      for (let m of due2) {
-        s.mkPaid.push(m.id), s.mkPaid.length > 200 && s.mkPaid.shift(), s.gold += Math.max(0, +m.price || 0), rpToast("Your " + netMkLabel(m) + " sold for " + m.price + " gold!");
-        try {
-          await net.db.collection("market").doc(m.id).delete();
-        } catch {
-        }
-      }
-      rpSave(), net.paying = !1, rp.sig = "";
-    }
-  }
-  function netMarketHtml() {
-    let s = rp.s, T = net.mkTab, tab = (k, n) => '<button class="pill' + (T === k ? " go" : "") + '" type="button" data-net="mktab" data-v="' + k + '">' + n + "</button>", h = '<div class="rpdlg"><div class="who">Market board</div><div class="mktabs">' + tab("buy", "Buy") + tab("sell", "Sell") + tab("mine", "My stall") + '<span class="mkgold">' + Math.floor(s.gold) + ' gold</span></div></div><div class="rpcmd shop">';
-    if (T === "buy") {
-      let L = net.market.filter((m) => netMkValid(m) && m.seller !== net.me).sort((a, b) => b.t - a.t);
-      h += L.length ? L.map((m) => {
-        let it = m.kind === "item" ? m.val : null;
-        return '<button class="rpb' + (it ? rpItemTone(it) : " go") + '" type="button" data-net="mkbuy" data-id="' + esc2(m.id) + '"' + (s.gold < m.price || net.mkBusy ? " disabled" : "") + ">" + esc2(netMkLabel(m)) + " · " + m.price + "g<small>" + (it ? rpItemDesc(it) + " · " : "") + "from " + esc2(net.names[m.seller] || "a friend") + "</small></button>";
-      }).join("") : '<p class="rptip">Nothing for sale yet. Be the first: open the Sell tab.</p>';
-    } else if (T === "sell")
-      if (net.mkSell) {
-        let S = net.mkSell;
-        h += '<p class="mksell"><b>' + esc2(netMkLabel(S)) + '</b> for <b class="hp">' + S.price + " gold</b></p>" + [-50, -10, -1, 1, 10, 50].map((v) => '<button class="pill" type="button" data-net="mkprice" data-v="' + v + '">' + (v > 0 ? "+" : "") + v + "</button>").join("") + '<button class="rpb go" type="button" data-net="mklist"' + (net.mkBusy ? " disabled" : "") + `>Put it up for sale<small>Stays up while you're away. You get the gold when someone buys it.</small></button><button class="rpb x" type="button" data-net="mktab" data-v="sell">✕ Pick something else</button>`;
-      } else {
-        let M = rpMats();
-        h += s.inv.map((id) => '<button class="rpb' + rpItemTone(id) + '" type="button" data-net="mkpick" data-k="item" data-v="' + esc2(id) + '">' + esc2(RP_IT[id].n) + "<small>" + rpItemDesc(id) + "</small></button>").join("") + Object.keys(RP_MATS).filter((k) => M[k] > 0).map((k) => '<button class="rpb" type="button" data-net="mkpick" data-k="mat" data-v="' + k + '">' + RP_MATS[k].n + "<small>You have " + M[k] + "</small></button>").join("") + Object.keys(RP_ITEMS).filter((k) => s.bag[k] > 0 && !RP_ITEMS[k].keep).map((k) => '<button class="rpb it" type="button" data-net="mkpick" data-k="bag" data-v="' + k + '">' + RP_ITEMS[k].n + "<small>You have " + s.bag[k] + "</small></button>").join("") || '<p class="rptip">Your backpack is empty. Take gear off in ⚔ Gear to sell it.</p>';
-      }
-    else {
-      let L = (net.mine || []).filter((m) => m.status === "open" && netMkValid(m));
-      h += L.length ? L.map((m) => '<button class="rpb" type="button" data-net="mkcancel" data-id="' + esc2(m.id) + '">' + esc2(netMkLabel(m)) + " · " + m.price + "g<small>Tap to take it back</small></button>").join("") : '<p class="rptip">You have nothing for sale.</p>';
-    }
-    return h + '<button class="rpb x" type="button" data-net="mkclose">Leave</button></div>';
-  }
-  feature({ id: "market", panels: { market: { sig: () => net.mkTab + JSON.stringify(net.mkSell) + net.market.length + net.market.map((m) => m.id).join() + (net.mine || []).length + rp.s.gold + net.mkBusy + rp.s.inv.length + JSON.stringify(rpMats()), html: () => netMarketHtml() } } });
-  feature({ id: "market-stall", tiles: { M: { use() {
-    net.db && net.me ? (rp.mode = "market", net.mkTab = "buy", net.mkSell = null, rpUI(!0)) : rpSay([{ who: "Market board", text: "An empty trading board. It only works when you play online, on the shared page." }]);
-  } } } });
-  feature({
-    id: "net-market-io",
-    actions: {
-      "net:market"(d) {
-        rp.mode = "market", net.mkTab = "buy", net.mkSell = null;
-      },
-      "net:mktab"(d) {
-        net.mkTab = d.v, net.mkSell = null;
-      },
-      "net:mkbuy"(d) {
-        netMarketBuy(d.id);
-      },
-      "net:mkcancel"(d) {
-        netMarketCancel(d.id);
-      },
-      "net:mkpick"(d) {
-        net.mkSell = { kind: d.k, val: d.v, price: netMarketPrice(d.k, d.v) };
-      },
-      "net:mkprice"(d) {
-        net.mkSell && (net.mkSell.price = clamp(net.mkSell.price + +d.v, 1, 99999));
-      },
-      "net:mklist"(d) {
-        netMarketList();
-      },
-      "net:mkclose"(d) {
-        rp.mode = "map";
-      }
-    }
-  });
-
-  // src/net/core.js
-  var net = {
-    room: null,
-    user: null,
-    db: null,
-    me: null,
-    myPeer: null,
-    on: !1,
-    names: {},
-    partner: null,
-    pk: null,
-    pkPos: null,
-    lastPres: 0,
-    presSig: "",
-    others: [],
-    pks: {},
-    ops: {},
-    focus: null,
-    bubbles: {},
-    peerNames: {},
-    chatLog: [],
-    market: [],
-    mine: [],
-    mkBusy: !1,
-    cloud: null,
-    cloudRef: null,
-    cloudBusy: !1,
-    cloudT: 0,
-    pickFor: null,
-    mkTab: "buy",
-    mkSell: null,
-    lob: null,
-    gifts: {},
-    giftsIn: /* @__PURE__ */ new Set(),
-    wref: null,
-    wremote: null,
-    wsent: "",
-    wbusy: !1,
-    wtimer: 0,
-    fx: [],
-    snapN: 0,
-    snapSig: "",
-    snapT: 0,
-    actN: 0,
-    lastOp: null,
-    duelAsk: null
-  };
-  function netRid() {
-    return Math.random().toString(36).slice(2, 9);
-  }
-  async function netInit() {
-    if (platform.available())
-      try {
-        let [room, user, db] = await Promise.all([platform.use("room"), platform.use("user"), platform.use("db")]);
-        if (net.room = room, net.user = user, net.db = db, user)
-          try {
-            net.me = await user.id();
-          } catch {
-          }
-        room && (room.on("kq", netMsg, () => {
-        }), room.onPeers(netPeers, () => {
-        }), net.on = !0), db && net.me && (await netCloudInit(), netMarketInit());
-      } catch (e) {
-        console.warn("online features unavailable", e);
-      }
-  }
-  function netPeers() {
-    if (!net.room) return;
-    let ps = net.room.peers(), me = ps.find((p) => p.sameTab);
-    me && (net.myPeer = me.peer);
-    let others = ps.filter((p) => !p.isMe && p.kind === "viewer" && p.presence && p.presence.kq), before = new Set((net.others || []).map((p) => p.peer)), now = new Set(others.map((p) => p.peer)), playing = rp.s && view === "rpg";
-    others.forEach((P) => {
-      P.by && !(P.by in net.names) && net.user && (net.names[P.by] = "", net.user.profiles([P.by]).then((r) => {
-        net.names[P.by] = r[P.by] && r[P.by].name || "", rp.sig = "";
-      }).catch(() => {
-      })), !before.has(P.peer) && playing && setTimeout(() => {
-        rp.mode === "map" && rpToast(netName(P) + " is here!");
-      }, 700);
-      let op = P.presence.op || null, lastOp = net.ops[P.peer] || null;
-      op && op !== lastOp && playing && rp.mode === "map" && (setTimeout(() => {
-        P.presence.op && rpToast(netName(P) + " is in a fight! ⚔ Join");
-      }, 300), rpBuzz([30, 40, 30])), net.ops[P.peer] = op;
-    }), (net.others || []).forEach((P) => {
-      now.has(P.peer) || (playing && rpToast(netName(P) + " left."), delete net.pks[P.peer], delete net.ops[P.peer]);
-    }), net.others = others, netFocus();
-  }
-  function netFocus() {
-    let O = net.others || [], P = net.focus && O.find((p) => p.peer === net.focus);
-    if (!P && O.length && !rp.s && (P = O[0]), !P && rp.s) {
-      let s = rp.s;
-      P = O.slice().sort((a, b) => Math.hypot(a.presence.x - s.x, a.presence.y - s.y) - Math.hypot(b.presence.x - s.x, b.presence.y - s.y))[0];
-    }
-    return net.partner = P || null, net.partner;
-  }
-  function netByPeer(peer) {
-    return (net.others || []).find((p) => p.peer === peer) || null;
-  }
-  function netName(p) {
-    return p = p || net.partner, p && (p.by && net.names[p.by] || p.presence.nm) || "Your friend";
-  }
-  function netNameOf(peer) {
-    let p = netByPeer(peer);
-    return p ? netName(p) : net.peerNames[peer] || "Your friend";
-  }
-  function netOnline() {
-    return !!(net.on && net.others && net.others.length);
-  }
-  function netPartnerFree() {
-    return netOnline() && net.others.some((p) => p.presence.m === "map") && net.room.connected();
-  }
-  function netEmit(data) {
-    if (net.room)
-      try {
-        net.room.emit("kq", data).catch(() => {
-        });
-      } catch {
-      }
-  }
-  function netPresence(force) {
-    if (!net.room || !rp.s) return;
-    let now = performance.now();
-    if (!force && now - net.lastPres < 120) return;
-    let s = rp.s, m = s.party[0], p = rp.pos || { x: s.x + 0.5, y: s.y + 0.5 }, pr = {
-      kq: 1,
-      pl: rpPlace(),
-      x: Math.round(p.x * 100) / 100,
-      y: Math.round(p.y * 100) / 100,
-      f: s.face,
-      a: rpArea(s.x, s.y),
-      m: rp.mode === "battle" || rp.mode === "lobby" ? rp.mode : rp.mode === "map" ? "map" : "busy",
-      lv: m.lvl,
-      cl: m.cls,
-      w: m.w,
-      h: rpHat(m),
-      op: net.lob && net.lob.host && !net.lob.duel && !net.lob.g && rp.mode === "lobby" ? net.lob.id : null,
-      nm: "",
-      pn: s.party.length
-    }, sig = JSON.stringify(pr);
-    sig === net.presSig && !force || (net.presSig = sig, net.lastPres = now, net.room.presence(pr).catch(() => {
-    }));
-  }
-  function netLeaveRpg() {
-    net.room && (net.presSig = "", net.room.presence({ kq: null, op: null }).catch(() => {
-    }));
-  }
-  function netMsg(msg) {
-    let d = msg.data;
-    if (!d || typeof d != "object" || msg.sameTab || d.to && d.to !== net.myPeer) return;
-    let h = netHandlers[d.t];
-    h && h(d, msg), rp.s && view === "rpg" && rpUI();
-  }
-  function netBtn(d) {
-    let a = actions["net:" + d.net];
-    a && a(d), netPresence(!0);
-  }
-  function netFrame(dt) {
-    if (!net.on || !rp.s) return;
-    netPresence(), netGiftTick(), performance.now() - (net.focusT || 0) > 1e3 && (net.focusT = performance.now(), netFocus());
-    let L = net.lob;
-    L && L.host && rp.mode === "lobby" && performance.now() - (L.sent || 0) > 1500 && netLobSend(), L && !L.host && rp.mode === "lobby" && performance.now() - (L.seen || 0) > 9e3 && (net.lob = null, rp.mode = "map", rpToast("Couldn't reach " + netName() + "."), rpUI(!0));
-  }
-  feature({ id: "net-buttons", routes: { net: (d) => netBtn(d) } });
-  feature({ id: "net-presence-after-battle", on: { "battle:end": () => setTimeout(() => netPresence(!0), 0) } });
-  feature({ id: "net-live", init: () => netInit(), frame: (dt) => netFrame(dt), on: { "game:start": () => netPresence(!0) } });
-
-  // src/net/ui.js
-  function netMapRow() {
-    if (!netOnline()) return "";
-    let O = net.others, open = O.find((p) => p.presence.op && p.presence.m === "lobby"), P = open || netFocus() || O[0];
-    if (!P) return "";
-    let pr = P.presence || {};
-    return '<div class="netrow"><span><i></i>' + (O.length > 1 ? O.length + " friends online" : esc2(netName(P)) + " · " + (pr.m === "battle" ? "in a battle" : pr.m === "lobby" ? "getting ready to fight" : esc2(pr.a || ""))) + "</span>" + (open && rp.mode === "map" ? '<button class="pill go" type="button" data-net="join" data-p="' + esc2(open.peer) + '">⚔ Join ' + esc2(netName(open)) + "</button>" : "") + "</div>";
-  }
-  function netMenuButtons() {
-    let n = netOnline() ? net.others.length > 1 ? "a friend" : esc2(netName()) : "", h = "";
-    return net.db && net.me && (h += '<button class="rpb go" type="button" data-net="market">Market board<small>Buy and sell with other players</small></button>'), net.on && (h += '<button class="rpb sk" type="button" data-net="chat">Chat<small>' + (netOnline() ? "Talk to " + n : "Nobody else is online") + "</small></button>"), netOnline() && (h += '<button class="rpb it" type="button" data-net="' + (net.others.length > 1 ? 'who" data-for="trade' : "trade") + '">Give to ' + n + '<small>Items, materials or gold</small></button><button class="rpb sk" type="button" data-net="' + (net.others.length > 1 ? 'who" data-for="duel' : "duel") + '">Duel ' + n + "<small>Your party against theirs</small></button>", h += '<p class="rptip online">Online: ' + net.others.map((p) => esc2(netName(p)) + " (level " + (p.presence.lv || "?") + ", " + esc2(p.presence.a || "") + ")").join(" · ") + "</p>"), h;
-  }
-  function netWhoHtml() {
-    return '<div class="rpdlg"><div class="who">' + (net.pickFor === "duel" ? "Duel" : "Give to") + ' who?</div></div><div class="rpcmd">' + (net.others || []).map((p) => '<button class="rpb go" type="button" data-net="whopick" data-p="' + esc2(p.peer) + '">' + esc2(netName(p)) + "<small>Level " + (p.presence.lv || "?") + " · " + esc2(p.presence.a || "") + "</small></button>").join("") + '<button class="rpb x" type="button" data-net="whoback">✕ Back</button></div>';
-  }
-  feature({ id: "who", panels: { who: { sig: () => "" + (net.others || []).length, html: () => netWhoHtml() } } });
-  feature({ id: "net-menu", menu: [{ order: 10, html: () => netMenuButtons() }] });
-  feature({
-    id: "net-ui-io",
-    actions: {
-      "net:who"(d) {
-        net.pickFor = d.for, rp.mode = "who";
-      },
-      "net:whopick"(d) {
-        net.focus = d.p, netFocus(), net.pickFor === "duel" ? netDuelAsk() : rp.mode = "trade";
-      },
-      "net:whoback"(d) {
-        rp.mode = "menu";
-      }
-    }
-  });
-
-  // src/ui/hud.js
-  function rpBar(v, m, col) {
-    return '<i class="rpbar"><b style="width:' + clamp(v / m * 100, 0, 100).toFixed(0) + "%;background:" + col + '"></b></i>';
-  }
-  function rpPartyHtml() {
-    return '<div class="rpparty">' + rp.s.party.map((m) => {
-      let st = rpStats(m);
-      return '<div class="rpm' + (m.hp <= 0 ? " down" : "") + '"><b>' + esc2(m.name) + " <small>" + rpClsName(m) + " " + m.lvl + (m.pend ? " ★" : "") + "</small></b>" + rpBar(m.hp, st.hp, m.hp > st.hp * 0.5 ? "#7ad67a" : m.hp > st.hp * 0.25 ? "#ffc857" : "#ff6b6b") + "<small>HP " + Math.max(0, m.hp) + "/" + st.hp + " · MP " + m.mp + "/" + st.mp + "</small></div>";
-    }).join("") + "</div>";
-  }
-  function rpUI(force) {
-    let top = $("rp-top");
-    if (!top || !rp.s) return;
-    let s = rp.s, tt = "<b>" + (rp.mode === "battle" ? rp.bt && rp.bt.boss ? "Boss battle" : "Battle" : rpArea(s.x, s.y)) + "</b><span>" + Math.floor(s.gold) + ' gold</span><span class="rpq">' + rpQuestLine() + "</span>";
-    top.dataset.h !== tt && (top.dataset.h = tt, $("rp-topt").innerHTML = tt);
-    {
-      let v = $("v-rpg");
-      v.classList.toggle("lefty", rpOpt.hand === "right"), v.dataset && v.dataset.mode !== rp.mode && (v.dataset.mode = rp.mode, requestAnimationFrame(rpResize));
-    }
-    let P = $("rp-panel"), pn = panels[rp.mode], h = pn && pn.html();
-    h == null && (pn = panels.map, h = pn.html());
-    let sig = rp.mode + "|" + (pn.sig ? pn.sig() : "");
-    if (!(rp.joyP && rp.mode === "map" && P.querySelector && P.querySelector("[data-joy]")) && (force || sig !== rp.sig)) {
-      rp.sig = sig;
-      let ae = document.activeElement, keep = ae && ae.id && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? { id: ae.id, v: ae.value } : null;
-      if (P.innerHTML = h, keep) {
-        let i = document.getElementById(keep.id);
-        i && (i.value = keep.v, i.focus());
-      }
-    }
-  }
-  function rpMenuClick(e) {
-    let b = e.target.closest && e.target.closest("button");
-    if (!b || b.disabled) return;
-    let d = b.dataset;
-    !rp.headless && d.rp !== "next" && sfx("tap");
-    for (let k in routes) if (d[k] != null) {
-      routes[k](d, b), rpUI(!0);
-      return;
-    }
-    let a = actions[d.rp];
-    a && a(d, b) === !1 || rpUI(!0);
-  }
-  var MAP_PANEL = {
-    sig: () => rp.s.party.map((m) => m.hp + "/" + m.mp + "/" + m.lvl).join(",") + "|" + netMapRow(),
-    html: () => netMapRow() + rpPartyHtml() + '<p class="rpkeys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, or click, to walk · <kbd>E</kbd> talk · <kbd>I</kbd> heroes &amp; gear · <kbd>M</kbd> menu</p><div class="rppad"><div class="rpjoy" data-joy="1" role="application" aria-label="Joystick: drag to walk"><i></i></div><div class="rpside"><button class="pill go big" type="button" data-rp="act">Talk / Use</button><div class="rprow2">' + (net.on ? '<button class="pill" type="button" data-net="chat" aria-label="Chat">💬</button>' : "") + '<button class="pill" type="button" data-rp="hero">⚔ Gear</button><button class="pill" type="button" data-rp="menu">☰ Menu</button></div><p class="rptip">Hold and drag the joystick to walk. You can also tap a spot on the map.</p></div></div>'
-  };
-  feature({ id: "hud", panels: { map: MAP_PANEL }, routes: { dir: (d) => rpTry(d.dir) }, actions: { act: () => rpActFacing() } });
-
   // src/game/npcs.js
   function rpHealAll() {
     rp.s.party.forEach((m) => {
@@ -4706,7 +4751,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T05:15:03Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T07:50:55Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5773,11 +5818,17 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/net/battle.js
+  var NET_TURN_MS = 2e4;
+  function netClean6E(E) {
+    let o = {};
+    for (let [k, v] of Object.entries(E)) (typeof v == "number" || typeof v == "boolean" || typeof v == "string" && v.length < 80 || v && typeof v == "object" && JSON.stringify(v).length < 2e3) && (o[k] = v);
+    return o.v6 = 1, o.n = String(E.n || "Foe").slice(0, 30), o;
+  }
   function netSendStart(b) {
     let units = b.units.map((u) => {
       let o = { s: u.side, o: u.own, x: u.x, y: u.y, z: u.sz, hp: u.hp, mx: u.max, aw: u.aware ? 1 : 0, pd: u.pod || 0 };
-      return u.own === "h" ? o.m = netParty()[rp.s.party.indexOf(u.m)] : u.own === "g" ? o.gi = b.net.gParty.indexOf(u.m) : (o.k = u.key, o.a = Math.round(u.atk * 100) / 100, o.d = u.def, o.sp = u.spd), o;
-    }), msg = { t: "start", id: b.net.id, to: b.net.peer, duel: b.duel ? 1 : 0, W: b.W, H: b.H, th: b.theme, boss: b.boss, zone: b.zone, ex: b.exits ? 1 : 0, g: b.g.map((r) => r.join("")).join("|"), u: units };
+      return u.own === "h" ? o.m = netParty()[rp.s.party.indexOf(u.m)] : u.own === "g" ? o.gi = u.gi != null ? u.gi : b.net.gParty.indexOf(u.m) : (o.k = u.key, o.a = Math.round(u.atk * 100) / 100, o.d = u.def, o.sp = u.spd, b.v6 && (o.E = RP_E[u.key])), b.v6 && (o.ct = u.ct || 0, o.se = u.seat), o;
+    }), msg = { t: "start", id: b.net.id, to: b.net.peer, duel: b.duel ? 1 : 0, W: b.W, H: b.H, th: b.theme, boss: b.boss, zone: b.zone, ex: b.exits ? 1 : 0, g: b.g.map((r) => r.join("")).join("|"), u: units, v6: b.v6 ? 1 : 0, th6: b.theme6 || null, dk: b.dark ? 1 : 0, xm: b.xpMul || 1 };
     netEmit(msg), b.net.startMsg = msg, b.net.startT = b.net.startT0 = performance.now();
   }
   function netBuildMirror(d, hostPeer) {
@@ -5819,7 +5870,7 @@ button,.rpb,.pill{touch-action:manipulation}
       duel: !!d.duel,
       net: { role: "guest", id: d.id, peer: hostPeer, flip, lastSnap: performance.now(), n: 0 }
     };
-    d.u.forEach((o) => {
+    if (d.v6 && (b.v6 = !0, b.theme6 = typeof d.th6 == "string" ? d.th6 : null, b.dark = !!d.dk, b.xpMul = clamp(+d.xm || 1, 1, 3)), d.u.forEach((o) => {
       let side = flip ? 1 - o.s : o.s, y = flip ? H - o.z - o.y : o.y, u;
       if (o.o === "g" || o.o === "h") {
         let m = o.o === "g" ? s.party[o.gi] : netCleanParty([o.m])[0];
@@ -5832,25 +5883,37 @@ button,.rpb,.pill{touch-action:manipulation}
           return rpStats(m).hp;
         } }, u.k = makeK({ team: o.o === "g" ? 0 : flip ? 3 : 0, name: m.name, art: artName(m.name), weapon: m.w, hat: rpHat(m), pers: "brave", speed: 1, hp: u.max, size: 0.62 }, 0, 0, !0);
       } else {
+        d.v6 && !RP_E[o.k] && /^v6/.test(String(o.k)) && o.E && typeof o.E == "object" && (RP_E[o.k] = netClean6E(o.E));
         let E = RP_E[o.k];
         if (!E) return;
         u = { side, E, key: o.k, name: E.n, x: o.x, y, sz: o.z, hp: o.hp, max: o.mx, atk: o.a, def: o.d, spd: o.sp, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !!o.aw, pod: o.pd, turns: 0, fled: !1, own: "e", ctl: "ai" }, u.k = makeK({ team: E.team, name: E.n, art: E.art || o.k, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !0);
       }
-      u.k.face = side === 0 ? 1 : -1;
+      d.v6 && (u.ct = +o.ct || 0, u.seat = o.se), u.k.face = side === 0 ? 1 : -1;
       let hh = tcHome(u);
       u.k.x = hh.x, u.k.y = hh.y, b.units.push(u);
-    }), b.units.length === d.u.length && (rp.bt = b, rp.mode = "battle", rp.path = null, rpInputReset(), tcVis(b), tcCamTo(b, b.units.find((u) => u.ctl === "me") || b.units[0], !0), b.msg = (b.duel ? "Duel! " : "") + "Place your kobolds. " + netName() + " starts the battle.", rp.headless || sfx("crit"), rpBuzz(40), netPresence(!0), rpUI(!0));
+    }), b.units.length !== d.u.length) {
+      net.mirrorFail = "units " + b.units.length + "/" + d.u.length;
+      return;
+    }
+    rp.bt = b, rp.mode = "battle", rp.path = null, rpInputReset(), tcVis(b), tcCamTo(b, b.units.find((u) => u.ctl === "me") || b.units[0], !0), b.msg = (b.duel ? "Duel! " : "") + "Place your kobolds. " + netName() + " starts the battle.", rp.headless || sfx("crit"), rpBuzz(40), netPresence(!0), rpUI(!0);
   }
   function netSnapSig(b) {
-    return b.units.map((u) => u.x + "," + u.y + "," + u.hp + "," + u.ap + (u.fled ? "f" : "") + (u.aware ? "a" : "") + u.stun + u.slow + u.guard + u.watch + (u.m ? u.m.mp : "")).join("|") + "#" + (b.cur ? b.units.indexOf(b.cur) : -1) + b.phase + b.round + b.msg + (b.over || "") + net.fx.length;
+    return b.units.map((u) => u.x + "," + u.y + "," + u.hp + "," + u.ap + (u.fled ? "f" : "") + (u.aware ? "a" : "") + u.stun + u.slow + u.guard + u.watch + (u.m ? u.m.mp : "") + "c" + Math.round(u.ct || 0)).join("|") + "#" + (b.cur ? b.units.indexOf(b.cur) : -1) + b.phase + b.round + b.msg + (b.over || "") + net.fx.length;
   }
   function netHostFrame(b, dt) {
     let now = performance.now();
     b.net.startMsg && !b.net.ready && now - b.net.startT > 1500 && now - b.net.startT0 < 3e4 && (netEmit(b.net.startMsg), b.net.startT = now);
     let sig = netSnapSig(b);
-    (sig !== net.snapSig && now - net.snapT > 180 || now - net.snapT > 1500) && (net.snapSig = sig, net.snapT = now, netSendSnap(b)), net.room && net.room.peers().some((p) => p.peer === b.net.peer) ? b.net.lost = 0 : b.net.lost || (b.net.lost = now), b.net.lost && now - b.net.lost > 8e3 && !b.net.ai && (b.net.ai = 1, b.units.forEach((u) => {
-      u.ctl === "remote" && (u.ctl = "ai");
-    }), rpToast(netName() + " lost connection; their kobolds fight on their own."), b.phase === "remote" && b.cur && (b.phase = "ai", rpAiTurn(b.cur)));
+    (sig !== net.snapSig && now - net.snapT > 180 || now - net.snapT > 1500) && (net.snapSig = sig, net.snapT = now, netSendSnap(b)), net.room && net.room.peers().some((p) => p.peer === b.net.peer) ? b.net.lost = 0 : b.net.lost || (b.net.lost = now), b.net.lost && now - b.net.lost > 8e3 && !b.net.ai && (b.net.ai = 1, b.v6 ? (b.units.forEach((u2) => {
+      u2.ctl === "remote" && (u2.ctl = "guard");
+    }), rpToast(netName() + " left; their kobolds guard until the fight ends."), b.phase === "remote" && b.cur && (b.cur.guard = 1, tcEndTurn())) : (b.units.forEach((u2) => {
+      u2.ctl === "remote" && (u2.ctl = "ai");
+    }), rpToast(netName() + " lost connection; their kobolds fight on their own."), b.phase === "remote" && b.cur && (b.phase = "ai", rpAiTurn(b.cur))));
+    let u = b.cur;
+    if (b.v6 && !b.duel && !b.net.ai && u && u.side === 0 && (b.phase === "turn" || b.phase === "remote") && !b.seq.length && b.turnT) {
+      let age = now - b.turnT;
+      age > NET_TURN_MS - 5e3 && !b.warned && (b.warned = 1, u.ctl === "me" && (rpToast("5 seconds left!"), rpBuzz([20, 40, 20]))), age > NET_TURN_MS && (u.guard = 1, b.msg = u.name + " waited too long and guards.", tcFloatU(u, "guard", "#9ad0ff"), b.pend = null, tcEndTurn());
+    }
   }
   function netSendSnap(b) {
     let fx = net.fx.splice(0, 40);
@@ -5864,7 +5927,8 @@ button,.rpb,.pill{touch-action:manipulation}
       msg: String(b.msg || "").slice(0, 160),
       rd: b.round,
       ov: b.over || 0,
-      u: b.units.map((u) => [u.x, u.y, u.hp, u.m ? u.m.mp : 0, u.ap, u.stun | 0, u.slow | 0, u.guard | 0, u.watch | 0, u.fled ? 1 : 0, u.aware ? 1 : 0, u.buff.atk | 0, u.buff.def | 0]),
+      tw: b.warned ? 1 : 0,
+      u: b.units.map((u) => [u.x, u.y, u.hp, u.m ? u.m.mp : 0, u.ap, u.stun | 0, u.slow | 0, u.guard | 0, u.watch | 0, u.fled ? 1 : 0, u.aware ? 1 : 0, u.buff.atk | 0, u.buff.def | 0, Math.round(u.ct || 0)]),
       ch: b.chans.map((c) => [b.units.indexOf(c.u), c.cx, c.cy, c.area]),
       fx
     });
@@ -5879,7 +5943,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let H = b.H, fl = b.net.flip;
     d.u.forEach((a, i) => {
       let u = b.units[i], wasLive = tcLive(u);
-      u.x = a[0], u.y = fl ? H - u.sz - a[1] : a[1], u.own === "e" ? u.hp = a[2] : (u.m.hp = a[2], u.m && (u.m.mp = a[3])), u.ap = a[4], u.stun = a[5], u.slow = a[6], u.guard = a[7], u.watch = a[8], u.fled = !!a[9], u.aware = !!a[10], u.buff.atk = a[11], u.buff.def = a[12];
+      u.x = a[0], u.y = fl ? H - u.sz - a[1] : a[1], u.own === "e" ? u.hp = a[2] : (u.m.hp = a[2], u.m && (u.m.mp = a[3])), u.ap = a[4], u.stun = a[5], u.slow = a[6], u.guard = a[7], u.watch = a[8], u.fled = !!a[9], u.aware = !!a[10], u.buff.atk = a[11], u.buff.def = a[12], b.v6 && (u.ct = +a[13] || 0);
       let live = tcLive(u);
       wasLive && !live && !u.fled && (u.k.state = "ko", u.k.rotT = (u.side ? 1 : -1) * Math.PI / 2, rp.headless || sfx("ko")), !wasLive && live && (u.k.state = "idle", u.k.rot = 0, u.k.rotT = 0);
     }), b.chans = (d.ch || []).map((c) => ({ u: b.units[c[0]], cx: c[1], cy: fl ? H - 1 - c[2] : c[2], area: c[3], side: b.units[c[0]] ? b.units[c[0]].side : 1 })), (d.fx || []).forEach((f) => {
@@ -5893,7 +5957,7 @@ button,.rpb,.pill{touch-action:manipulation}
       }
     });
     let prevCur = b.cur;
-    b.cur = d.cur >= 0 ? b.units[d.cur] : null, b.round = d.rd, d.ov ? b.over || (b.over = netOver(b, d.ov), b.phase = "end", netGuestEnd(b)) : d.ph === "place" ? (b.phase = "place", b.msg = "Place your kobolds. " + netName() + " starts the battle.") : d.ph === "remote" && b.cur && b.cur.ctl === "me" ? (b.phase !== "turn" || prevCur !== b.cur || b.net.waitAct) && (b.net.waitAct = null, b.phase = "turn", b.mode = "move", b.pend = null, b.msg = b.cur.name + "'s turn · " + b.cur.ap + " AP", tcCamTo(b, b.cur), rpBuzz(20)) : (b.phase = "wait", b.msg = d.msg, b.cur && prevCur !== b.cur && tcShown(b, b.cur) && tcCamTo(b, b.cur)), tcVis(b), rpUI(!0);
+    b.cur = d.cur >= 0 ? b.units[d.cur] : null, b.round = d.rd, d.tw && !b.net.warnedT && d.ph === "remote" && b.cur && b.cur.ctl === "me" && (b.net.warnedT = 1, rpToast("5 seconds left!"), rpBuzz([20, 40, 20])), d.tw || (b.net.warnedT = 0), d.ov ? b.over || (b.over = netOver(b, d.ov), b.phase = "end", netGuestEnd(b)) : d.ph === "place" ? (b.phase = "place", b.msg = "Place your kobolds. " + netName() + " starts the battle.") : d.ph === "remote" && b.cur && b.cur.ctl === "me" ? (b.phase !== "turn" || prevCur !== b.cur || b.net.waitAct) && (b.net.waitAct = null, b.phase = "turn", b.mode = "move", b.pend = null, b.msg = b.cur.name + "'s turn · " + b.cur.ap + " AP", tcCamTo(b, b.cur), rpBuzz(20)) : (b.phase = "wait", b.msg = d.msg, b.cur && prevCur !== b.cur && tcShown(b, b.cur) && tcCamTo(b, b.cur)), tcVis(b), rpUI(!0);
   }
   function netOver(b, ov) {
     return b.duel ? ov === "duelwin" ? "duellose" : ov === "duellose" ? "duelwin" : ov : ov;
@@ -5904,7 +5968,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   function netSerAct(b, act) {
     let fl = b.net && b.net.flip, H = b.H, fy = (y) => fl ? H - 1 - y : y, o = { k: act.k };
-    return act.path && (o.path = act.path.map(([x, y]) => [x, fy(y)]), o.cost = act.cost), act.t && (o.t = b.units.indexOf(act.t)), act.sk && (o.sk = act.sk), act.it && (o.it = act.it), act.cx != null && (o.cx = act.cx, o.cy = fy(act.cy)), act.ui != null && (o.ui = act.ui, o.x = act.x, o.y = fy(act.y)), o;
+    return act.path && (o.path = act.path.map(([x, y]) => [x, fy(y)]), o.cost = act.cost), act.t && (o.t = b.units.indexOf(act.t)), act.f && (o.f = b.units.indexOf(act.f)), act.sk && (o.sk = act.sk), act.it && (o.it = act.it), act.cx != null && (o.cx = act.cx, o.cy = fy(act.cy)), act.ui != null && (o.ui = act.ui, o.x = act.x, o.y = fy(act.y)), o;
   }
   function netSendAct(b, act) {
     let msg = { t: "act", id: b.net.id, to: b.net.peer, n: ++net.actN, cur: b.cur ? b.units.indexOf(b.cur) : -1, a: netSerAct(b, act) };
@@ -5931,7 +5995,7 @@ button,.rpb,.pill{touch-action:manipulation}
       return;
     }
     let act = { k: a.k };
-    if (!(a.t != null && (act.t = b.units[a.t], !act.t))) {
+    if (!(a.t != null && (act.t = b.units[a.t], !act.t)) && !(a.f != null && (act.f = b.units[a.f], !act.f))) {
       if (a.sk) {
         if (!RP_SK[a.sk] || !rpMemSkills(u.m).includes(a.sk)) return;
         act.sk = a.sk;
@@ -5968,7 +6032,7 @@ button,.rpb,.pill{touch-action:manipulation}
     net: {
       start(d, msg) {
         let b = rp.bt, L = net.lob;
-        if (b && b.net && b.net.id === d.id) {
+        if (net.lastStart = d, b && b.net && b.net.id === d.id) {
           netEmit({ t: "ready", id: d.id, to: msg.peer });
           return;
         }
@@ -6108,6 +6172,11 @@ button,.rpb,.pill{touch-action:manipulation}
         return;
       }
       b.pend = Object.assign(tcPreviewAttack(b, u, t, { k: "atk", t }), { tx: x, ty: y });
+      return;
+    }
+    let dn = !t && b.v6 && b.units.find((v) => v.side === 0 && v.m && v.hp <= 0 && !v.fled && v.x === x && v.y === y);
+    if (dn) {
+      v6ReviveOK(b, u, dn) && u.ap >= 1 ? b.pend = { act: { k: "revive", t: dn }, t: dn, tx: x, ty: y, info: "<b>Help up</b> " + esc2(dn.name) + ": gets up with 25% HP · 1 AP" } : (b.msg = (dn.own || "h") === (u.own || "h") ? dn.name + " is down. In a shared fight a friend's kobold can help it up." : "Stand next to " + dn.name + " to help it up (1 AP).", b.pend = null);
       return;
     }
     if (t && t.side === 0) {
@@ -6957,7 +7026,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var rp = { grid: null, s: null, mode: "map", dlg: null, bt: null, move: null, path: null, held: null, grace: 4, cam: { x: 0, y: 0 }, mapImg: null, npcK: {}, pk: null, t: 0, headless: !1, sig: "" };
   function rpPlace() {
-    return rp.s && rp.s.place || "world";
+    return rp.s && rp.s.w6 ? "w6:" + rp.s.w6 : rp.s && rp.s.place || "world";
   }
   function rpApplyWorld() {
     if (rp.s.w6) {
@@ -7054,7 +7123,12 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var v6Light = (a) => a.m && ["daggers", "fists"].includes(tcStat(a).fam), v6Lvl = (u) => u.m ? u.m.lvl : u.E.L || 1;
   function v6Buff(u, k) {
-    return (u.vb || []).filter((x) => x.k === k).reduce((a, x) => a + x.v, 0);
+    let by = {};
+    (u.vb || []).forEach((x) => {
+      x.k === k && (by[x.own || ""] = (by[x.own || ""] || 0) + x.v);
+    });
+    let v = Object.values(by);
+    return v.length ? Math.max(0, ...v) + Math.min(0, ...v) : 0;
   }
   function v6Has(u, k) {
     return !!(u.vs && u.vs[k] > 0);
@@ -7220,6 +7294,12 @@ button,.rpb,.pill{touch-action:manipulation}
   function v6Together(b, u, f, t) {
     return u.ap += 1, v6TogetherOpts(b, u).some((o) => o.f === f && o.t === t) ? (u.ap -= 1, b.together[v6PairKey(u, f)] = 1, f.ct = (f.ct || 0) - 100, b.queue = b.queue.filter((x) => x !== f), b.msg = u.name + " and " + f.name + " strike together!", tcFloatU(u, "together!", "#ffd54a"), [u, f].forEach((a) => tcQ({ k: "atk", a, tg: t, o: { mul: 1, flank: 1, quick: !!tcStat(a).quick, name: "Together" } })), !0) : !1;
   }
+  function v6ReviveOK(b, u, t) {
+    return !!(b && b.v6 && u && t && u.side === 0 && t.side === 0 && t !== u && t.m && t.hp <= 0 && !t.fled && (t.own || "h") !== (u.own || "h") && tcCheb(u, t) <= 1);
+  }
+  function v6Revive(b, u, t) {
+    return v6ReviveOK(b, u, t) ? (t.hp = Math.max(1, Math.round(t.max * 0.25)), t.k.state = "idle", t.k.rot = 0, t.k.rotT = 0, b.msg = u.name + " helps " + t.name + " up!", tcFloatU(t, "+" + t.hp, "#9af0a0"), !0) : (u.ap += 1, !1);
+  }
   function v6Upcoming(b, n) {
     v6Seat(b);
     let out = [];
@@ -7292,7 +7372,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let al = s.t === "ally" ? [act.t] : b.units.filter((t) => t.side === u.side && tcLive(t) && (T.self < 1 ? t === u : tcCheb(u, t) <= T.self));
       return tcQ({ k: "fn", fn: () => {
         al.forEach((t) => {
-          (t.vb = t.vb || []).push({ k: s.buff.k, v: s.buff.v, turns: s.buff.turns }), tcFloatU(t, S.n, "#ffe27a");
+          (t.vb = t.vb || []).push({ k: s.buff.k, v: s.buff.v, turns: s.buff.turns, own: u.own || "" }), tcFloatU(t, S.n, "#ffe27a");
         }), rp.headless || sfx("win");
       } }), !0;
     }
@@ -7867,7 +7947,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let TW = rpTW(tcW(u));
       return TW.h ? 2 : TW.q || tcStat(u).quick ? 1 : "end";
     }
-    return act.k === "sk" ? (RP_ST[act.sk] || { ap: "end" }).ap : act.k === "it" || act.k === "leave" || act.k === "together" ? 1 : "end";
+    return act.k === "sk" ? (RP_ST[act.sk] || { ap: "end" }).ap : act.k === "it" || act.k === "leave" || act.k === "together" || act.k === "revive" ? 1 : "end";
   }
   function tcCanPay(u, c) {
     return c === "end" ? u.ap >= 1 : u.ap >= c;
@@ -8209,13 +8289,16 @@ button,.rpb,.pill{touch-action:manipulation}
       duel,
       v6: !!opt.v6
     };
-    opt.net && (b.net = { role: "host", id: opt.nid, peer: opt.net, gParty: opt.gParty || [] }), rp.bt = b, v6Keep(b, keys, opt);
+    opt.net && (b.net = { role: "host", id: opt.nid, peer: opt.net, gParty: opt.gParty || [] });
+    for (let k of ["story", "patrol", "xpMul"]) opt[k] != null && (b[k] = opt[k]);
+    rp.bt = b, v6Keep(b, keys, opt);
     let px = (W >> 1) - 1, addKob = (mem, i, side) => {
       let m = mem.m, st = rpStats(m), u = {
         side,
         m,
         own: mem.own,
         ctl: mem.ctl,
+        gi: mem.gi,
         name: m.name,
         x: 0,
         y: 0,
@@ -8302,7 +8385,9 @@ button,.rpb,.pill{touch-action:manipulation}
     }), b.units.forEach((u) => {
       let h = tcHome(u);
       u.k.x = h.x, u.k.y = h.y;
-    }), tcVis(b), tcCamTo(b, b.units[0], !0), rp.mode = "battle", rp.path = null, rp.held = null, rpInputReset(), b.msg = duel ? "Duel with " + netName() + "! Place your kobolds, then start." : boss ? RP_E[boss].n + " blocks the way! Place your kobolds, then start." : "Ambush! Something lurks in the fog. Place your kobolds, then start.", rp.headless || sfx("crit"), rpBuzz(boss ? [60, 40, 90] : 40), rp.headless && rpTacBegin(), rpUI(!0);
+    }), tcVis(b), tcCamTo(b, b.units[0], !0), rp.mode = "battle", rp.path = null, rp.held = null, rpInputReset(), b.msg = duel ? "Duel with " + netName() + "! Place your kobolds, then start." : boss ? RP_E[boss].n + " blocks the way! Place your kobolds, then start." : "Ambush! Something lurks in the fog. Place your kobolds, then start.", rp.headless || sfx("crit"), rpBuzz(boss ? [60, 40, 90] : 40), opt.aware && b.units.forEach((u) => {
+      u.side === 1 && (u.aware = !0);
+    }), opt.msg && (b.msg = opt.msg), rp.headless && rpTacBegin(), rpUI(!0);
   }
   function rpTacBegin() {
     let b = rp.bt;
@@ -8374,6 +8459,10 @@ button,.rpb,.pill{touch-action:manipulation}
       return;
     }
     let ctl = u.ctl || (u.side === 0 ? "me" : "ai");
+    if (b.turnT = performance.now(), b.warned = 0, ctl === "guard") {
+      u.guard = 1, u.ap = 0, b.msg = u.name + " guards.", tcFloatU(u, "guard", "#9ad0ff"), tcQ({ k: "wait", d: 0.4 }), b.phase = "busy", rpUI(!0);
+      return;
+    }
     if (ctl === "remote") {
       b.phase = b.seq.length ? "busy" : "remote", b.msg = netName() + " is moving " + u.name + "…", tcCamTo(b, u), rpUI(!0);
       return;
@@ -8646,7 +8735,7 @@ button,.rpb,.pill{touch-action:manipulation}
         rp.headless || sfx("nom");
       } }), b.msg = u.name + " uses a " + RP_ITEMS[k].n.toLowerCase() + ".", !0;
     }
-    return act.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act.k === "together" ? v6Together(b, u, act.f, act.t) : act.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", v6Leave(b, u), rp.headless || sfx("pop"), !0) : !1;
+    return act.k === "watch" ? (u.watch = 1, b.msg = u.name + " keeps watch.", tcFloatU(u, "watching", "#9ad0ff"), !0) : act.k === "guard" ? (u.guard = 1, b.msg = u.name + " takes cover and guards.", tcFloatU(u, "guard", "#9ad0ff"), !0) : act.k === "end" ? (u.ap = 0, b.msg = u.name + " ends the turn.", !0) : act.k === "together" ? v6Together(b, u, act.f, act.t) : act.k === "revive" ? v6Revive(b, u, act.t) : act.k === "leave" ? (u.fled = !0, b.msg = u.name + " slips off the edge of the field.", v6Leave(b, u), rp.headless || sfx("pop"), !0) : !1;
   }
   function rpBattleStep(dt) {
     let b = rp.bt;
@@ -9288,11 +9377,6 @@ button,.rpb,.pill{touch-action:manipulation}
           C6.cloud[i] = sn.exists ? sn.data() : null;
         } catch {
         }
-      try {
-        let sn = await net.db.doc("data/users/" + net.me + "/save").get();
-        C6.oldCloud = sn.exists ? sn.data() : null;
-      } catch {
-      }
       rp.sig = "";
     }
   }
@@ -9416,10 +9500,6 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     write(free, store.get(key("guest", gi), null)), store.set(key("guest", gi), null), rpToast("Kept!");
   }
-  function legacy() {
-    let old = C6.oldCloud || rpLoad();
-    return old ? v6Legacy(old) : null;
-  }
   var ago = (t) => {
     if (!t) return "never";
     let d = (Date.now() - t) / DAY;
@@ -9449,8 +9529,7 @@ button,.rpb,.pill{touch-action:manipulation}
       let d = store.get(key("guest", gi), null);
       h += '<button class="rpb go" type="button" data-rp="c6keep" data-v="' + gi + '">Keep this hero: ' + esc2(d.hero.name) + "<small>played here as a guest; moves into a free slot</small></button>";
     }
-    let L = legacy();
-    return L && (h += '<button class="rpb" type="button" data-rp="c6legacy">Your hero from the first story<small>' + esc2(L.name) + ", level " + L.lvl + " · the old game, as it was</small></button>"), h + "</div>";
+    return h + "</div>";
   }
   function c6NewHtml() {
     let F = C6.form;
@@ -9482,7 +9561,7 @@ button,.rpb,.pill{touch-action:manipulation}
         window.__kqOldTitle || (e.stopImmediatePropagation(), rpGoFull(), openSelect());
       }, !0);
     },
-    panels: { c6: { sig: () => JSON.stringify([C6.cloud, C6.oldCloud && 1, store.get("kq6:" + acct() + ":0", null) && 1]), html: selectHtml }, c6new: { sig: () => JSON.stringify(C6.form), html: c6NewHtml }, c6del: { sig: () => "d" + (C6.del && C6.del.i), html: delHtml }, c6busy: { sig: () => "b" + C6.ask, html: busyHtml } },
+    panels: { c6: { sig: () => JSON.stringify([C6.cloud, store.get("kq6:" + acct() + ":0", null) && 1]), html: selectHtml }, c6new: { sig: () => JSON.stringify(C6.form), html: c6NewHtml }, c6del: { sig: () => "d" + (C6.del && C6.del.i), html: delHtml }, c6busy: { sig: () => "b" + C6.ask, html: busyHtml } },
     menu: [{ order: 3, html: () => rp.s && rp.s.w6 && C6.slot != null ? '<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>' : "" }],
     actions: {
       c6play: (d) => {
@@ -9507,9 +9586,6 @@ button,.rpb,.pill{touch-action:manipulation}
       c6del: () => doDelete(),
       c6restore: (d) => restore(+d.v),
       c6keep: (d) => keepGuest(+d.v),
-      c6legacy: () => {
-        window.__kqOldTitle = 1, C6.slot = null, rpStart(!1), window.__kqOldTitle = 0;
-      },
       c6menu: () => {
         chars6Save(rp.s), openSelect();
       }

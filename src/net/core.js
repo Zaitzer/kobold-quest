@@ -50,7 +50,8 @@ function netByPeer(peer){return(net.others||[]).find(p=>p.peer===peer)||null}
 function netName(p){p=p||net.partner;if(!p)return'Your friend';return(p.by&&net.names[p.by])||p.presence.nm||'Your friend'}
 function netNameOf(peer){const p=netByPeer(peer);return p?netName(p):(net.peerNames[peer]||'Your friend')}
 function netOnline(){return!!(net.on&&net.others&&net.others.length)}
-function netPartnerFree(){return netOnline()&&net.others.some(p=>p.presence.m==='map')&&net.room.connected()}
+/* someone free to join a fight: on the map, in the same place */
+function netPartnerFree(){return netOnline()&&net.others.some(p=>p.presence.m==='map'&&(p.presence.pl||'world')===rpPlace())&&net.room.connected()}
 function netEmit(data){if(!net.room)return;try{net.room.emit('kq',data).catch(()=>{})}catch(e){}}
 /* my own presence: where I am and what I'm doing */
 function netPresence(force){

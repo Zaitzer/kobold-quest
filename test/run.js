@@ -25,5 +25,5 @@ run('sim/slice',R+'/test/sim/slice.js',[],{RUNS:'2'});
   /* slowest first, so the pool finishes together */
   /* tsite starts the real game server and times its socket: it runs on its own */
   if(!quick)await runAll([['browser/tsite',R+'/test/browser/tsite.js']],1);
-  if(!quick)await runAll(['tmixed','tnet','tbat2','tmmo','trot','tjoy','trooms','tworld','smoke','hold','tw1','playhero','tsound','tmenu','tchars'].map(t=>['browser/'+t,R+'/test/browser/'+t+'.js']),+process.env.BROWSERS||3);
+  if(!quick)await runAll(['tmixed','tnet','tbat2','tmmo','trot','tjoy','trooms','tworld','smoke','hold','tw1','playhero','tsound','tmenu','tchars','tcoop6'].map(t=>['browser/'+t,R+'/test/browser/'+t+'.js']),+process.env.BROWSERS||3);
   const f=results.filter(r=>r[0]==='FAIL').length;console.log('\n'+(f?f+' FAILED':'all '+results.length+' passed')+(quick?'':' · browsers '+((Date.now()-T0)/1000).toFixed(0)+'s'));process.exitCode=f?1:0})();

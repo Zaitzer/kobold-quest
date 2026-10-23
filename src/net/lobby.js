@@ -2,10 +2,13 @@ import {rpBattle} from '../battle/flow.js';
 import {rpInputReset} from '../core/input.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
+import {v6PackKobold} from '../core/save6.js';
 import {rp} from '../core/state.js';
 import {RP_ADV,RP_CLS} from '../data/classes.js';
 import {RP_IT,RP_SLOTS9} from '../data/items.js';
 import {RP_E,RP_ZONE} from '../data/monsters.js';
+import {CLASSES6} from '../data/v6/classes.js';
+import {SKILLS6} from '../data/v6/skills.js';
 import {WEAPONS} from '../engine/art.js';
 import {clamp,esc2,wpick} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
@@ -13,9 +16,17 @@ import {rpStats} from '../game/stats.js';
 import {netSendStart} from './battle.js';
 import {net,netByPeer,netEmit,netFocus,netName,netPartnerFree,netPresence,netRid} from './core.js';
 import {rpUI} from '../ui/hud.js';
-function netParty(){return rp.s.party.map(m=>({name:m.name,cls:m.cls,w:m.w,lvl:m.lvl,xp:m.xp,hp:m.hp,mp:m.mp,tal:(m.tal||[]).slice(),eq:Object.assign({},m.eq),adv:m.adv||null}))}
-function netCleanParty(p){if(!Array.isArray(p))return[];return p.slice(0,3).map(m=>({name:String(m.name||'Kobold').slice(0,16),cls:RP_CLS[m.cls]?m.cls:'warrior',w:WEAPONS[m.w]?m.w:'stick',lvl:clamp(+m.lvl||1,1,40),xp:+m.xp||0,
+function netParty(){if(rp.s.w6)return rp.s.party.map(v6PackKobold);return rp.s.party.map(m=>({name:m.name,cls:m.cls,w:m.w,lvl:m.lvl,xp:m.xp,hp:m.hp,mp:m.mp,tal:(m.tal||[]).slice(),eq:Object.assign({},m.eq),adv:m.adv||null}))}
+function netCleanParty(p){if(!Array.isArray(p))return[];if(p.some(m=>m&&m.v6))return netClean6(p);return p.slice(0,3).map(m=>({name:String(m.name||'Kobold').slice(0,16),cls:RP_CLS[m.cls]?m.cls:'warrior',w:WEAPONS[m.w]?m.w:'stick',lvl:clamp(+m.lvl||1,1,40),xp:+m.xp||0,
   hp:+m.hp||0,mp:+m.mp||0,tal:Array.isArray(m.tal)?m.tal.filter(t=>typeof t==='string').slice(0,40):[],eq:typeof m.eq==='object'&&m.eq?Object.fromEntries(Object.entries(m.eq).filter(([k,v])=>RP_SLOTS9.includes(k)&&RP_IT[v])):{},adv:RP_ADV[m.adv]?m.adv:null,pend:0,offer:null}))}
+/* a friend's v6 kobolds: only the saved fields (save6.js), checked so a bad message can't break the fight */
+function netClean6(p){const num=(v,a,b,d)=>{v=+v;return Number.isFinite(v)?clamp(Math.round(v),a,b):d},obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{},ids=v=>Array.isArray(v)?v.filter(id=>typeof id==='string'&&SKILLS6[id]):[];
+  return p.filter(m=>m&&m.v6&&CLASSES6[m.cls]).slice(0,3).map(m=>{const c=v6PackKobold(m);
+    Object.assign(c,{v6:1,name:String(m.name||'Kobold').slice(0,16),lvl:num(m.lvl,1,30,1),xp:num(m.xp,0,1e7,0),hp:num(m.hp,0,1e5,0),mp:num(m.mp,0,1e5,0),
+      scores:Object.fromEntries(Object.entries(obj(m.scores)).map(([k,v])=>[k,num(v,1,40,10)])),skills:ids(m.skills).slice(0,4),known:ids(m.known),ranks:obj(m.ranks),dark:obj(m.dark),
+      gear:obj(m.gear),lead:obj(m.lead),passives:Array.isArray(m.passives)?m.passives.filter(x=>typeof x==='string'):[],w:WEAPONS[m.w]?m.w:'stick',pend:0});
+    try{rpStats(c)}catch(e){return null}return c}).filter(Boolean)}
+const clsName=c=>(CLASSES6[c]||RP_CLS[c]||{n:''}).n;
 /* ---------- the lobby before a battle ---------- */
 function rpFight(keys,opt){if(netPartnerFree()&&!opt.duel){netOpenLobby(keys,opt)}else rpBattle(keys,opt)}
 function netOpenLobby(keys,opt,duel){
@@ -32,11 +43,11 @@ function netLobFix(L,who){
 function netLobSend(){const L=net.lob;if(!L||!L.host)return;
   const sum=p=>p.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:Math.max(0,m.hp),mx:rpStats(m).hp}));
   netEmit({t:'lob',id:L.id,duel:L.duel,title:netLobTitle(L),hp:sum(rp.s.party),hsel:L.hsel,g:L.g?{peer:L.g.peer,sel:L.g.sel}:null,cap:L.duel?0:rp.s.party[0].lvl});L.sent=performance.now()}
-function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.boss?RP_E[o.boss].n:(RP_ZONE[o.zone]||{n:'Battle'}).n}
+function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.title?o.title:o.boss&&RP_E[o.boss]?RP_E[o.boss].n:(RP_ZONE[o.zone]||{n:'Battle'}).n}
 function netLobHtml(){
   const L=net.lob;if(!L)return'';const host=L.host,V=L.view||{};
   const chips=(party,sel,mine,who)=>party.map((m,i)=>{const on=sel.includes(i),hp=m.hp!=null?m.hp:0,mx=m.mx||rpStats(m).hp,dn=hp<=0;
-    return '<button class="lobk'+(on?' on':'')+(dn?' dn':'')+'" type="button"'+(mine&&!dn?' data-net="pick" data-who="'+who+'" data-i="'+i+'"':' disabled')+'><b>'+esc2(m.n||m.name)+'</b><small>'+(RP_CLS[m.c||m.cls]||{n:''}).n+' '+(m.l||m.lvl)+' · '+Math.max(0,hp)+' HP</small></button>'}).join('');
+    return '<button class="lobk'+(on?' on':'')+(dn?' dn':'')+'" type="button"'+(mine&&!dn?' data-net="pick" data-who="'+who+'" data-i="'+i+'"':' disabled')+'><b>'+esc2(m.n||m.name)+'</b><small>'+clsName(m.c||m.cls)+' '+(m.l||m.lvl)+' · '+Math.max(0,hp)+' HP</small></button>'}).join('');
   let h='<div class="rpdlg"><div class="who">'+esc2(host?netLobTitle(L):(V.title||'Battle'))+(L.duel?' ⚔':'')+'</div>';
   if(host){const g=L.g;const tot=L.hsel.length+(g?g.sel.length:0);
     h+='<p>'+(L.duel?(g?'Pick 1 to 3 kobolds each, then start.':'Waiting for '+esc2(netName())+' to answer…'):g?'Pick who fights: at least one each, up to 4 together ('+tot+'/4).':'Pick your kobolds. '+esc2(netName())+' can join now, or start without them.')+'</p></div>';
@@ -64,17 +75,21 @@ function netLobPick(who,i){const L=net.lob;if(!L)return;
 /* level sync: a friend's kobolds above the host's level fight as if they were at the host's level (talents beyond it
    rest, promotion only from level 10); health and mana keep the same share they had */
 function netLevelSync(m,cap){if(!m||m.lvl<=cap)return m;
+  if(m.v6){const c=JSON.parse(JSON.stringify(m)),a=rpStats(m);c.lvl=cap;c.synced=m.lvl;const b=rpStats(c);   /* v6: the sheet at the host's level; scores, skills and gear stay */
+    c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
   const c=Object.assign({},m,{lvl:cap,tal:(m.tal||[]).slice(0,Math.max(0,cap-1)),adv:cap>=10?m.adv:null,synced:m.lvl});
   const a=rpStats(m),b=rpStats(c);c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
 /* ---------- starting a battle together ---------- */
 function netStart(){
   const L=net.lob;if(!L||!L.host)return;const s=rp.s;
   const mine=L.hsel.filter(i=>s.party[i]&&s.party[i].hp>0).map(i=>({m:s.party[i],ctl:'me',own:'h'}));if(!mine.length)return;
-  const cap=s.party[0].lvl,theirs=L.g?L.g.sel.map(i=>L.g.party[i]).filter(m=>m&&m.hp>0).map(m=>({m:L.duel?m:netLevelSync(m,cap),ctl:'remote',own:'g'})):[];
+  const cap=s.party[0].lvl,theirs=L.g?L.g.sel.filter(i=>L.g.party[i]&&L.g.party[i].hp>0).map(i=>({m:L.duel?L.g.party[i]:netLevelSync(L.g.party[i],cap),ctl:'remote',own:'g',gi:i})):[];   /* gi: the friend's own party slot (a synced copy is not in it) */
   net.lob=null;
   if(L.duel){if(!theirs.length)return rpToast('Waiting for '+netName()+'.');rpBattle([],{duel:true,members:mine,foes:theirs,net:L.g.peer,nid:L.id,gParty:L.g.party})}
   else{let keys=L.keys;const o=L.opt||{};
-    if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,(Z.base||o.zone)===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
+    /* v6: one more foe from the same fight for each of the friend's kobolds (not bosses or set pieces) */
+    if(o.v6){if(!o.boss&&!o.setPiece&&theirs.length&&keys.length){keys=keys.slice();const k0=keys.slice();theirs.forEach((x,i)=>keys.push(k0[i%k0.length]))}}
+    else if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,(Z.base||o.zone)===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
     rpBattle(keys,Object.assign({},o,{members:mine.concat(theirs),net:theirs.length?L.g.peer:null,nid:L.id,gParty:L.g?L.g.party:[]}))}
   if(rp.bt&&rp.bt.net)netSendStart(rp.bt);
   netPresence(true);
@@ -101,4 +116,4 @@ feature({id:'net-lobby-io',
       if(L.g){netEmit({t:'nolob',id:L.id,to:L.g.peer,why:netName()+' went ahead alone.'});L.g=null;netStart();return}
       net.lob=null;rpBattle(L.keys,L.opt);return}},
     'net:lobleave'(d){{const L=net.lob;if(L)netEmit({t:'leave',id:L.id,to:L.hostPeer});net.lob=null;rp.mode='map';return}}}});
-export {netCleanParty,netLevelSync,netLobFix,netLobHtml,netLobPick,netLobSend,netLobTitle,netOpenLobby,netParty,netStart,rpFight};
+export {clsName,netClean6,netCleanParty,netLevelSync,netLobFix,netLobHtml,netLobPick,netLobSend,netLobTitle,netOpenLobby,netParty,netStart,rpFight};

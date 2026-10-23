@@ -2,7 +2,6 @@
    The maps and rooms from tools/slicemaps.js (MAPS6, ROOMS6, LINKS6) walked with the engine's movement. A v6 game has rp.s.w6 set to
    the place it stands in ('hearthspire', 'r1', ..., or 'room:bakery'); the engine's grid, solids, tiles, encounters and drawing ask
    this module while it is set, and the old world is untouched otherwise. */
-import {rpBattle} from '../battle/flow.js';
 import {v6EliteKey,v6Mix} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';
@@ -16,6 +15,7 @@ import {rpSay,rpToast} from './dialogue.js';
 import {v6OpenChest} from './items6.js';
 import {rpStats} from './stats.js';
 import {s6Step} from './story6.js';
+import {rpFight} from '../net/lobby.js';
 
 /* ------------------------------------------------------------------ places and tiles */
 const W6_SOLID_OUT=new Set(['#','K','B','T','~','F','b','o','t','r','O','W','X','x','P']);
@@ -58,8 +58,9 @@ function w6PatrolCheck(x,y,c){const p=rp.s.w6;for(const t of w6Patrols(p)){const
     if(seen||near){w6PatrolFight(p,t,seen);return true}}return false}
 function w6PatrolFight(p,t,aware){const E=W6_ENC[p],P=PLACES6[E.place],L=w6PatrolLevel(p),keys=[v6EliteKey(P.pool[0],L)].concat(v6Mix(Object.assign({},P,{L,target:P.target-1})));
   rp.path=null;rp.held=null;rp.s.w6st.fighting=t.id;
-  rpBattle(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:W6_THEME[p]||'meadow'});const b=rp.bt;if(!b)return;b.v6=1;b.patrol=t.id;b.xpMul=1.5;
-  if(aware)b.units.forEach(u=>{if(u.side===1)u.aware=true});b.msg=aware?t.name+' saw you coming!':'You catch '+t.name+' unawares!'}
+  /* shared with a friend in the same place when one is free (systems.md §12) */
+  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:W6_THEME[p]||'meadow',patrol:t.id,xpMul:1.5,aware:!!aware,title:t.name,
+    msg:aware?t.name+' saw you coming!':'You catch '+t.name+' unawares!'})}
 
 /* ------------------------------------------------------------------ stables, raptors and fast travel (systems.md §6) */
 function w6StableAt(p,x,y){const P=MAPS6[p];return!!(P&&P.stables&&P.stables.some(([sx,sy])=>sx===x&&sy===y))}
@@ -91,7 +92,7 @@ function w6Fight(p,E){const P=PLACES6[E.place],L=Math.max(1,Math.round(rp.s.part
   /* the foes' level: the place's, nudged toward the pack (levels 3–6 on R1, 6–8 in the mine; balance.md §5) */
   const lv=Math.max(P.L-1,Math.min(P.L+2,L)),keys=v6Mix(Object.assign({},P,{L:lv}));
   rp.s.w6st.enc[p]=(rp.s.w6st.enc[p]||0)+1;rp.path=null;rp.held=null;
-  rpBattle(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||W6_THEME[p]||'meadow',first});if(rp.bt)rp.bt.v6=1}
+  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||W6_THEME[p]||'meadow',first,title:P.n||'A fight'})}
 /* walking into something solid: bump links (the tower), and the things on the maps */
 function w6Bump(x,y){const s=rp.s,p=s.w6,c=(rp.grid[y]||[])[x];
   const L=w6LinkAt(p,x,y,'bump');if(L){w6Follow(L);return true}

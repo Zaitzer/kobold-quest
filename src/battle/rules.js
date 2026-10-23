@@ -119,7 +119,7 @@ function tcActCost(u,act){
   if(act.k==='atk'&&v6u(u))return v6AtkCost(u);
   if(act.k==='atk'){const TW=rpTW(tcW(u));return TW.h?2:(TW.q||tcStat(u).quick)?1:'end'}
   if(act.k==='sk')return(RP_ST[act.sk]||{ap:'end'}).ap;
-  if(act.k==='it'||act.k==='leave'||act.k==='together')return 1;
+  if(act.k==='it'||act.k==='leave'||act.k==='together'||act.k==='revive')return 1;
   return'end';
 }
 function tcCanPay(u,c){return c==='end'?u.ap>=1:u.ap>=c}
