@@ -55,3 +55,10 @@ scp root@1.2.3.4:/var/lib/kobold-quest/world.json .
 ```
 
 Logs: `ssh root@1.2.3.4 journalctl -u kobold-quest -n 50`
+
+## Automatic updates (how joakimskar.no runs)
+
+The server was set up with `cloud-init.yaml`, which runs `bootstrap.sh`: it clones this repo and installs `kq-update`
+(`kq-update.sh`), which a timer runs every 2 minutes. When `main` has a commit that is not installed yet, it installs
+`release/` (`release/install.sh`). An install that fails is tried again 2 minutes later. To see what it did:
+`ssh root@62.238.56.52 journalctl -u kq-update -n 50`; to run it by hand: `ssh root@62.238.56.52 kq-update --force`.

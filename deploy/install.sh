@@ -5,8 +5,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 echo "== packages"
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq nodejs caddy ufw >/dev/null
+# only when something is missing: apt on every update was the most likely thing to fail
+command -v node >/dev/null && command -v caddy >/dev/null && command -v ufw >/dev/null || { apt-get update -qq; apt-get install -y -qq nodejs caddy ufw >/dev/null; }
+echo "== updater"
+# refresh the 2-minute updater when this server has one (written beside and moved in, since it may be the script running us)
+if [ -f /usr/local/bin/kq-update ]; then cp kq-update.sh /usr/local/bin/kq-update.new && chmod 755 /usr/local/bin/kq-update.new && mv /usr/local/bin/kq-update.new /usr/local/bin/kq-update; fi
 echo "== drawings"
 # Joakim's sprite sheets live in the repo's art/v6; copy the drawn ones into the website (skipped when installing from a tarball)
 [ -d ../art/v6 ] && node server/art.js ../art/v6 server/public/art || true
