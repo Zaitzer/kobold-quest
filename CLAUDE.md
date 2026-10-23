@@ -8,8 +8,9 @@ brief, the build/deploy steps and the gotchas. Then `docs/ROADMAP.md` and `docs/
   and republish the Claude page after new art arrives.
 - The story source of truth is `docs/story-hatching.md` (v6). The game still plays the older story until the rebuild.
 - Read ARCHITECTURE.md before changing code. After moving code between modules run `node tools/imports.js`.
-- Before every push: `npm i && (cd server && npm i)`, then `node test/run.js` must pass (about 3 minutes; `node test/run.js quick`
-  skips the browser scenarios and takes 20 seconds, fine for changes that don't touch screens or styles), then `node tools/package.js`.
+- Before every push: `npm i && (cd server && npm i)`, then the tests: `node test/run.js quick` (about 50 s, no browsers) for logic-only
+  changes, `node test/run.js` (about 4 min) when screens or styles change, `node test/run.js full` (all eight story classes) before a
+  release; `node test/run.js <word>` runs just the matching tests. Then `node tools/package.js`.
 - Deploying = committing `release/` to `main`. The live server (joakimskar.no) pulls every 2 minutes.
   Check it went live with https://joakimskar.no/status (its `build` field matches `release/server/BUILD`).
 - The same code also builds the Claude artifact page (dist/kobold-quest.html), published at

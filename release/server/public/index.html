@@ -2123,7 +2123,26 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     return out;
   }
+  var statsMemo = /* @__PURE__ */ new WeakMap();
+  function statsSig(m) {
+    let g = "", G = m.gear;
+    if (G) for (let k in G) {
+      let x = G[k];
+      x && (g += k + ":" + x.tier + (x.v || "") + (x.fam || "") + (x.slot || "") + (x.aff ? x.aff.join("+") : "") + (x.set || "") + (x.uniq || "") + ";");
+    }
+    let sc = "";
+    for (let k in m.scores) sc += m.scores[k] + ",";
+    let s0 = "";
+    if (m.start) for (let k in m.start) s0 += m.start[k] + ",";
+    return m.cls + "|" + m.lvl + "|" + sc + "|" + s0 + "|" + (m.passives ? m.passives.join("+") : "") + "|" + g + "|" + (m.luck || 0) + "|" + (m.corr || 0);
+  }
   function v6Stats(m) {
+    let sig = statsSig(m), c = statsMemo.get(m);
+    if (c && c.sig === sig) return c.S;
+    let S = v6StatsCalc(m);
+    return statsMemo.set(m, { sig, S }), S;
+  }
+  function v6StatsCalc(m) {
     let C = CLASSES6[m.cls], L = m.lvl, sc = m.scores, st0 = m.start || v6StartScores(m.cls), G = v6Gear(m), X = v6GearExtras(m), P = {};
     for (let n of m.passives || []) {
       let d = (PASSIVES6[m.cls] || []).find((x) => x.n === n);
@@ -5087,7 +5106,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T12:31:39Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin, role: m.role || null, motd: m.motd || null, festival: m.festival || null, warns: m.warns || [], mute: m.mute || 0 }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T12:54:20Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0), account.onServer && account.onServer(m);
           break;
         }
         case "autherr":
@@ -6187,7 +6206,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
 
   // src/net/battle.js
-  var NET_TURN_MS = 2e4;
+  var NET_TURN_MS = 2e4, NET_LOST_MS = 8e3, turnMs = () => NET_TURN_MS, lostMs = () => NET_LOST_MS;
   function netClean6E(E) {
     let o = {};
     for (let [k, v2] of Object.entries(E)) (typeof v2 == "number" || typeof v2 == "boolean" || typeof v2 == "string" && v2.length < 80 || v2 && typeof v2 == "object" && JSON.stringify(v2).length < 2e3) && (o[k] = v2);
@@ -6273,7 +6292,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let now = performance.now();
     b.net.startMsg && !b.net.ready && now - b.net.startT > 1500 && now - b.net.startT0 < 3e4 && (netEmit(b.net.startMsg), b.net.startT = now);
     let sig = netSnapSig(b);
-    (sig !== net.snapSig && now - net.snapT > 180 || now - net.snapT > 1500) && (net.snapSig = sig, net.snapT = now, netSendSnap(b)), net.room && net.room.peers().some((p) => p.peer === b.net.peer) ? b.net.lost = 0 : b.net.lost || (b.net.lost = now), b.net.lost && now - b.net.lost > 8e3 && !b.net.ai && (b.net.ai = 1, b.v6 ? (b.units.forEach((u2) => {
+    (sig !== net.snapSig && now - net.snapT > 180 || now - net.snapT > 1500) && (net.snapSig = sig, net.snapT = now, netSendSnap(b)), net.room && net.room.peers().some((p) => p.peer === b.net.peer) ? b.net.lost = 0 : b.net.lost || (b.net.lost = now), b.net.lost && now - b.net.lost > lostMs() && !b.net.ai && (b.net.ai = 1, b.v6 ? (b.units.forEach((u2) => {
       u2.ctl === "remote" && (u2.ctl = "guard");
     }), rpToast(netName() + " left; their kobolds guard until the fight ends."), b.phase === "remote" && b.cur && (b.cur.guard = 1, tcEndTurn())) : (b.units.forEach((u2) => {
       u2.ctl === "remote" && (u2.ctl = "ai");
@@ -6281,7 +6300,7 @@ button,.rpb,.pill{touch-action:manipulation}
     let u = b.cur;
     if (b.v6 && !b.duel && !b.net.ai && u && u.side === 0 && (b.phase === "turn" || b.phase === "remote") && !b.seq.length && b.turnT) {
       let age = now - b.turnT;
-      age > NET_TURN_MS - 5e3 && !b.warned && (b.warned = 1, u.ctl === "me" && (rpToast("5 seconds left!"), rpBuzz([20, 40, 20]))), age > NET_TURN_MS && (u.guard = 1, b.msg = u.name + " waited too long and guards.", tcFloatU(u, "guard", "#9ad0ff"), b.pend = null, tcEndTurn());
+      age > turnMs() * 0.75 && !b.warned && (b.warned = 1, u.ctl === "me" && (rpToast("5 seconds left!"), rpBuzz([20, 40, 20]))), age > turnMs() && (u.guard = 1, b.msg = u.name + " waited too long and guards.", tcFloatU(u, "guard", "#9ad0ff"), b.pend = null, tcEndTurn());
     }
   }
   function netSendSnap(b) {
@@ -6754,7 +6773,7 @@ button,.rpb,.pill{touch-action:manipulation}
     switch (ADM.tab) {
       case "server": {
         let S = D.status;
-        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T12:31:39Z" ? " (this page: " + esc2("2026-10-23T12:31:39Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
+        h += '<div class="who">Server</div>' + (S ? "<p>Build <b>" + esc2(S.build) + "</b>" + (S.build !== "2026-10-23T12:54:20Z" ? " (this page: " + esc2("2026-10-23T12:54:20Z") + ")" : "") + " · up " + Math.round(S.up / 3600) + " h · " + S.online + " online · " + S.accounts + " accounts · data " + Math.round(S.size / 1024) + " KB · last backup " + esc2(S.backup || "none") + (S.maint ? ' · <b class="hp">maintenance on</b>' : "") + "</p>" : "<p>Loading…</p>") + "</div>", owner() && (h += '<div class="rpdlg"><small>Message of the day' + (S && S.motd ? ": " + esc2(S.motd) : "") + "</small></div>" + input("adm-motd", "A line shown once at login (empty clears it)") + '<div class="rpcmd">' + btn("admmotd", "Set the message of the day") + "</div>"), h += input("adm-ann", "A message to everyone online now") + '<div class="rpcmd">' + btn("admann", "Announce", "a toast for everyone online") + "</div>", owner() && (h += '<div class="rpcmd">' + (S && S.maint ? btn("admmaint", "Maintenance off", "logins open again", "go", { v: 0 }) : btn("admmaint", "Maintenance on", "blocks logins; signs players out in 2 minutes", "x", { v: 1 })) + '</div><div class="rpdlg"><small>Moderators: ' + esc2((D.mods || []).join(", ") || "none") + "</small></div>" + input("adm-who", "Account name") + '<div class="rpcmd">' + btn("admmod", "Make moderator", "", "", { op: "add" }) + btn("admmod", "Remove moderator", "", "x", { op: "del" }) + "</div>");
         break;
       }
       case "players": {
@@ -6874,7 +6893,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   var errN = 0, errSeen = /* @__PURE__ */ new Set();
   function adminReportError(msg, where) {
-    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T12:31:39Z" })));
+    !online || !online.account.loggedIn || errN >= 10 || (msg = String(msg || "").slice(0, 300), !(!msg || errSeen.has(msg)) && (errSeen.add(msg), errN++, online.account.send({ k: "err", msg, where: String(where || "").slice(0, 120), build: "2026-10-23T12:54:20Z" })));
   }
   async function adminReport(peer) {
     if (!(!online || !online.account.loggedIn))
@@ -7751,6 +7770,10 @@ button,.rpb,.pill{touch-action:manipulation}
     return keys;
   }
   function v6FoeStat(u) {
+    let F = u._fs;
+    return F && F.atk === u.atk && F.def === u.def && F.spd === u.spd && F.hp === u.max ? F : u._fs = v6FoeStat0(u);
+  }
+  function v6FoeStat0(u) {
     let E = u.E;
     return {
       atk: u.atk,

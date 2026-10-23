@@ -33,7 +33,8 @@ function v6FoeKey(id,L){const F=FOES6[id];if(!F)return null;L=Math.max(F.lv[0],M
 function v6Mix(place,rnd){rnd=rnd||Math.random;const P=typeof place==='number'?PLACES6[place]:place,keys=[];let sum=0;
   for(let tries=0;tries<40&&sum<P.target*0.95&&keys.length<6;tries++){const id=P.pool[(rnd()*P.pool.length)|0],k=v6FoeKey(id,P.L),w=RP_E[k].w6;
     if(sum+w>P.target*1.10&&keys.length>=3)continue;keys.push(k);sum+=w}return keys}
-function v6FoeStat(u){const E=u.E;return{atk:u.atk,spa:u.atk,def:u.def,sd:E.sd,spd:u.spd,hp:u.max,mp:0,crit:.08,critD:1.5,beta:1,dodge:E.dodge,res:E.res,init:E.init,
+function v6FoeStat(u){const F=u._fs;if(F&&F.atk===u.atk&&F.def===u.def&&F.spd===u.spd&&F.hp===u.max)return F;return u._fs=v6FoeStat0(u)}   /* kept on the unit: read many times a turn */
+function v6FoeStat0(u){const E=u.E;return{atk:u.atk,spa:u.atk,def:u.def,sd:E.sd,spd:u.spd,hp:u.max,mp:0,crit:.08,critD:1.5,beta:1,dodge:E.dodge,res:E.res,init:E.init,
   move:E.move,steady:E.ranged?6:4,magic:!!E.caster,acc:0,luck:E.luck||0,threat:1,sight:0,stealth:0,v6:1}}
 
 /* ---------------------------------------------------------------- what kind of attack this is */
@@ -306,4 +307,4 @@ feature({id:'fightlab',init(){v6RegisterSkills()},
   actions:{lab:()=>{rp.mode='lab'},labclose:()=>{rp.mode='menu'},labgo:()=>{v6LabRead();v6LabStart()},labmake:()=>{v6LabRead();v6LabKobolds()},labwalk:()=>{v6LabRead();const ks=v6LabKobolds().filter(Boolean);ks.forEach(m=>{const st=v6Stats(m);m.hp=st.hp;m.mp=st.mp});w6Start(ks)}}});
 function v6LabRead(){const g=id=>{const e=typeof document!=='undefined'&&document.getElementById(id);return e?e.value:null};
   for(let i=0;i<4;i++){const v=g('lab-p'+i);if(v!=null)v6Lab.pack[i]=v||null}const l=g('lab-l'),p=g('lab-pl'),th=g('lab-th');if(th!=null)v6Lab.theme=th;if(l)v6Lab.lvl=+l;if(p!=null&&p!=='')v6Lab.place=/^[bt]:/.test(p)?p:+p}
-export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Revive,v6ReviveOK,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};
+export {V6_FOE_ST,V6_ROLE_LOOK,V6_WEAK,v6AiTurn,v6AtkCost,v6BossKey,v6BossTurn,v6BossWalk,v6Buff,v6Crit,v6DmgRange,v6DoSkill,v6EliteKey,v6Focus,v6FoeHitStatus,v6FoeKey,v6FoeStat,v6FoeStat0,v6FoeStatusP,v6Habit,v6HabitFocus,v6Has,v6HealMul,v6Hit,v6InReach,v6Kind,v6Lab,v6LabHtml,v6LabKobolds,v6LabRead,v6LabStart,v6Land,v6Lead,v6LeadMul,v6LegalTiles,v6Light,v6Lvl,v6Mix,v6Move,v6OnFell,v6OnTile,v6PackMorale,v6PairKey,v6PlaceTheme,v6PosHabit,v6Queue,v6RankMul,v6RegisterSkills,v6Revive,v6ReviveOK,v6Seat,v6Soft,v6Spawn,v6Status,v6StdHp,v6Strike,v6TileSkill,v6Together,v6TogetherOpts,v6TrialKey,v6TurnStart,v6Upcoming,v6u};

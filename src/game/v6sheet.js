@@ -48,7 +48,14 @@ function v6Gear(m){const out={atk:0,def:0,hp:0,spd:0,mana:0,wpow:0,magic:false,s
       out.steady=Array.isArray(F.steady)?F.steady[g.tier]:(F.steady||5);continue}
     const row=(GEAR6[g.slot||k]||{})[g.v||'plain']||GEAR6[g.slot||k].plain;const p=row&&row[g.tier];if(!p)continue;for(const [s,v] of Object.entries(p.st))out[s==='mana'?'mana':s]+=v}
   return out}
-function v6Stats(m){
+/* the sheet is asked for very often (the AI scores every tile against every unit), so it is kept per kobold and worked out again
+   only when something it depends on changes: class, level, scores, starting scores, passives, gear, luck, corruption */
+const statsMemo=new WeakMap();
+function statsSig(m){let g='';const G=m.gear;if(G)for(const k in G){const x=G[k];if(x)g+=k+':'+x.tier+(x.v||'')+(x.fam||'')+(x.slot||'')+(x.aff?x.aff.join('+'):'')+(x.set||'')+(x.uniq||'')+';'}
+  let sc='';for(const k in m.scores)sc+=m.scores[k]+',';let s0='';if(m.start)for(const k in m.start)s0+=m.start[k]+',';
+  return m.cls+'|'+m.lvl+'|'+sc+'|'+s0+'|'+(m.passives?m.passives.join('+'):'')+'|'+g+'|'+(m.luck||0)+'|'+(m.corr||0)}
+function v6Stats(m){const sig=statsSig(m),c=statsMemo.get(m);if(c&&c.sig===sig)return c.S;const S=v6StatsCalc(m);statsMemo.set(m,{sig,S});return S}   /* shared: callers read it, never write it */
+function v6StatsCalc(m){
   const C=CLASSES6[m.cls],L=m.lvl,sc=m.scores,st0=m.start||v6StartScores(m.cls),G=v6Gear(m),X=v6GearExtras(m);   // X: bonuses, sets, uniques (items6.js)
   const P={};for(const n of m.passives||[]){const d=(PASSIVES6[m.cls]||[]).find(x=>x.n===n);if(d)for(const [k,v] of Object.entries(d.fx))P[k]=(P[k]||0)+v}
   const mod=k=>k==='mbar'?mbar(sc):modOf(sc[k]),grow=k=>k==='mbar'?mbar(sc)-mbar(st0):modOf(sc[k])-modOf(st0[k]);
@@ -74,4 +81,4 @@ function v6Stats(m){
     sight:0,stealth:0,rage:0,mov:0};
   if(m.cls==='monk')S.kiMul=0.5+S.balance;
   return S}
-export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6TierFor};
+export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};

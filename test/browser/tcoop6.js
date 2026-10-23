@@ -5,7 +5,7 @@ const {chromium}=require('playwright');const mock=require('./netmock.js');const 
 const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
 (async()=>{const br=await chromium.launch();const pages=[],out={push:x=>console.log(x)},bad=[];
  const mk=async by=>{const ctx=await br.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:1});const p=await ctx.newPage();
-   p.errs=[];p.on('pageerror',e=>p.errs.push(by+': '+e.message+' '+(e.stack||'').split('\n')[1]));
+   p.errs=[];await p.addInitScript(()=>{window.__kqTurnMs=4000;window.__kqLostMs=2000});p.on('pageerror',e=>p.errs.push(by+': '+e.message+' '+(e.stack||'').split('\n')[1]));
    await p.exposeBinding('__relay',async(src,m)=>{if(m.k==='dbget')return null;if(m.k==='dbcol')return[];if(m.k==='dbset'||m.k==='dbdel'||m.k==='dbupd'||m.k==='dbacq')return true;
      for(const q of pages)if(q!==p&&!q.isClosed())q.evaluate(x=>window.__mockRecv&&window.__mockRecv(x),m).catch(()=>{})});
    await p.addInitScript(mock(by));await p.addInitScript(()=>{try{localStorage.setItem('kobold-pit-rpopt',JSON.stringify({}));sessionStorage.setItem('kobold-pit-booted','1')}catch(e){}});
@@ -54,9 +54,9 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  await A.evaluate(()=>__rpB.btn({tac:'start'}));
  t0=Date.now();let waited=null;
  while(Date.now()-t0<90000){await play(A);const st=await A.evaluate(()=>({ph:__rp.bt&&__rp.bt.phase,ctl:__rp.bt&&__rp.bt.cur&&__rp.bt.cur.ctl,over:__rp.bt&&__rp.bt.over}));if(st.over)break;
-   if(st.ph==='remote'){const t1=Date.now();while(Date.now()-t1<26000){const c=await A.evaluate(()=>__rp.bt&&__rp.bt.phase==='remote'&&__rp.bt.cur&&__rp.bt.cur.ctl==='remote');if(!c)break;await A.waitForTimeout(500)}waited=(Date.now()-t1)/1000;break}
+   if(st.ph==='remote'){const t1=Date.now();while(Date.now()-t1<9000){const c=await A.evaluate(()=>__rp.bt&&__rp.bt.phase==='remote'&&__rp.bt.cur&&__rp.bt.cur.ctl==='remote');if(!c)break;await A.waitForTimeout(500)}waited=(Date.now()-t1)/1000;break}
    await A.waitForTimeout(200)}
- out.push('Bob\'s turn ended after '+waited+' s');check(waited!=null&&waited>15&&waited<25,'the 20-second timer ends an idle turn');
+ out.push('Bob\'s turn ended after '+waited+' s');check(waited!=null&&waited>3&&waited<6,'the turn timer (20 s, 4 s in the test) ends an idle turn');
  await B.close();pages.splice(pages.indexOf(B),1);
  /* the mock has no "gone" message for a closed page: tell Alice's room Bob is gone */
  await A.evaluate(()=>{const P=__net.others&&__net.others[0];if(P)window.__mockRecv({k:'gone',peer:P.peer})});

@@ -113,8 +113,10 @@ sensitivity, the character sheet, the monk).
 npm i && (cd server && npm i)
 node tools/imports.js        # after moving code between modules (rewrites import/export lines)
 node tools/build.js          # dist/kobold-quest.html (Claude page), dist/kq_test.html (test hooks)
-node test/run.js quick       # 20 s: logic, story, saves, balance sims. Fine for changes that don't touch screens
-node test/run.js             # ~3 min: everything, incl. browser scenarios (run three at a time)
+node test/run.js quick       # ~50 s: logic, the story with one class, saves, battle sims. Fine for changes that don't touch screens
+node test/run.js             # ~4 min: plus the browser scenarios, the story with two classes (all jobs side by side, slowest first)
+node test/run.js full        # before a release: the story with all eight classes and the old slice sim
+node test/run.js coop6       # just the tests whose names contain the word
 node tools/package.js        # refresh release/ (what the server runs)
 git pull --rebase origin main && git add -A && git commit && git push   # = deploy; live in ~2 min
 ```

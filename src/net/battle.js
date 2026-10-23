@@ -21,7 +21,9 @@ import {s6SharedWin} from '../game/story6.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
 import {netCleanParty,netLobFix,netLobSend,netParty} from './lobby.js';
 import {rpUI} from '../ui/hud.js';
-const NET_TURN_MS=20000;
+const NET_TURN_MS=20000,NET_LOST_MS=8000;
+/* the tests shorten the waits (window.__kqTurnMs, __kqLostMs in the test build); the game uses the design's */
+const turnMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqTurnMs)||NET_TURN_MS,lostMs=()=>(typeof TEST!=='undefined'&&TEST&&typeof window!=='undefined'&&window.__kqLostMs)||NET_LOST_MS;
 /* a v6 foe's entry sent with the start (v6 keys are made at run time): numbers and short strings only */
 function netClean6E(E){const o={};for(const [k,v] of Object.entries(E))if(typeof v==='number'||typeof v==='boolean'||(typeof v==='string'&&v.length<80)||(v&&typeof v==='object'&&JSON.stringify(v).length<2000))o[k]=v;o.v6=1;o.n=String(E.n||'Foe').slice(0,30);return o}
 function netUnitIdx(b,u){return b.units.indexOf(u)}
@@ -62,14 +64,14 @@ function netHostFrame(b,dt){
   /* the friend vanished: their kobolds fight on by themselves */
   const here=net.room&&net.room.peers().some(p=>p.peer===b.net.peer);
   if(here)b.net.lost=0;else if(!b.net.lost)b.net.lost=now;
-  if(b.net.lost&&now-b.net.lost>8000&&!b.net.ai){b.net.ai=1;
+  if(b.net.lost&&now-b.net.lost>lostMs()&&!b.net.ai){b.net.ai=1;
     /* v6 (systems.md §12): a player who leaves mid-fight leaves their kobolds guarding until the fight ends */
     if(b.v6){b.units.forEach(u=>{if(u.ctl==='remote')u.ctl='guard'});rpToast(netName()+' left; their kobolds guard until the fight ends.');if(b.phase==='remote'&&b.cur){b.cur.guard=1;tcEndTurn()}}
     else{b.units.forEach(u=>{if(u.ctl==='remote')u.ctl='ai'});rpToast(netName()+' lost connection; their kobolds fight on their own.');if(b.phase==='remote'&&b.cur){b.phase='ai';rpAiTurn(b.cur)}}}
   /* the turn timer (systems.md §12): 20 seconds a turn in a shared fight, then the kobold guards; a warning at 15 */
   const u=b.cur;if(b.v6&&!b.duel&&!b.net.ai&&u&&u.side===0&&(b.phase==='turn'||b.phase==='remote')&&!b.seq.length&&b.turnT){const age=now-b.turnT;
-    if(age>NET_TURN_MS-5000&&!b.warned){b.warned=1;if(u.ctl==='me'){rpToast('5 seconds left!');rpBuzz([20,40,20])}}
-    if(age>NET_TURN_MS){u.guard=1;b.msg=u.name+' waited too long and guards.';tcFloatU(u,'guard','#9ad0ff');b.pend=null;tcEndTurn()}}
+    if(age>turnMs()*.75&&!b.warned){b.warned=1;if(u.ctl==='me'){rpToast('5 seconds left!');rpBuzz([20,40,20])}}
+    if(age>turnMs()){u.guard=1;b.msg=u.name+' waited too long and guards.';tcFloatU(u,'guard','#9ad0ff');b.pend=null;tcEndTurn()}}
 }
 function netSendSnap(b){
   const fx=net.fx.splice(0,40);
@@ -152,4 +154,4 @@ feature({id:'net-battle-io',
     duelok(d,msg){const b=rp.bt,L=net.lob;if(L&&L.host&&L.duel&&L.id===d.id&&!L.g){{const gp=netCleanParty(d.party);L.g={peer:msg.peer,by:msg.by,party:gp,sel:[Math.max(0,gp.findIndex(m=>m.hp>0))]}}netLobFix(L,'g');netLobSend();rp.sig=''}}},
   actions:{
     'net:duel'(d){netDuelAsk()}}});
-export {NET_TURN_MS,netApplySnap,netBuildMirror,netClean6E,netDuelAccept,netDuelAsk,netFx,netGuestEnd,netGuestFrame,netHostAct,netHostFrame,netOver,netSendAct,netSendSnap,netSendStart,netSerAct,netSnapSig,netUnitIdx};
+export {NET_LOST_MS,NET_TURN_MS,lostMs,netApplySnap,netBuildMirror,netClean6E,netDuelAccept,netDuelAsk,netFx,netGuestEnd,netGuestFrame,netHostAct,netHostFrame,netOver,netSendAct,netSendSnap,netSendStart,netSerAct,netSnapSig,netUnitIdx,turnMs};
