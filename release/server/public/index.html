@@ -720,30 +720,30 @@ button,.rpb,.pill{touch-action:manipulation}
     return rt.name + (to.length ? " · to " + to.join(" and ") : "");
   }
   function nameRoutes() {
-    let C = REGION[0].length, Rn = REGION.length, id = /* @__PURE__ */ new Map(), list = [], key = (c, r) => c + "," + r, nameOf = (ch) => isTown(ch) ? TOWNS[ch].name : "Burrowhome", seen2 = /* @__PURE__ */ new Set(["3,2", "0,2"]), q = [[3, 2], [0, 2]];
+    let C = REGION[0].length, Rn = REGION.length, id = /* @__PURE__ */ new Map(), list = [], key2 = (c, r) => c + "," + r, nameOf = (ch) => isTown(ch) ? TOWNS[ch].name : "Burrowhome", seen2 = /* @__PURE__ */ new Set(["3,2", "0,2"]), q = [[3, 2], [0, 2]];
     for (let h = 0; h < q.length; h++) {
       let [c, r] = q[h];
       for (let [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
         let nc = c + dc, nr = r + dr, ch = cellAt(nc, nr);
-        if (!(!isOpen(ch) || seen2.has(key(nc, nr)))) {
-          if (isRoute(ch) && !id.has(key(nc, nr))) {
+        if (!(!isOpen(ch) || seen2.has(key2(nc, nr)))) {
+          if (isRoute(ch) && !id.has(key2(nc, nr))) {
             let rt = { name: "Route " + (list.length + 1), ends: [], cells: [], kinds: {} };
             list.push(rt);
             let st = [[nc, nr]];
-            for (id.set(key(nc, nr), rt); st.length; ) {
+            for (id.set(key2(nc, nr), rt); st.length; ) {
               let [a, b] = st.pop();
               rt.cells.push([a, b]), rt.kinds[cellAt(a, b)] = (rt.kinds[cellAt(a, b)] || 0) + 1;
               for (let [ec, er] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
                 let xc = a + ec, xr = b + er, c2 = cellAt(xc, xr);
-                isRoute(c2) && !id.has(key(xc, xr)) ? (id.set(key(xc, xr), rt), st.push([xc, xr])) : (isTown(c2) || c2 === "o") && !rt.ends.includes(nameOf(c2)) && rt.ends.push(nameOf(c2));
+                isRoute(c2) && !id.has(key2(xc, xr)) ? (id.set(key2(xc, xr), rt), st.push([xc, xr])) : (isTown(c2) || c2 === "o") && !rt.ends.includes(nameOf(c2)) && rt.ends.push(nameOf(c2));
               }
             }
           }
-          seen2.add(key(nc, nr)), q.push([nc, nr]);
+          seen2.add(key2(nc, nr)), q.push([nc, nr]);
         }
       }
     }
-    return { list, of: (c, r) => id.get(key(c, r)) || null };
+    return { list, of: (c, r) => id.get(key2(c, r)) || null };
   }
   function makeTown(G, L, b, signs, houses) {
     let T = TOWNS[L], x0 = b.c0 * CELL, y0 = b.r0 * CELL, x1 = b.c1 * CELL + CELL - 1, y1 = b.r1 * CELL + CELL - 1, cx = x0 + x1 >> 1, cy = y0 + y1 >> 1, s = SEED + L.charCodeAt(0) * 31, set = (x, y, c) => {
@@ -1388,94 +1388,22 @@ button,.rpb,.pill{touch-action:manipulation}
         return null;
       }
     },
-    get(key, fallback) {
+    get(key2, fallback) {
       try {
-        let v = this.raw().getItem(key);
+        let v = this.raw().getItem(key2);
         return v == null ? fallback : JSON.parse(v);
       } catch {
         return fallback;
       }
     },
-    set(key, val2) {
+    set(key2, val2) {
       try {
-        return this.raw().setItem(key, JSON.stringify(val2)), !0;
+        return this.raw().setItem(key2, JSON.stringify(val2)), !0;
       } catch {
         return !1;
       }
     }
   };
-
-  // src/core/save6.js
-  var SAVE6_VERSION = 1, SAVE6_EPOCH = 2, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass"];
-  function v6NewSave(opt) {
-    opt = opt || {};
-    let name = v6HeroName(opt.name) || "Pip";
-    return {
-      v: SAVE6_VERSION,
-      epoch: SAVE6_EPOCH,
-      created: opt.now || 0,
-      savedAt: 0,
-      played: 0,
-      hero: { name, colour: opt.colour || "orange", renamed: !1 },
-      q: { act: 0 },
-      seals: [],
-      // the story's flags (act, pb, grubb, miner_*, side quests, bounties); seals: the Smiler pieces (the old key)
-      party: [],
-      roster: [],
-      // the pack (the old key) and every companion who has joined; kobolds as KOBOLD_KEYS
-      gold: 0,
-      bag: {},
-      buns: 3,
-      inv: [],
-      // gold, consumables, the backpack; ember-buns left (three in the whole game)
-      fountains: [],
-      stables: [],
-      respawn: null,
-      // fountains drunk from, stables visited, where a loss sends you
-      bossDefeats: {},
-      chests: [],
-      patrols: 0,
-      fame: 0,
-      // softening, chests opened, patrols beaten since the last rest, fame
-      place: { map: "hearthspire", x: 0, y: 0, face: "down" }
-    };
-  }
-  function v6HeroName(n) {
-    return n = String(n || "").trim(), /^[A-Za-zÆØÅæøåÄÖÜäöüé' -]{2,12}$/.test(n) ? n : null;
-  }
-  function v6PackKobold(m) {
-    let o = {};
-    for (let k of KOBOLD_KEYS) m[k] !== void 0 && (o[k] = JSON.parse(JSON.stringify(m[k])));
-    return o;
-  }
-  function v6SaveOf(s) {
-    let o = JSON.parse(JSON.stringify(Object.assign({}, s, { party: [], roster: [] })));
-    return o.party = (s.party || []).map(v6PackKobold), o.roster = (s.roster || []).map(v6PackKobold), o.v = SAVE6_VERSION, o.epoch = SAVE6_EPOCH, o;
-  }
-  var MIGRATIONS6 = {};
-  function v6Load(o) {
-    if (!o || typeof o != "object" || o.legacy) return null;
-    for (o = JSON.parse(JSON.stringify(o)), o.v = o.v || 1; o.v < SAVE6_VERSION; ) {
-      let f = MIGRATIONS6[o.v];
-      if (!f) return null;
-      f(o), o.v++;
-    }
-    if (o.v !== SAVE6_VERSION || (o.epoch || 0) < SAVE6_EPOCH) return null;
-    let d = v6NewSave({ name: o.hero && o.hero.name });
-    for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
-    return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
-  }
-  var key6 = (acct, slot) => "kq6:" + (acct || "guest") + ":" + slot;
-  function v6Store(acct, slot, s) {
-    return slot < 0 || slot >= SLOTS6 ? !1 : (s.savedAt = Date.now(), store.set(key6(acct, slot), v6SaveOf(s)), !0);
-  }
-  function v6Fetch(acct, slot) {
-    try {
-      return v6Load(store.get(key6(acct, slot), null));
-    } catch {
-      return null;
-    }
-  }
 
   // src/core/save.js
   var SAVE_KEY = "kobold-pit-rpg", SAVE_VERSION = 2, SAVE_EPOCH = 1, saveKey = SAVE_KEY;
@@ -1525,7 +1453,7 @@ button,.rpb,.pill{touch-action:manipulation}
   function rpSave() {
     if (!rp.headless) {
       if (rp.s && rp.s.w6) {
-        v6Store("guest", 0, rp.s), emit("save", rp.s);
+        emit("save6", rp.s);
         return;
       }
       rp.s.savedAt = Date.now(), rp.s.epoch = SAVE_EPOCH, store.set(saveKey, rp.s), emit("save", rp.s);
@@ -1828,21 +1756,21 @@ button,.rpb,.pill{touch-action:manipulation}
   function v6CanWear(m, it) {
     return it.k !== "gear" ? !1 : it.slot === "weapon" ? it.fam === CLASSES6[m.cls].fam : !(it.v !== "plain" && V6_VARIANT[m.cls] !== it.v);
   }
-  function v6Equip6(m, id, key) {
+  function v6Equip6(m, id, key2) {
     let i = inv().findIndex((x) => x.id === id);
     if (i < 0) return !1;
     let it = inv()[i];
-    if (!v6CanWear(m, it) || (key = key || (it.slot === "ring" ? m.gear.ring1 ? m.gear.ring2 ? "ring1" : "ring2" : "ring1" : it.slot), slotOf(key) !== it.slot)) return !1;
+    if (!v6CanWear(m, it) || (key2 = key2 || (it.slot === "ring" ? m.gear.ring1 ? m.gear.ring2 ? "ring1" : "ring2" : "ring1" : it.slot), slotOf(key2) !== it.slot)) return !1;
     inv().splice(i, 1);
-    let old = m.gear[key];
-    return old && (old.id || (old.id = "i" + uid++), old.n || (old.n = v6PieceName(old, key)), old.k = "gear", old.slot = slotOf(key), inv().push(old)), m.gear[key] = it, !0;
+    let old = m.gear[key2];
+    return old && (old.id || (old.id = "i" + uid++), old.n || (old.n = v6PieceName(old, key2)), old.k = "gear", old.slot = slotOf(key2), inv().push(old)), m.gear[key2] = it, !0;
   }
-  function v6Unequip(m, key) {
-    let g = m.gear[key];
-    return !g || key === "weapon" ? !1 : (g.id || (g.id = "i" + uid++), g.k = "gear", g.slot = slotOf(key), g.n || (g.n = v6PieceName(g, key)), inv().push(g), delete m.gear[key], !0);
+  function v6Unequip(m, key2) {
+    let g = m.gear[key2];
+    return !g || key2 === "weapon" ? !1 : (g.id || (g.id = "i" + uid++), g.k = "gear", g.slot = slotOf(key2), g.n || (g.n = v6PieceName(g, key2)), inv().push(g), delete m.gear[key2], !0);
   }
-  function v6PieceName(g, key) {
-    let s = slotOf(key);
+  function v6PieceName(g, key2) {
+    let s = slotOf(key2);
     if (s === "weapon") return (WEAPONS6[g.fam] || [])[g.tier]?.n || "Weapon";
     let row = (GEAR6[s][g.v || "plain"] || GEAR6[s].plain)[g.tier];
     return row ? row.n : s;
@@ -2831,6 +2759,80 @@ button,.rpb,.pill{touch-action:manipulation}
     { z: "C", n: 10, xp: 180, g: 40, if: { lantern: 1 }, zn: "the old tunnel" }
   ];
 
+  // src/core/save6.js
+  var SAVE6_VERSION = 1, SAVE6_EPOCH = 2, SLOTS6 = 6, KOBOLD_KEYS = ["v6", "name", "cls", "lvl", "xp", "scores", "start", "passives", "gear", "skills", "known", "ranks", "sub", "dark", "bond", "streak", "corr", "luck", "pend", "hero", "lead", "hp", "mp", "colour", "cid", "noclass", "w"];
+  function v6NewSave(opt) {
+    opt = opt || {};
+    let name = v6HeroName(opt.name) || "Pip";
+    return {
+      v: SAVE6_VERSION,
+      epoch: SAVE6_EPOCH,
+      created: opt.now || 0,
+      savedAt: 0,
+      played: 0,
+      hero: { name, colour: opt.colour || "orange", renamed: !1 },
+      q: { act: 0 },
+      seals: [],
+      // the story's flags (act, pb, grubb, miner_*, side quests, bounties); seals: the Smiler pieces (the old key)
+      party: [],
+      roster: [],
+      // the pack (the old key) and every companion who has joined; kobolds as KOBOLD_KEYS
+      gold: 0,
+      bag: {},
+      buns: 3,
+      inv: [],
+      // gold, consumables, the backpack; ember-buns left (three in the whole game)
+      fountains: [],
+      stables: [],
+      respawn: null,
+      // fountains drunk from, stables visited, where a loss sends you
+      bossDefeats: {},
+      chests: [],
+      patrols: 0,
+      fame: 0,
+      // softening, chests opened, patrols beaten since the last rest, fame
+      place: { map: "hearthspire", x: 0, y: 0, face: "down" }
+    };
+  }
+  function v6HeroName(n) {
+    return n = String(n || "").trim(), /^[A-Za-zÆØÅæøåÄÖÜäöüé' -]{2,12}$/.test(n) ? n : null;
+  }
+  function v6PackKobold(m) {
+    let o = {};
+    for (let k of KOBOLD_KEYS) m[k] !== void 0 && (o[k] = JSON.parse(JSON.stringify(m[k])));
+    return o;
+  }
+  function v6SaveOf(s) {
+    let o = JSON.parse(JSON.stringify(Object.assign({}, s, { party: [], roster: [] })));
+    return o.party = (s.party || []).map(v6PackKobold), o.roster = (s.roster || []).map(v6PackKobold), o.v = SAVE6_VERSION, o.epoch = SAVE6_EPOCH, o;
+  }
+  var MIGRATIONS6 = {};
+  function v6Load(o) {
+    if (!o || typeof o != "object" || o.legacy) return null;
+    for (o = JSON.parse(JSON.stringify(o)), o.v = o.v || 1; o.v < SAVE6_VERSION; ) {
+      let f = MIGRATIONS6[o.v];
+      if (!f) return null;
+      f(o), o.v++;
+    }
+    if (o.v !== SAVE6_VERSION || (o.epoch || 0) < SAVE6_EPOCH) return null;
+    let d = v6NewSave({ name: o.hero && o.hero.name });
+    for (let k of Object.keys(d)) (o[k] === void 0 || d[k] !== null && (typeof o[k] != typeof d[k] || Array.isArray(o[k]) !== Array.isArray(d[k]))) && (o[k] = d[k]);
+    return v6HeroName(o.hero.name) || (o.hero.name = "Pip"), o.party = o.party.filter((m) => m && m.v6 && m.cls && m.lvl >= 1 && m.lvl <= 30), o.roster = o.roster.filter((m) => m && m.v6 && m.cls), o;
+  }
+  function v6Legacy(old) {
+    if (!old || typeof old != "object" || !Array.isArray(old.party) || !old.party.length) return null;
+    let p = old.party[0];
+    return { legacy: !0, name: p.name || "Pip", lvl: p.lvl || 1, pack: old.party.map((m) => m.name), gold: old.gold || 0, seals: old.seals || 0, savedAt: old.savedAt || 0, data: JSON.parse(JSON.stringify(old)) };
+  }
+  var key6 = (acct2, slot) => "kq6:" + (acct2 || "guest") + ":" + slot;
+  function v6Fetch(acct2, slot) {
+    try {
+      return v6Load(store.get(key6(acct2, slot), null));
+    } catch {
+      return null;
+    }
+  }
+
   // src/data/v6/foes.js
   var ROLES6 = { normal: { hp: 1, atk: 1, def: 1, sd: 1, dodge: 10, init: 10, move: 4, res: 0, note: "the yardstick" }, brute: { hp: 1.6, atk: 1.2, def: 1.6, sd: 1, dodge: 3, init: 8, move: 3, res: 0, note: "slow, hard to hurt, hits hard" }, quick: { hp: 0.7, atk: 0.85, def: 0.7, sd: 0.8, dodge: 22, init: 12, move: 6, res: 0, note: "hard to hit, falls fast" }, ranged: { hp: 0.8, atk: 0.9, def: 0.8, sd: 0.8, dodge: 10, init: 10, move: 4, res: 0, note: "shoots from afar (steadiness 6)" }, caster: { hp: 0.75, atk: 1.1, def: 0.6, sd: 1.6, dodge: 10, init: 10, move: 4, res: 10, note: "uses special attack; resists magic" }, elite: { hp: 2, atk: 1.25, def: 1.3, sd: 1.2, dodge: 25, init: 11, move: 4, res: 10, note: "a patrol leader: worth more" }, swarm: { hp: 0.4, atk: 0.6, def: 0.5, sd: 0.5, dodge: 15, init: 11, move: 5, res: 0, note: "comes in numbers" } }, FOES6 = { cellar_rat: { n: "Cellar rat", role: "swarm", lv: [1, 2], home: 1, where: "Mallow's cellar (set-piece)", zone: "none", uses: "—", how: "runs at the nearest kobold in twos and threes; flees at low HP", drop: "—", by: { 1: { hp: 15, atk: 7.2, def: 0.5, sd: 0.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.42, xp: 1, gold: 1 }, 2: { hp: 17, atk: 9.2, def: 1, sd: 1, dodge: 15, init: 11, move: 5, res: 0, w: 0.409, xp: 2, gold: 2 } } }, guard_recruit: { n: "Guard recruit", role: "normal", lv: [2, 3], home: 2, where: "the castle yard drill (set-piece)", zone: "none", uses: "—", how: "guards (dodge +25) when hurt; a tutorial in cover", drop: "—", by: { 2: { hp: 43, atk: 15.3, def: 2, sd: 2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 5, gold: 4 }, 3: { hp: 49, atk: 18.9, def: 2.9, sd: 2.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 6, gold: 5 } } }, nettlenose_scout: { n: "Nettlenose scout", role: "quick", lv: [3, 30], home: 5, where: "every road as the story goes on", zone: "none", uses: "unseen in tall grass", how: "ambushes from grass, hits the most hurt kobold, slips away", drop: "moss or the zone's material", by: { 3: { hp: 35, atk: 16.1, def: 2, sd: 2.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 4, gold: 4 }, 4: { hp: 65, atk: 23.2, def: 2.7, sd: 3.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.763, xp: 7, gold: 5 }, 5: { hp: 72, atk: 26.1, def: 3.4, sd: 3.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.761, xp: 10, gold: 6 }, 6: { hp: 80, atk: 26.7, def: 4, sd: 4.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.757, xp: 11, gold: 6 }, 7: { hp: 86, atk: 30.3, def: 4.7, sd: 5.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 13, gold: 7 }, 8: { hp: 92, atk: 33.2, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 132, atk: 42, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 143, atk: 44.9, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 145, atk: 47.9, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 23, gold: 10 }, 12: { hp: 157, atk: 51, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 27, gold: 11 }, 13: { hp: 165, atk: 55.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 24, gold: 12 }, 14: { hp: 172, atk: 59.7, def: 9.3, sd: 10.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 27, gold: 13 }, 15: { hp: 223, atk: 71.7, def: 10, sd: 11.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 31, gold: 13 }, 16: { hp: 230, atk: 76.3, def: 10.7, sd: 12.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 34, gold: 14 }, 17: { hp: 246, atk: 79.7, def: 11.3, sd: 13, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 37, gold: 15 }, 18: { hp: 268, atk: 83.2, def: 12, sd: 13.7, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 41, gold: 16 }, 19: { hp: 277, atk: 89, def: 12.7, sd: 14.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 45, gold: 17 }, 20: { hp: 286, atk: 94, def: 13.3, sd: 15.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 48, gold: 17 }, 21: { hp: 344, atk: 96.4, def: 14, sd: 16, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 53, gold: 18 }, 22: { hp: 365, atk: 99.7, def: 14.7, sd: 16.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 57, gold: 19 }, 23: { hp: 374, atk: 105.8, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 53, gold: 20 }, 24: { hp: 384, atk: 109.3, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 57, gold: 20 }, 25: { hp: 394, atk: 114.5, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 61, gold: 21 }, 26: { hp: 417, atk: 118.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 65, gold: 22 }, 27: { hp: 481, atk: 134.8, def: 18, sd: 20.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 69, gold: 23 }, 28: { hp: 492, atk: 142.1, def: 18.7, sd: 21.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 73, gold: 23 }, 29: { hp: 502, atk: 148.1, def: 19.3, sd: 22.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 77, gold: 24 }, 30: { hp: 539, atk: 152.1, def: 20, sd: 22.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 82, gold: 25 } } }, nettlenose_slinger: { n: "Nettlenose slinger", role: "ranged", lv: [3, 30], home: 5, where: "every road", zone: "none", uses: "—", how: "keeps 5–6 tiles away behind cover; retreats when a kobold comes close", drop: "the zone's material", by: { 3: { hp: 40, atk: 17, def: 2.3, sd: 2.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 4, gold: 4 }, 4: { hp: 74, atk: 24.6, def: 3.1, sd: 3.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.805, xp: 7, gold: 5 }, 5: { hp: 82, atk: 27.7, def: 3.8, sd: 3.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.803, xp: 10, gold: 6 }, 6: { hp: 92, atk: 28.3, def: 4.6, sd: 4.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.8, xp: 11, gold: 7 }, 7: { hp: 98, atk: 32.1, def: 5.4, sd: 5.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 14, gold: 8 }, 8: { hp: 105, atk: 35.1, def: 6.1, sd: 6.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 14, gold: 8 }, 9: { hp: 151, atk: 44.4, def: 6.9, sd: 6.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.799, xp: 17, gold: 9 }, 10: { hp: 164, atk: 47.6, def: 7.6, sd: 7.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.799, xp: 20, gold: 10 }, 11: { hp: 166, atk: 50.8, def: 8.4, sd: 8.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 24, gold: 11 }, 12: { hp: 180, atk: 54, def: 9.2, sd: 9.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 27, gold: 12 }, 13: { hp: 188, atk: 58.8, def: 9.9, sd: 9.9, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 25, gold: 13 }, 14: { hp: 196, atk: 63.2, def: 10.7, sd: 10.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 28, gold: 13 }, 15: { hp: 254, atk: 75.9, def: 11.4, sd: 11.4, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 31, gold: 14 }, 16: { hp: 263, atk: 80.8, def: 12.2, sd: 12.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 34, gold: 15 }, 17: { hp: 282, atk: 84.4, def: 13, sd: 13, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 38, gold: 16 }, 18: { hp: 307, atk: 88.1, def: 13.7, sd: 13.7, dodge: 10, init: 10, move: 4, res: 0, w: 0.798, xp: 42, gold: 17 }, 19: { hp: 317, atk: 94.2, def: 14.5, sd: 14.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 45, gold: 17 }, 20: { hp: 327, atk: 99.6, def: 15.2, sd: 15.2, dodge: 10, init: 10, move: 4, res: 0, w: 0.797, xp: 49, gold: 18 }, 21: { hp: 393, atk: 102, def: 16, sd: 16, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 53, gold: 19 }, 22: { hp: 417, atk: 105.6, def: 16.8, sd: 16.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 58, gold: 20 }, 23: { hp: 428, atk: 112.1, def: 17.5, sd: 17.5, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 54, gold: 21 }, 24: { hp: 439, atk: 115.8, def: 18.3, sd: 18.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.794, xp: 58, gold: 22 }, 25: { hp: 450, atk: 121.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 62, gold: 22 }, 26: { hp: 476, atk: 125.1, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 66, gold: 23 }, 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 }, 28: { hp: 562, atk: 150.4, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 74, gold: 25 }, 29: { hp: 574, atk: 156.8, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 78, gold: 26 }, 30: { hp: 616, atk: 161, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 83, gold: 27 } } }, snatchclaw_s_guard: { n: "Snatchclaw's guard", role: "normal", lv: [8, 30], home: 12, where: "roads, toll gates, barracks, castle", zone: "none", uses: "—", how: "shield wall: guards an ally beside it; taunts (threat ×2)", drop: "gold scrap", by: { 8: { hp: 132, atk: 39, def: 7.7, sd: 7.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 19, gold: 11 }, 9: { hp: 188, atk: 49.4, def: 8.6, sd: 8.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 22, gold: 12 }, 10: { hp: 205, atk: 52.9, def: 9.5, sd: 9.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 27, gold: 13 }, 11: { hp: 207, atk: 56.4, def: 10.5, sd: 10.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 31, gold: 14 }, 12: { hp: 225, atk: 60, def: 11.5, sd: 11.5, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 36, gold: 15 }, 13: { hp: 235, atk: 65.3, def: 12.4, sd: 12.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 32, gold: 16 }, 14: { hp: 245, atk: 70.2, def: 13.4, sd: 13.4, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 37, gold: 17 }, 15: { hp: 318, atk: 84.3, def: 14.3, sd: 14.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 41, gold: 18 }, 16: { hp: 329, atk: 89.7, def: 15.3, sd: 15.3, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 45, gold: 19 }, 17: { hp: 352, atk: 93.8, def: 16.2, sd: 16.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 50, gold: 20 }, 18: { hp: 383, atk: 97.9, def: 17.2, sd: 17.2, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 55, gold: 21 }, 19: { hp: 396, atk: 104.6, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 408, atk: 110.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 491, atk: 113.4, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 521, atk: 117.3, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 535, atk: 124.5, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 }, 24: { hp: 549, atk: 128.6, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 76, gold: 27 }, 25: { hp: 562, atk: 134.7, def: 23.8, sd: 23.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 81, gold: 28 }, 26: { hp: 595, atk: 139, def: 24.8, sd: 24.8, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 86, gold: 29 }, 27: { hp: 687, atk: 158.6, def: 25.7, sd: 25.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 91, gold: 30 }, 28: { hp: 702, atk: 167.1, def: 26.7, sd: 26.7, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 97, gold: 31 }, 29: { hp: 718, atk: 174.2, def: 27.6, sd: 27.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 103, gold: 32 }, 30: { hp: 770, atk: 178.9, def: 28.6, sd: 28.6, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 108, gold: 33 } } }, guard_sergeant: { n: "Guard sergeant", role: "elite", lv: [16, 30], home: 20, where: "R4, the castle, patrols", zone: "none", uses: "weaken (shout)", how: "leads a patrol; shouts weaken at the pack; calls a guard if alone", drop: "boss fang (10%)", by: { 16: { hp: 658, atk: 112.2, def: 19.8, sd: 18.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.925, xp: 117, gold: 36 }, 17: { hp: 704, atk: 117.2, def: 21.1, sd: 19.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.924, xp: 128, gold: 38 }, 18: { hp: 767, atk: 122.3, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.922, xp: 141, gold: 40 }, 19: { hp: 791, atk: 130.8, def: 23.5, sd: 21.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.927, xp: 154, gold: 42 }, 20: { hp: 816, atk: 138.3, def: 24.8, sd: 22.9, dodge: 25, init: 11, move: 4, res: 10, w: 1.926, xp: 167, gold: 44 }, 21: { hp: 982, atk: 141.7, def: 26, sd: 24, dodge: 25, init: 11, move: 4, res: 10, w: 1.935, xp: 179, gold: 46 }, 22: { hp: 1042, atk: 146.7, def: 27.2, sd: 25.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 193, gold: 48 }, 23: { hp: 1070, atk: 155.6, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 182, gold: 51 }, 24: { hp: 1097, atk: 160.8, def: 29.7, sd: 27.4, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 195, gold: 53 }, 25: { hp: 1125, atk: 168.4, def: 30.9, sd: 28.6, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 208, gold: 55 }, 26: { hp: 1191, atk: 173.7, def: 32.2, sd: 29.7, dodge: 25, init: 11, move: 4, res: 10, w: 1.935, xp: 221, gold: 57 }, 27: { hp: 1375, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 234, gold: 58 }, 28: { hp: 1405, atk: 208.9, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 248, gold: 61 }, 29: { hp: 1435, atk: 217.8, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 263, gold: 63 }, 30: { hp: 1540, atk: 223.6, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 277, gold: 64 } } }, copper_beetle: { n: "Copper beetle", role: "brute", lv: [3, 8], home: 5, where: "R1, the mine", zone: "pebble", uses: "—", how: "charges in a line; curls up (defence ×2) for a turn when hurt", drop: "moss, gold scrap", by: { 3: { hp: 79, atk: 22.7, def: 4.6, sd: 2.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.499, xp: 10, gold: 8 }, 4: { hp: 148, atk: 32.8, def: 6.2, sd: 3.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.487, xp: 15, gold: 10 }, 5: { hp: 164, atk: 36.9, def: 7.7, sd: 4.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.496, xp: 21, gold: 11 }, 6: { hp: 183, atk: 37.8, def: 9.2, sd: 5.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.507, xp: 24, gold: 13 }, 7: { hp: 197, atk: 42.8, def: 10.7, sd: 6.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 31, gold: 14 }, 8: { hp: 211, atk: 46.8, def: 12.2, sd: 7.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.523, xp: 32, gold: 16 } } }, glow_grub: { n: "Glow grub", role: "caster", lv: [5, 8], home: 7, where: "the mine", zone: "pebble", uses: "slow (sticky spit)", how: "spits from range at the kobold with the lowest defence; lights the dark tiles", drop: "gold scrap", by: { 5: { hp: 77, atk: 33.8, def: 2.9, sd: 7.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.892, xp: 9, gold: 7 }, 6: { hp: 86, atk: 34.6, def: 3.5, sd: 9.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.891, xp: 10, gold: 8 }, 7: { hp: 92, atk: 39.2, def: 4, sd: 10.7, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 12, gold: 8 }, 8: { hp: 99, atk: 42.9, def: 4.6, sd: 12.2, dodge: 10, init: 10, move: 4, res: 10, w: 0.886, xp: 12, gold: 9 } } }, sand_skink: { n: "Sand skink", role: "quick", lv: [8, 13], home: 10, where: "R2, the oasis", zone: "sun", uses: "poison (bite)", how: "darts in, bites, darts out; hides under sand (unseen) on sand tiles", drop: "sand glass", by: { 8: { hp: 92, atk: 33.2, def: 5.4, sd: 6.1, dodge: 22, init: 12, move: 6, res: 0, w: 0.752, xp: 14, gold: 8 }, 9: { hp: 132, atk: 42, def: 6, sd: 6.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 17, gold: 9 }, 10: { hp: 143, atk: 44.9, def: 6.7, sd: 7.6, dodge: 22, init: 12, move: 6, res: 0, w: 0.754, xp: 20, gold: 10 }, 11: { hp: 145, atk: 47.9, def: 7.4, sd: 8.4, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 23, gold: 10 }, 12: { hp: 157, atk: 51, def: 8, sd: 9.2, dodge: 22, init: 12, move: 6, res: 0, w: 0.753, xp: 27, gold: 11 }, 13: { hp: 165, atk: 55.5, def: 8.7, sd: 9.9, dodge: 22, init: 12, move: 6, res: 0, w: 0.751, xp: 24, gold: 12 } } }, cellar_bee: { n: "Cellar bee", role: "swarm", lv: [10, 13], home: 11, where: "the honey cellars", zone: "sun", uses: "poison (sting)", how: "flies over terrain in a cloud of three; goes for the healer", drop: "sand glass, reed", by: { 10: { hp: 82, atk: 31.7, def: 4.8, sd: 4.8, dodge: 15, init: 11, move: 5, res: 0, w: 0.39, xp: 10, gold: 5 }, 11: { hp: 83, atk: 33.8, def: 5.3, sd: 5.3, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 12, gold: 5 }, 12: { hp: 90, atk: 36, def: 5.7, sd: 5.7, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 13, gold: 6 }, 13: { hp: 94, atk: 39.2, def: 6.2, sd: 6.2, dodge: 15, init: 11, move: 5, res: 0, w: 0.388, xp: 12, gold: 6 } } }, wax_golem: { n: "Wax golem", role: "brute", lv: [11, 13], home: 12, where: "the honey cellars", zone: "sun", uses: "slow (wax)", how: "plods, leaves wax tiles (slow) behind it; melts (defence ×0.5) when burned", drop: "sand glass", by: { 11: { hp: 331, atk: 67.7, def: 16.8, sd: 10.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 53, gold: 21 }, 12: { hp: 360, atk: 72, def: 18.3, sd: 11.5, dodge: 3, init: 8, move: 3, res: 0, w: 1.518, xp: 61, gold: 22 }, 13: { hp: 376, atk: 78.4, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 56, gold: 24 } } }, rock_goat: { n: "Rock goat", role: "brute", lv: [13, 16], home: 14, where: "R3, the pass", zone: "ember", uses: "fall (charge)", how: "charges two tiles and knocks the target down (fall); butts kobolds off ledges", drop: "gold scrap", by: { 13: { hp: 376, atk: 78.4, def: 19.8, sd: 12.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 56, gold: 24 }, 14: { hp: 393, atk: 84.3, def: 21.4, sd: 13.4, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 63, gold: 26 }, 15: { hp: 509, atk: 101.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 69, gold: 27 }, 16: { hp: 526, atk: 107.7, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 77, gold: 29 } } }, stoker: { n: "Stoker", role: "caster", lv: [13, 18], home: 15, where: "R3, the crater", zone: "ember", uses: "burn", how: "throws embers that burn; stokes hot tiles around itself", drop: "gold scrap", by: { 13: { hp: 176, atk: 71.8, def: 7.4, sd: 19.8, dodge: 10, init: 10, move: 4, res: 10, w: 0.889, xp: 22, gold: 14 }, 14: { hp: 184, atk: 77.2, def: 8, sd: 21.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.886, xp: 25, gold: 15 }, 15: { hp: 238, atk: 92.7, def: 8.6, sd: 22.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.895, xp: 28, gold: 16 }, 16: { hp: 247, atk: 98.7, def: 9.2, sd: 24.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 31, gold: 17 }, 17: { hp: 264, atk: 103.2, def: 9.7, sd: 25.9, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 34, gold: 18 }, 18: { hp: 287, atk: 107.7, def: 10.3, sd: 27.4, dodge: 10, init: 10, move: 4, res: 10, w: 0.893, xp: 37, gold: 19 } } }, magma_slug: { n: "Magma slug", role: "brute", lv: [15, 18], home: 17, where: "the crater", zone: "ember", uses: "burn (hot trail)", how: "leaves a trail of hot tiles (burn on entry); very slow", drop: "gold scrap, boss fang (5%)", by: { 15: { hp: 509, atk: 101.2, def: 22.9, sd: 14.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 69, gold: 27 }, 16: { hp: 526, atk: 107.7, def: 24.4, sd: 15.3, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 77, gold: 29 }, 17: { hp: 563, atk: 112.5, def: 25.9, sd: 16.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 85, gold: 30 }, 18: { hp: 613, atk: 117.5, def: 27.4, sd: 17.2, dodge: 3, init: 8, move: 3, res: 0, w: 1.515, xp: 93, gold: 32 } } }, snow_beast: { n: "Snow beast", role: "brute", lv: [19, 22], home: 20, where: "R5, the snowfield", zone: "frost", uses: "fall (ice)", how: "stamps ice tiles around it (fall on entry); hugs (root) when adjacent", drop: "frost shard", by: { 19: { hp: 633, atk: 125.6, def: 29, sd: 18.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 102, gold: 33 }, 20: { hp: 653, atk: 132.8, def: 30.5, sd: 19.1, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 111, gold: 35 }, 21: { hp: 786, atk: 136, def: 32, sd: 20, dodge: 3, init: 8, move: 3, res: 0, w: 1.52, xp: 118, gold: 37 }, 22: { hp: 834, atk: 140.8, def: 33.5, sd: 21, dodge: 3, init: 8, move: 3, res: 0, w: 1.519, xp: 127, gold: 38 } } }, frost_guard: { n: "Frost guard", role: "normal", lv: [19, 23], home: 21, where: "R5, the draft outpost", zone: "frost", uses: "slow (frost spear)", how: "a guard with a frost spear: reach 2, slows on hit", drop: "frost shard", by: { 19: { hp: 396, atk: 104.6, def: 18.1, sd: 18.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 60, gold: 22 }, 20: { hp: 408, atk: 110.6, def: 19.1, sd: 19.1, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 65, gold: 23 }, 21: { hp: 491, atk: 113.4, def: 20, sd: 20, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 70, gold: 24 }, 22: { hp: 521, atk: 117.3, def: 21, sd: 21, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 75, gold: 25 }, 23: { hp: 535, atk: 124.5, def: 21.9, sd: 21.9, dodge: 10, init: 10, move: 4, res: 0, w: 1, xp: 71, gold: 26 } } }, ice_mite: { n: "Ice mite", role: "swarm", lv: [20, 23], home: 22, where: "the ice cellars", zone: "frost", uses: "fall (slick)", how: "skitters in fours; makes the floor slick where it dies", drop: "frost shard", by: { 20: { hp: 163, atk: 66.4, def: 9.5, sd: 9.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.389, xp: 24, gold: 9 }, 21: { hp: 196, atk: 68, def: 10, sd: 10, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 26, gold: 10 }, 22: { hp: 208, atk: 70.4, def: 10.5, sd: 10.5, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 28, gold: 10 }, 23: { hp: 214, atk: 74.7, def: 11, sd: 11, dodge: 15, init: 11, move: 5, res: 0, w: 0.396, xp: 27, gold: 10 } } }, shore_crab: { n: "Shore crab", role: "brute", lv: [23, 27], home: 24, where: "R6, R7, the shipwreck", zone: "salt", uses: "—", how: "armoured (defence ×1.6); pinches and holds (root) the kobold in front", drop: "pearl, reed", by: { 23: { hp: 856, atk: 149.4, def: 35, sd: 21.9, dodge: 3, init: 8, move: 3, res: 0, w: 1.523, xp: 120, gold: 40 }, 24: { hp: 878, atk: 154.3, def: 36.6, sd: 22.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 129, gold: 41 }, 25: { hp: 900, atk: 161.7, def: 38.1, sd: 23.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.524, xp: 138, gold: 43 }, 26: { hp: 953, atk: 166.8, def: 39.6, sd: 24.8, dodge: 3, init: 8, move: 3, res: 0, w: 1.522, xp: 146, gold: 44 }, 27: { hp: 1100, atk: 190.4, def: 41.1, sd: 25.7, dodge: 3, init: 8, move: 3, res: 0, w: 1.517, xp: 154, gold: 46 } } }, smuggler: { n: "Smuggler", role: "quick", lv: [23, 26], home: 24, where: "R6, the shipwreck", zone: "salt", uses: "unseen (hides)", how: "hides in crates (unseen), strikes, pockets gold (−1% of the pack's gold, given back on defeat)", drop: "reed, pearl", by: { 23: { hp: 374, atk: 105.8, def: 15.3, sd: 17.5, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 53, gold: 20 }, 24: { hp: 384, atk: 109.3, def: 16, sd: 18.3, dodge: 22, init: 12, move: 6, res: 0, w: 0.747, xp: 57, gold: 20 }, 25: { hp: 394, atk: 114.5, def: 16.7, sd: 19, dodge: 22, init: 12, move: 6, res: 0, w: 0.748, xp: 61, gold: 21 }, 26: { hp: 417, atk: 118.1, def: 17.3, sd: 19.8, dodge: 22, init: 12, move: 6, res: 0, w: 0.749, xp: 65, gold: 22 } } }, sea_guard: { n: "Sea guard", role: "ranged", lv: [25, 27], home: 26, where: "R7, the islands", zone: "salt", uses: "—", how: "throws harpoons (steadiness 4); pulls a kobold one tile closer on hit", drop: "pearl", by: { 25: { hp: 450, atk: 121.3, def: 19, sd: 19, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 62, gold: 22 }, 26: { hp: 476, atk: 125.1, def: 19.8, sd: 19.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 66, gold: 23 }, 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 } } }, cave_eel: { n: "Cave eel", role: "caster", lv: [26, 27], home: 27, where: "the island cave", zone: "salt", uses: "—", how: "storm bolts that chain to one more kobold; lives in water tiles (cover)", drop: "pearl", by: { 26: { hp: 447, atk: 152.9, def: 14.9, sd: 39.6, dodge: 10, init: 10, move: 4, res: 10, w: 0.896, xp: 59, gold: 26 }, 27: { hp: 516, atk: 174.5, def: 15.4, sd: 41.1, dodge: 10, init: 10, move: 4, res: 10, w: 0.9, xp: 63, gold: 27 } } }, royal_guard: { n: "Royal guard", role: "elite", lv: [27, 30], home: 29, where: "the castle", zone: "none", uses: "stun (shield bash)", how: "guards Snatchclaw's hall in pairs; shield-bash stun; never flees", drop: "boss fang (15%)", by: { 27: { hp: 1375, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 234, gold: 58 }, 28: { hp: 1405, atk: 208.9, def: 34.6, sd: 32, dodge: 25, init: 11, move: 4, res: 10, w: 1.938, xp: 248, gold: 61 }, 29: { hp: 1435, atk: 217.8, def: 35.9, sd: 33.1, dodge: 25, init: 11, move: 4, res: 10, w: 1.936, xp: 263, gold: 63 }, 30: { hp: 1540, atk: 223.6, def: 37.1, sd: 34.3, dodge: 25, init: 11, move: 4, res: 10, w: 1.933, xp: 277, gold: 64 } } }, castle_crossbow: { n: "Castle crossbow", role: "ranged", lv: [27, 30], home: 29, where: "the castle walls", zone: "none", uses: "—", how: "fires from the walls (full cover) at 8–10 tiles; steadiness 3", drop: "gold scrap", by: { 27: { hp: 550, atk: 142.8, def: 20.6, sd: 20.6, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 70, gold: 24 }, 28: { hp: 562, atk: 150.4, def: 21.3, sd: 21.3, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 74, gold: 25 }, 29: { hp: 574, atk: 156.8, def: 22.1, sd: 22.1, dodge: 10, init: 10, move: 4, res: 0, w: 0.795, xp: 78, gold: 26 }, 30: { hp: 616, atk: 161, def: 22.8, sd: 22.8, dodge: 10, init: 10, move: 4, res: 0, w: 0.796, xp: 83, gold: 27 } } } }, PLACES6 = [{ place: "R1 (the capital gate → Pebblebrook)", L: 4, target: 3.333, pool: ["nettlenose_scout", "nettlenose_slinger", "copper_beetle"] }, { place: "the mine (Pebblebrook)", L: 7, target: 4, pool: ["copper_beetle", "glow_grub", "nettlenose_scout"] }, { place: "R2 (→ Sunhaven)", L: 10, target: 4, pool: ["snatchclaw_s_guard", "sand_skink", "nettlenose_slinger"] }, { place: "the honey cellars (Sunhaven)", L: 12, target: 4, pool: ["cellar_bee", "wax_golem", "sand_skink"] }, { place: "R3 (→ Emberreach)", L: 15, target: 4.267, pool: ["rock_goat", "stoker", "nettlenose_slinger"] }, { place: "the crater (Emberreach)", L: 17, target: 4.267, pool: ["stoker", "magma_slug", "nettlenose_scout"] }, { place: "R4, the bun road", L: 17, target: 4.267, pool: ["snatchclaw_s_guard", "guard_sergeant", "nettlenose_slinger", "nettlenose_scout"] }, { place: "R5 (→ Frostwick)", L: 21, target: 4.267, pool: ["snow_beast", "frost_guard", "nettlenose_scout"] }, { place: "the ice cellars (Frostwick)", L: 22, target: 4.267, pool: ["ice_mite", "snow_beast", "frost_guard"] }, { place: "R6 (→ Saltspray)", L: 24, target: 4.267, pool: ["shore_crab", "smuggler", "snatchclaw_s_guard"] }, { place: "the shipwreck (Saltspray)", L: 25, target: 4.267, pool: ["shore_crab", "smuggler", "nettlenose_slinger"] }, { place: "R7 and the islands", L: 26, target: 4.267, pool: ["shore_crab", "sea_guard"] }, { place: "the island cave", L: 27, target: 4.267, pool: ["cave_eel", "shore_crab", "sea_guard"] }, { place: "the march and the castle", L: 29, target: 4.267, pool: ["royal_guard", "castle_crossbow", "snatchclaw_s_guard", "guard_sergeant"] }], BOSSES6 = { grubb: { id: "grubb", n: "Grubb", L: 5, R: 7, k: 34, hp: 869, atk: 37.1, def: 4.8, sd: 4.8, dodge: 5, init: 10, move: 3, res: 10, where: "the mill road", trick: "loud and easy to read: a big telegraphed swing every third round", adds: "2 Nettlenose scouts on round 4", drop: "Toll pot (helm, T2)", xp: 107, gold: 45 }, snipe: { id: "snipe", n: "Snipe", L: 8, R: 7, k: 35, hp: 1153, atk: 52, def: 7.6, sd: 7.6, dodge: 5, init: 10, move: 3, res: 10, where: "the mine", trick: "rides a copper cart behind cover (full cover against ranged); leaves it to throw", adds: "none", drop: "Copper-cart wheel (shield, T2)", xp: 162, gold: 63 }, sunhaven_guard_captain: { id: "sunhaven_guard_captain", n: "Sunhaven guard captain", L: 12, R: 8, k: 41, hp: 2304, atk: 74.6, def: 11.4, sd: 11.4, dodge: 5, init: 10, move: 3, res: 10, where: "the barracks by the oasis", trick: "drains the oasis tiles one by one (dry tiles slow); stands in the last wet one", adds: "2 guards", drop: "Drain-key (neck, T3)", xp: 364, gold: 88 }, emberreach_guard_captain: { id: "emberreach_guard_captain", n: "Emberreach guard captain", L: 16, R: 8, k: 42, hp: 3453, atk: 113.6, def: 15.3, sd: 15.3, dodge: 5, init: 10, move: 3, res: 10, where: "the seized ovens", trick: "seizes ovens: hot tiles around him burn on entry", adds: "1 stoker", drop: "Oven mitts (ring, T4)", xp: 475, gold: 113 }, snatchclaw_emberreach: { id: "snatchclaw_emberreach", n: "Snatchclaw (Emberreach)", L: 18, R: 10, k: 54, hp: 5174, atk: 108.9, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the forge square", trick: "talks the pack into standing down: a confuse on one kobold every third round instead of the big attack", adds: "2 guards", drop: "Captain's sash (cloak, T4)", xp: 738, gold: 126 }, bun_road_toll_captain: { id: "bun_road_toll_captain", n: "Bun-road toll captain", L: 18, R: 8, k: 43, hp: 4120, atk: 125.4, def: 17.1, sd: 17.1, dodge: 5, init: 10, move: 3, res: 10, where: "the R4 toll gate", trick: "brings a guard every third round until the gate bell is rung", adds: "guards, one at a time", drop: "Bun satchel (armour, T4)", xp: 587, gold: 126 }, draft_sergeant_frostwick: { id: "draft_sergeant_frostwick", n: "Draft sergeant", L: 22, R: 8, k: 44, hp: 5733, atk: 167.2, def: 20.9, sd: 20.9, dodge: 5, init: 10, move: 3, res: 10, where: "the draft outpost on R5", trick: '"drafts" a kobold for three turns (it fights for him, a confuse)', adds: "1 frost guard", drop: "Sergeant's whistle (neck, T5)", xp: 828, gold: 150 }, pier_captain_saltspray: { id: "pier_captain_saltspray", n: "Pier captain", L: 26, R: 8, k: 46, hp: 6848, atk: 202.2, def: 24.8, sd: 24.8, dodge: 5, init: 10, move: 3, res: 10, where: "the harbour", trick: "fights from a boat at range (steadiness 3); the pack must bring him to the pier", adds: "2 sea guards", drop: "Net cloak (cloak, T6)", xp: 990, gold: 175 }, castle_commander: { id: "castle_commander", n: "Castle commander", L: 28, R: 10, k: 58, hp: 10185, atk: 212.1, def: 26.6, sd: 26.6, dodge: 5, init: 10, move: 3, res: 10, where: "the castle gate", trick: "a wall of royal guards that opens in phases (75 / 50 / 25%)", adds: "royal guards, two per phase", drop: "Marble gauntlets (ring, T6)", xp: 1405, gold: 188 }, snatchclaw_castle: { id: "snatchclaw_castle", n: "Snatchclaw (castle)", L: 29, R: 11, k: 64, hp: 11480, atk: 210, def: 27.6, sd: 27.6, dodge: 5, init: 10, move: 3, res: 10, where: "the throne room", trick: "runs for the tower fire; whoever has the most threat must hold him", adds: "2 royal guards", drop: "Throne splinter (helm, T6)", xp: 1640, gold: 194 }, glitterbeak: { id: "glitterbeak", n: "Glitterbeak", L: 30, R: 12, k: 70, hp: 13477, atk: 205.6, def: 28.5, sd: 28.5, dodge: 5, init: 10, move: 3, res: 10, where: "the castle roof", trick: "cold: heals when he eats buns (a telegraphed dive at the bun cart), loses it while the pack's embers glow; **luck 2** (a dragon's luck)", adds: "none", drop: "Warm scale (neck, T6)", xp: 1894, gold: 200 } }, TRIALS6 = { old_shellback: { id: "old_shellback", n: "Old Shellback", base: "copper_beetle", L: 8, area: "the mine, floor 3 (the flooded gallery)", trick: "curls up every second turn: it does not attack, and takes half damage until it uncurls", drop: "flour-dusted apron (Millers' set)", hp: 395, atk: 48.8, def: 9.9, sd: 9.2, dodge: 25, init: 11, move: 4, res: 10, xp: 72, gold: 31 }, the_queen_bee_s_comb: { id: "the_queen_bee_s_comb", n: "The queen bee's comb", base: "cellar_bee", L: 13, area: "the honey cellars, floor 3", trick: "calls two cellar bees every third turn", drop: "honey-silk cloak (Honey-glass set)", hp: 705, atk: 81.6, def: 16.1, sd: 14.9, dodge: 25, init: 11, move: 4, res: 10, xp: 126, gold: 46 }, the_magma_slug_s_mother: { id: "the_magma_slug_s_mother", n: "The magma slug's mother", base: "magma_slug", L: 18, area: "the crater, floor 3", trick: "leaves burning tiles where it moves", drop: "ember apron (Bakers' set)", hp: 1150, atk: 122.3, def: 22.3, sd: 20.6, dodge: 25, init: 11, move: 4, res: 10, xp: 211, gold: 60 }, the_ice_wyrm_statue: { id: "the_ice_wyrm_statue", n: "The ice wyrm statue", base: "snow_beast", L: 23, area: "the ice cellars, floor 3", trick: "stands still until struck; then every hit on it slows the striker", drop: "ice slab (Fort set)", hp: 1605, atk: 155.6, def: 28.5, sd: 26.3, dodge: 25, init: 11, move: 4, res: 10, xp: 272, gold: 76 }, the_ghost_ship_s_captain: { id: "the_ghost_ship_s_captain", n: "The ghost ship's captain", base: "sea_guard", L: 27, area: "the island cave", trick: "unseen every other turn (dodge halved does not apply: it is simply not there)", drop: "net cloak (Harbour set)", hp: 2062, atk: 198.3, def: 33.4, sd: 30.8, dodge: 25, init: 11, move: 4, res: 10, xp: 351, gold: 88 } };
 
@@ -3358,7 +3360,7 @@ button,.rpb,.pill{touch-action:manipulation}
   }
   feature({
     id: "story6",
-    menu: [{ order: 4, html: () => (rp.s && rp.s.w6 ? '<button class="rpb go" type="button" data-rp="w6log">What now<small>' + esc2(s6GoalLine() || "the quest log") + "</small></button>" : "") + '<button class="rpb" type="button" data-rp="w6new">New story<small>v6 test: Hearthspire to the tube</small></button>' + (v6Fetch("guest", 0) ? '<button class="rpb" type="button" data-rp="w6cont">Continue story<small>v6 test</small></button>' : "") }],
+    menu: [{ order: 4, html: () => rp.s && rp.s.w6 ? '<button class="rpb go" type="button" data-rp="w6log">What now<small>' + esc2(s6GoalLine() || "the quest log") + "</small></button>" : "" }],
     panels: { w6shop: { sig: () => JSON.stringify([rp.w6shop, rp.w6tab, rp.s && rp.s.gold, rp.s && (rp.s.inv6 || []).length, rp.s && rp.s.mats6]), html: shopHtml }, w6new: { sig: () => JSON.stringify(newForm), html: newHtml }, w6class: { sig: () => "c", html: classHtml }, w6log: { sig: () => JSON.stringify(rp.s && rp.s.q), html: logHtml }, w6roster: { sig: () => JSON.stringify(rp.s && [rp.s.party.map((m) => m.name), (rp.s.w6st.bench || []).map((m) => m.name)]), html: w6RosterHtml } },
     actions: {
       w6tab: (d) => {
@@ -3471,20 +3473,20 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.pos = null, rp.path = null, rp.held = null, rp.grace = 4, rp.headless || sfx("door"), emit("place:leave", id), rpSave();
   }
   function rpBfs(tx, ty, toNeighbor) {
-    let s = rp.s, key = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen2 = 0;
-    for (prev[key(s.x, s.y)] = null; q.length; ) {
+    let s = rp.s, key2 = (x, y) => x + "," + y, prev = {}, q = [[s.x, s.y]], seen2 = 0;
+    for (prev[key2(s.x, s.y)] = null; q.length; ) {
       let [x, y] = q.shift();
       if (toNeighbor ? Math.abs(x - tx) + Math.abs(y - ty) === 1 : x === tx && y === ty) {
-        let out = [], k = key(x, y);
+        let out = [], k = key2(x, y);
         for (; prev[k] !== null; ) {
           let [px, py] = prev[k];
-          out.unshift([+k.split(",")[0], +k.split(",")[1]]), k = key(px, py);
+          out.unshift([+k.split(",")[0], +k.split(",")[1]]), k = key2(px, py);
         }
         return out;
       }
       if (++seen2 > 6e3) return null;
       for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        let nx = x + dx, ny = y + dy, k = key(nx, ny);
+        let nx = x + dx, ny = y + dy, k = key2(nx, ny);
         k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40 || (prev[k] = [x, y], q.push([nx, ny]));
       }
     }
@@ -3688,8 +3690,8 @@ button,.rpb,.pill{touch-action:manipulation}
       if (hit && !w.path) {
         let fx = s.x + RP_DIR[s.face][0], fy = s.y + RP_DIR[s.face][1];
         if (rpSpecialAt(fx, fy)) {
-          let key = fx + "," + fy;
-          rp.bumpLock !== key && (rp.bumpT += dt, rp.bumpT > 0.12 && (rp.bumpT = 0, rp.bumpLock = key, rp.held = null, rpInteractAt(fx, fy)));
+          let key2 = fx + "," + fy;
+          rp.bumpLock !== key2 && (rp.bumpT += dt, rp.bumpT > 0.12 && (rp.bumpT = 0, rp.bumpLock = key2, rp.held = null, rpInteractAt(fx, fy)));
         } else rp.bumpT = 0;
       } else hit || (rp.bumpT = 0, rp.bumpLock = null);
       rp.path && !moved && hit && (rp.path = null);
@@ -3802,7 +3804,7 @@ button,.rpb,.pill{touch-action:manipulation}
     }
   }
   function netCloudSave() {
-    !net.cloudRef || !rp.s || rp.headless || (clearTimeout(net.cloudT), net.cloudT = setTimeout(async () => {
+    !net.cloudRef || !rp.s || rp.headless || rp.s.w6 || (clearTimeout(net.cloudT), net.cloudT = setTimeout(async () => {
       if (net.cloudBusy) {
         netCloudSave();
         return;
@@ -4704,7 +4706,7 @@ button,.rpb,.pill{touch-action:manipulation}
     function got(m) {
       switch (m.k) {
         case "authok": {
-          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T04:53:56Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
+          S.authed = !0, S.me = { id: m.id, name: m.name, canMail: !!m.canMail, admin: !!m.admin }, S.peer = m.peer, m.token && (S.token = m.token, store.set(TOKEN_KEY, m.token)), S.others.clear(), (m.peers || []).forEach((p) => S.others.set(p.peer, mk(p))), Object.keys(S.mine).length && send({ k: "pres", presence: S.mine }), m.build && m.build !== "dev" && m.build !== "2026-10-23T05:15:03Z" && account.onNewVersion && account.onNewVersion(m.build), S.authWait && (S.authWait.ok(S.me), S.authWait = null), S.connH.forEach((h) => h(!0)), firePeers(), refetch(() => !0);
           break;
         }
         case "autherr":
@@ -5595,9 +5597,9 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.mapImg = { chunks: /* @__PURE__ */ new Map(), k: Math.min(2.5, rpS * rpDpr) };
   }
   function rpChunk(cx, cy) {
-    let M = rp.mapImg, key = cx + "," + cy, c = M.chunks.get(key);
+    let M = rp.mapImg, key2 = cx + "," + cy, c = M.chunks.get(key2);
     if (c)
-      return M.chunks.delete(key), M.chunks.set(key, c), c;
+      return M.chunks.delete(key2), M.chunks.set(key2, c), c;
     let W = rp.grid[0].length, H = rp.grid.length, k = M.k, x0 = cx * CHUNK, y0 = cy * CHUNK, x1 = Math.min(W, x0 + CHUNK), y1 = Math.min(H, y0 + CHUNK);
     c = document.createElement("canvas"), c.width = Math.ceil((x1 - x0) * RT * k), c.height = Math.ceil((y1 - y0) * RT * k);
     let g = c.getContext("2d");
@@ -5610,7 +5612,7 @@ button,.rpb,.pill{touch-action:manipulation}
       if ((ch.place || "world") !== rpPlace() || rp.s.chests.includes(rpChestKey(ch)) || ch.x < x0 || ch.x >= x1 || ch.y < y0 || ch.y >= y1) return;
       let X = ch.x * RT, Y = ch.y * RT;
       g.fillStyle = OL, g.fillRect(X + 5, Y + 10, 22, 17), g.fillStyle = "#a0612a", g.fillRect(X + 7, Y + 12, 18, 13), g.fillStyle = "#c07a3a", g.fillRect(X + 7, Y + 12, 18, 5), g.fillStyle = "#ffd54a", g.fillRect(X + 7, Y + 16, 18, 2), g.fillRect(X + 14, Y + 15, 4, 5);
-    }), M.chunks.set(key, c), M.chunks.size > CHUNK_KEEP && M.chunks.delete(M.chunks.keys().next().value), c;
+    }), M.chunks.set(key2, c), M.chunks.size > CHUNK_KEEP && M.chunks.delete(M.chunks.keys().next().value), c;
   }
   function rpDrawChunks(cx, cy) {
     let k = rpS * rpDpr, size = CHUNK * RT, W = rp.grid[0].length, H = rp.grid.length, a = Math.max(0, Math.floor(cx / size)), b = Math.min(Math.ceil(W / CHUNK) - 1, Math.floor((cx + RPW) / size)), c = Math.max(0, Math.floor(cy / size)), d = Math.min(Math.ceil(H / CHUNK) - 1, Math.floor((cy + RPH) / size));
@@ -5641,8 +5643,8 @@ button,.rpb,.pill{touch-action:manipulation}
     let ents = rpNpcs().map((n) => {
       let kk = rpNpcK(n);
       return kk.x = n.x * RT + 16, kk.y = n.y * RT + 26, kk.t += dt, kk.blink -= dt, kk.blink < -0.12 && (kk.blink = R(2, 5)), kk.moving = !1, kk.wa = 0.35 + Math.sin(kk.t * 2 + kk.phase) * 0.4, Math.abs(s.x - n.x) + Math.abs(s.y - n.y) <= 2 && (kk.face = s.x > n.x ? 1 : s.x < n.x ? -1 : kk.face), kk;
-    }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", art: "pip", weapon: s.party[0].w, hat: s.party[0].hat, pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1));
-    pk.weapon !== s.party[0].w && (pk.weapon = s.party[0].w, pk.W = WEAPONS[pk.weapon]), pk.hat = rpHat(s.party[0]), pk.x = px * RT + 16, pk.y = py * RT + 26, pk.t += dt, pk.blink -= dt, pk.blink < -0.12 && (pk.blink = R(2, 5)), pk.moving = rp.moving, rp.moving && (pk.walk += dt * 12), s.face === "left" ? pk.face = -1 : s.face === "right" && (pk.face = 1), pk.wa += ((WEAPONS[pk.weapon].ranged && !WEAPONS[pk.weapon].magic ? 1.45 : 0.35) - pk.wa) * Math.min(1, dt * 10), ents.concat([pk], netPartnerK(dt)).sort((a, b) => a.y - b.y).forEach(drawKobold), netDrawTags(), rpNpcs().forEach((n) => {
+    }), P0 = s.party[0] && WEAPONS[s.party[0].w] ? s.party[0] : Object.assign({}, s.party[0] || {}, { w: "stick" }), pk = rp.pk || (rp.pk = makeK({ team: 0, name: "Pip", art: "pip", weapon: P0.w, hat: P0.hat, pers: "brave", speed: 1, hp: 30, size: 0.72 }, 0, 0, !1));
+    pk.weapon !== P0.w && (pk.weapon = P0.w, pk.W = WEAPONS[pk.weapon]), pk.hat = rpHat(P0), pk.x = px * RT + 16, pk.y = py * RT + 26, pk.t += dt, pk.blink -= dt, pk.blink < -0.12 && (pk.blink = R(2, 5)), pk.moving = rp.moving, rp.moving && (pk.walk += dt * 12), s.face === "left" ? pk.face = -1 : s.face === "right" && (pk.face = 1), pk.wa += ((WEAPONS[pk.weapon].ranged && !WEAPONS[pk.weapon].magic ? 1.45 : 0.35) - pk.wa) * Math.min(1, dt * 10), ents.concat([pk], netPartnerK(dt)).sort((a, b) => a.y - b.y).forEach(drawKobold), netDrawTags(), rpNpcs().forEach((n) => {
       let m = rpMarker(n.id);
       if (!m) return;
       let x = n.x * RT + 16, y = n.y * RT - 4 + Math.sin(rp.t * 4) * 2;
@@ -6980,10 +6982,10 @@ button,.rpb,.pill{touch-action:manipulation}
     let F = FOES6[id];
     if (!F) return null;
     L = Math.max(F.lv[0], Math.min(F.lv[1], L));
-    let key = "v6:" + id + ":" + L;
-    if (!RP_E[key]) {
+    let key2 = "v6:" + id + ":" + L;
+    if (!RP_E[key2]) {
       let s = F.by[L];
-      RP_E[key] = {
+      RP_E[key2] = {
         v6: 1,
         id,
         n: F.n,
@@ -7007,7 +7009,7 @@ button,.rpb,.pill{touch-action:manipulation}
         caster: F.role === "caster"
       };
     }
-    return key;
+    return key2;
   }
   function v6Mix(place, rnd) {
     rnd = rnd || Math.random;
@@ -7347,8 +7349,8 @@ button,.rpb,.pill{touch-action:manipulation}
   function v6BossKey(id) {
     let B = BOSSES6[id];
     if (!B) return null;
-    let key = "v6b:" + id;
-    return RP_E[key] = {
+    let key2 = "v6b:" + id;
+    return RP_E[key2] = {
       v6: 1,
       v6boss: 1,
       boss: 1,
@@ -7372,13 +7374,13 @@ button,.rpb,.pill{touch-action:manipulation}
       ranged: id === "snipe",
       trick: id,
       acts: 4
-    }, key;
+    }, key2;
   }
   function v6EliteKey(id, L) {
     let F = FOES6[id];
     if (!F) return null;
-    let base = v6FoeKey(id, L), B = RP_E[base], E = ROLES6.elite, R2 = ROLES6[F.role] || ROLES6.normal, key = base.replace("v6:", "v6e:");
-    return RP_E[key] || (RP_E[key] = Object.assign({}, B, {
+    let base = v6FoeKey(id, L), B = RP_E[base], E = ROLES6.elite, R2 = ROLES6[F.role] || ROLES6.normal, key2 = base.replace("v6:", "v6e:");
+    return RP_E[key2] || (RP_E[key2] = Object.assign({}, B, {
       n: F.n + " leader",
       role: "elite",
       hp: Math.round(B.hp * E.hp / R2.hp),
@@ -7390,13 +7392,13 @@ button,.rpb,.pill{touch-action:manipulation}
       xp: Math.round(B.xp * E.hp / R2.hp),
       gold: Math.round(B.gold * 1.5),
       size: 1.2
-    })), key;
+    })), key2;
   }
   function v6TrialKey(id) {
     let T = TRIALS6[id];
     if (!T) return null;
-    let key = "v6t:" + id;
-    return RP_E[key] = { v6: 1, v6trial: 1, id, n: T.n, L: T.L, role: "elite", w: "club", team: 3, hp: T.hp, atk: T.atk, def: T.def, sd: T.sd, spd: 5 + 0.5 * (T.L - 1), dodge: T.dodge, init: T.init, move: T.move, res: T.res, xp: T.xp, gold: T.gold, trick: id, size: 1.4 }, key;
+    let key2 = "v6t:" + id;
+    return RP_E[key2] = { v6: 1, v6trial: 1, id, n: T.n, L: T.L, role: "elite", w: "club", team: 3, hp: T.hp, atk: T.atk, def: T.def, sd: T.sd, spd: 5 + 0.5 * (T.L - 1), dodge: T.dodge, init: T.init, move: T.move, res: T.res, xp: T.xp, gold: T.gold, trick: id, size: 1.4 }, key2;
   }
   function v6AiTurn(b, u) {
     let E = u.E;
@@ -7537,12 +7539,12 @@ button,.rpb,.pill{touch-action:manipulation}
   function v6Spawn(b, u, n, what) {
     let id = Object.keys(FOES6).find((k) => what.toLowerCase().includes(FOES6[k].n.toLowerCase().split(" ").slice(-1)[0].replace(/s$/, ""))) || "nettlenose_scout";
     for (let i = 0; i < n; i++) {
-      let key = v6FoeKey(id, u.E.L), E = RP_E[key], spot = null;
+      let key2 = v6FoeKey(id, u.E.L), E = RP_E[key2], spot = null;
       for (let r = 1; r < 4 && !spot; r++) for (let y = Math.max(0, u.y - r); y <= Math.min(b.H - 1, u.y + r) && !spot; y++) for (let x = Math.max(0, u.x - r); x <= Math.min(b.W - 1, u.x + r) && !spot; x++)
         tcFits(b, { sz: 1 }, x, y) && !b.units.some((o) => tcLive(o) && x >= o.x && x < o.x + (o.sz || 1) && y >= o.y && y < o.y + (o.sz || 1)) && (spot = [x, y]);
       if (!spot) return;
-      let v = { side: 1, E, key, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
-      v.k = makeK({ team: E.team, name: E.n, art: E.art || key, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v.k.face = -1;
+      let v = { side: 1, E, key: key2, name: E.n, x: spot[0], y: spot[1], sz: 1, hp: E.hp, max: E.hp, atk: E.atk, def: E.def, spd: E.spd, ap: 0, stun: 0, slow: 0, buff: { atk: 0, def: 0 }, guard: 0, watch: 0, chan: null, aware: !0, pod: u.pod, turns: 0, fled: !1, own: "e", ctl: "ai" };
+      v.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: "none", pers: "brave", speed: 1, hp: E.hp, size: 0.62 }, 0, 0, !rp.headless), v.k.face = -1;
       let h = tcHome(v);
       v.k.x = h.x, v.k.y = h.y, b.units.push(v), tcFloatU(v, "joins!", "#ffb347");
     }
@@ -7564,11 +7566,11 @@ button,.rpb,.pill{touch-action:manipulation}
     rp.mode = "map";
     let th = (t) => v6Lab.theme || v6PlaceTheme(t);
     if (sel.startsWith("b:")) {
-      let key = v6BossKey(sel.slice(2));
-      rpBattle([key], { members, boss: key, v6: 1, theme: th(BOSSES6[sel.slice(2)].where) });
+      let key2 = v6BossKey(sel.slice(2));
+      rpBattle([key2], { members, boss: key2, v6: 1, theme: th(BOSSES6[sel.slice(2)].where) });
     } else if (sel.startsWith("t:")) {
-      let key = v6TrialKey(sel.slice(2));
-      rpBattle([key], { members, zone: ",", v6: 1, theme: th(TRIALS6[sel.slice(2)].where) });
+      let key2 = v6TrialKey(sel.slice(2));
+      rpBattle([key2], { members, zone: ",", v6: 1, theme: th(TRIALS6[sel.slice(2)].where) });
     } else {
       let P = PLACES6[+sel], keys = v6Mix(Object.assign({}, P, { L: Math.max(1, L) }));
       rpBattle(keys, { members, zone: ",", v6: 1, theme: th(P.place) });
@@ -8259,11 +8261,11 @@ button,.rpb,.pill{touch-action:manipulation}
       }
       centers.push(c || [W >> 1, 2]);
     }
-    keys.forEach((key, i) => {
-      let E = RP_E[key], scale = E.v6 ? 1 : E.boss ? Math.max(0.7, 1 + 0.25 * (members.length - 3)) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
+    keys.forEach((key2, i) => {
+      let E = RP_E[key2], scale = E.v6 ? 1 : E.boss ? Math.max(0.7, 1 + 0.25 * (members.length - 3)) : 1 + 0.08 * Math.max(0, lvl - 3), sz = E.boss ? 2 : 1, pod = boss ? 0 : i % pods, u = {
         side: 1,
         E,
-        key,
+        key: key2,
         name: E.n,
         x: 0,
         y: 0,
@@ -8296,7 +8298,7 @@ button,.rpb,.pill{touch-action:manipulation}
           sc > best && (best = sc, spot = [x, y]);
         }
       }
-      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, art: E.art || key, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, b.units.push(u);
+      spot || (spot = [i % W, 0]), u.x = spot[0], u.y = spot[1], u.k = makeK({ team: E.team, name: E.n, art: E.art || key2, weapon: E.w, hat: E.hat || "none", pers: "brave", speed: 1, hp: E.hp, size: E.boss ? 1.25 : 0.62 * (E.size || 1) }, 0, 0, !rp.headless), u.k.face = -1, b.units.push(u);
     }), b.units.forEach((u) => {
       let h = tcHome(u);
       u.k.x = h.x, u.k.y = h.y;
@@ -8782,9 +8784,9 @@ button,.rpb,.pill{touch-action:manipulation}
     I: { root: 59, sc: "dorian", dr: "drip" },
     J: { root: 63, bpm: 104, dr: "light" }
   };
-  function rpTrack(key) {
-    if (RP_TRACKS[key]) return RP_TRACKS[key];
-    let m = /^town:([A-J])$/.exec(key || "");
+  function rpTrack(key2) {
+    if (RP_TRACKS[key2]) return RP_TRACKS[key2];
+    let m = /^town:([A-J])$/.exec(key2 || "");
     return m ? Object.assign({}, RP_TRACKS.town, TOWN_TUNES[m[1]], { seed: 40 + m[1].charCodeAt(0) }) : RP_TRACKS.meadow;
   }
   var rpMus = { on: !1, key: null, g: null, next: 0, step: 0, song: null, noise: null, outdoor: null, lvl: 0 }, mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -9207,7 +9209,7 @@ button,.rpb,.pill{touch-action:manipulation}
     }
     if (m.hero) {
       let L = Object.assign({ might: 0, wits: 0, lead: 0 }, m.lead), free = v6LeadFree(m);
-      h += '<div class="who">Leader points (' + free + " of " + v6LeadTotal(m) + ' free)</div><div class="rpcmd">' + [["might", "Might", "pack attack and defence +1% each"], ["wits", "Wits", "pack special attack and defence +1% each"], ["lead", "Leadership", "pack morale +1 per 5"]].map(([key, n, d]) => '<button class="rpb' + (free ? " go" : "") + '" type="button" data-rp="v6lead" data-v="' + key + '"' + (free ? "" : " disabled") + ">" + n + " " + L[key] + "<small>" + d + "</small></button>").join("") + "</div>";
+      h += '<div class="who">Leader points (' + free + " of " + v6LeadTotal(m) + ' free)</div><div class="rpcmd">' + [["might", "Might", "pack attack and defence +1% each"], ["wits", "Wits", "pack special attack and defence +1% each"], ["lead", "Leadership", "pack morale +1 per 5"]].map(([key2, n, d]) => '<button class="rpb' + (free ? " go" : "") + '" type="button" data-rp="v6lead" data-v="' + key2 + '"' + (free ? "" : " disabled") + ">" + n + " " + L[key2] + "<small>" + d + "</small></button>").join("") + "</div>";
     }
     return sheet.msg && (h += '<p class="tmsg">' + esc2(sheet.msg) + "</p>"), h + '</div><div class="tbar">' + (rp.s && rp.s.w6 ? "" : '<button class="rpb" type="button" data-rp="v6lvl">Level up<small>test</small></button>') + '<button class="rpb x" type="button" data-rp="v6sheetx">Back</button></div>';
   }
@@ -9258,6 +9260,264 @@ button,.rpb,.pill{touch-action:manipulation}
         m && m.lvl < 30 && (v6LevelUp(m), sheet.msg = m.name + " reached level " + m.lvl + ".");
       }
     }
+  });
+
+  // src/ui/chars6.js
+  var DAY = 864e5, KEEP = 7 * DAY, LOCK_MS = 6e4, RENEW_MS = 3e4, C6_COLOURS = ["orange", "green", "blue", "pink", "gold", "purple"], C6 = { slot: null, cloud: {}, form: { name: "Pip", colour: "orange", slot: 0 }, del: null, lockT: 0, dev: null, ask: null }, acct = () => net.me || "guest", key = (a, i) => "kq6:" + a + ":" + i, devId = () => C6.dev || (C6.dev = store.get("kq6:dev", null) || (() => {
+    let d = "d" + Math.random().toString(36).slice(2, 10);
+    return store.set("kq6:dev", d), d;
+  })());
+  function raw(i) {
+    let a = acct(), L = store.get(key(a, i), null), R2 = C6.cloud[i] || null;
+    return L && R2 ? (R2.savedAt || 0) > (L.savedAt || 0) ? R2 : L : L || R2;
+  }
+  function slotInfo(i) {
+    let s = raw(i);
+    if (!s) return null;
+    let h = (s.party || []).find((m) => m.hero) || (s.party || [])[0] || {};
+    return { slot: i, name: s.hero && s.hero.name || h.name || "Pip", colour: s.hero && s.hero.colour, cls: h.noclass ? null : h.cls, lvl: h.lvl || 1, where: s.w6st && s.w6st.respawn || s.w6, pieces: (s.w6st && s.w6st.pieces || []).length, played: s.played || 0, savedAt: s.savedAt || 0, deleted: s.deletedAt || null };
+  }
+  function cloudRef(i) {
+    return net.db && net.me ? net.db.doc("data/users/" + net.me + "/char" + i) : null;
+  }
+  async function cloudLoad() {
+    if (!(!net.db || !net.me)) {
+      for (let i = 0; i < SLOTS6; i++)
+        try {
+          let sn = await cloudRef(i).get();
+          C6.cloud[i] = sn.exists ? sn.data() : null;
+        } catch {
+        }
+      try {
+        let sn = await net.db.doc("data/users/" + net.me + "/save").get();
+        C6.oldCloud = sn.exists ? sn.data() : null;
+      } catch {
+      }
+      rp.sig = "";
+    }
+  }
+  var saveT = 0;
+  function chars6Save(s) {
+    if (C6.slot == null) return;
+    let a = acct(), d = v6SaveOf(s);
+    store.set(key(a, C6.slot), d);
+    let ref = cloudRef(C6.slot);
+    ref && (clearTimeout(saveT), saveT = setTimeout(() => {
+      ref.set(JSON.parse(JSON.stringify(d))).then(() => {
+        C6.cloud[C6.slot] = d;
+      }).catch(() => {
+      });
+    }, 2500));
+  }
+  function write(i, d) {
+    store.set(key(acct(), i), d);
+    let ref = cloudRef(i);
+    ref && ref.set(JSON.parse(JSON.stringify(d))).catch(() => {
+    }), C6.cloud[i] = net.me ? d : C6.cloud[i];
+  }
+  function lockRef(i) {
+    return net.db && net.me ? net.db.doc("data/users/" + net.me + "/lock" + i) : null;
+  }
+  async function lockFree(i) {
+    let r = lockRef(i);
+    if (!r) return !0;
+    try {
+      let sn = await r.get(), L = sn.exists && sn.data();
+      return !L || L.dev === devId() || L.until < Date.now();
+    } catch {
+      return !0;
+    }
+  }
+  function lockTake(i) {
+    let r = lockRef(i);
+    r && r.set({ dev: devId(), until: Date.now() + LOCK_MS }).catch(() => {
+    });
+  }
+  async function lockCheck() {
+    let i = C6.slot, r = lockRef(i);
+    if (!(i == null || !r)) {
+      try {
+        let sn = await r.get(), L = sn.exists && sn.data();
+        if (L && L.dev !== devId() && L.until > Date.now()) {
+          chars6Save(rp.s), C6.slot = null, rpToast("This hero is being played on another device now."), openSelect();
+          return;
+        }
+      } catch {
+      }
+      lockTake(i);
+    }
+  }
+  async function c6Play(i, force) {
+    let s = v6Load(raw(i));
+    if (!s) {
+      rpToast("That save could not be read.");
+      return;
+    }
+    if (!force && !await lockFree(i)) {
+      C6.ask = i, rp.mode = "c6busy", rpUI(!0);
+      return;
+    }
+    C6.slot = i, lockTake(i), rp.s = s, rp.bt = null, rp.pk = null, rp.npcK = {}, rpApplyWorld(), rp.mode = "map", story.busy = !1, story.scene = null, rp.sig = "", rpUI(!0);
+  }
+  function c6Create() {
+    let n = v6HeroName(C6.form.name);
+    if (!n) {
+      rpToast("2 to 12 letters, please.");
+      return;
+    }
+    if ([0, 1, 2, 3, 4, 5].some((i) => {
+      let x = slotInfo(i);
+      return x && !x.deleted && x.name.toLowerCase() === n.toLowerCase();
+    })) {
+      rpToast("You already have a hero called " + n + ".");
+      return;
+    }
+    C6.slot = C6.form.slot, lockTake(C6.slot), rp.s = rpNewState(), s6NewGame(n, C6.form.colour), rp.s.created = Date.now(), chars6Save(rp.s);
+  }
+  function askDelete(i) {
+    C6.del = { i, typed: "" }, rp.mode = "c6del";
+  }
+  function doDelete() {
+    let i = C6.del && C6.del.i, info = slotInfo(i), e = typeof document < "u" && document.getElementById("c6-name"), typed = C6.del.typed || (e ? e.value : "");
+    if (!info || String(typed).trim().toLowerCase() !== info.name.toLowerCase()) {
+      rpToast("Type " + (info ? info.name : "the name") + " to delete.");
+      return;
+    }
+    let d = Object.assign({}, raw(i), { deletedAt: Date.now() });
+    write(i, d), C6.del = null, rp.mode = "c6", rpToast(info.name + " is kept for 7 days, then gone.");
+  }
+  function restore(i) {
+    let d = Object.assign({}, raw(i));
+    delete d.deletedAt, write(i, d), rpToast("Welcome back, " + d.hero.name + "!");
+  }
+  function purge(i) {
+    let info = slotInfo(i);
+    if (info && info.deleted && Date.now() - info.deleted > KEEP) {
+      store.set(key(acct(), i), null);
+      let r = cloudRef(i);
+      r && r.delete().catch(() => {
+      }), C6.cloud[i] = null;
+    }
+  }
+  function guestHeroes() {
+    if (acct() === "guest") return [];
+    let out = [];
+    for (let i = 0; i < SLOTS6; i++) {
+      let d = store.get(key("guest", i), null);
+      d && !d.deletedAt && out.push(i);
+    }
+    return out;
+  }
+  function keepGuest(gi) {
+    let free = [0, 1, 2, 3, 4, 5].find((i) => !slotInfo(i));
+    if (free == null) {
+      rpToast("All six slots are full.");
+      return;
+    }
+    write(free, store.get(key("guest", gi), null)), store.set(key("guest", gi), null), rpToast("Kept!");
+  }
+  function legacy() {
+    let old = C6.oldCloud || rpLoad();
+    return old ? v6Legacy(old) : null;
+  }
+  var ago = (t) => {
+    if (!t) return "never";
+    let d = (Date.now() - t) / DAY;
+    return d < 1 / 24 ? "just now" : d < 1 ? Math.round(d * 24) + " h ago" : Math.round(d) + " d ago";
+  }, hm = (s) => (s = Math.floor((s || 0) / 60), Math.floor(s / 60) + " h " + s % 60 + " min");
+  function selectHtml() {
+    for (let i = 0; i < SLOTS6; i++) purge(i);
+    let h = '<div class="rpdlg"><div class="who">Your heroes</div><p>' + (net.me ? "Six slots on your account." : "Playing on this device as a guest. Log in to keep your heroes everywhere.") + '</p></div><div class="rpcmd">';
+    for (let i = 0; i < SLOTS6; i++) {
+      let x = slotInfo(i);
+      if (!x) {
+        h += '<button class="rpb" type="button" data-rp="c6new" data-v="' + i + '">New hero<small>slot ' + (i + 1) + "</small></button>";
+        continue;
+      }
+      if (x.deleted) {
+        h += '<button class="rpb x" type="button" data-rp="c6restore" data-v="' + i + '">' + esc2(x.name) + " (deleted)<small>restore · " + Math.max(0, Math.ceil((KEEP - (Date.now() - x.deleted)) / DAY)) + " days left</small></button>";
+        continue;
+      }
+      h += '<button class="rpb go" type="button" data-rp="c6play" data-v="' + i + '">' + esc2(x.name) + "<small>" + (x.cls ? esc2(CLASSES6[x.cls].n) + " " : "") + "level " + x.lvl + " · " + esc2(x.where ? w6Title(x.where).replace(/ \(.*\)$/, "") : "Hearthspire") + " · " + x.pieces + " pieces · " + hm(x.played) + " · " + ago(x.savedAt) + "</small></button>";
+    }
+    h += '</div><div class="rpcmd">';
+    for (let i = 0; i < SLOTS6; i++) {
+      let x = slotInfo(i);
+      x && !x.deleted && (h += '<button class="rpb x" type="button" data-rp="c6delask" data-v="' + i + '">Delete ' + esc2(x.name) + "<small>you will type the name</small></button>");
+    }
+    for (let gi of guestHeroes()) {
+      let d = store.get(key("guest", gi), null);
+      h += '<button class="rpb go" type="button" data-rp="c6keep" data-v="' + gi + '">Keep this hero: ' + esc2(d.hero.name) + "<small>played here as a guest; moves into a free slot</small></button>";
+    }
+    let L = legacy();
+    return L && (h += '<button class="rpb" type="button" data-rp="c6legacy">Your hero from the first story<small>' + esc2(L.name) + ", level " + L.lvl + " · the old game, as it was</small></button>"), h + "</div>";
+  }
+  function c6NewHtml() {
+    let F = C6.form;
+    return '<div class="rpdlg"><div class="who">A new hero (slot ' + (F.slot + 1) + ')</div><p>Name your hero (2 to 12 letters; the story calls them by it) and pick a scale colour. The class is chosen in the story.</p><div class="chatin"><input id="c6-new" maxlength="12" value="' + esc2(F.name) + '" aria-label="Hero name"></div><div class="rpcmd">' + C6_COLOURS.map((c) => '<button class="rpb' + (c === F.colour ? " on" : "") + '" type="button" data-rp="c6col" data-v="' + c + '">' + c + "</button>").join("") + '</div></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6make">Begin</button><button class="rpb x" type="button" data-rp="c6back">Back</button></div>';
+  }
+  function delHtml() {
+    let x = slotInfo(C6.del.i);
+    return '<div class="rpdlg"><div class="who">Delete ' + esc2(x.name) + `?</div><p>Type the hero's name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div><div class="tbar"><button class="rpb x" type="button" data-rp="c6del">Delete</button><button class="rpb go" type="button" data-rp="c6back">Keep them</button></div>`;
+  }
+  function busyHtml() {
+    let x = slotInfo(C6.ask);
+    return '<div class="rpdlg"><div class="who">' + esc2(x ? x.name : "This hero") + ' is being played on another device.</div><p>Play here instead? The other device will save and go back to its heroes.</p></div><div class="tbar"><button class="rpb go" type="button" data-rp="c6force">Play here</button><button class="rpb x" type="button" data-rp="c6back">Not now</button></div>';
+  }
+  function openSelect() {
+    rp.s = rpNewState(), rp.s.w6 = "hearthspire", rp.s.w6st = { fountains: [], stables: [], chests: [], patrols: {}, enc: {}, switches: {}, campfire: {}, seen: {} }, rp.s.party = [], rp.s.x = 19, rp.s.y = 17, rpApplyWorld(), rp.bt = null, rp.dlg = null, rp.pk = null, rp.npcK = {}, C6.slot = null, rp.mode = "c6", show("rpg"), rpLayout(), requestAnimationFrame(() => {
+      rpResize(), rpUI(!0);
+    }), cloudLoad().then(() => rpUI(!0));
+  }
+  function readName() {
+    let e = typeof document < "u" && document.getElementById("c6-new");
+    e && (C6.form.name = e.value);
+  }
+  feature({
+    id: "chars6",
+    on: { save6: (s) => chars6Save(s) },
+    init() {
+      let b = typeof document < "u" && $("go-rpg");
+      b && b.addEventListener("click", (e) => {
+        window.__kqOldTitle || (e.stopImmediatePropagation(), rpGoFull(), openSelect());
+      }, !0);
+    },
+    panels: { c6: { sig: () => JSON.stringify([C6.cloud, C6.oldCloud && 1, store.get("kq6:" + acct() + ":0", null) && 1]), html: selectHtml }, c6new: { sig: () => JSON.stringify(C6.form), html: c6NewHtml }, c6del: { sig: () => "d" + (C6.del && C6.del.i), html: delHtml }, c6busy: { sig: () => "b" + C6.ask, html: busyHtml } },
+    menu: [{ order: 3, html: () => rp.s && rp.s.w6 && C6.slot != null ? '<button class="rpb" type="button" data-rp="c6menu">Heroes<small>save and change hero</small></button>' : "" }],
+    actions: {
+      c6play: (d) => {
+        c6Play(+d.v);
+      },
+      c6force: () => {
+        c6Play(C6.ask, !0);
+      },
+      c6new: (d) => {
+        C6.form = { name: "Pip", colour: "orange", slot: +d.v }, rp.mode = "c6new";
+      },
+      c6col: (d) => {
+        readName(), C6.form.colour = d.v;
+      },
+      c6make: () => {
+        readName(), c6Create();
+      },
+      c6back: () => {
+        rp.mode = "c6";
+      },
+      c6delask: (d) => askDelete(+d.v),
+      c6del: () => doDelete(),
+      c6restore: (d) => restore(+d.v),
+      c6keep: (d) => keepGuest(+d.v),
+      c6legacy: () => {
+        window.__kqOldTitle = 1, C6.slot = null, rpStart(!1), window.__kqOldTitle = 0;
+      },
+      c6menu: () => {
+        chars6Save(rp.s), openSelect();
+      }
+    }
+  });
+  var c6tick = 0;
+  frames.push((dt) => {
+    C6.slot == null || !rp.s || !rp.s.w6 || (rp.s.played = (rp.s.played || 0) + dt, c6tick += dt, c6tick * 1e3 >= RENEW_MS && (c6tick = 0, lockCheck()));
   });
 
   // src/main.js
