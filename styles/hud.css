@@ -62,3 +62,5 @@ html.cb .rpparty .rpm.low{animation-name:lowpulsecb}
 html.bigtext #rp-panel,html.bigtext #rp-top{font-size:125%}
 html.calm *{animation:none!important;transition:none!important}
 .corr{margin:6px 0;font-size:13px}.corr .rpbar{margin:3px 0}
+/* tap targets at least 44 px (ui-design.md §10, checked by browser/tsmoke6) */
+#rp-panel .rpb,#rp-panel .pill{min-height:44px}

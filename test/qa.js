@@ -1,0 +1,32 @@
+/* The QA map (build step 21): every row of the systems checklist (systems.md §0) and the tests that cover it. `node test/run.js`
+   prints it and fails when a row has no test, or names a test that doesn't exist. Rows measured by play (§14) also name the test
+   that keeps their numbers equal to the design; the feel is checked by Joakim. */
+module.exports=[
+  [1,'turn order: the timeline',['logic/v6battle','logic/v6rules','browser/tcoop6']],
+  [2,'the battle board',['logic/v6board']],
+  [3,'foes: stats, groups, AI',['logic/v6data','logic/v6battle']],
+  [4,'hit, damage, crits, statuses, terrain',['logic/v6rules','logic/v6battle']],
+  [5,'AP economy, skills, quick weapons',['logic/v6battle','logic/v6talent','browser/ttaps6']],
+  [6,'down, losing, fleeing, retries',['logic/v6end','browser/tplay6']],
+  [7,'recovery between fights',['logic/v6end','logic/world6']],
+  [8,'overworld: encounters, patrols, bounties, barriers',['logic/world6','logic/qa6']],
+  [9,'travel: fountains, fast travel, raptors',['logic/world6','browser/ttaps6']],
+  [10,'the pack: joining, bench XP, talents, subclass, leader points, morale',['logic/v6talent','logic/story6','logic/v6rules']],
+  [11,'corruption',['logic/v6talent','logic/v6end','logic/v6rules']],
+  [12,'items: chests, shops, crafting, drops, bag, selling',['logic/items6','logic/qa6','browser/ttaps6']],
+  [13,'rooms and interiors',['logic/world6','browser/tplay6']],
+  [14,'special tiles: the dark floor, the flooded gallery, the rail puzzle',['logic/world6','logic/v6board']],
+  [15,'the goal bar and hints',['logic/qa6','browser/ttaps6']],
+  [16,'saving and the save format',['logic/v6save','logic/save']],
+  [17,'co-op',['logic/coop6','browser/tcoop6','browser/tsite']],
+  [18,'settings, difficulty, accessibility',['logic/qa6','browser/tsmoke6']],
+  [19,'screens and taps',['browser/ttaps6','browser/tsmoke6']],
+  [20,'story, script, chats',['logic/story6','browser/tplay6']],
+  [21,'maps',['logic/world6','logic/places']],
+  [22,'music and sound',['logic/music6','browser/tsound6']],
+  [23,'art',['logic/art','browser/tart6']],
+  [24,'time and taps',['logic/qa6','browser/ttaps6']],
+  [25,'what is measured on purpose (the numbers; the feel is played)',['logic/v6rules']],
+  [26,'the small things: team attacks, the Book, stamps',['logic/v6battle','logic/qa6']],
+  [27,'accounts and characters',['logic/chars6','browser/tchars']],
+  [28,'admin tools',['logic/admin','browser/tsite']]];

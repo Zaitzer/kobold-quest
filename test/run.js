@@ -25,5 +25,9 @@ run('sim/slice',R+'/test/sim/slice.js',[],{RUNS:'2'});
   /* slowest first, so the pool finishes together */
   /* tsite starts the real game server and times its socket: it runs on its own */
   if(!quick)await runAll([['browser/tsite',R+'/test/browser/tsite.js']],1);
-  if(!quick)await runAll(['tmixed','tnet','tbat2','tmmo','trot','tjoy','trooms','tworld','smoke','hold','tw1','playhero','tsound','tmenu','tchars','tcoop6','ttaps6','tsound6','tart6'].map(t=>['browser/'+t,R+'/test/browser/'+t+'.js']),+process.env.BROWSERS||3);
+  if(!quick)await runAll(['tmixed','tnet','tbat2','tmmo','trot','tjoy','trooms','tworld','smoke','hold','tw1','playhero','tsound','tmenu','tchars','tcoop6','ttaps6','tsound6','tart6','tsmoke6','tplay6'].map(t=>['browser/'+t,R+'/test/browser/'+t+'.js']),+process.env.BROWSERS||3);
+  /* the QA map (test/qa.js): each row of systems.md §0 and the tests that cover it */
+  {const QA=require(R+'/test/qa.js'),have=new Set([...fs.readdirSync(R+'/test/logic').filter(f=>f.endsWith('.test.js')).map(f=>'logic/'+f.slice(0,-8)),...fs.readdirSync(R+'/test/browser').filter(f=>f.endsWith('.js')).map(f=>'browser/'+f.slice(0,-3))]);
+   const bad=QA.filter(([n,what,ts])=>!ts.length||ts.some(t=>!have.has(t)));console.log('\nQA: '+QA.length+' systems (systems.md §0), each with its tests'+(bad.length?'; MISSING: '+bad.map(b=>b[0]+' '+b[1]).join(', '):''));
+   if(bad.length)results.push(['FAIL','qa map'])}
   const f=results.filter(r=>r[0]==='FAIL').length;console.log('\n'+(f?f+' FAILED':'all '+results.length+' passed')+(quick?'':' · browsers '+((Date.now()-T0)/1000).toFixed(0)+'s'));process.exitCode=f?1:0})();
