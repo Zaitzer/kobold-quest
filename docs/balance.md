@@ -945,7 +945,7 @@ no misses at all and about 9% have five or more.
 
 **How encounters work (22 Oct, matched to the maps):** on routes, **only tall grass rolls** (the desert's dunes and the snowfield's
 drifts are their kinds of tall grass), so the player can always see where a fight can start and choose to walk round it. **Every
-route's road crosses tall grass for 40% of its middle** (`tools/slicemaps.js` checks it), and a grass step rolls at the route's
+route's road crosses tall grass for 40% of its middle** (as R1 was drawn; the map's goals in the editor check its length and the grass-free ends), and a grass step rolls at the route's
 chance ÷ 0.4, so the averages below still hold for a player who keeps to the road. Off-road grass rolls the same, so a player who wants
 more fights wades in. Dungeon floors roll on every step (caves have no grass).
 

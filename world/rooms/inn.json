@@ -1,0 +1,27 @@
+{
+ "id": "inn",
+ "title": "the Hearthspire inn",
+ "w": 13,
+ "h": 8,
+ "town": "hearthspire",
+ "rows": [
+  "wwwwwwwwwwwww",
+  "wHqqqsssqqqow",
+  "wqqq_____qqqw",
+  "wqqqqqqqqqqow",
+  "wlzlqqqqlzlqw",
+  "wqqqqqqqqqqyw",
+  "wpqpqqqqqpqpw",
+  "wwwwwweewwwww"
+ ],
+ "marks": [["H","the hearth: campfire chats"],["p","beds (rest)"],["o","the roster board"]],
+ "links": [
+  {"x":6,"y":7,"to":"hearthspire","tx":30,"ty":21,"how":"step"},
+  {"x":7,"y":7,"to":"hearthspire","tx":30,"ty":21,"how":"step"}
+ ],
+ "npcs": [
+  {"id":"inn_hs","n":"Innkeeper","x":4,"y":3,"from":"1.10","lines":["A bed's ten gold"],"colour":"#c4523a"},
+  {"id":"quill","n":"Quill the scribe","x":9,"y":3,"letter":1,"colour":"#7b5ea8"}
+ ],
+ "chests": []
+}

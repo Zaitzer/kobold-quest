@@ -1,0 +1,19 @@
+{
+ "id": "loft",
+ "title": "the mill loft (Pebblebrook)",
+ "w": 11,
+ "h": 6,
+ "town": "pebblebrook",
+ "rows": [
+  "wwwwwwwwwww",
+  "waaqqqqqaaw",
+  "wqqqqcqqqqw",
+  "wqaqqqqqqqw",
+  "wqqqqqqqaqw",
+  "wwwwweewwww"
+ ],
+ "marks": [["c","the old vote bag (with a hole in it)"],["a","flour sacks"]],
+ "links": [{"x":5,"y":5,"to":"room:mill","tx":13,"ty":3,"how":"step"},{"x":6,"y":5,"to":"room:mill","tx":13,"ty":3,"how":"step"}],
+ "npcs": [],
+ "chests": [{"name":"the loft (needs the vote bag)","where":"the mill loft","items":[{"gold":60},{"use":"Ether","n":2}]}]
+}

@@ -1,0 +1,33 @@
+{
+ "id": "cellar",
+ "title": "the bakery cellar",
+ "w": 13,
+ "h": 7,
+ "town": "hearthspire",
+ "rows": [
+  "wwwwwwwwwwwww",
+  "waaqqqqqqqaaw",
+  "wqqqqqqqqqqqw",
+  "wqqqqnqqqqqqw",
+  "wqqqqqqqqqqgw",
+  "waqqqqqqqqqqw",
+  "wwwwwewwwwwww"
+ ],
+ "marks": [
+  ["g","the flour tunnel (sealed until after the Ordeal)"],
+  ["n","where Cinder rebuilds the oven frame (act 3)"],
+  ["e","up to the bakery"]
+ ],
+ "links": [
+  {"x":5,"y":6,"to":"room:bakery","tx":11,"ty":3,"how":"step"},
+  {"x":11,"y":4,"to":"","tx":0,"ty":0,"how":"step","flag":"never"}
+ ],
+ "npcs": [],
+ "chests": [
+  {
+   "name": "Mallow's old box",
+   "where": "the bakery cellar, after the rats",
+   "items": [{"gear":"Moss cape","tier":0,"slot":"cloak","set":"Mossback regalia","bonuses":0}]
+  }
+ ]
+}

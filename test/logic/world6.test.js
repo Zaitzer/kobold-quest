@@ -1,4 +1,4 @@
-/* the v6 world (build step 11, systems.md §6, §9, docs/maps): walking the slice through every link, encounters by the rules,
+/* the v6 world (build step 11, systems.md §6, §9, world/): walking the slice through every link, encounters by the rules,
    fountains, campfires, chests, the dark floor, the rail puzzle, losing back to the fountain */
 process.emitWarning=()=>{};
 let fails=0,checks=0;const bad=m=>{fails++;console.log('FAIL',m)};const ok=(c,m)=>{checks++;if(!c)bad(m)};
@@ -32,7 +32,7 @@ for(const L of X.LINKS6){if(L[7])continue;fresh();X.w6Go(L[3],L[4],L[5]);const s
  let m=0;for(let i=0;i<4000;i++){X.rp.grace=0;s.w6st.since=99;X.rp.s.w6='mine1';if(X.w6Step(5,5,'f'))m++;X.rp.bt=null}ok(Math.abs(m/4000-0.06)<0.015,'a mine floor step rolls 6%: '+(m/40).toFixed(1)+'%');
  X.rp.s.w6='r1';s.w6st.since=0;let early=0;for(let i=0;i<11;i++){X.rp.grace=0;if(X.w6Step(50,1,'"'))early++;X.rp.bt=null}ok(early===0,'no fight within 12 steps of the last')}
 // a fight from the grass is a v6 fight on a meadow board; losing wakes you at the last fountain with half the gold
-{const s=fresh({map:'r1'});s.gold=100;s.w6st.respawn='pebblebrook';X.w6Fight('r1',X.W6_ENC.r1);const b=X.rp.bt;ok(b&&b.v6&&b.theme6==='meadow','a meadow v6 fight');
+{const s=fresh({map:'r1'});s.gold=100;s.w6st.respawn='pebblebrook';X.w6Fight('r1',X.w6Enc('r1'));const b=X.rp.bt;ok(b&&b.v6&&b.theme6==='meadow','a meadow v6 fight');
  b.units.filter(u=>u.side===0).forEach(u=>{u.hp=0;X.tcKo(u)});X.tcCheckEnd();X.rpEndBattle();ok(s.w6==='pebblebrook'&&s.gold===50,'lost: back at the Pebblebrook fountain with half the gold ('+s.w6+', '+s.gold+')');
  ok(s.party.every(m=>m.hp===X.rpStats(m).hp),'everyone healed')}
 // fountain, campfire once a visit, chest once, beds
@@ -64,7 +64,7 @@ for(const [k,M] of Object.entries(X.MAPS6)){fresh();X.rp.s.q.pb=6;X.w6Go(k,...M.
  const t2=X.w6Patrols('r1')[0];X.w6PatrolCheck(t2.x-(t2.face==='east'?1:-1),t2.y,',');b=X.rp.bt;ok(b&&b.units.filter(u=>u.side===1).every(u=>!u.aware),'reached from behind: an ambush');X.rp.bt=null;X.rp.mode='map';
  X.w6Rest('room:inn');ok(X.w6Patrols('r1').length===3,'an inn rest brings the patrols back');ok(['Few','Several','Pack','Lots','Overwhelming'].includes(X.w6Strength('r1')),'a strength word')}
 // XP: a won v6 fight pays its foes' XP to every kobold; enough of it is a level and a pick
-{const s=fresh({map:'r1'});X.w6Fight('r1',X.W6_ENC.r1);const b=X.rp.bt,xp=b.units.filter(u=>u.side===1).reduce((a,u)=>a+u.E.xp,0);const m=s.party[1];m.xp=X.v6XpNeed(m.lvl)-1;const L=m.lvl;
+{const s=fresh({map:'r1'});X.w6Fight('r1',X.w6Enc('r1'));const b=X.rp.bt,xp=b.units.filter(u=>u.side===1).reduce((a,u)=>a+u.E.xp,0);const m=s.party[1];m.xp=X.v6XpNeed(m.lvl)-1;const L=m.lvl;
  b.units.filter(u=>u.side===1).forEach(u=>u.hp=0);X.rpWin();ok(m.lvl===L+1&&m.pend>=1,'enough XP is a level with a pick');ok(s.party[0].xp===xp,'every kobold gets the fight\'s XP: '+s.party[0].xp+' vs '+xp);X.rpEndBattle()}
 // stables: shut before the first piece; then a raptor between visited stables. Fountains: travel from the second piece
 {const s=fresh();X.w6Go('hearthspire',6,16);X.rpInteractAt(6,15);ok(!s.w6st.stables.length,'the stable is shut before the first piece');X.rp.mode='map';

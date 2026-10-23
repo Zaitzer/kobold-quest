@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 /* Kobold Quest v6: writes the game's data files from the design's tools (step 1 of docs/build-plan.md), so the documents and the
-   game cannot drift: src/data/v6/classes.js, skills.js, foes.js, maps.js. Usage: node tools/gen-data.js                           */
+   game cannot drift: src/data/v6/classes.js, skills.js, foes.js, items.js, and maps.js and story.js from the world (world/, made in the
+   map editor, tools/editor) and the script (docs/slice-dialogue.md). Usage: node tools/gen-data.js                                 */
 const fs=require('fs'),path=require('path');
 const OUT=path.join(__dirname,'..','src','data','v6');fs.mkdirSync(OUT,{recursive:true});
 const {CLASSES,PASSIVES,price,ap}=require('./skills-table.js');
@@ -87,9 +88,12 @@ const TRIALS={};for(const r of mdRows(XTXT,l=>l.startsWith('| trial | base foe |
 if(Object.keys(TRIALS).length!==5)problems.push('trials parsed: '+Object.keys(TRIALS).length);
 fs.writeFileSync(path.join(OUT,'foes.js'),head('tools/content-tables.js; bestiary.md; balance.md §4')+`export const ROLES6=${J(CT.ROLE)};\nexport const FOES6=${J(FOES)};\nexport const PLACES6=${J(PLACES)};\nexport const BOSSES6=${J(BOSSES)};\nexport const TRIALS6=${J(TRIALS)};\n`);
 
-/* ---------------------------------------------------------------- the slice's maps and rooms */
-const slice=JSON.parse(fs.readFileSync(path.join(__dirname,'..','docs','maps','slice.json'),'utf8'));
-fs.writeFileSync(path.join(OUT,'maps.js'),head('tools/slicemaps.js; docs/maps/slice.json')+`export const MAPS6=${J(slice.maps)};\nexport const ROOMS6=${J(slice.rooms)};\nexport const LINKS6=${J(slice.links||[])};\n`);
+/* ---------------------------------------------------------------- the world (world/: maps, rooms, people, chests, scenes) and the script,
+   checked (tools/world/world.js: everything reachable, links with a way back, the maps' goals, every anchor and set piece found) */
+const WORLD=require('./world/world.js'),W=WORLD.load(path.join(__dirname,'..')),SCRIPT=WORLD.parseScript(fs.readFileSync(path.join(__dirname,'..','docs','slice-dialogue.md'),'utf8'));
+{const r=WORLD.check(W,{script:SCRIPT,foes:Object.keys(FOES),places6:PLACES.map(p=>p.place)});r.problems.forEach(p=>problems.push('world: '+p.where+': '+p.msg));r.report.forEach(l=>console.log('world: '+l))}
+const G6=WORLD.toGame(W,SCRIPT,PLACES.map(p=>p.place));
+fs.writeFileSync(path.join(OUT,'maps.js'),head('world/')+`export const MAPS6=${J(G6.MAPS6)};\nexport const ROOMS6=${J(G6.ROOMS6)};\nexport const LINKS6=${J(G6.LINKS6)};\nexport const TILES6=${J(G6.TILES6)};\n`);
 
 /* ---------------------------------------------------------------- items, parsed from docs/items.md (the design is the source) */
 const ITXT=fs.readFileSync(path.join(__dirname,'..','docs','items.md'),'utf8').split('\n');
@@ -116,24 +120,11 @@ fs.writeFileSync(path.join(OUT,'items.js'),head('docs/items.md')+`export const G
 console.log(`items: slots ${Object.keys(GEAR).length} (${Object.values(GEAR).map(v=>Object.keys(v).length).reduce((a,b)=>a+b,0)} lines), weapon families ${Object.keys(WEAP).length}, affixes ${AFFIX.length}, uniques ${UNIQUES.length}, sets ${SETS.length}, consumables ${CONS.length}, materials ${MATS.length}, recipes ${RECIPES.length}`);
 
 const n=f=>fs.statSync(path.join(OUT,f)).size;
-console.log(`classes ${Object.keys(CLASSES6).length}, skills ${Object.keys(SK).length}, foes ${Object.keys(FOES).length}, places ${PLACES.length}, maps ${Object.keys(slice.maps).length}, rooms ${Object.keys(slice.rooms).length}`);
+console.log(`classes ${Object.keys(CLASSES6).length}, skills ${Object.keys(SK).length}, foes ${Object.keys(FOES).length}, places ${PLACES.length}, maps ${Object.keys(G6.MAPS6).length}, rooms ${Object.keys(G6.ROOMS6).length}`);
 console.log(['classes.js','skills.js','foes.js','maps.js','items.js'].map(f=>f+' '+n(f)+' B').join(', '));
-/* ---------------------------------------------------------------- the story: the script's lines (docs/slice-dialogue.md) wired by tools/v6/scenes.js,
-   the goal bar from systems.md §10; checked: every anchor is found in order, every NPC stands on open ground, every set piece's foe exists */
-{const {readScript}=require('./v6/script.js'),SC=require('./v6/scenes.js'),S=readScript();
-  for(const k of Object.keys(S))S[k].items.forEach(i=>{if(i.dir)i.show=!SC.NOTE.test(i.dir)});
-  const find=(items,a,from)=>{if(a==null)return null;const i=items.findIndex((it,j)=>j>=from&&((it.text||'')+' '+(it.dir||'')).includes(a.replace(/\bPip\b/g,'{hero}')));return i<0?-1:i};
-  const walk=(scene,steps)=>{const items=(S[scene.from||scene.id]||{}).items;if(!items){problems.push('scene '+scene.id+': no such section in the script');return}
-    for(const st of steps){if(st[0]==='say'){const a=st[1]==null?0:find(items,st[1],0),b=st[2]==null?items.length-1:find(items,st[2],Math.max(0,a));
-        if(a<0||b<0||b<a)problems.push(`scene ${scene.id}: anchor not found in order: "${a<0?st[1]:st[2]}"`);else{st[3]=a;st[4]=b}}
-      if(st[0]==='choice')st[1].forEach(c=>walk(scene,c[1]));
-      if(st[0]==='fight'&&!SC.SETPIECES[st[1]])problems.push('scene '+scene.id+': no set piece '+st[1]);
-      if(st[0]==='join'&&!SC.COMPANIONS[st[1]])problems.push('scene '+scene.id+': no companion '+st[1])}};
-  SC.SCENES.forEach(sc=>walk(sc,sc.steps));
-  for(const n of SC.NPCS){if(n.from){const items=S[n.from].items;n.lines=n.lines.map(a=>{const i=find(items,a,0);if(i<0)problems.push('npc '+n.id+': line not found "'+a+'"');return i})}
-    const rows=n.place.startsWith('room:')?(slice.rooms[n.place.slice(5)]||{}).rows:(slice.maps[n.place]||{}).rows;if(!rows){problems.push('npc '+n.id+': no place '+n.place);continue}
-    const c=(rows[n.y]||'')[n.x];if(c==null)problems.push('npc '+n.id+' is off the map');}
-  for(const sp of Object.values(SC.SETPIECES))(sp.foes||[]).forEach(f=>{if(!FOES[f[0]])problems.push('set piece foe '+f[0]+' is not in the bestiary')});
+/* ---------------------------------------------------------------- the story: the script's lines (docs/slice-dialogue.md) wired by the world's scenes
+   (world/scenes.json, checked above), the goal bar from systems.md §10 */
+{const S=SCRIPT,SC=W.scenes;
   /* the goal bar (systems.md §10): flags → goal line and hint */
   const STXT=fs.readFileSync(path.join(__dirname,'..','docs','systems.md'),'utf8').split('\n'),GOALS=mdRows(STXT,l=>l.startsWith('| flags | goal bar | hint')).map(r=>{const when={};
     r[0].split(',').forEach(p=>{const m=p.trim().match(/^(\w+) (\d+)$/);if(m)when[m[1]]=+m[2]});return{when,goal:r[1].replace(/\*/g,''),hint:r[2]}});
@@ -144,22 +135,13 @@ console.log(['classes.js','skills.js','foes.js','maps.js','items.js'].map(f=>f+'
   const DEEDS={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | where')).forEach(r=>DEEDS[r[0]]={n:r[1],v:val(r)});
   const KIND={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | in the slice')).forEach(r=>KIND[r[0]]={n:r[1],v:val(r)});
   if(Object.keys(DEEDS).length!==24||Object.keys(KIND).length!==8)problems.push('deeds parsed: '+Object.keys(DEEDS).length+' and '+Object.keys(KIND).length);
-  /* the slice's chests (systems.md §8): where (a map mark with x, y, or a named room opened by a scene) and what is in each */
-  const PLACE_OF={'R1':'r1','Pebblebrook':'pebblebrook','mine floor 1':'mine1','mine floor 2':'mine2','mine floor 3':'mine3'};
-  const CHESTS=mdRows(STXT,l=>l.startsWith('| chest | where (map mark) | contents')).map(r=>{const w=r[1].match(/^(.+?) \((\d+), (\d+)\)/),items=[];
-    for(const part of r[2].replace(/ — .*$/,'').split(/ and /)){const p=part.trim(),g=p.match(/^(?:a |an )?(.+?) \(T(\d) (\w+)(?:, ([^)]*))?\)/),m=p.match(/^(\d+) gold/),u=p.match(/^(\d+|a|an) (potions?|ethers?|Phoenix feather)/i);
-      if(g){const extra=g[4]||'';items.push({gear:g[1],tier:+g[2]-1,slot:g[3]==='armour'?'armour':g[3],set:/Mossback/.test(extra)?'Mossback regalia':/Millers/.test(extra)?"Millers' set":null,bonuses:/both bonuses/.test(extra)?2:/one bonus/.test(extra)?1:0})}
-      else if(m)items.push({gold:+m[1]});else if(u){const n=/^\d+$/.test(u[1])?+u[1]:1;let k=u[2].toLowerCase().replace(/s$/,'');items.push({use:k==='phoenix feather'?'Phoenix feather':k[0].toUpperCase()+k.slice(1),n})}
-      else problems.push('chest contents not understood: '+p)}
-    return{name:r[0],place:w?PLACE_OF[w[1]]||null:null,x:w?+w[2]:null,y:w?+w[3]:null,where:r[1],items}});
-  if(CHESTS.length!==8)problems.push('chests parsed: '+CHESTS.length);
-  fs.writeFileSync(path.join(OUT,'story.js'),head('docs/slice-dialogue.md; tools/v6/scenes.js; systems.md §10')+`export const SCRIPT6=${J(S)};\nexport const SCENES6=${J(SC.SCENES)};\nexport const NPCS6=${J(SC.NPCS)};\n`+
-    `export const SETPIECES6=${J(SC.SETPIECES)};\nexport const CHATS6=${J(SC.CHATS)};\nexport const COMPANIONS6=${J(SC.COMPANIONS)};\nexport const WAVE16=${J(SC.WAVE1)};\nexport const GOALS6=${J(GOALS)};\nexport const MINERS6=${J(MINERS)};\nexport const DEEDS6=${J(DEEDS)};\nexport const KIND6=${J(KIND)};\nexport const CHESTS6=${J(CHESTS)};\n`);
+  fs.writeFileSync(path.join(OUT,'story.js'),head('docs/slice-dialogue.md; world/; systems.md §10')+`export const SCRIPT6=${J(S)};\nexport const SCENES6=${J(G6.SCENES6)};\nexport const NPCS6=${J(G6.NPCS6)};\n`+
+    `export const SETPIECES6=${J(SC.setpieces)};\nexport const CHATS6=${J(SC.chats)};\nexport const COMPANIONS6=${J(SC.companions)};\nexport const WAVE16=${J(SC.wave1)};\nexport const GOALS6=${J(GOALS)};\nexport const MINERS6=${J(MINERS)};\nexport const DEEDS6=${J(DEEDS)};\nexport const KIND6=${J(KIND)};\nexport const CHESTS6=${J(G6.CHESTS6)};\n`);
   /* a readable table of the wiring, for the design */
   const where=a=>a.start?'new game':a.none?'(follows the scene before)':a.place+(a.npc?', talk to '+a.npc:a.enter?', on entering':a.area?', near '+a.area.slice(0,2).join(','):a.tile?', the tile '+a.tile.join(','):a.bump?', bump near '+a.bump.slice(0,2).join(','):'');
   const what=st=>st.map(s=>s[0]==='say'?null:s[0]==='choice'?'choice: '+s[1].map(c=>c[0]).join(' / '):s[0]+(s[1]!=null?' '+(typeof s[1]==='object'?JSON.stringify(s[1]).replace(/"/g,''):s[1]):'')).filter(Boolean).join('; ');
-  fs.writeFileSync(path.join(__dirname,'..','docs','slice-scenes.md'),`# The slice's scenes, wired (generated)\n\n*Written by \`node tools/gen-data.js\` from \`tools/v6/scenes.js\` (where and when each scene of \`slice-dialogue.md\` plays and what it does). Change the wiring there; the lines stay in \`slice-dialogue.md\`.*\n\n| scene | where | when | does |\n|---|---|---|---|\n`+
-    SC.SCENES.map(sc=>`| ${sc.id} | ${where(sc.at)} | ${sc.when?JSON.stringify(sc.when).replace(/"/g,''):'—'} | ${what(sc.steps)} |`).join('\n')+'\n\n## Set pieces\n\n| id | foes | board |\n|---|---|---|\n'+
-    Object.entries(SC.SETPIECES).map(([k,v])=>`| ${k} | ${v.boss?'boss '+v.boss:v.foes.map(f=>f.slice(0,2).join(' L')+(f[2]?' ('+f[2]+')':'')).join(', ')}${v.solo?' (the hero alone)':''} | ${v.theme} |`).join('\n')+'\n')}
+  fs.writeFileSync(path.join(__dirname,'..','docs','slice-scenes.md'),`# The slice's scenes, wired (generated)\n\n*Written by \`node tools/gen-data.js\` from \`world/scenes.json\` (where and when each scene of \`slice-dialogue.md\` plays and what it does). Change the wiring in the map editor (tools/editor); the lines stay in \`slice-dialogue.md\`.*\n\n| scene | where | when | does |\n|---|---|---|---|\n`+
+    SC.scenes.map(sc=>`| ${sc.id} | ${where(sc.at)} | ${sc.when?JSON.stringify(sc.when).replace(/"/g,''):'—'} | ${what(sc.steps)} |`).join('\n')+'\n\n## Set pieces\n\n| id | foes | board |\n|---|---|---|\n'+
+    Object.entries(SC.setpieces).map(([k,v])=>`| ${k} | ${v.boss?'boss '+v.boss:v.foes.map(f=>f.slice(0,2).join(' L')+(f[2]?' ('+f[2]+')':'')).join(', ')}${v.solo?' (the hero alone)':''} | ${v.theme} |`).join('\n')+'\n')}
 
 if(problems.length){console.log('PROBLEMS:\n'+problems.join('\n'));process.exitCode=1}

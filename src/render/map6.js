@@ -1,37 +1,34 @@
 /* ---------- Kobold Quest v6: drawing the slice's maps (build step 11) ----------
-   One small drawing per tile letter of tools/slicemaps.js, in the style guide's palette, until the art/v6 tiles are loaded (step 19).
+   One small drawing per tile letter of world/tiles.json, in the style guide's palette, until the art/v6 tiles are loaded (step 19).
    The dark floor is drawn over the map: unlit tiles outside the light are nearly black (systems.md §9). */
 import {RPH,RPW,RT} from '../core/layout.js';
 import {test} from '../core/rules.js';
 import {rp} from '../core/state.js';
-import {MAPS6} from '../data/v6/maps.js';
+import {MAPS6,TILES6} from '../data/v6/maps.js';
 import {OL} from '../engine/art.js';
 import {byBase} from '../engine/sheets6.js';
 import {sprite} from '../engine/sprites.js';
 import {seeded} from '../engine/util.js';
 import {isRoom,w6Flooded,w6Lit,w6Patrols,w6Strength} from '../game/world6.js';
 
-const OUT6={'.':'#6cbf4c',',':'#c9a36a','"':'#3f8f3a',M:'#d9d2e6',k:'#bcb3cc',N:'#e0b85a','=':'#a8743f',G:'#ffd54a',D:'#7a4f27',h:'#5a3a1a','#':'#4d3f57',K:'#62526d',
-  B:'#c4523a',T:'#24672d','~':'#3a8fd9',F:'#7bb6e6',b:'#a8743f',o:'#ffd54a',t:'#8a7a8f',r:'#62526d',O:'#9aa0b0',W:'#7a4f27',f:'#8a7360',R:'#6b5545',d:'#3b2f2a',w:'#4d7fa8',
-  X:'#2a1f1d',x:'#a8743f',S:'#ffb347',u:'#ffd54a',v:'#ffd54a',C:'#ff8a3a',P:'#d98a3a'};
-const ROOM6={w:'#4d3f57',q:'#c9a36a',e:'#ffd54a',n:'#b0574a',s:'#7a4f27',m:'#4a35b0',p:'#c4523a',l:'#a8743f',z:'#7a4f27',y:'#3f7f3a',c:'#d9a43a',a:'#eee6d0',g:'#5a3a1a',_:'#7a4f27',H:'#b0574a','|':'#ffd54a',o:'#a8743f'};
-/* the tile letters that have a sheet in art/v6/tiles (ASSETS.md); a letter with no drawn sheet keeps its drawing in code */
-const TILE6={'.':'grass',',':'path','"':'tall-grass',M:'marble',k:'cobble',T:'tree','~':'water',F:'fountain',f:'mine-floor',R:'rails',X:'mine-wall',d:'dark',w:'flooded',x:'mine-floor'};
-const tileSheet=c=>TILE6[c]?byBase(TILE6[c]):null;
+/* the tile letters (world/tiles.json): each one's colour, the art/v6/tiles sheet it is drawn with once drawn, what a standing thing
+   stands on; a letter with no drawn sheet keeps its drawing in code */
+const T6=(room,c)=>TILES6[room?'room':'map'][c]||null;
+const col6=(room,c,dflt)=>{const t=T6(room,c);return t&&t.colour||dflt};
+const tileSheet=c=>{const t=T6(false,c);return t&&t.sheet?byBase(t.sheet):null};
 function tileImg(g,key,X,Y){const s=sprite(key);if(!s)return;const sm=g.imageSmoothingEnabled;g.imageSmoothingEnabled=false;g.drawImage(s.img,0,0,32,32,X,Y,RT+1,RT+1);g.imageSmoothingEnabled=sm}
-/* what each standing thing stands on */
-const UNDER6={c:'.','|':'k',T:'.',F:'M',b:'M',o:'.',r:'.',O:'.',x:'f',P:'f',S:'R',C:'f',u:'f',v:'f',W:'~'};
+const under6=c=>{const t=T6(false,c);return t&&t.under||null};
 function w6Tile(g,c,x,y,X,Y){const room=isRoom(rp.s.w6),r=seeded(x*131+y*977),fill=col=>{g.fillStyle=col;g.fillRect(X,Y,RT+1,RT+1)};
   const speck=(col,n)=>{g.fillStyle=col;for(let i=0;i<n;i++)g.fillRect(X+r()*28,Y+r()*28,3,2)};
-  if(room){fill(ROOM6[c]||'#c9a36a');
+  if(room){fill(col6(true,c,'#c9a36a'));
     if(c==='q'||c==='e'){speck('rgba(80,40,10,.18)',3);if(c==='e'){g.fillStyle='rgba(255,213,74,.55)';g.fillRect(X+4,Y+4,RT-8,RT-8)}}
     else if(c==='w'){g.fillStyle='rgba(255,255,255,.08)';g.fillRect(X,Y,RT,4)}
-    else if(c!=='g'){fill('#c9a36a');g.fillStyle=OL;g.fillRect(X+3,Y+3,RT-6,RT-6);g.fillStyle=ROOM6[c]||'#7a4f27';g.fillRect(X+5,Y+5,RT-10,RT-10);if(c==='H'){g.fillStyle='#ffd54a';g.fillRect(X+11,Y+10,10,10)}}
+    else if(c!=='g'){fill('#c9a36a');g.fillStyle=OL;g.fillRect(X+3,Y+3,RT-6,RT-6);g.fillStyle=col6(true,c,'#7a4f27');g.fillRect(X+5,Y+5,RT-10,RT-10);if(c==='H'){g.fillStyle='#ffd54a';g.fillRect(X+11,Y+10,10,10)}}
     else{g.fillStyle='#2a1808';g.fillRect(X+6,Y+6,RT-12,RT-12)}
     return}
   /* a drawn tile (art/v6/tiles, build step 19): frame 1 of the sheet, pixel for pixel; a standing thing is drawn on its ground first */
-  {const key=tileSheet(c);if(key){const under=UNDER6[c],uk=under&&tileSheet(under);if(under&&!uk){fill(OUT6[under]||'#6cbf4c')}else if(uk)tileImg(g,uk,X,Y);tileImg(g,key,X,Y);return}}
-  const base=c==='c'&&/mine/.test(rp.s.w6)?'f':UNDER6[c];fill(OUT6[base||c]||'#ff00ff');
+  {const key=tileSheet(c);if(key){const under=under6(c),uk=under&&tileSheet(under);if(under&&!uk){fill(col6(false,under,'#6cbf4c'))}else if(uk)tileImg(g,uk,X,Y);tileImg(g,key,X,Y);return}}
+  const base=c==='c'&&/mine/.test(rp.s.w6)?'f':under6(c);fill(col6(false,base||c,'#ff00ff'));
   switch(base?base:c){case'.':speck('rgba(30,80,20,.25)',3);break;case'"':g.strokeStyle='#24672d';g.lineWidth=2;for(let i=0;i<5;i++){const a=X+3+r()*26,b=Y+10+r()*20;g.beginPath();g.moveTo(a,b);g.lineTo(a-2,b-8);g.stroke()}break;
     case',':speck('rgba(120,80,40,.25)',3);break;case'M':case'k':g.strokeStyle='rgba(60,40,90,.18)';g.strokeRect(X+.5,Y+.5,RT-1,RT-1);break;case'f':case'R':case'd':speck('rgba(0,0,0,.2)',3);break;
     case'~':case'w':g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=2;g.beginPath();g.moveTo(X+4,Y+12+(x%2)*6);g.quadraticCurveTo(X+16,Y+6+(x%2)*6,X+28,Y+12+(x%2)*6);g.stroke();break}
@@ -53,7 +50,7 @@ function w6Tile(g,c,x,y,X,Y){const room=isRoom(rp.s.w6),r=seeded(x*131+y*977),fi
   if(c==='B'||c==='K'||c==='#'||c==='X'||c==='t'){g.fillStyle='rgba(0,0,0,.18)';g.fillRect(X,Y+RT-6,RT,6);g.fillStyle='rgba(255,255,255,.1)';g.fillRect(X,Y,RT,3)}
   if(c==='D'||c==='G'||c==='h'){g.fillStyle=OL;g.fillRect(X+6,Y+3,RT-12,RT-3);g.fillStyle=c==='G'?'#ffd54a':'#7a4f27';g.fillRect(X+8,Y+5,RT-16,RT-5)}}
 /* the dark floor: tiles out of the light are covered (systems.md §9; sight 3 on the map) */
-function w6Overlay(ctx,cx,cy){const p=rp.s.w6,s=rp.s;w6DrawPatrols(ctx,cx,cy,p);w6DrawFlood(ctx,cx,cy,p);w6Weather(ctx,p);if(p!=='mine2')return;const x0=Math.floor(cx/RT),y0=Math.floor(cy/RT),x1=Math.ceil((cx+RPW)/RT),y1=Math.ceil((cy+RPH)/RT);
+function w6Overlay(ctx,cx,cy){const p=rp.s.w6,s=rp.s;w6DrawPatrols(ctx,cx,cy,p);w6DrawFlood(ctx,cx,cy,p);w6Weather(ctx,p);if(!(MAPS6[p]&&MAPS6[p].dark))return;const x0=Math.floor(cx/RT),y0=Math.floor(cy/RT),x1=Math.ceil((cx+RPW)/RT),y1=Math.ceil((cy+RPH)/RT);
   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const c=rp.grid[y]&&rp.grid[y][x];if(c!=='d')continue;if(w6Lit(p,x,y))continue;const d=Math.hypot(x-s.x,y-s.y);
     ctx.fillStyle='rgba(8,4,14,'+(d<=3?0.25:0.9)+')';ctx.fillRect((x*RT-cx),(y*RT-cy),RT+1,RT+1)}}
 /* patrols: a foe with its strength word, facing along the road */
@@ -67,4 +64,4 @@ function w6DrawFlood(ctx,cx,cy,p){const F=MAPS6[p]&&MAPS6[p].flood;if(!F||!w6Flo
 /* flour dust drifting in Pebblebrook once the mill turns (systems.md §15, flavour only) */
 function w6Weather(ctx,p){if(p!=='pebblebrook'||!test({pb:{gte:6}}))return;ctx.fillStyle='rgba(255,250,235,.55)';const t=rp.t||0;
   for(let i=0;i<40;i++){const x=((i*97+t*14*(1+i%3))%RPW+RPW)%RPW,y=((i*53+t*9)%RPH+RPH)%RPH;ctx.fillRect(x,y,2,2)}}
-export {OUT6,ROOM6,TILE6,UNDER6,tileImg,tileSheet,w6DrawFlood,w6DrawPatrols,w6Overlay,w6Tile,w6Weather};
+export {T6,col6,tileImg,tileSheet,under6,w6DrawFlood,w6DrawPatrols,w6Overlay,w6Tile,w6Weather};

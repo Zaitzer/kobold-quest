@@ -1,0 +1,23 @@
+{
+ "id": "tower",
+ "title": "the tower top (Hearthspire)",
+ "w": 9,
+ "h": 6,
+ "town": "hearthspire",
+ "music": {"key":"quiet","amb":"fire"},
+ "rows": [
+  "wwwwwwwww",
+  "wqqqqqqqw",
+  "wqqHHHqqw",
+  "wqqHHHqqw",
+  "wqqqqqqqw",
+  "wwwweewww"
+ ],
+ "marks": [["H","the tower fire (every hearth was lit from it)"],["e","the stairs down"]],
+ "links": [
+  {"x":4,"y":5,"to":"hearthspire","tx":27,"ty":5,"how":"step"},
+  {"x":5,"y":5,"to":"hearthspire","tx":27,"ty":5,"how":"step"}
+ ],
+ "npcs": [{"id":"tower_guard","n":"Tower guard","x":6,"y":1,"colour":"#8a2f4a"}],
+ "chests": []
+}

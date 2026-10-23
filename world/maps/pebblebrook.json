@@ -1,0 +1,91 @@
+{
+ "id": "pebblebrook",
+ "title": "Pebblebrook",
+ "w": 32,
+ "h": 24,
+ "entry": [31,12],
+ "notes": "Snipe's toll box sits by the mine's mouth until the twist. The circle is the meeting place; the note board is by the fountain.",
+ "town": "pebblebrook",
+ "flood": [[14,13],[14,23]],
+ "rows": [
+  "TTTTTT~~TTTTTTTTTTTTTTTTTTTTTTTT",
+  "T.....~~..........rrGrr........T",
+  "T.T~~~~~....T.....rr,rr...BBBB.T",
+  "T..~~~~~............,.....BBBBTT",
+  "T..~~~~~........T...,.....BBBB.T",
+  "T..rrrrrr...........,......D...T",
+  "T.....~~BBBBB.......,..........T",
+  "T.....~~BBBBB.......,...BBBBB..T",
+  "T.....~~BBBBB.......,...BBBBB..T",
+  "T.....~~BBDBB.......,...BBBBB..T",
+  "T....c..WW,.........,...BBBBB..T",
+  "T.........,..o......,.....D....T",
+  "T..,,,,,,,,,,,,,,,,,,,,,,,,,,o,,",
+  "T.............,................T",
+  "T...BBDBB.....,...O....FF......T",
+  "T...BBBBB.....,.O...O..FF......T",
+  "T...BBBBB.....,................T",
+  "T........BDBB.,.O...O...BBDBB..T",
+  "T........BBBB.,...O.....BBBBB..T",
+  "T.\"\"\"\"\"\"\"\"\"BB.,.........BBBBB..T",
+  "T.\"\"\"\"\"\"\"\"\"...,................T",
+  "T.\"\"\"\"\"\"\"\"\"...,.......T......T.T",
+  "T.............,................T",
+  "TTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTT"
+ ],
+ "marks": [
+  [31,12,"← R1 (the mill road)"],
+  [14,23,"→ R2 (Sunhaven)"],
+  [20,1,"the mine's mouth"],
+  [10,9,"the mill (Ruddle; the loft)"],
+  [8,10,"the mill wheel"],
+  [4,5,"the dam"],
+  [18,16,"the circle stones"],
+  [23,14,"fountain"],
+  [26,11,"inn"],
+  [26,17,"shop (tier 2 from level 5) and smith"],
+  [6,14,"Tansy's house"],
+  [10,17,"the brothers' house"],
+  [27,5,"Old Marl's house"],
+  [6,20,"the Mossback farms (seed swap)"],
+  [5,10,"chest by the dam"],
+  [29,12,"welcome sign"]
+ ],
+ "links": [
+  {"x":31,"y":12,"to":"r1","tx":99,"ty":9,"how":"step"},
+  {"x":20,"y":1,"to":"mine1","tx":2,"ty":18,"how":"step"},
+  {"x":10,"y":9,"to":"room:mill","tx":7,"ty":6,"how":"step"},
+  {"x":26,"y":11,"to":"room:pebinn","tx":6,"ty":6,"how":"step"},
+  {"x":14,"y":23,"to":"","tx":0,"ty":0,"how":"step","flag":"never"}
+ ],
+ "npcs": [
+  {"id":"shaky","n":"Shaky kobold","x":11,"y":10,"show":{"ghost":{"lte":1}},"colour":"#b8aec9"},
+  {"id":"flint","n":"Flint","x":13,"y":13,"show":{"miner_brothers":0},"colour":"#7d6c8a"},
+  {"id":"grit","n":"Grit","x":28,"y":13,"show":{"miner_brothers":0},"colour":"#62526d"},
+  {"id":"marl","n":"Old Marl","x":27,"y":6,"show":{"miner_marl":0},"colour":"#9a8aa8"},
+  {"id":"clover","n":"Farmer Clover","x":11,"y":20,"colour":"#3f7f3a"},
+  {
+   "id": "farmer_fountain",
+   "n": "Farmer at the fountain",
+   "x": 22,
+   "y": 16,
+   "from": "3.13",
+   "lines": ["The guards say the toll","Can't see how"],
+   "colour": "#5fb04a"
+  },
+  {"id":"shop_pb","n":"Shopkeeper","x":26,"y":17,"door":1,"shop":"pebblebrook","from":"3.13","lines":["Picks, lamps"]},
+  {"id":"board_pb","n":"Note board","x":13,"y":11,"door":1}
+ ],
+ "chests": [
+  {
+   "name": "by the dam (hidden)",
+   "x": 5,
+   "y": 10,
+   "where": "Pebblebrook (5, 10)",
+   "items": [{"gear":"Leaf crown","tier":0,"slot":"helm","set":"Mossback regalia","bonuses":0}]
+  }
+ ],
+ "patrols": [],
+ "stables": [],
+ "goals": []
+}

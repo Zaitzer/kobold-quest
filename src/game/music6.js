@@ -6,6 +6,7 @@ import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {LINKS6} from '../data/v6/maps.js';
 import {sfx} from '../engine/audio.js';
+import {w6Place} from './world6.js';
 
 const YARD=[14,5,25,12];   // the castle yard on Hearthspire's map (the Nest, the drill)
 const MILL=(()=>{const L=LINKS6.find(l=>l[0]==='pebblebrook'&&l[3]==='room:mill');return L?[L[1],L[2]]:null})();
@@ -13,16 +14,13 @@ const MILL=(()=>{const L=LINKS6.find(l=>l[0]==='pebblebrook'&&l[3]==='room:mill'
 function v6Music(){const s=rp.s,q=s.q||{},p=s.w6||'',b=rp.bt,d=rp.dlg,line=d&&d.lines[d.i];
   if(rp.mode==='battle'&&b)return{key:b.boss?(/snatchclaw/i.test(b.boss)?'castle_boss':'boss'):'battle'};
   if(line&&/^glitterbeak$/i.test(line.who||''))return{key:'glitterbeak'};
-  if(p==='room:tower')return{key:'quiet',amb:'fire'};
-  if(p==='room:bakery')return{key:'hum',amb:'fire'};          // Mallow hums by her oven
-  if(p==='room:castle')return{key:'castle_in'};
-  const town=p==='hearthspire'||(p.startsWith('room:')&&!/mill|loft|pebinn|marl/.test(p)),pebble=p==='pebblebrook'||/^room:(mill|loft|pebinn|marl)/.test(p);
+  /* a place's own track, or its town's (both set in the map editor: world/) */
+  const P=w6Place(p)||{};if(P.music)return P.music.amb?{key:P.music.key,amb:P.music.amb}:{key:P.music.key};
+  const town=P.town==='hearthspire',pebble=P.town==='pebblebrook';
   if(town){if(q.march)return{key:'hs_all'};if(q.empty)return{key:'hs_empty'};
     if(p==='hearthspire'&&s.x>=YARD[0]&&s.x<=YARD[2]&&s.y>=YARD[1]&&s.y<=YARD[3])return{key:'castle'};
     return{key:(q.act||0)>=5?'hs_guards':'hs_morning'}}   // the hatching (§1.8) sets act 5
   if(pebble){const turning=(q.pb||0)>=6,near=MILL&&p==='pebblebrook'&&Math.hypot(s.x-MILL[0],s.y-MILL[1])<=7;return{key:turning?'pebble_wheel':'pebble',amb:turning&&near?'wheel':null}}
-  if(p==='mine2')return{key:'cave_dark'};
-  if(p.startsWith('mine'))return{key:'cave'};
   return{key:'meadow'}}
 /* sounds the script cues, line by line: the egg's CRACK, Glitterbeak's roar the first time he speaks in a conversation and a greedy
    low blip on every MINE, Mallow's rhyme when she sings, a clack for each stone at the circle, a skree for the raptors */

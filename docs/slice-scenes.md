@@ -1,6 +1,6 @@
 # The slice's scenes, wired (generated)
 
-*Written by `node tools/gen-data.js` from `tools/v6/scenes.js` (where and when each scene of `slice-dialogue.md` plays and what it does). Change the wiring there; the lines stay in `slice-dialogue.md`.*
+*Written by `node tools/gen-data.js` from `world/scenes.json` (where and when each scene of `slice-dialogue.md` plays and what it does). Change the wiring in the map editor (tools/editor); the lines stay in `slice-dialogue.md`.*
 
 | scene | where | when | does |
 |---|---|---|---|

@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: the slice's story (build step 12; slice-dialogue.md, docs/slice-scenes.md, systems.md §7, §10) ----------
-   Scenes from src/data/v6/story.js: the script's own lines, played where and when tools/v6/scenes.js puts them, with their fights,
+   Scenes from src/data/v6/story.js: the script's own lines, played where and when world/scenes.json (the map editor) puts them, with their fights,
    the class pick, companions joining, items, deeds and flags. NPCs stand at their places and say their lines; the goal bar and the
    quest log read the flags; campfire chats play at an inn's hearth; the pack is chosen at the roster board. */
 import {rpBattle} from '../battle/flow.js';

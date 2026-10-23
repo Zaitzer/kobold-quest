@@ -2,7 +2,7 @@
 
 *Roadmap step 2.3. Every spoken line in the vertical slice: act 1 in Hearthspire, the capital gate, R1, Pebblebrook and its
 mine, and the slice's campfire chats. Written from `story-hatching.md` (v6), placed with `town-kit.md` and the maps in
-`docs/maps/` (the places named here are the maps' marks). Nothing in the story is changed.*
+the maps in `world/` (the places named here are the maps' marks). Nothing in the story is changed.*
 
 ## 0. How to read this, and the rules the lines follow
 

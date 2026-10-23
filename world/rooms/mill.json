@@ -1,0 +1,41 @@
+{
+ "id": "mill",
+ "title": "the mill (Pebblebrook), ground floor",
+ "w": 15,
+ "h": 7,
+ "town": "pebblebrook",
+ "rows": [
+  "wwwwwwwwwwwwwww",
+  "wsssqqqqqqaaaqw",
+  "wqqqqqqqqqqqqqw",
+  "wqqnnqqqqqqqqgw",
+  "wqqnnqqqzzqqqqw",
+  "wqqqqqqqzzqqqqw",
+  "wwwwwwweewwwwww"
+ ],
+ "marks": [
+  ["n","the millstones (still)"],
+  ["g","the ladder to the loft"],
+  ["z","Ruddle's table, the nine-years chalk"],
+  ["a","empty flour sacks"]
+ ],
+ "links": [
+  {"x":13,"y":3,"to":"room:loft","tx":5,"ty":5,"how":"step"},
+  {"x":7,"y":6,"to":"pebblebrook","tx":10,"ty":9,"how":"step"},
+  {"x":8,"y":6,"to":"pebblebrook","tx":10,"ty":9,"how":"step"}
+ ],
+ "npcs": [
+  {"id":"ruddle","n":"Ruddle","x":10,"y":4,"from":"3.2","lines":["A smiler?","Old things?"],"colour":"#a8743f"},
+  {
+   "id": "apprentice",
+   "n": "Ruddle's apprentice",
+   "x": 4,
+   "y": 2,
+   "from": "3.13",
+   "lines": ["I chalk a new mark"],
+   "colour": "#c9a36a"
+  },
+  {"id":"chick","n":"Raptor chick","x":12,"y":2,"show":{"ghost":1},"colour":"#fff3c4"}
+ ],
+ "chests": []
+}

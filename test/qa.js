@@ -22,7 +22,7 @@ module.exports=[
   [18,'settings, difficulty, accessibility',['logic/qa6','browser/tsmoke6']],
   [19,'screens and taps',['browser/ttaps6','browser/tsmoke6']],
   [20,'story, script, chats',['logic/story6','browser/tplay6']],
-  [21,'maps',['logic/world6','logic/v6data']],
+  [21,'maps',['logic/world6','logic/v6data','logic/world','browser/teditor']],
   [22,'music and sound',['logic/music6','browser/tsound6']],
   [23,'art',['logic/art','browser/tart6']],
   [24,'time and taps',['logic/qa6','browser/ttaps6']],

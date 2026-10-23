@@ -1,0 +1,25 @@
+{
+ "id": "castle",
+ "title": "the castle hall",
+ "w": 17,
+ "h": 8,
+ "town": "hearthspire",
+ "music": {"key":"castle_in"},
+ "rows": [
+  "wwwwwwwwwwwwwwwww",
+  "wmmmmmmmmmmmmmmmw",
+  "wqqqqqqqqqqqqqqqw",
+  "wyqqqqqq|qqqqqqyw",
+  "wqqqqqqqqqqqqqqqw",
+  "wqqyqqqqqqqqqyqqw",
+  "wqqqqqqqqqqqqqqqw",
+  "wwwwwwwweewwwwwww"
+ ],
+ "marks": [["m","the mural of \"the dragon smiler\" (a tube on a shoulder)"],["|","Snatchclaw's seat"]],
+ "links": [
+  {"x":8,"y":7,"to":"hearthspire","tx":20,"ty":6,"how":"step"},
+  {"x":9,"y":7,"to":"hearthspire","tx":20,"ty":6,"how":"step"}
+ ],
+ "npcs": [],
+ "chests": []
+}

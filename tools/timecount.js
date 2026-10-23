@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /* Kobold Quest: the slice's time and taps, COUNTED from the design and set as goals (P7, P8; Joakim 22 Oct: "design is not
-   measurement: count, set goals"). Nothing here is measured. The script (docs/slice-dialogue.md), the maps (docs/maps/slice.json)
+   measurement: count, set goals"). Nothing here is measured. The script (docs/slice-dialogue.md), the maps (world/)
    and the fight budget (balance.md §5) give the counts; the unit goals below give the seconds and taps; the product is the goal the
    build must meet. Playtests check the build against these goals; they do not supply them.
    Usage: node tools/timecount.js            (prints the tables for balance.md §2 and ui-design.md §4)                         */
@@ -39,7 +39,7 @@ const hea=(p,s)=>p==='1'||['6.1','6.2'].includes(s);
 const pebOpt=(p,s)=>s==='2.1'||s==='3.14';
 
 /* ---------------------------------------------------------------- counts from the maps: walking by BFS between marks */
-const data=JSON.parse(fs.readFileSync(path.join(ROOT,'docs','maps','slice.json'),'utf8'));
+const WORLD=require('./world/world.js'),WD=WORLD.load(ROOT),data={maps:{}};for(const P of Object.values(WD.places))if(P.kind==='map')data.maps[P.id]=P;
 const SOLID=new Set('#KBTt~FborOWXxPc|'.split(''));
 function dist(mapKey,a,b){const m=data.maps[mapKey],W=m.w,H=m.h,R=m.rows,key=(x,y)=>y*W+x,D=new Map([[key(...a),0]]),q=[a];
   const ok=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&(!SOLID.has(R[y][x])||(x===b[0]&&y===b[1]));

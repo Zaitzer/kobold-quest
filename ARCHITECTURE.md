@@ -55,10 +55,10 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
 * **Everything is made from the design.** `tools/gen-data.js` reads the design's tools and documents and writes `src/data/v6/`
   (classes, skills, foes, items, the slice's maps and rooms, the script and its scenes). Don't edit those files; change the design and
   run it again. `test/logic/v6data.test.js` fails if they are out of date.
-* **The story** (`docs/story-hatching.md`, `docs/slice-dialogue.md`) is played by `game/story6.js`: scenes from `tools/v6/scenes.js`
+* **The story** (`docs/story-hatching.md`, `docs/slice-dialogue.md`) is played by `game/story6.js`: scenes from `world/scenes.json` (the map editor)
   with their places, conditions (`core/rules.js`) and steps (say, fight, choice, join, give, deed…). `test/logic/story6.test.js`
   plays it from the bakery to the tube, once per class.
-* **The world** is `game/world6.js` on the maps in `data/v6/maps.js`: links, fountains, stables, patrols, encounters, chests, the
+* **The world** is `game/world6.js` on the maps in `data/v6/maps.js` (generated from `world/`, made in the map editor `tools/editor`; the tile legend, encounters, music, dark floors are per map there): links, fountains, stables, patrols, encounters, chests, the
   dark floor, the flood, the rail puzzle.
 * **Sprite sheets** (`art/v6`, listed in `art/v6/ASSETS.md`) replace the look drawn in code wherever one is drawn
   (`engine/sheets6.js`). The website fetches `art/manifest.json` (the test build has test sheets built in as `KQ_ART`), which

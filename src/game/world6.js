@@ -1,5 +1,5 @@
-/* ---------- Kobold Quest v6: the slice's world (build step 11; systems.md §6, §9; docs/maps) ----------
-   The maps and rooms from tools/slicemaps.js (MAPS6, ROOMS6, LINKS6) walked with the engine's movement. A v6 game has rp.s.w6 set to
+/* ---------- Kobold Quest v6: the slice's world (build step 11; systems.md §6, §9; world/) ----------
+   The maps and rooms of world/ (made in the map editor; MAPS6, ROOMS6, LINKS6, TILES6) walked with the engine's movement. A v6 game has rp.s.w6 set to
    the place it stands in ('hearthspire', 'r1', ..., or 'room:bakery'); the engine's grid, solids, tiles, encounters and drawing ask
    this module while it is set, and the old world is untouched otherwise. */
 import {v6EliteKey,v6Mix} from '../battle/v6battle.js';
@@ -8,7 +8,7 @@ import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
 import {rp,rpApplyWorld} from '../core/state.js';
 import {PLACES6} from '../data/v6/foes.js';
-import {LINKS6,MAPS6,ROOMS6} from '../data/v6/maps.js';
+import {LINKS6,MAPS6,ROOMS6,TILES6} from '../data/v6/maps.js';
 import {CHESTS6} from '../data/v6/story.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
@@ -18,16 +18,17 @@ import {s6Step} from './story6.js';
 import {rpFight} from '../net/lobby.js';
 
 /* ------------------------------------------------------------------ places and tiles */
-const W6_SOLID_OUT=new Set(['#','K','B','T','~','F','b','o','t','r','O','W','X','x','P']);
-const W6_ROOM_SOLID=new Set(['w','n','s','m','p','l','z','y','c','a','_','H','|','o']);
+/* the tile letters (world/tiles.json): one legend for maps and one for rooms */
+const w6SolidIn=(p,c)=>{const t=TILES6[isRoom(p)?'room':'map'][c];return!!(t&&t.solid)};
 const isRoom=p=>String(p).startsWith('room:');
 function w6Place(p){return isRoom(p)?ROOMS6[p.slice(5)]:MAPS6[p]}
 function w6Rows(p){const P=w6Place(p);return P?P.rows:null}
 function w6Title(p){const P=w6Place(p);return P?P.title:''}
-function w6Solid(c,x,y){const p=rp.s&&rp.s.w6;if(x!=null&&w6Flooded(p,x,y))return true;return isRoom(p)?W6_ROOM_SOLID.has(c):W6_SOLID_OUT.has(c)}
+function w6Solid(c,x,y){const p=rp.s&&rp.s.w6;if(x!=null&&w6Flooded(p,x,y))return true;return w6SolidIn(p,c)}
 /* the encounter table for a place (systems.md §6, balance.md §5): R1's grass and the mine's floors; towns and rooms never */
-const W6_ENC={r1:{place:0,grass:0.075},mine1:{place:1,floor:0.06},mine2:{place:1,floor:0.06,theme:'dark'},mine3:{place:1,floor:0.06,theme:'flooded'}};
-const W6_THEME={r1:'meadow',mine1:'cave',mine2:'dark',mine3:'cave'};
+/* each map's encounters ({place: the bestiary's place, grass/floor: the chance a step, theme}) and fight board theme, set in the map editor */
+const w6Enc=p=>(MAPS6[p]&&MAPS6[p].enc)||null;
+const w6Theme=p=>(MAPS6[p]&&MAPS6[p].theme)||'meadow';
 const W6_GAP=12;   // at least 12 steps between two fights (balance.md §5)
 function w6LinkAt(p,x,y,how){return LINKS6.find(l=>l[0]===p&&l[1]===x&&l[2]===y&&(!how||l[6]===how))}
 function w6MarkNear(p,x,y){const P=w6Place(p);if(!P||!P.marks)return null;if(isRoom(p)){const c=P.rows[y]&&P.rows[y][x];const m=P.marks.find(m=>m[0]===c);return m?m[1]:null}
@@ -35,7 +36,7 @@ function w6MarkNear(p,x,y){const P=w6Place(p);if(!P||!P.marks)return null;if(isR
 
 /* ------------------------------------------------------------------ entering a place */
 /* the free tile nearest (x, y) that is not a link, so arriving never sends you straight back */
-function w6Arrive(p,x,y){const R=w6Rows(p),solid=c=>isRoom(p)?W6_ROOM_SOLID.has(c):W6_SOLID_OUT.has(c);let best=[x,y],bd=1e9;
+function w6Arrive(p,x,y){const R=w6Rows(p),solid=c=>w6SolidIn(p,c);let best=[x,y],bd=1e9;
   for(let j=0;j<R.length;j++)for(let i=0;i<R[0].length;i++){if(solid(R[j][i])||w6LinkAt(p,i,j))continue;const d=Math.abs(i-x)+Math.abs(j-y)+(j<y&&!isRoom(p)?0.1:0);if(d<bd){bd=d;best=[i,j]}}return best}
 function w6Go(p,x,y){const s=rp.s,from=s.w6;if(!w6Place(p))return false;if(from&&(isRoom(p)||isRoom(from)))emit('w6:door');const [ax,ay]=w6Arrive(p,x,y);
   s.w6=p;s.x=ax;s.y=ay;s.face=isRoom(p)?'up':'down';rpApplyWorld();rp.pos=null;rp.path=null;rp.held=null;rp.grace=4;
@@ -51,15 +52,15 @@ function w6Patrols(p){const P=MAPS6[p];if(!P||!P.patrols)return[];const st=rp.s.
 /* the patrol's sight: the 3 tiles straight ahead and the ones beside them (a 3 × 3 box in front) */
 function w6InSight(t,x,y){const [dx,dy]=W6_DIR[t.face]||[1,0];for(let k=1;k<=3;k++)for(let s=-1;s<=1;s++){const px=t.x+dx*k+(dy?s:0),py=t.y+dy*k+(dx?s:0);if(px===x&&py===y)return true}return false}
 /* the patrol's strength word, by its level against the pack's (balance.md §9: Few, Several, Pack, Lots, Overwhelming) */
-function w6PatrolLevel(p){const P=PLACES6[W6_ENC[p].place];return P.L+1}
+function w6PatrolLevel(p){const P=PLACES6[w6Enc(p).place];return P.L+1}
 function w6Strength(p){const d=w6PatrolLevel(p)-w6PackLevel();return d<=-3?'Few':d<=-1?'Several':d===0?'Pack':d<=2?'Lots':'Overwhelming'}
 function w6PackLevel(){const P=rp.s.party;return Math.max(1,Math.round(P.reduce((a,m)=>a+m.lvl,0)/P.length))}
 function w6PatrolCheck(x,y,c){const p=rp.s.w6;for(const t of w6Patrols(p)){const near=Math.abs(t.x-x)<=1&&Math.abs(t.y-y)<=1;const seen=w6InSight(t,x,y)&&c!=='"';
     if(seen||near){w6PatrolFight(p,t,seen);return true}}return false}
-function w6PatrolFight(p,t,aware){const E=W6_ENC[p],P=PLACES6[E.place],L=w6PatrolLevel(p),keys=[v6EliteKey(P.pool[0],L)].concat(v6Mix(Object.assign({},P,{L,target:P.target-1})));
+function w6PatrolFight(p,t,aware){const E=w6Enc(p),P=PLACES6[E.place],L=w6PatrolLevel(p),keys=[v6EliteKey(P.pool[0],L)].concat(v6Mix(Object.assign({},P,{L,target:P.target-1})));
   rp.path=null;rp.held=null;rp.s.w6st.fighting=t.id;
   /* shared with a friend in the same place when one is free (systems.md §12) */
-  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:W6_THEME[p]||'meadow',patrol:t.id,xpMul:1.5,aware:!!aware,title:t.name,
+  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:w6Theme(p),patrol:t.id,xpMul:1.5,aware:!!aware,title:t.name,
     msg:aware?t.name+' saw you coming!':'You catch '+t.name+' unawares!'})}
 
 /* ------------------------------------------------------------------ stables, raptors and fast travel (systems.md §6) */
@@ -83,7 +84,7 @@ function w6Step(x,y,c){const s=rp.s,p=s.w6,st=s.w6st;st.since=(st.since||0)+1;
   if(w6StableAt(p,x,y))return w6Stable(p,x,y);
   if(s6Step(x,y))return true;
   if(w6PatrolCheck(x,y,c))return true;
-  const E=W6_ENC[p];if(!E||rp.grace>0||st.since<W6_GAP)return false;
+  const E=w6Enc(p);if(!E||rp.grace>0||st.since<W6_GAP)return false;
   const chance=c==='"'?E.grass||0:E.floor&&!w6Solid(c)?E.floor:0;if(!chance||Math.random()>=chance)return false;
   st.since=0;w6Fight(p,E);return true}
 function w6Follow(L){const [, , ,to,tx,ty,,flag]=L;if(flag&&!test(flag)){rpToast(flag==='never'?'That way is for later.':'The way is shut.');rp.path=null;rp.held=null;return true}
@@ -92,7 +93,7 @@ function w6Fight(p,E){const P=PLACES6[E.place],L=Math.max(1,Math.round(rp.s.part
   /* the foes' level: the place's, nudged toward the pack (levels 3–6 on R1, 6–8 in the mine; balance.md §5) */
   const lv=Math.max(P.L-1,Math.min(P.L+2,L)),keys=v6Mix(Object.assign({},P,{L:lv}));
   rp.s.w6st.enc[p]=(rp.s.w6st.enc[p]||0)+1;rp.path=null;rp.held=null;
-  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||W6_THEME[p]||'meadow',first,title:P.n||'A fight'})}
+  rpFight(keys,{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:E.theme||w6Theme(p),first,title:P.n||'A fight'})}
 /* walking into something solid: bump links (the tower), and the things on the maps */
 function w6Bump(x,y){const s=rp.s,p=s.w6,c=(rp.grid[y]||[])[x];
   const L=w6LinkAt(p,x,y,'bump');if(L){w6Follow(L);return true}
@@ -150,4 +151,4 @@ feature({id:'world6',panels:{w6travel:{sig:()=>rp.w6travel+JSON.stringify(rp.s&&
   on:{'battle:end':b=>{if(!rp.s||!rp.s.w6||!b||!b.v6)return;
     if(b.patrol&&b.over==='win')rp.s.w6st.patrols[b.patrol]=1;
     if(b.over==='lose'){const st=rp.s.w6st;const p=st.respawn||'hearthspire';w6HealAll();rp.s.gold=Math.floor(rp.s.gold/2);w6Go(p,...MAPS6[p].entry)}}}});
-export {W6_DIR,W6_ENC,W6_GAP,W6_RAIL,W6_ROOM_SOLID,W6_SOLID_OUT,W6_THEME,isRoom,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};
+export {W6_DIR,W6_GAP,W6_RAIL,isRoom,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Enc,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6SolidIn,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Theme,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};

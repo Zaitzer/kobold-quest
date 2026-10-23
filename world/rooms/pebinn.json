@@ -1,0 +1,28 @@
+{
+ "id": "pebinn",
+ "title": "the Pebblebrook inn",
+ "w": 13,
+ "h": 7,
+ "town": "pebblebrook",
+ "rows": [
+  "wwwwwwwwwwwww",
+  "wHqqqssqqqqow",
+  "wqqq_____qqqw",
+  "wlzlqqqqqlzlw",
+  "wqqqqqqqqqqyw",
+  "wpqpqqqqqpqpw",
+  "wwwwwweewwwww"
+ ],
+ "marks": [
+  ["H","the hearth: campfire chats"],
+  ["p","beds"],
+  ["o","the roster board"],
+  ["_","the counter (pies are just crust until the mill turns)"]
+ ],
+ "links": [
+  {"x":6,"y":6,"to":"pebblebrook","tx":26,"ty":11,"how":"step"},
+  {"x":7,"y":6,"to":"pebblebrook","tx":26,"ty":11,"how":"step"}
+ ],
+ "npcs": [{"id":"inn_pb","n":"Innkeeper","x":5,"y":3,"from":"3.13","lines":["Beds upstairs"],"colour":"#c4523a"}],
+ "chests": []
+}

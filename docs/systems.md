@@ -22,7 +22,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 10 | the pack: joining, bench XP, talents, subclass, leader points, morale | §7 | designed |
 | 11 | corruption | `corruption.md` | designed |
 | 12 | items: chests, shops, crafting, drops, bag, selling | §8, `items.md` | designed (slice contents here) |
-| 13 | rooms and interiors | §9, `docs/maps/` | designed |
+| 13 | rooms and interiors | §9, `world/` | designed |
 | 14 | the slice's special tiles: the dark floor, the flooded gallery, the rail puzzle | §9 | designed |
 | 15 | the goal bar and hints | §10 | designed (slice lines here) |
 | 16 | saving and the save format | §11 | designed |
@@ -30,7 +30,7 @@ checked in play; everything else is designed. Numbers come from `balance.md`, `i
 | 18 | settings, difficulty, accessibility | §13, `ui-design.md` §10 | designed |
 | 19 | screens and taps | `ui-design.md` | designed |
 | 20 | story, script, chats | `story-hatching.md`, `slice-dialogue.md`, `companions.md` | designed (slice) |
-| 21 | maps | `docs/maps/`, `world-map.json` | designed (slice) |
+| 21 | maps | `world/` (the map editor), `world-map.json` | designed (slice) |
 | 22 | music and sound | `audio-plan.md` | designed |
 | 23 | art | `style-guide.md`, `art/v6/ASSETS.md` | designed |
 | 24 | time and taps | `balance.md` §2, `ui-design.md` §4, `tools/timecount.js` | counted |
@@ -181,16 +181,9 @@ material from the zone, 8% a gear piece at the stretch's tier (15% of those one 
 
 **The slice's chests** (by the rule: about 3 gear, 2 gold or consumables a stretch; the town's hidden one; the Mossback set started):
 
-| chest | where (map mark) | contents |
-|---|---|---|
-| Mallow's old box | the bakery cellar, after the rats | Moss cape (T1 cloak, Mossback set) — the first chest, the equipment screen |
-| behind the pond | R1 (33, 20) | Frog boots (T1 boots, Mossback set) |
-| on the lookout | R1 (73, 18) | 40 gold and 2 potions |
-| by the dam (hidden) | Pebblebrook (5, 10) | Leaf crown (T1 helm, Mossback set: the set's third piece) |
-| the side room | mine floor 1 (5, 4) | a Phoenix feather (the first one) |
-| in the dark | mine floor 2 (28, 16) | Honey ring (T2 ring, one bonus) |
-| behind Snipe's cart | mine floor 3 (22, 16) | Padded jacket (T2 armour, both bonuses) |
-| the loft (needs the vote bag) | the mill loft | 60 gold and 2 ethers |
+The chests themselves (where each stands and what is in it) are placed in the map editor and live in `world/` (`world/README.md`);
+the slice has eight: behind the pond and on the lookout (R1), by the dam (Pebblebrook), one on each mine floor, Mallow's old box (the cellar,
+after the rats) and the loft (opened by its scene).
 
 **The slice's shops:**
 
@@ -203,7 +196,7 @@ material from the zone, 8% a gear piece at the stretch's tier (15% of those one 
 
 ## 9. Rooms and the slice's special tiles
 
-- **Rooms:** hand-made rooms are in `docs/maps/` (the bakery, the cellar, the castle hall, the Hearthspire inn, the mill loft, and
+- **Rooms:** hand-made rooms are in `world/rooms/` (made in the map editor) (the bakery, the cellar, the castle hall, the Hearthspire inn, the mill loft, and
   added 22 Oct: the mill, the tower top, the Pebblebrook inn). Every other door (houses, shops, the smithy, the shrine, the barracks)
   opens a room made by the engine's house generator, furnished by its kind (a shop has a counter, a house a bed and a table).
 - **The dark floor** (mine floor 2, tiles `d`): sight is 3 on and into dark tiles, on the map and in fights (the *dark* theme). **Glow
@@ -216,7 +209,7 @@ material from the zone, 8% a gear piece at the stretch's tier (15% of those one 
   half-way and **three switches**: one into a loop that goes round the broken rail, one out of it, and one into a dead-end siding. Tap a
   switch to flip it, tap the cart to push it. One setting of the eight brings the cart home; a wrong one sends it into the siding or to
   the gap, where it stops with a clank and a joke, and the player can push it back. Hint (one tap): "Rails don't like gaps. Go round."
-  The map (`tools/slicemaps.js`) draws the loop, the siding and the switches.
+  The map (`world/maps/mine1.json`) has the loop, the siding and the switches.
 
 ## 10. The goal bar and hints (the slice)
 

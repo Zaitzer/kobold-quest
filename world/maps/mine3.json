@@ -1,0 +1,55 @@
+{
+ "id": "mine3",
+ "title": "the mine, floor 3",
+ "w": 32,
+ "h": 20,
+ "entry": [4,1],
+ "notes": "The end of the mine: Snipe, then back up to the circle.",
+ "music": {"key":"cave"},
+ "theme": "cave",
+ "encounters": {"place":"the mine (Pebblebrook)","floor":0.06,"theme":"flooded"},
+ "rows": [
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXuXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXfXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXfXXXXXXXXXfffffffffffXXXXXXX",
+  "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX",
+  "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX",
+  "XXXXfXXXXXXXXXfXXXXXXXXXfXXXXXXX",
+  "XXXXfffffffffffXXXXXXXXXfXXXXXXX",
+  "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX",
+  "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX",
+  "XXXXXXfXXXXXXXXXXXXXXXXXfXXXXXXX",
+  "XXwwwwfwwwwXXXXXXXXXfffffffffXXX",
+  "XXwwwwwwwwwXXXXXXXXXfxfffffffXXX",
+  "XXwwwwwwwwwXXXXXXXXXffffffPffXXX",
+  "XXwwwcwwwwwXXXXXXXXXfffffffffXXX",
+  "XXwwwwwwwwwXXXXXXXXXffcffffffXXX",
+  "XXwwwwwwwwwXXXXXXXXXfffffffffXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+ ],
+ "marks": [
+  [4,1,"stairs up"],
+  [24,15,"Snipe (boss, L8) on his copper cart"],
+  [26,14,"the copper pile"],
+  [22,16,"chest behind the cart"],
+  [6,14,"the flooded gallery: Old Shellback (hidden trial)"],
+  [5,15,"the trial's prize: the flour-dusted apron"]
+ ],
+ "links": [{"x":4,"y":1,"to":"mine2","tx":4,"ty":18,"how":"step"}],
+ "npcs": [{"id":"snipe_npc","n":"Snipe","x":24,"y":15,"show":{"pb":{"lte":3}},"colour":"#8a2f4a"}],
+ "chests": [
+  {
+   "name": "behind Snipe's cart",
+   "x": 22,
+   "y": 16,
+   "where": "mine floor 3 (22, 16)",
+   "items": [{"gear":"Padded jacket","tier":1,"slot":"armour","set":null,"bonuses":2}]
+  }
+ ],
+ "patrols": [],
+ "stables": [],
+ "goals": [{"kind":"steps","from":[4,1],"to":[24,15],"min":30,"max":60,"label":"stairs to stairs"}]
+}

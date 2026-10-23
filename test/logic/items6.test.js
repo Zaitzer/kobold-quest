@@ -32,6 +32,6 @@ for(const C of X.CHESTS6){fresh();const g0=X.rp.s.gold;const got=X.v6OpenChest(C
  ok(Math.abs(mats/N-0.4)<0.04&&Math.abs(gear/N-0.08)<0.02&&Math.abs(use/N-0.06)<0.02,'drops: '+(mats/N*100).toFixed(0)+'% material, '+(gear/N*100).toFixed(1)+'% gear, '+(use/N*100).toFixed(1)+'% consumable');
  const boss={units:[{E:{v6boss:1,n:'Grubb'}}]};s.inv6=[];X.v6Drops(boss);ok(s.inv6.some(i=>i.n==='Toll pot'),'Grubb drops the Toll pot');X.v6Drops(boss);ok(s.inv6.filter(i=>i.n==='Toll pot').length===1,'once');ok(s.mats6['Boss fang']>=1,'and a boss fang')}
 // a potion in a v6 fight heals 35% of max HP
-{const s=fresh();s.bag.potion=1;X.rp.autoParty=false;X.w6Fight('r1',X.W6_ENC.r1);const b=X.rp.bt;b.seq=[];b.step=null;const u=b.units.find(u=>u.side===0);u.m.hp=1;u.ap=2;X.tcDo(u,{k:'it',it:'potion',t:u});let k=0;b.cur=u;while((b.seq.length||b.step)&&k<500){b.phase='busy';X.rpBattleStep(1/30);k++}
+{const s=fresh();s.bag.potion=1;X.rp.autoParty=false;X.w6Fight('r1',X.w6Enc('r1'));const b=X.rp.bt;b.seq=[];b.step=null;const u=b.units.find(u=>u.side===0);u.m.hp=1;u.ap=2;X.tcDo(u,{k:'it',it:'potion',t:u});let k=0;b.cur=u;while((b.seq.length||b.step)&&k<500){b.phase='busy';X.rpBattleStep(1/30);k++}
  ok(u.m.hp===1+Math.round(X.v6Stats(u.m).hp*0.35),'a potion heals 35%: '+u.m.hp);X.rp.bt=null;X.rp.mode='map';X.rp.autoParty=true}
 console.log(fails?fails+' failures':'v6 items: '+checks+' checks');process.exitCode=fails?1:0;

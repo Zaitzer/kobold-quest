@@ -44,7 +44,7 @@
 | New areas | Hearthspire and the castle; one area per town (the mine, the honey cellars, the crater, the ice cellars, the shipwreck and the island cave); the flour tunnel (`world-plan.md`) | no |
 | Bigger rooms and dungeons | the town areas and the castle need multi-room places | no |
 | Music layers and a fixed tune | a town's drums switch on with a flag (`audio-plan.md` rule 5); a track may carry a `tune` (fixed scale degrees) instead of a seeded lead, for Mallow's rhyme; Hearthspire's four versions share one seed | no |
-| Slice maps and script as data | load `docs/maps/slice.json` rooms and places; the script's flags (`slice-dialogue.md` §7) | at the progress reset |
+| Slice maps and script as data | the maps, rooms, people, chests and scenes in `world/` (the map editor); the script's flags (`slice-dialogue.md` §7) | at the progress reset |
 | Characters (MMO-style) | six slots per account at `data/users/<id>/chars/<slot>` plus `account`; the select screen; a per-character lock renewed every 30 s; the `{hero}` name in dialogue; guests on the device; the old save moved to `legacy`; admin restore within 7 days (`systems.md` §16) | yes: new paths, at the progress reset |
 | Admin tools | the Admin screen's seven tabs; roles (owner from `config.json`, moderators in the server's data); every tool a server-side admin op that writes the admin log; report button, chat log kept 24 h, error reports (`systems.md` §17) | server only |
 

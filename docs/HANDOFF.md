@@ -128,6 +128,10 @@ Tell Joakim the build id (`release/server/BUILD`) to look for at https://joakims
 - **A missing `}` in a stylesheet breaks every style after it.** That happened on 18 Oct and broke the whole layout
   live. `tools/build.js` now refuses to build when a sheet's braces don't balance.
 - **Joakim pushes drawings to `main`**, so a push can be rejected. Always `git pull --rebase origin main` first.
+- **The world is edited by Joakim too** (23 Oct): the map editor (`tools/editor/index.html`, offline, Chrome or Edge) writes `world/`; he
+  commits with GitHub Desktop and the "World to the game" GitHub Action (`.github/workflows/world.yml`) checks it, runs `gen-data`,
+  the quick tests and `package`, and commits the release. Change maps, people, chests and scenes in `world/` (by hand or with
+  `tools/world/world.js`), never in `src/data/v6`; keep `world/` in the editor's format (`test/logic/world.test.js` checks it).
 - **Art pipeline:** every sheet the game can use has a stand-in in `art/v6/` (listed in `art/v6/ASSETS.md`). Stand-ins are
   ignored by the server until Joakim draws over them. File names must
   be lowercase with dashes (NPC ids go through `artName`, e.g. `keepera.png`).
@@ -183,7 +187,7 @@ Fennel and Nugget as recruits.
 | `docs/number-audit.md` | **to-do list for making every number deliberate**: the working rules, problems P1–P18 (several resolved), 16 tasks with status | current (22 Oct) |
 | `docs/gate1-review.md` | **read before coding**: holes found in the docs, with fixes, the numbers to confirm and **ten open decisions** | current (22 Oct) |
 | `docs/world-map.png`, `.svg`, `.json` | **the world map**: towns, routes at their exact step lengths, biomes, areas, gates, landmarks (`tools/worldmap.js`) | new 22 Oct |
-| `docs/maps/` | **the slice's maps**: Hearthspire, R1 (120 steps), Pebblebrook, the mine's three floors, five rooms; letter grids in the engine's format, with checks (`tools/slicemaps.js`) | new 22 Oct |
+| `world/` | **the world**: the slice's maps (Hearthspire, R1, Pebblebrook, the mine's three floors), eight rooms, the people, chests, links and scenes, edited with the map editor (`tools/editor/index.html`); format and checks in `world/README.md` | new 23 Oct |
 | `docs/slice-dialogue.md` | **the slice's script**: act 1, R1, Pebblebrook and the mine, five campfire chats, the v6 flags; line count by `tools/linecount.js` | new 22 Oct |
 | `docs/build-plan.md` | **the build plan for the slice**: 22 steps, four checkpoints, risks | new 22 Oct |
 | `docs/systems.md` | **every system the slice touches, specified** (the Gate 1 completeness pass): the timeline, boards, AI, losing, travel, the pack, chests and shops, saving, co-op, settings | new 22 Oct |
@@ -214,3 +218,4 @@ Fennel and Nugget as recruits.
 | 22 Oct | Art: **pixel art at twice Ruby's resolution** (tiles 32 × 32, characters 32 × 64, bosses 64 × 96), scaled up with no smoothing; Pip to be redrawn |
 | 22 Oct | Gate 1 decisions: build on `main` (keep `release/` and the Claude page on the old game until the slice is ready); tile-targeting first; Cinder rebuilds the oven in act 3; eggs unchanged; corruption combat only; **a pack of four**, at most four kobolds and four players per fight, tuned for four, no player scaling; Might, Wits, Leadership; everything on the sheet; hard packs stay; HoMM3 defence factor, Pathfinder multiple-attack penalty, Pokémon burn and poison |
 | 23 Oct | Old game removed; the Claude page dropped and deleted (the game is played only on joakimskar.no); **step 22: the v6 slice released to friends**. |
+| 23 Oct | **The map editor**: the world moved out of code into `world/` (maps, rooms, people, chests, links, scenes); Joakim edits it offline in `tools/editor`, commits with GitHub Desktop, and a GitHub Action releases it. |

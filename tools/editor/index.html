@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kobold Quest map editor</title>
+<!-- The map editor (offline). Open this file in Chrome or Edge, choose the kobold-quest folder, edit, Save, then commit with
+     GitHub Desktop. It edits world/ (maps, rooms, people, chests, scenes); tools/world/world.js checks the world as you go. -->
+<style>
+:root{--bg:#1a0f24;--panel:#261833;--panel2:#33224a;--line:#4a3566;--text:#f3ecff;--dim:#b7a9cc;--gold:#ffd54a;--red:#ff6b6b;--green:#7ddc6a;--blue:#7bb6e6;--purple:#b48cff}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;min-height:32px}
+button:hover{border-color:var(--gold)}
+button.on{background:var(--gold);color:#1a0f24;border-color:var(--gold)}
+button.go{background:#3d6b2f;border-color:var(--green)}
+button.bad{border-color:var(--red)}
+button:disabled{opacity:.45;cursor:default}
+input,select,textarea{background:#140b1c;border:1px solid var(--line);border-radius:5px;padding:4px 6px;min-height:30px}
+input[type=checkbox]{min-height:auto;width:18px;height:18px;vertical-align:middle}
+input[type=color]{padding:1px;width:40px}
+textarea{width:100%;min-height:70px;font:12px/1.3 ui-monospace,Consolas,monospace}
+#app{display:grid;grid-template-rows:auto 1fr;height:100%}
+#top{display:flex;gap:8px;align-items:center;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#top .title{font-weight:700;color:var(--gold);margin-right:6px}
+#top .sp{flex:1}
+#status{color:var(--dim);font-size:12px}
+#main{display:grid;grid-template-columns:200px 1fr 360px;min-height:0}
+#left{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:8px}
+#right{background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+#tabs{display:flex;gap:2px;padding:6px 6px 0;flex-wrap:wrap}
+#tabs button{border-radius:6px 6px 0 0;min-height:30px;padding:4px 9px}
+#panel{overflow:auto;padding:10px;flex:1;border-top:1px solid var(--line)}
+#mid{position:relative;overflow:hidden;background:#0d0712}
+#cv{position:absolute;inset:0;touch-action:none}
+#pickbar{position:absolute;left:10px;right:10px;top:10px;background:var(--gold);color:#1a0f24;padding:8px 12px;border-radius:8px;font-weight:600;display:none;z-index:2}
+#hover:empty{display:none}
+#hover{position:absolute;left:10px;bottom:10px;background:rgba(20,11,28,.9);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;pointer-events:none;max-width:60%}
+h3{margin:12px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
+h3:first-child{margin-top:0}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pal{display:flex;flex-direction:column;gap:2px}
+.pal button{display:flex;align-items:center;gap:6px;text-align:left;padding:3px 6px;min-height:28px;font-size:12px}
+.sw{display:inline-block;width:18px;height:18px;border-radius:3px;border:1px solid rgba(0,0,0,.5);flex:none;text-align:center;font:700 11px/18px ui-monospace,monospace;color:rgba(0,0,0,.55)}
+.layers label{display:block;font-size:13px;padding:2px 0}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}
+.card .hd{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:600}
+.card .hd .sp{flex:1}
+.row{display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap}
+.row>label{min-width:70px;color:var(--dim);font-size:12px}
+.row>input:not([type=checkbox]):not([type=color]),.row>select{flex:1;min-width:60px}
+.row input.n{max-width:64px;flex:none}
+.btns{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.dim{color:var(--dim);font-size:12px}
+.prob{padding:5px 6px;border-radius:5px;cursor:pointer;border-left:3px solid var(--red);margin:3px 0;background:#2a1530;font-size:12.5px}
+.prob.note{border-left-color:var(--gold)}
+.prob.rep{border-left-color:var(--green);cursor:default}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;text-align:center;margin-left:4px}
+.badge.ok{background:#3d6b2f}
+.lines{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:6px;margin:4px 0}
+.ln{padding:3px 6px;font-size:12px;border-bottom:1px solid #2c1d3d;cursor:pointer}
+.ln:hover{background:#3a2852}
+.ln.in{background:#3d3220}
+.ln.a{outline:2px solid var(--gold);outline-offset:-2px}
+.ln .who{color:var(--gold);font-weight:600}
+.ln.dir{color:var(--dim);font-style:italic}
+.step{border:1px solid var(--line);border-radius:6px;padding:6px;margin:4px 0;background:#2a1b3b}
+.step .hd{display:flex;gap:4px;align-items:center}
+.step .hd select{flex:none}
+.step .hd .sp{flex:1}
+.step .hd button{min-height:26px;padding:2px 7px}
+.sub{margin-left:10px;border-left:2px solid var(--line);padding-left:8px}
+.list button.item{display:block;width:100%;text-align:left;margin:2px 0;font-size:12.5px}
+.list button.item.on{background:var(--gold);color:#1a0f24}
+#welcome{position:fixed;inset:0;background:rgba(13,7,18,.96);display:flex;align-items:center;justify-content:center;z-index:5}
+#welcome .box{max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+#welcome h1{margin:0 0 8px;color:var(--gold);font-size:22px}
+#welcome p{color:var(--dim)}
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:6}
+#dlg .box{min-width:320px;max-width:480px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+@media (max-width:900px){#main{grid-template-columns:1fr;grid-template-rows:auto 55vh auto}#left{max-height:30vh}#right{max-height:none}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="top">
+  <span class="title">Kobold Quest · map editor</span>
+  <select id="place" title="The map or room you are editing"></select>
+  <button id="newplace" title="Make a new map or room">+ New</button>
+  <button id="undo" title="Undo (Ctrl+Z)">↶</button><button id="redo" title="Redo (Ctrl+Y)">↷</button>
+  <span class="sp"></span>
+  <span id="status"></span>
+  <button id="save" class="go" title="Write the changed files into the repo folder (Ctrl+S)">Save</button>
+ </div>
+ <div id="main">
+  <div id="left">
+   <h3>Tools</h3>
+   <div class="tools" id="tools"></div>
+   <h3>Layers</h3>
+   <div class="layers" id="layers"></div>
+   <h3>Tiles</h3>
+   <div class="pal" id="pal"></div>
+  </div>
+  <div id="mid"><canvas id="cv"></canvas><div id="pickbar"></div><div id="hover"></div></div>
+  <div id="right"><div id="tabs"></div><div id="panel"></div></div>
+ </div>
+</div>
+<div id="welcome"><div class="box">
+ <h1>Kobold Quest map editor</h1>
+ <p>Choose your <b>kobold-quest</b> folder (the one GitHub Desktop keeps). The editor reads and writes the files in its
+ <code>world</code> folder: the maps, rooms, people, chests and scenes. Save, then commit and push with GitHub Desktop; the game
+ updates itself a few minutes later.</p>
+ <div class="btns"><button id="open" class="go">Choose the kobold-quest folder</button><button id="reopen" style="display:none"></button></div>
+ <p id="werr" style="color:var(--red)"></p>
+</div></div>
+<div id="dlg"><div class="box" id="dlgbox"></div></div>
+<script src="../world/world.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

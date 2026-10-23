@@ -1,0 +1,31 @@
+{
+ "id": "bakery",
+ "title": "Mallow's bakery",
+ "w": 13,
+ "h": 8,
+ "town": "hearthspire",
+ "music": {"key":"hum","amb":"fire"},
+ "rows": [
+  "wwwwwwwwwwwww",
+  "wnnqssqaaqqyw",
+  "wqqqqqqqqqqqw",
+  "w___qq___qqgw",
+  "wqqqqqqqqqqqw",
+  "wqzqlqqqzqlqw",
+  "wqqqqqqqqqqqw",
+  "wwwwwweewwwww"
+ ],
+ "marks": [
+  ["n","the old oven (breaks in the Ordeal)"],
+  ["g","the cellar door (the flour carts came in here)"],
+  ["a","flour sacks"],
+  ["_","the counter; the recipe book on it"]
+ ],
+ "links": [
+  {"x":11,"y":3,"to":"room:cellar","tx":5,"ty":6,"how":"step"},
+  {"x":6,"y":7,"to":"hearthspire","tx":8,"ty":21,"how":"step"},
+  {"x":7,"y":7,"to":"hearthspire","tx":8,"ty":21,"how":"step"}
+ ],
+ "npcs": [{"id":"mallow","n":"Mallow","x":5,"y":4,"colour":"#f0e6c8"}],
+ "chests": []
+}

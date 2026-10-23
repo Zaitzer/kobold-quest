@@ -1,0 +1,53 @@
+{
+ "id": "mine1",
+ "title": "the mine, floor 1",
+ "w": 32,
+ "h": 20,
+ "entry": [2,17],
+ "notes": "Copper beetles and scouts; Nugget joins here.",
+ "music": {"key":"cave"},
+ "theme": "cave",
+ "encounters": {"place":"the mine (Pebblebrook)","floor":0.06},
+ "rows": [
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXvXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXfXX",
+  "XXXXXcfffXXXXXXXXXXXXXXXXXXXXfXX",
+  "XXXXXffffffffffffffffffXXXXXXfXX",
+  "XXXXXffffXXXfXXXXXXXXXfXXXXXXfXX",
+  "XXXXXXXXXXXXfXXXXXXXXXfXXXXXXfXX",
+  "XXXXXXXXXXXXfXXXfffXXXfXXXXXXfXX",
+  "XXXXXXXXXXXXfXXXffffffffffffffXX",
+  "XXffffffffffRXXXfffXXXXXXXXXXXXX",
+  "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
+  "XXfXXXXXXXXXRXXXXXXXXXXXXXXXXXXX",
+  "XXfXXXXXXRRRSXXXXRRRRRXXXXXXXXXX",
+  "XXfXXXXXXXXXRXXXXRXXXRXXXXXXXXXX",
+  "XfffXXXXXXXXRXXXXRXXXRXXXXXXXXXX",
+  "XfffXXXXXXXXRRRRRSRfRSRRRRxXXXXX",
+  "XfffXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XfufXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+ ],
+ "marks": [
+  [2,18,"up: the mine's mouth"],
+  [26,16,"Ore's stuck cart (challenge step 1)"],
+  [19,16,"the broken rail"],
+  [21,16,"switch: into the loop"],
+  [17,16,"switch: out of the loop"],
+  [12,13,"switch: the dead-end siding"],
+  [5,4,"chest"],
+  [16,8,"Nugget, haggling over a lantern"],
+  [29,2,"stairs down"]
+ ],
+ "links": [{"x":2,"y":18,"to":"pebblebrook","tx":20,"ty":1,"how":"step"},{"x":29,"y":2,"to":"mine2","tx":29,"ty":2,"how":"step"}],
+ "npcs": [
+  {"id":"nugget_mine","n":"Nugget","x":16,"y":8,"show":{"nugget":0},"colour":"#c9a24a"},
+  {"id":"ore","n":"Ore","x":25,"y":16,"show":{"miner_ore":0},"colour":"#8a7360"}
+ ],
+ "chests": [{"name":"the side room","x":5,"y":4,"where":"mine floor 1 (5, 4)","items":[{"use":"Phoenix feather","n":1}]}],
+ "patrols": [],
+ "stables": [],
+ "goals": [{"kind":"steps","from":[2,18],"to":[29,2],"min":30,"max":60,"label":"stairs to stairs"}]
+}

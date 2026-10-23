@@ -1,0 +1,37 @@
+# When the world changes on main (a map, room, person, chest or scene saved in the map editor, or a line in the script), check it, build
+# the game's data and the release, and commit them: the live server picks the release up about 2 minutes later. A world with problems
+# fails here (a red cross in GitHub Desktop's history) and nothing is released; the editor's Problems tab says what to fix.
+name: World to the game
+on:
+  push:
+    branches: [main]
+    paths: ['world/**', 'docs/slice-dialogue.md']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: world-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci && (cd server && npm ci)
+      - name: Check the world and make the game's data
+        run: node tools/gen-data.js
+      - name: Test (logic, no browsers)
+        run: node test/run.js quick
+      - name: Package the release
+        run: node tools/package.js
+      - name: Commit the release
+        run: |
+          git config user.name "kobold-quest release"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/data/v6 docs/slice-scenes.md release
+          if git diff --cached --quiet; then echo "nothing to release"; exit 0; fi
+          git commit -m "Release the world from ${GITHUB_SHA::7} (map editor)"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 5; done; exit 1
