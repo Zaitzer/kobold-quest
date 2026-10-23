@@ -20,6 +20,7 @@ import {RP_BOSSES,RP_TALLIES} from '../data/quests.js';
 import {WEAPONS,makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {burst,confetti,ftext,parts,set_shake,shake,texts} from '../engine/fx.js';
+import {sheetOfFoe,sheetOfKobold} from '../engine/sheets6.js';
 import {artName} from '../engine/sprites.js';
 import {R,clamp,wpick} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
@@ -52,6 +53,7 @@ function rpBattle(keys,opt){
     const u={side,m,own:mem.own,ctl:mem.ctl,gi:mem.gi,name:m.name,x:0,y:0,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,
       get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
     u.k=makeK({team:side===1?3:0,name:m.name,art:artName(m.name),weapon:m.w,hat:rpHat(m),pers:'brave',speed:1,hp:st.hp,size:.62},0,0,!rp.headless);u.k.face=side?-1:1;
+    if(m.v6){u.k.sheetFn=()=>sheetOfKobold(m);u.k.colour6=m.hero&&rp.s.hero?rp.s.hero.colour:null}   /* a drawn v6 sheet, if there is one */
     if(m.hp<=0){u.k.state='ko';u.k.rot=-Math.PI/2}
     const y0=side?0:H-3,yc=side?1:H-2;let spot=null,bd=1e9;for(let y=y0;y<y0+3;y++)for(let x=0;x<W;x++){if(!tcFits(b,u,x,y))continue;const d=Math.abs(x-(px+i))+Math.abs(y-yc)*1.5;if(d<bd){bd=d;spot=[x,y]}}
     u.x=spot[0];u.y=spot[1];b.units.push(u)};
@@ -70,7 +72,7 @@ function rpBattle(keys,opt){
       for(let y=Math.max(0,cy-3);y<=Math.min(H-5,cy+3);y++)for(let x=Math.max(0,cx-3);x<=Math.min(W-1,cx+3);x++){u.x=x;u.y=y;if(!tcFits(b,u,x,y))continue;
         const sc=-Math.hypot(x-cx,y-cy)+(tcCover(b,u,x,H).c)*1.5+(tcGrass(b,u)?1:0)+Math.random();if(sc>best){best=sc;spot=[x,y]}}}
     if(!spot)spot=[i%W,0];u.x=spot[0];u.y=spot[1];
-    u.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,!rp.headless);u.k.face=-1;
+    u.k=makeK({team:E.team,name:E.n,art:E.art||key,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,!rp.headless);u.k.face=-1;if(E.v6)u.k.sheetFn=()=>sheetOfFoe(E);
     b.units.push(u)});
   b.units.forEach(u=>{const h=tcHome(u);u.k.x=h.x;u.k.y=h.y});
   tcVis(b);tcCamTo(b,b.units[0],true);

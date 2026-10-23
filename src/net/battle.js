@@ -12,6 +12,7 @@ import {RP_E} from '../data/monsters.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {confetti} from '../engine/fx.js';
+import {sheetOfFoe,sheetOfKobold} from '../engine/sheets6.js';
 import {artName} from '../engine/sprites.js';
 import {clamp} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
@@ -45,6 +46,7 @@ function netBuildMirror(d,hostPeer){
     else{if(d.v6&&!RP_E[o.k]&&/^v6/.test(String(o.k))&&o.E&&typeof o.E==='object')RP_E[o.k]=netClean6E(o.E);const E=RP_E[o.k];if(!E)return;u={side,E,key:o.k,name:E.n,x:o.x,y,sz:o.z,hp:o.hp,max:o.mx,atk:o.a,def:o.d,spd:o.sp,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!o.aw,pod:o.pd,turns:0,fled:false,own:'e',ctl:'ai'};
       u.k=makeK({team:E.team,name:E.n,art:E.art||o.k,weapon:E.w,hat:E.hat||'none',pers:'brave',speed:1,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
     if(d.v6){u.ct=+o.ct||0;u.seat=o.se}
+    if(u.m&&u.m.v6)u.k.sheetFn=()=>sheetOfKobold(u.m);else if(u.E&&u.E.v6)u.k.sheetFn=()=>sheetOfFoe(u.E);
     u.k.face=side===0?1:-1;const hh=tcHome(u);u.k.x=hh.x;u.k.y=hh.y;b.units.push(u)});
   if(b.units.length!==d.u.length){net.mirrorFail='units '+b.units.length+'/'+d.u.length;return}
   rp.bt=b;rp.mode='battle';rp.path=null;rpInputReset();tcVis(b);tcCamTo(b,b.units.find(u=>u.ctl==='me')||b.units[0],true);

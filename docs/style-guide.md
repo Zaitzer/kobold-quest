@@ -52,6 +52,13 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 5. **Tiles are calmer than characters:** lower contrast, so characters stand out.
 6. **No anti-aliasing:** in Paint.NET turn antialiasing off (the button in the toolbar) and use the pencil, not the brush.
 
+## The hero's colour (decided 23 Oct, build step 19)
+
+The hero's sheets (`pip.png` and the class outfits) are drawn with **Pip's orange** as the scale colour. The player picks one of six
+colours for their hero (orange, green, blue, pink, gold, purple); the game recolours every pixel whose hue is orange (10° to 45°, not
+grey) to the chosen hue and keeps its light and shade. So: draw the scales orange, and keep other orange things (a carrot, a flame) a
+little red or yellow, or greyer, if they should stay as they are.
+
 ## Palette (suggested starting point, from the current game)
 
 | use | colours |

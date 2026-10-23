@@ -1,3 +1,4 @@
+import {drawSheet} from './sheets6.js';
 import {drawCharSprite,sprite} from './sprites.js';
 import {R,clamp,eob,heartPath,rr,starPath} from './util.js';
 let ctx=null;let selected=null;
@@ -164,12 +165,14 @@ function drawKobold(k){
   const sq=k.squash;
   ctx.save();
   ctx.translate(k.x+(k.hurt>0?Math.sin(k.hurt*90)*1.6:0),k.y-k.z);
-  ctx.translate(0,-12);ctx.rotate(k.rot);ctx.translate(0,12);
+  const sh=k.sheetFn&&k.sheetFn();   /* a drawn sheet has its own knocked-down frame, so it does not tip over */
+  ctx.translate(0,-12);ctx.rotate(sh?0:k.rot);ctx.translate(0,12);
   ctx.scale(pop*(1+.2*sq)*k.face*k.size,pop*(1-.2*sq)*k.size);
   ctx.translate(0,bob);
   /* a drawing from art/sprites, if there is one for this character */
   const art=sprite(k.art);
-  if(art){if(lying)ctx.rotate(-1.35);if(flash)ctx.globalAlpha=.45;drawCharSprite(ctx,art,k.size);ctx.globalAlpha=1}
+  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a v6 sheet (engine/sheets6.js) */}
+  else if(art){if(lying)ctx.rotate(-1.35);if(flash)ctx.globalAlpha=.45;drawCharSprite(ctx,art,k.size);ctx.globalAlpha=1}
   else{
   ctx.lineCap='round';ctx.lineJoin='round';
   // tail

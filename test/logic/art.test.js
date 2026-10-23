@@ -20,5 +20,12 @@ for(const x of L.rows)if(!/^[a-z0-9][a-z0-9-]*$/.test(x.name))bad('bad file name
   fs.copyFileSync(path.join(R,'art/templates/character-128.png'),path.join(tp,'character-128.png'));
   fs.copyFileSync(path.join(R,'art/templates/character-128.png'),path.join(f2,'elder.png'));fs.copyFileSync(path.join(R,'test/fixtures/art/pip.png'),path.join(f2,'pip.png'));
   const p=prepare(f2,t2,tp);if(p.count!==1||p.blank!==1||p.warn.length)bad('placeholder handling: '+JSON.stringify(p))}
+/* the v6 sheets beside art/sprites: a drawn one is copied under v6/ and listed; a stand-in (its hash in placeholders.json) is not */
+{const root=path.join(T,'v6case'),sp=path.join(root,'sprites'),v6=path.join(root,'v6','characters','companions'),out=path.join(T,'v6out');fs.mkdirSync(sp,{recursive:true});fs.mkdirSync(v6,{recursive:true});
+  const stand=fs.readFileSync(path.join(R,'art/v6/characters/companions/bork.png'));fs.writeFileSync(path.join(v6,'bork.png'),stand);
+  fs.copyFileSync(path.join(R,'test/fixtures/art6/characters/companions/wizzle.png'),path.join(v6,'wizzle.png'));
+  fs.writeFileSync(path.join(root,'v6','placeholders.json'),JSON.stringify({'characters/companions/bork.png':require('crypto').createHash('sha1').update(stand).digest('hex')}));
+  const r=prepare(sp,out,path.join(R,'art/templates')),m=JSON.parse(fs.readFileSync(path.join(out,'manifest.json'),'utf8'));
+  if(!m['v6/characters/companions/wizzle']||m['v6/characters/companions/bork']||!fs.existsSync(path.join(out,'v6/characters/companions/wizzle.png')))bad('v6 sheets: '+JSON.stringify(Object.keys(m)))}
 fs.rmSync(T,{recursive:true,force:true});
 console.log((fails?'FAIL':'ok')+' art: server step, '+real.count+' drawings in art/sprites, '+L.rows.length+' wanted');process.exitCode=fails?1:0;
