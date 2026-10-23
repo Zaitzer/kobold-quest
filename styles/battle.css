@@ -26,3 +26,11 @@
 .tbar.two .rpb{padding:10px;font-size:15px;align-items:center;text-align:center}
 #v-rpg[data-mode="battle"] .rpboard{inset:48px calc(min(460px,46%) + 14px) 8px 8px;display:flex;align-items:center;justify-content:center}
 #v-rpg[data-mode="battle"] .rpboard canvas{border:3px solid var(--line);border-radius:12px}
+/* v6 (ui-design.md §8): the timeline's owner colours in a shared fight, the active turn larger with its seconds; dark skills */
+.tq span.now{font-size:13px;padding:3px 9px}
+.tq span.oh{box-shadow:inset 0 -3px 0 #ffb347}
+.tq span.og{box-shadow:inset 0 -3px 0 #5fd0ff}
+.tq span i{font-style:normal;font-size:10px;opacity:.85}
+.rpb.sk.dark{background:linear-gradient(#5a2d82,#3d1a5e);border-color:#b77dff;color:#fff}
+.rpb.sk.dark small{color:#e0c3ff}
+.rpdlg.result.win .who{color:#ffd54a}.rpdlg.result p{margin:4px 0}

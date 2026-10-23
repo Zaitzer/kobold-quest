@@ -9,9 +9,12 @@ import {set_soundOn,sfx} from '../engine/audio.js';
 import {rpMus} from '../engine/music.js';
 import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
+import {v6Piece} from '../game/items6.js';
+import {rpSpecialAt,rpTapTile} from '../game/move.js';
 import {rpTalk} from '../game/npcs.js';
+import {s6Npcs} from '../game/story6.js';
 import {v6Kobold} from '../game/v6sheet.js';
-import {rpEnterPlace} from '../game/world.js';
+import {rpBfs,rpEnterPlace,rpSolid} from '../game/world.js';
 import {w6Go,w6Start} from '../game/world6.js';
 import {net,netBtn} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
@@ -26,6 +29,8 @@ export function installHooks(){
   window.__w6go=(p,x,y)=>{w6Go(p,x,y);rpUI(true)};
   /* v6 shortcuts for the co-op test: a ready pack in the world (past Hearthspire's morning, so not phased), and a fight from the first road's mix */
   window.__v6={pack:(list,opt)=>{if(!rp.s)rp.s=rpNewState();w6Start(list.map((x,i)=>v6Kobold(x[0],x[1],x[2],{hero:i===0?1:0})),opt);rp.s.q.act=rp.s.q.act||7;rpUI(true)},
+    tile:(x,y)=>{rpTapTile(x,y);rpUI(true)},solid:(x,y)=>rpSolid(x,y),bfs:(x,y,n)=>rpBfs(x,y,n),special:(x,y)=>rpSpecialAt(x,y),npc:id=>s6Npcs().find(n=>id?n.id===id:!n.shop),piece:(slot,tier)=>v6Piece(slot,tier||0),
+    find:ch=>{for(let y=0;y<rp.grid.length;y++)for(let x=0;x<rp.grid[y].length;x++)if(rp.grid[y][x]===ch)return[x,y];return null},
     fight:keys=>{rpFight(keys?keys.map(k=>Array.isArray(k)?v6FoeKey(k[0],k[1]):k):v6Mix(0),{members:rp.s.party.map(m=>({m,ctl:'me',own:'h'})),zone:',',v6:1,theme:'meadow',title:'Road fight'});rpUI(true)}};
   window.__kqA={on:()=>set_soundOn(true),sfx,music:()=>({key:rpMus.key,lvl:rpMus.lvl,outdoor:rpMus.outdoor})};
 }

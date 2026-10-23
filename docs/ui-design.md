@@ -234,6 +234,17 @@ shape badge as well as a colour. The game works in a colourblind palette.
 | **Dark tiles** | outside the light, the map and the board are drawn in near-black with only outlines; lit circles around glow grubs, lanterns and the campfire |
 | **Admin** (`systems.md` §17) | ☰ → *Admin* (owner and moderators only): tabs Server, Players, Moderation, Market, Events, Letters, Tests, Log; every destructive tool asks for a reason and a confirm; a moderator sees only their tabs |
 
+### As built (23 Oct, build step 17)
+
+- **Skills:** the four equipped skills sit on the battle bar beside Attack, so a cast on one foe is two taps without a quick button;
+  the quick button is not needed while the kit is four.
+- **Talent pick:** a card, then *Take*: three taps from the map (the confirm, §1.7), one over §3's two, inside the test's tolerance.
+- **Text speed:** lines appear whole and wait for a tap, so "tap only" is the only speed; *Skip* ends a conversation without choices
+  (or jumps to its choice) in one tap.
+- **Challenges in the slice:** Pebblebrook's is the fetch-and-fix list (the miners, ticked, in *What now*) and the rail puzzle (with
+  *Hint* on the map while the cart is out); the other three layouts come with their towns.
+- **The tap test** is `test/browser/ttaps6.js`: each row it can do in the slice, counted.
+
 ## 9. Sound and touch feedback
 
 - A soft pop on every tap; a different one for "can't". A rising chime on a level-up; a fanfare on a Smiler piece; a different

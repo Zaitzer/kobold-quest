@@ -16,7 +16,7 @@ function v6Piece(slot,t,opt){opt=opt||{};const it={id:'i'+(Date.now()%1e7)+'_'+(
   if(slot==='weapon'){it.fam=opt.fam||'blades';it.n=opt.n||(WEAPONS6[it.fam]&&WEAPONS6[it.fam][t]||{}).n||'Weapon'}
   else{const row=(GEAR6[slot][it.v]||GEAR6[slot].plain)[t];it.n=opt.n||(row?row.n:slot)}return it}
 /* the name the player sees: the bonuses wrap it (Sturdy Leather vest of the Bear) */
-function v6ItemName(it){if(it.k!=='gear')return it.n;const pre=it.aff.map(a=>AFFIXES6.find(x=>x.n===a)).filter(a=>a&&a.kind!=='suffix').map(a=>a.n),suf=it.aff.map(a=>AFFIXES6.find(x=>x.n===a)).filter(a=>a&&a.kind==='suffix').map(a=>a.n);
+function v6ItemName(it){if(it.k!=='gear')return it.n;const A=it.aff||[];const pre=A.map(a=>AFFIXES6.find(x=>x.n===a)).filter(a=>a&&a.kind!=='suffix').map(a=>a.n),suf=A.map(a=>AFFIXES6.find(x=>x.n===a)).filter(a=>a&&a.kind==='suffix').map(a=>a.n);
   return[...pre,it.n,...suf].join(' ')}
 /* what a bonus adds (items.md §1, §4: a prefix 3 pp, a suffix 4 pp, priced at the tier's entry level) */
 function affixStats(a,t){const B=bases(V6_TIERS[t]),A=AFFIXES6.find(x=>x.n===a);if(!A)return{};const pp=A.kind==='suffix'?4:3,o={};

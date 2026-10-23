@@ -16,6 +16,7 @@ import {rpIntro} from '../game/play.js';
 import {rpStats,rpXpNeed} from '../game/stats.js';
 import {netLeaveRpg} from '../net/core.js';
 import {rpPartyHtml} from './hud.js';
+import {V6S,v6MenuHtml} from './v6screens.js';
 
 const ITEMS_USABLE=['bun','potion','ether','feather'];
 function useOn(m,k){const s=rp.s,st=rpStats(m);if(!m||!(s.bag[k]>0))return;
@@ -24,7 +25,7 @@ function useOn(m,k){const s=rp.s,st=rpStats(m);if(!m||!(s.bag[k]>0))return;
   else if(k==='ether'&&m.hp>0&&m.mp<st.mp){m.mp=Math.min(st.mp,m.mp+12);s.bag[k]--}
   else if(k==='feather'&&m.hp<=0){m.hp=Math.round(st.hp*.5);s.bag[k]--}
   if(!(s.bag[k]>0))rp.menuSel=null;rpSave()}
-function menuHtml(){const s=rp.s;
+function menuHtml(){const s=rp.s;if(s.w6)return v6MenuHtml();
   const stats=s.party.map(m=>{const st=rpStats(m);return '<b>'+esc2(m.name)+'</b> Lv '+m.lvl+' · '+WEAPONS[m.w].n+' · ATK '+Math.round(st.atk)+' DEF '+Math.round(st.def)+' SPD '+st.spd.toFixed(1)+' · XP '+m.xp+'/'+rpXpNeed(m.lvl)}).join('<br>');
   let h=rpPartyHtml()+'<div class="rpmenu"><p>'+stats+'</p><p><b>Materials</b><br><span class="mats">'+rpMatsLine()+'</span></p><p><b>Quests</b><br>'+rpQuestList()+'</p></div><div class="rpcmd">';
   if(rp.menuSel)return h+s.party.map((m,i)=>'<button class="rpb go" type="button" data-rp="useon" data-i="'+i+'">'+esc2(m.name)+'<small>HP '+m.hp+' · MP '+m.mp+'</small></button>').join('')+'<button class="rpb x" type="button" data-rp="menuback">✕ Back</button></div>';
@@ -36,10 +37,10 @@ function menuHtml(){const s=rp.s;
   return h+'<button class="rpb" type="button" data-rp="newgame">New game</button><button class="rpb x" type="button" data-rp="quit">Quit to title</button></div>'}
 function soundLabel(){const sb=$('sound');if(sb){sb.setAttribute('aria-pressed',soundOn?'true':'false');sb.textContent=soundOn?'Sound on':'Sound off'}}
 feature({id:'menu',
-  panels:{menu:{sig:()=>JSON.stringify(rp.s.bag)+rp.s.party.map(m=>m.hp+'/'+m.mp+m.w).join()+rp.menuSel+options.map(o=>o.label()).join(),html:menuHtml}},
+  panels:{menu:{sig:()=>JSON.stringify([V6S.item,rp.s.gold,rp.s.q])+JSON.stringify(rp.s.bag)+rp.s.party.map(m=>m.hp+'/'+m.mp+m.w).join()+rp.menuSel+options.map(o=>o.label()).join(),html:menuHtml}},
   routes:{opt:d=>{const o=options.find(o=>o.id===d.opt);if(o)o.toggle()}},
   actions:{
-    menu:()=>{rp.mode='menu';rp.menuSel=null},close:()=>{rp.mode='map'},
+    menu:()=>{rp.mode='menu';rp.menuSel=null;V6S.item=null},close:()=>{rp.mode='map'},
     use:d=>{rp.menuSel=d.k},menuback:()=>{rp.menuSel=null},
     useon:d=>useOn(rp.s.party[+d.i],rp.menuSel),
     newgame:()=>{rpSay([{who:'',text:'Start a brand new adventure? Your current journey will be lost.'}],[{t:'Yes, start over',fn:()=>{rp.s=rpNewState();rpApplyWorld();rpIntro()}},{t:'Keep playing'}]);return false},

@@ -20,6 +20,7 @@ import {v6Kobold,v6Stats} from './v6sheet.js';
 import {w6Cart,w6Go,w6Start} from './world6.js';
 import {netName} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
+import {V6S,v6ClassHtml} from '../ui/v6screens.js';
 
 const PACK=4;
 const hero=()=>rp.s.party.find(m=>m.hero)||rp.s.party[0];
@@ -131,8 +132,7 @@ function logHtml(){const q=rp.s.q,G=goals();let h='<div class="rpdlg"><div class
   if(q.pb===2){const done={Ore:q.miner_ore,Tansy:q.miner_tansy,'Flint and Grit':q.miner_brothers,'Old Marl':q.miner_marl,Grubb:q.pb>=5};
     h+='<p>'+MINERS6.map(m=>(done[m.who]?'✔ ':'· ')+'<b>'+esc2(m.who)+'</b>: '+esc2(m.hint)).join('<br>')+'</p>'}
   return h+'</div><div class="tbar"><button class="rpb x" type="button" data-rp="w6back">Back</button></div>'}
-function classHtml(){return'<div class="rpdlg"><div class="who">Pick up something and show what you are</div><p>Your class shapes your fights and your skills. (The others come later in the game.)</p></div><div class="rpcmd">'+
-  WAVE16.map(c=>'<button class="rpb go" type="button" data-rp="w6cls" data-v="'+c+'">'+esc2(CLASSES6[c].n)+'<small>'+esc2(CLASSES6[c].role||CLASSES6[c].fam||'')+'</small></button>').join('')+'</div>'}
+function classHtml(){return v6ClassHtml()}   // the cards live in ui/v6screens.js
 function w6RosterHtml(){const s=rp.s,all=s.party.concat(s.w6st.bench||[]);return'<div class="rpdlg"><div class="who">The roster</div><p>Pick the pack (four at most). Those not in it wait here and learn a little anyway.</p></div><div class="rpcmd">'+
   all.map((m,i)=>'<button class="rpb'+(s.party.includes(m)?' go':'')+'" type="button" data-rp="w6swap" data-v="'+i+'"'+(m.hero?' disabled':'')+'>'+esc2(m.name)+'<small>'+esc2(CLASSES6[m.cls].n)+' '+m.lvl+(s.party.includes(m)?' · in the pack':' · waiting')+'</small></button>').join('')+
   '<button class="rpb x" type="button" data-rp="w6back">Done</button></div>'}
@@ -156,13 +156,13 @@ function shopHtml(){const town=rp.w6shop,tab=rp.w6tab||'buy',s=rp.s,h='<div clas
   const mats=s.mats6||{};return h+'<p><small>'+(Object.entries(mats).filter(([k,v])=>v>0).map(([k,v])=>k+' ×'+v).join(' · ')||'No materials yet.')+'</small></p><div class="rpcmd">'+v6Recipes(town).map((R,i)=>{const N=needOf(R),can=N.every(x=>(mats[x.mat]||0)>=x.n);return'<button class="rpb'+(can?' go':'')+'" type="button" data-rp="w6craft" data-v="'+i+'"'+(can?'':' disabled')+'>'+esc2(R.n)+'<small>needs '+esc2(R.need)+'</small></button>'}).join('')+'</div>'}
 feature({id:'story6',
   menu:[{order:4,html:()=>rp.s&&rp.s.w6?'<button class="rpb go" type="button" data-rp="w6log">What now<small>'+esc2(s6GoalLine()||'the quest log')+'</small></button>':''}],
-  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6new:{sig:()=>JSON.stringify(newForm),html:newHtml},w6class:{sig:()=>'c',html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
+  panels:{w6shop:{sig:()=>JSON.stringify([rp.w6shop,rp.w6tab,rp.s&&rp.s.gold,rp.s&&(rp.s.inv6||[]).length,rp.s&&rp.s.mats6]),html:shopHtml},w6new:{sig:()=>JSON.stringify(newForm),html:newHtml},w6class:{sig:()=>'c'+V6S.cls,html:classHtml},w6log:{sig:()=>JSON.stringify(rp.s&&rp.s.q),html:logHtml},w6roster:{sig:()=>JSON.stringify(rp.s&&[rp.s.party.map(m=>m.name),(rp.s.w6st.bench||[]).map(m=>m.name)]),html:w6RosterHtml}},
   actions:{w6tab:d=>{rp.w6tab=d.v},w6buy:d=>{if(v6Buy(rp.w6shop,+d.v))rpToast('Bought!')},w6sell:d=>{if(v6Sell(d.v))rpToast('Sold.')},w6craft:d=>{const it=v6Craft(rp.w6shop,+d.v);if(it)rpToast('The smith made '+it.n+'!')},
     w6new:()=>{rp.mode='w6new'},w6col:d=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');if(e)newForm.name=e.value;newForm.colour=d.v},
     w6begin:()=>{const e=typeof document!=='undefined'&&document.getElementById('w6-name');const n=v6HeroName(e?e.value:newForm.name);if(!n){rpToast('2 to 12 letters, please.');return}s6NewGame(n,newForm.colour)},w6cont:()=>{if(!s6Continue())rpToast('No story saved yet.')},
-    w6cls:d=>{pickClass(d.v)},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
+    w6cls:d=>{if(V6S.cls===d.v){V6S.cls=null;pickClass(d.v)}else V6S.cls=d.v},w6back:()=>{rp.mode='map'},w6swap:d=>{swap(+d.v)},w6log:()=>{if(rp.s&&rp.s.w6)rp.mode='w6log'}},
   on:{'w6:enter':p=>{if(rp.s.w6st&&rp.s.w6st.seen)s6Enter(p)},
-    'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},
+    'battle:won':b=>{if(b&&b.v6&&rp.s.w6){benchXp(b.xp6||0);const got=v6Drops(b),gp=Math.max(0,...rp.s.party.map(m=>v6Stats(m).goldP||0));if(gp&&b.gold6){const g=Math.round(b.gold6*gp);rp.s.gold+=g;got.push(g+' extra gold')}b.got6=got;if(got.length)b.msg+=' Found: '+got.join(', ')+'.'}},
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};

@@ -52,3 +52,13 @@
 #v-rpg[data-mode="map"] .rptip{display:none}
 #v-rpg.lefty[data-mode="map"] .rpjoy{left:auto;right:18px}
 #v-rpg.lefty[data-mode="map"] .rpside{right:auto;left:14px}
+/* v6 screens (ui-design.md §6–10): the pack as buttons, the "!" badge, a low-HP pulse; big text; reduced motion */
+.rpparty button.rpm{font:inherit;color:inherit;text-align:left;cursor:pointer}
+.rpparty .badge{display:inline-block;font-style:normal;background:#ffd54a;color:#3a1d00;border-radius:9px;padding:0 6px;font-weight:900}
+.rpparty .rpm.low{animation:lowpulse 1s ease-in-out infinite alternate}
+@keyframes lowpulse{from{box-shadow:0 0 0 0 rgba(255,107,107,0)}to{box-shadow:0 0 0 3px rgba(255,107,107,.75)}}
+html.cb .rpparty .rpm.low{animation-name:lowpulsecb}
+@keyframes lowpulsecb{from{box-shadow:0 0 0 0 rgba(255,159,28,0)}to{box-shadow:0 0 0 3px rgba(255,159,28,.85)}}
+html.bigtext #rp-panel,html.bigtext #rp-top{font-size:125%}
+html.calm *{animation:none!important;transition:none!important}
+.corr{margin:6px 0;font-size:13px}.corr .rpbar{margin:3px 0}

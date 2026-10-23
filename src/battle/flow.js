@@ -118,7 +118,7 @@ function tcNext(){
   /* a player who left mid-fight: their kobolds guard until the fight ends (systems.md §12) */
   if(ctl==='guard'){u.guard=1;u.ap=0;b.msg=u.name+' guards.';tcFloatU(u,'guard','#9ad0ff');tcQ({k:'wait',d:.4});b.phase='busy';rpUI(true);return}
   if(ctl==='remote'){b.phase=b.seq.length?'busy':'remote';b.msg=netName()+' is moving '+u.name+'…';tcCamTo(b,u);rpUI(true);return}
-  if(ctl==='me'){b.phase=b.seq.length?'busy':'turn';b.msg=u.name+'\'s turn · '+u.ap+' AP'+(rp.s.q.tac?'':'. Tap a tile to see the path, tap again to go. Tap an enemy to see your hit chance. Drag the board to look around.');tcCamTo(b,u);if(rp.autoParty)rpAiTurn(u)}
+  if(ctl==='me'){b.phase=b.seq.length?'busy':'turn';b.msg=u.name+'\'s turn · '+u.ap+' AP'+(rp.s.q.tac?'':b.v6?'. Tap a blue tile to move there, a foe to attack it (its hit chance is over its head). Drag the board to look around.':'. Tap a tile to see the path, tap again to go. Tap an enemy to see your hit chance. Drag the board to look around.');tcCamTo(b,u);if(rp.autoParty)rpAiTurn(u)}
   else{b.phase='ai';if(tcShown(b,u))tcCamTo(b,u);rpAiTurn(u)}
   rpUI(true);
 }
@@ -304,7 +304,7 @@ function rpRewards(b){
   if(B&&(!B.ready||test(B.ready))){run(B.win);b.drops.push(...B.drops)}
   else if(B){if(B.done&&test(B.done)){s.dust=(s.dust||0)+3;help=' Helper\'s spark dust +3.'}else help=' (This fight isn\'t part of your story yet.)'}
   else if(!b.v6){const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
-  const sp=b.v6?'':rpBattleSpoils(b);b.drops.forEach(rpGive);b.xp6=xp;b.gold6=gold;
+  const sp=b.v6?'':rpBattleSpoils(b);b.drops.forEach(rpGive);b.xp6=xp;b.gold6=gold;b.ups6=ups;
   b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'')+help;
   b.units.forEach(u=>{u.buff={atk:0,def:0};u.guard=0;u.watch=0;b.vis.fill(2)});
   if(!rp.headless){confetti();sfx('win')}

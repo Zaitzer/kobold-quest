@@ -129,6 +129,10 @@ function w6Chest(p,x,y){const st=rp.s.w6st,k=p+':'+x+','+y;if(st.chests.includes
 /* ------------------------------------------------------------------ the rail puzzle (systems.md §9): three switches, one setting brings the cart home */
 const W6_RAIL={loopIn:'21,16',loopOut:'17,16',siding:'12,13'};
 function w6CartResult(sw){if(!sw[W6_RAIL.loopIn])return'gap';if(!sw[W6_RAIL.loopOut])return'loop';if(sw[W6_RAIL.siding])return'siding';return'home'}
+/* the puzzle's Hint button (ui-design.md §8): what the cart would do now, said plainly, then the switch that is wrong */
+function w6RailHint(){const st=rp.s.w6st,r=w6CartResult(st.switches);st.hints=(st.hints||0)+1;
+  const where={gap:'the switch by the loop\'s way in',loop:'the switch by the loop\'s way out',siding:'the switch by the siding'}[r];
+  return r==='home'?'The switches are right. Push the cart!':st.hints<2?'Walk the rail with your eyes: where would the cart stop now? Each switch on a tile you stand on flips with a tap.':'The cart would stop '+({gap:'at the broken rail',loop:'in the loop',siding:'in the siding'}[r])+'. Look at '+where+'.'}
 function w6Cart(){const st=rp.s.w6st;if(st.cart==='done'){rpToast('The cart is home.');return true}const r=w6CartResult(st.switches);
   const say={gap:'You push. The cart rolls, rolls... and stops at the broken rail with a CLANK. Rails don\'t like gaps. Go round.',loop:'Round and round the loop it goes, and stops where it began. Something has to let it out.',
     siding:'The cart rattles off into the dead-end siding and bumps the buffer. Wrong way! You push it back.',home:'The cart rolls round the broken rail, out of the loop and all the way to the stairs. Ore will be pleased!'}[r];
@@ -146,4 +150,4 @@ feature({id:'world6',panels:{w6travel:{sig:()=>rp.w6travel+JSON.stringify(rp.s&&
   on:{'battle:end':b=>{if(!rp.s||!rp.s.w6||!b||!b.v6)return;
     if(b.patrol&&b.over==='win')rp.s.w6st.patrols[b.patrol]=1;
     if(b.over==='lose'){const st=rp.s.w6st;const p=st.respawn||'hearthspire';w6HealAll();rp.s.gold=Math.floor(rp.s.gold/2);w6Go(p,...MAPS6[p].entry)}}}});
-export {W6_DIR,W6_ENC,W6_GAP,W6_RAIL,W6_ROOM_SOLID,W6_SOLID_OUT,W6_THEME,isRoom,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6Rest,w6Rows,w6Solid,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};
+export {W6_DIR,W6_ENC,W6_GAP,W6_RAIL,W6_ROOM_SOLID,W6_SOLID_OUT,W6_THEME,isRoom,w6Arrive,w6Bump,w6Campfire,w6Cart,w6CartResult,w6Chest,w6ChestAt,w6Dry,w6Fight,w6Flooded,w6Follow,w6Fountain,w6FountainAt,w6Go,w6HealAll,w6InSight,w6LinkAt,w6Lit,w6MarkNear,w6PackLevel,w6PatrolCheck,w6PatrolFight,w6PatrolLevel,w6Patrols,w6Pieces,w6Place,w6RailHint,w6Rest,w6Rows,w6Solid,w6Stable,w6StableAt,w6Start,w6Step,w6Strength,w6Title,w6Travel,w6TravelHtml,w6TravelList,w6Use};

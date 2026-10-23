@@ -10,6 +10,7 @@ import {esc2} from '../engine/util.js';
 import {v6CanWear,v6Equip6,v6ItemName,v6PieceName,v6Unequip} from '../game/items6.js';
 import {v6Stats} from '../game/v6sheet.js';
 import {V6_EQUIP,v6AtRest,v6Cards,v6ChooseSub,v6DarkOpen,v6Equip,v6IsSub,v6Known,v6LeadAdd,v6LeadFree,v6LeadTotal,v6LevelUp,v6Pick,v6SubOptions,v6ToggleDark} from '../game/v6talent.js';
+import {rpBar} from './hud.js';
 
 const sheet={i:0,msg:''};
 const pack=()=>rp.s&&rp.s.w6?rp.s.party:(v6Lab.ks||[]);   // the walking pack in the v6 world, the lab's otherwise
@@ -22,6 +23,9 @@ function v6SheetHtml(){const m=cur();if(!m)return'<div class="rpdlg"><p>No kobol
   h+='<div class="hh-stats">'+row('HP',m.hp+'/'+st.hp)+row('Mana',(m.mp||0)+'/'+st.mp)+row('Attack',f1(st.atk))+row('Sp. attack',f1(st.spa))+row('Defence',f1(st.def))+row('Sp. defence',f1(st.sd))+
     row('Accuracy',f1(st.acc))+row('Dodge',f1(st.dodge))+row('Resistance',f1(st.res))+row('Initiative',st.init)+row('Move',st.move)+row('Crit',Math.round(st.crit*100)+'% ×'+st.critD)+
     row('Threat',f1(st.threat))+row('Steadiness',st.steady)+row('Bond / streak',(m.bond||0)+' / '+(m.streak||0))+row('Corruption',m.corr||0)+row('Luck',m.luck||0)+(m.cls==='monk'?row('Balance',f1(st.balance)):'')+'</div>';
+  /* corruption (ui-design.md §8): the number, a bar to the next threshold (10, 25, 50) and what it costs the pack's morale */
+  {const c=m.corr||0,T=[10,25,50].find(t=>c<t),prev=[0,10,25,50].filter(t=>t<=c).pop(),n=Math.max(1,pack().filter(Boolean).length);
+    h+='<div class="corr"><span>Corruption <b>'+c+'</b>'+(T?' · next at '+T:' · past every threshold')+'</span>'+rpBar(T?c-prev:1,T?T-prev:1,'#b77dff')+'<small>pack morale −'+(Math.round(c/10/n*10)/10)+(T===10?' · dark skills open at 10':'')+'</small></div>'}
   h+='<p><small>'+Object.entries(m.scores).map(([s,v])=>s+' '+v).join(' · ')+'</small></p>';
   if(m.passives&&m.passives.length){const n={};m.passives.forEach(p=>n[p]=(n[p]||0)+1);h+='<p><small>Passives: '+Object.entries(n).map(([p,c])=>esc2(p)+(c>1?' ×'+c:'')).join(', ')+'</small></p>'}
   /* a waiting pick: three cards, one tap, then a confirm (ui-design.md) */
