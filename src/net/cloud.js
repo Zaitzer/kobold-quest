@@ -9,7 +9,8 @@ import {net} from './core.js';
 
 async function netCloudInit(){try{net.cloudRef=net.db.doc('data/users/'+net.me+'/save');const sn=await net.cloudRef.get();net.cloud=sn.exists?sn.data():null;
     if(net.cloud&&rp.s&&view==='rpg'&&(net.cloud.savedAt||0)>(rp.s.savedAt||0)+2000){rpStart(false);rpToast('Loaded your save from the cloud')}}catch(e){}}
-function netCloudSave(){if(!net.cloudRef||!rp.s||rp.headless)return;clearTimeout(net.cloudT);
+function netCloudSave(){if(!net.cloudRef||!rp.s||rp.headless||rp.s.w6)return;   // v6 heroes have their own slots (ui/chars6.js)
+  clearTimeout(net.cloudT);
   net.cloudT=setTimeout(async()=>{if(net.cloudBusy){netCloudSave();return}net.cloudBusy=true;try{const d=JSON.parse(JSON.stringify(rp.s));await net.cloudRef.set(d);net.cloud=d}catch(e){}net.cloudBusy=false},2500)}
 
 feature({id:'cloud-save',on:{save:()=>netCloudSave()}});

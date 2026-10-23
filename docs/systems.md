@@ -337,8 +337,9 @@ gear and gold: one save (§11). The account holds what belongs to the player rat
   learned), cosmetics (palettes unlocked, bun crumbs), friends, letters to Quill, settings that are not per device. **Not shared:** gold,
   items, levels, story progress, corruption. There is no shared stash; a player can still *gift* between their own characters through
   the normal gift (one item a day, `design.md` §10), so nothing is lost but nothing is farmed either.
-- **Where it lives:** on the server under `data/users/<account>/chars/<slot>` (one document per character, the v6 save) and
-  `data/users/<account>/account` (the shared part and the slot list). The browser keeps a cache of each slot; per slot the newest copy wins,
+- **Where it lives:** on the server under `data/users/<account>/char<slot>` (one document per character, the v6 save; *as built, 23 Oct:
+  the database's documents have an even number of path parts, so `chars/<slot>` became `char<slot>`*), `data/users/<account>/lock<slot>`
+  (the one-device lock) and `data/users/<account>/account` (the shared part and the slot list). The browser keeps a cache of each slot; per slot the newest copy wins,
   as today. On the Claude page the same paths, so both front ends see the same heroes (`CLAUDE.md`: keep the db paths compatible).
 - **Guests:** someone without an account can play one character, saved on the device only. Logging in later offers to *Keep this hero*:
   it moves into a free slot.

@@ -59,6 +59,7 @@ import './game/items6.js';
 import './render/map6.js';
 import './game/v6talent.js';
 import './ui/v6sheetui.js';
+import './ui/chars6.js';
 import './net/core.js';
 import './net/draw.js';
 import './net/ui.js';

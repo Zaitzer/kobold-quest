@@ -119,8 +119,9 @@ function rpDrawMap(dt){
   for(const sp of RP_SPOTS)if((sp.place||'world')===rpPlace()&&test(sp.if)&&!rpDrawSpot(sp)&&sp.draw==='hat'){const X=sp.x*RT+16,Y=sp.y*RT+22+Math.sin(rp.t*3)*1.5;ctx.fillStyle=OL;ctx.beginPath();ctx.moveTo(X,Y-15);ctx.lineTo(X+9,Y+3);ctx.lineTo(X-9,Y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#ff8a2b';ctx.beginPath();ctx.moveTo(X,Y-12);ctx.lineTo(X+6.5,Y+1.5);ctx.lineTo(X-6.5,Y+1.5);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(X-4,Y-4,8,2.2)}
   const ents=rpNpcs().map(n=>{const kk=rpNpcK(n);kk.x=n.x*RT+16;kk.y=n.y*RT+26;kk.t+=dt;kk.blink-=dt;if(kk.blink<-.12)kk.blink=R(2,5);kk.moving=false;kk.wa=.35+Math.sin(kk.t*2+kk.phase)*.4;
     if(Math.abs(s.x-n.x)+Math.abs(s.y-n.y)<=2){kk.face=s.x>n.x?1:s.x<n.x?-1:kk.face}return kk});
-  const pk=rp.pk||(rp.pk=makeK({team:0,name:'Pip',art:'pip',weapon:s.party[0].w,hat:s.party[0].hat,pers:'brave',speed:1,hp:30,size:.72},0,0,false));
-  if(pk.weapon!==s.party[0].w){pk.weapon=s.party[0].w;pk.W=WEAPONS[pk.weapon]}pk.hat=rpHat(s.party[0]);
+  const P0=s.party[0]&&WEAPONS[s.party[0].w]?s.party[0]:Object.assign({},s.party[0]||{},{w:'stick'});   // the heroes screen has nobody yet; a save without a weapon look draws a stick
+  const pk=rp.pk||(rp.pk=makeK({team:0,name:'Pip',art:'pip',weapon:P0.w,hat:P0.hat,pers:'brave',speed:1,hp:30,size:.72},0,0,false));
+  if(pk.weapon!==P0.w){pk.weapon=P0.w;pk.W=WEAPONS[pk.weapon]}pk.hat=rpHat(P0);
   pk.x=px*RT+16;pk.y=py*RT+26;pk.t+=dt;pk.blink-=dt;if(pk.blink<-.12)pk.blink=R(2,5);pk.moving=rp.moving;if(rp.moving)pk.walk+=dt*12;
   if(s.face==='left')pk.face=-1;else if(s.face==='right')pk.face=1;pk.wa+=((WEAPONS[pk.weapon].ranged&&!WEAPONS[pk.weapon].magic?1.45:.35)-pk.wa)*Math.min(1,dt*10);
   ents.concat([pk],netPartnerK(dt)).sort((a,b)=>a.y-b.y).forEach(drawKobold);netDrawTags();
