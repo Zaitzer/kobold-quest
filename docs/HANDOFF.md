@@ -213,3 +213,4 @@ Fennel and Nugget as recruits.
 | 22 Oct | The monk is the generalist and scales on Balance; documents cross-checked; no simulations unless asked |
 | 22 Oct | Art: **pixel art at twice Ruby's resolution** (tiles 32 × 32, characters 32 × 64, bosses 64 × 96), scaled up with no smoothing; Pip to be redrawn |
 | 22 Oct | Gate 1 decisions: build on `main` (keep `release/` and the Claude page on the old game until the slice is ready); tile-targeting first; Cinder rebuilds the oven in act 3; eggs unchanged; corruption combat only; **a pack of four**, at most four kobolds and four players per fight, tuned for four, no player scaling; Might, Wits, Leadership; everything on the sheet; hard packs stay; HoMM3 defence factor, Pathfinder multiple-attack penalty, Pokémon burn and poison |
+| 23 Oct | Old game removed; the Claude page dropped and deleted (the game is played only on joakimskar.no); **step 22: the v6 slice released to friends**. |
