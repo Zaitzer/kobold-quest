@@ -11,9 +11,10 @@ import {RP_CHESTS,RP_PICKUPS,RP_SOLID,RP_SPOTS} from '../data/world.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay} from './dialogue.js';
 import {rpGive,rpItemDesc} from './items.js';
+import {s6Npcs} from './story6.js';
 import {w6Solid,w6Title} from './world6.js';
 function rpArea(x,y){if(rp.s.w6)return w6Title(rp.s.w6);if(rp.s.place&&RP_PLACES[rp.s.place])return RP_PLACES[rp.s.place].name;if(x>=OLD_W||y>=OLD_H)return overworldArea(x,y);if(x<17&&y<15)return'Whisper Woods';if(y<15)return'Pebble Hills';if(x<14&&y>16)return'Burrowhome';return'Hatching Green'}
-function rpNpcs(){if(rp.s&&rp.s.w6)return[];const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
+function rpNpcs(){if(rp.s&&rp.s.w6)return s6Npcs();const pl=rpPlace();return RP_NPC.filter(n=>(n.place||'world')===pl&&(!n.show||n.show(rp.s))).map(n=>{const p=n.pos&&n.pos(rp.s);return p?Object.assign({},n,p):n})}
 function rpNpcAt(x,y){return rpNpcs().find(n=>n.x===x&&n.y===y)}
 function rpSolid(x,y){if(x<0||y<0||!rp.grid[y]||x>=rp.grid[y].length)return true;const c=rp.grid[y][x];if(rp.s&&rp.s.w6)return w6Solid(c,x,y)||!!rpNpcAt(x,y);return RP_SOLID.has(c)||c==='d'||!!rpNpcAt(x,y)||!!(rp.s&&rp.s.chests&&rpChestAt(x,y))}
 /* doors lead into rooms (data/places.js); standing on the way-out tile (e) leads back outside */

@@ -20,7 +20,7 @@ function v6Keep(b,keys,opt){if(!b||!b.v6)return;b.start6={keys:keys.slice(),opt:
 function v6CanRetry(b){return!!(b&&b.v6&&b.over==='lose'&&b.start6&&(b.boss||b.start6.opt.setPiece))}
 function v6Retry(){const b=rp.bt;if(!v6CanRetry(b))return false;const S=b.start6;S.hm.forEach(([m,hp,mp])=>{m.hp=hp;m.mp=mp});
   const boss=b.units.find(u=>u.E&&u.E.v6boss),keys=boss?[v6BossKey(boss.E.id)]:S.keys;   // a boss's entry is rebuilt so its softening counts
-  rp.bt=null;rp.mode='map';rpBattle(keys,boss?Object.assign({},S.opt,{boss:keys[0]}):S.opt);if(rp.bt)rp.bt.v6=1;return true}
+  rp.bt=null;rp.mode='map';rpBattle(keys,boss?Object.assign({},S.opt,{boss:keys[0]}):S.opt);if(rp.bt){rp.bt.v6=1;for(const k of ['story','patrol','xpMul'])if(b[k]!=null)rp.bt[k]=b[k]}return true}
 /* the end: a downed kobold stands with 1 HP (carried out when the pack fled); after a loss everyone is healed at the fountain */
 function v6End(b){if(!b||!b.v6)return;b.units.filter(u=>u.side===0&&u.m).forEach(u=>{const m=u.m;if(b.over==='lose'){const st=rpStats(m);m.hp=st.hp;m.mp=st.mp}else if(m.hp<=0)m.hp=1})}
 /* XP (balance.md §3, the level table: XP to the next level = 12 × L^1.6): every kobold in the fight gets the fight's XP, the downed too

@@ -210,6 +210,7 @@ function v6AiTurn(b,u){const E=u.E;
   if(v6Has(u,'confuse')){const own=b.units.filter(v=>v!==u&&v.side===u.side&&tcLive(v)&&tcCheb(u,v)<=1);if(own.length)tcQ({k:'atk',a:u,tg:own[0],o:{mul:1,name:'Confused swing'}});else tcFloatU(u,'confused','#e0c3ff');u.ap=0;b.phase='ai';return true}
   if(E.v6trial&&E.trick==='old_shellback'){u.tt=(u.tt||0)+1;u.curled=u.tt%2===0;if(u.curled){tcFloatU(u,'curls up','#e0c3ff');u.ap=0;b.phase='ai';return true}}
   if(E.v6boss)return v6BossTurn(b,u);
+  if(E.tele){u.tel=(u.tel||0)+1;if(u.tel%3===2){const ks=b.units.filter(v=>v.side===0&&tcLive(v));if(ks.length){const c=v6Focus(b,u,ks);const ch={u,sk:'v6_bigswing',cx:c.x,cy:c.y,area:1.5,side:1};u.chan=ch;b.chans.push(ch);b.msg=u.name+' winds up a big swing: step away!';tcFloatU(u,'winds up!','#ffb347');u.ap=0;b.phase='ai';return true}}}   // the drill sergeant teaches the telegraph (slice-dialogue.md §1.4)
   const pod=b.units.filter(v=>v.side===1&&v.pod===u.pod),lost=pod.filter(v=>!tcLive(v)).length/Math.max(1,pod.length);
   if(!E.boss&&u.hp<u.max*0.25&&lost>=0.5)u.fleeing=true;
   if(u.fleeing){if(u.y===0){u.fled=true;tcFloatU(u,'runs off','#d7c9e3');b.msg=u.name+' runs off!';u.ap=0;b.phase='ai';return true}
@@ -227,7 +228,8 @@ function v6HabitFocus(b,u,list){if(!list.length)return null;const E=u.E,F=FOES6[
   return null}
 function v6Habit(b,u){const E=u.E,F=FOES6[E.id]||{},how=F.how||'';u.tt=(u.tt||0)+1;
   if(/curls up/.test(how)&&!u.curledOnce&&u.hp<u.max*0.5){u.curledOnce=1;u.vb=(u.vb||[]).concat([{k:'def',v:1,turns:1}]);tcFloatU(u,'curls up','#e0c3ff');b.msg=u.name+' curls up!';u.ap=0;b.phase='ai';return true}
-  if(/guards \(dodge/.test(how)&&u.hp<u.max*0.5&&!u.guard){u.guard=1;tcFloatU(u,'guards','#e0c3ff');b.msg=u.name+' raises its guard.';u.ap=0;b.phase='ai';return true}
+  if(/guards \(dodge/.test(how)&&u.hp<u.max*0.5&&!u.guard&&!(u.guarded=!u.guarded)){u.guard=1;
+    tcFloatU(u,'guards','#e0c3ff');b.msg=u.name+' raises its guard.';u.ap=0;b.phase='ai';return true}
   if(/calls a guard if alone/.test(how)&&!u.called&&!b.units.some(v=>v!==u&&v.side===1&&tcLive(v))){u.called=1;b.msg=u.name+' shouts for help!';v6Spawn(b,u,1,'guard recruit');u.ap=1;return false}
   if(/shouts weaken/.test(how)&&u.tt%3===1){const ks=b.units.filter(v=>v.side===0&&tcLive(v)&&tcEuc(u,v)<=4);if(ks.length){b.msg=u.name+' bellows at the pack!';
     ks.forEach(v=>{if(Math.random()<v6FoeStatusP(u,v))v6Status(v,{k:'weaken',turns:2});else tcFloatU(v,'resisted','#d7c9e3')});u.ap=1;return false}}

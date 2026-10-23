@@ -114,4 +114,39 @@ console.log(`items: slots ${Object.keys(GEAR).length} (${Object.values(GEAR).map
 const n=f=>fs.statSync(path.join(OUT,f)).size;
 console.log(`classes ${Object.keys(CLASSES6).length}, skills ${Object.keys(SK).length}, foes ${Object.keys(FOES).length}, places ${PLACES.length}, maps ${Object.keys(slice.maps).length}, rooms ${Object.keys(slice.rooms).length}`);
 console.log(['classes.js','skills.js','foes.js','maps.js','items.js'].map(f=>f+' '+n(f)+' B').join(', '));
+/* ---------------------------------------------------------------- the story: the script's lines (docs/slice-dialogue.md) wired by tools/v6/scenes.js,
+   the goal bar from systems.md §10; checked: every anchor is found in order, every NPC stands on open ground, every set piece's foe exists */
+{const {readScript}=require('./v6/script.js'),SC=require('./v6/scenes.js'),S=readScript();
+  for(const k of Object.keys(S))S[k].items.forEach(i=>{if(i.dir)i.show=!SC.NOTE.test(i.dir)});
+  const find=(items,a,from)=>{if(a==null)return null;const i=items.findIndex((it,j)=>j>=from&&((it.text||'')+' '+(it.dir||'')).includes(a.replace(/\bPip\b/g,'{hero}')));return i<0?-1:i};
+  const walk=(scene,steps)=>{const items=(S[scene.from||scene.id]||{}).items;if(!items){problems.push('scene '+scene.id+': no such section in the script');return}
+    for(const st of steps){if(st[0]==='say'){const a=st[1]==null?0:find(items,st[1],0),b=st[2]==null?items.length-1:find(items,st[2],Math.max(0,a));
+        if(a<0||b<0||b<a)problems.push(`scene ${scene.id}: anchor not found in order: "${a<0?st[1]:st[2]}"`);else{st[3]=a;st[4]=b}}
+      if(st[0]==='choice')st[1].forEach(c=>walk(scene,c[1]));
+      if(st[0]==='fight'&&!SC.SETPIECES[st[1]])problems.push('scene '+scene.id+': no set piece '+st[1]);
+      if(st[0]==='join'&&!SC.COMPANIONS[st[1]])problems.push('scene '+scene.id+': no companion '+st[1])}};
+  SC.SCENES.forEach(sc=>walk(sc,sc.steps));
+  for(const n of SC.NPCS){if(n.from){const items=S[n.from].items;n.lines=n.lines.map(a=>{const i=find(items,a,0);if(i<0)problems.push('npc '+n.id+': line not found "'+a+'"');return i})}
+    const rows=n.place.startsWith('room:')?(slice.rooms[n.place.slice(5)]||{}).rows:(slice.maps[n.place]||{}).rows;if(!rows){problems.push('npc '+n.id+': no place '+n.place);continue}
+    const c=(rows[n.y]||'')[n.x];if(c==null)problems.push('npc '+n.id+' is off the map');}
+  for(const sp of Object.values(SC.SETPIECES))(sp.foes||[]).forEach(f=>{if(!FOES[f[0]])problems.push('set piece foe '+f[0]+' is not in the bestiary')});
+  /* the goal bar (systems.md §10): flags → goal line and hint */
+  const STXT=fs.readFileSync(path.join(__dirname,'..','docs','systems.md'),'utf8').split('\n'),GOALS=mdRows(STXT,l=>l.startsWith('| flags | goal bar | hint')).map(r=>{const when={};
+    r[0].split(',').forEach(p=>{const m=p.trim().match(/^(\w+) (\d+)$/);if(m)when[m[1]]=+m[2]});return{when,goal:r[1].replace(/\*/g,''),hint:r[2]}});
+  const pmi=STXT.findIndex(l=>l.startsWith('Per miner')),MINERS=(pmi<0?'':STXT[pmi]+' '+(STXT[pmi+1]||'')).replace(/^Per miner[^:]*:\s*/,'').split(' · ').map(x=>{const m=x.match(/^(.+?) "(.+)"$/);return m?{who:m[1],hint:m[2]}:null}).filter(Boolean);
+  if(GOALS.length<10)problems.push('goal bar rows parsed: '+GOALS.length);if(MINERS.length!==5)problems.push('miner hints parsed: '+MINERS.length);
+  /* corruption.md's deeds: the value of each, by number (the raising table, then the kind one) */
+  const CTXT=fs.readFileSync(path.join(__dirname,'..','docs','corruption.md'),'utf8').split('\n'),val=r=>{const m=(r[2]||'').match(/([+−-])\s*(\d+)/);return m?(m[1]==='+'?1:-1)*+m[2]:0};
+  const DEEDS={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | where')).forEach(r=>DEEDS[r[0]]={n:r[1],v:val(r)});
+  const KIND={};mdRows(CTXT,l=>l.startsWith('| # | deed | corruption | in the slice')).forEach(r=>KIND[r[0]]={n:r[1],v:val(r)});
+  if(Object.keys(DEEDS).length!==24||Object.keys(KIND).length!==8)problems.push('deeds parsed: '+Object.keys(DEEDS).length+' and '+Object.keys(KIND).length);
+  fs.writeFileSync(path.join(OUT,'story.js'),head('docs/slice-dialogue.md; tools/v6/scenes.js; systems.md §10')+`export const SCRIPT6=${J(S)};\nexport const SCENES6=${J(SC.SCENES)};\nexport const NPCS6=${J(SC.NPCS)};\n`+
+    `export const SETPIECES6=${J(SC.SETPIECES)};\nexport const CHATS6=${J(SC.CHATS)};\nexport const COMPANIONS6=${J(SC.COMPANIONS)};\nexport const WAVE16=${J(SC.WAVE1)};\nexport const GOALS6=${J(GOALS)};\nexport const MINERS6=${J(MINERS)};\nexport const DEEDS6=${J(DEEDS)};\nexport const KIND6=${J(KIND)};\n`);
+  /* a readable table of the wiring, for the design */
+  const where=a=>a.start?'new game':a.none?'(follows the scene before)':a.place+(a.npc?', talk to '+a.npc:a.enter?', on entering':a.area?', near '+a.area.slice(0,2).join(','):a.tile?', the tile '+a.tile.join(','):a.bump?', bump near '+a.bump.slice(0,2).join(','):'');
+  const what=st=>st.map(s=>s[0]==='say'?null:s[0]==='choice'?'choice: '+s[1].map(c=>c[0]).join(' / '):s[0]+(s[1]!=null?' '+(typeof s[1]==='object'?JSON.stringify(s[1]).replace(/"/g,''):s[1]):'')).filter(Boolean).join('; ');
+  fs.writeFileSync(path.join(__dirname,'..','docs','slice-scenes.md'),`# The slice's scenes, wired (generated)\n\n*Written by \`node tools/gen-data.js\` from \`tools/v6/scenes.js\` (where and when each scene of \`slice-dialogue.md\` plays and what it does). Change the wiring there; the lines stay in \`slice-dialogue.md\`.*\n\n| scene | where | when | does |\n|---|---|---|---|\n`+
+    SC.SCENES.map(sc=>`| ${sc.id} | ${where(sc.at)} | ${sc.when?JSON.stringify(sc.when).replace(/"/g,''):'—'} | ${what(sc.steps)} |`).join('\n')+'\n\n## Set pieces\n\n| id | foes | board |\n|---|---|---|\n'+
+    Object.entries(SC.SETPIECES).map(([k,v])=>`| ${k} | ${v.boss?'boss '+v.boss:v.foes.map(f=>f.slice(0,2).join(' L')+(f[2]?' ('+f[2]+')':'')).join(', ')}${v.solo?' (the hero alone)':''} | ${v.theme} |`).join('\n')+'\n')}
+
 if(problems.length){console.log('PROBLEMS:\n'+problems.join('\n'));process.exitCode=1}

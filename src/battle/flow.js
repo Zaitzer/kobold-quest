@@ -289,17 +289,17 @@ function rpWin(){const b=rp.bt;b.over='win';b.phase='end';b.cur=null;b.seq=[];b.
 function rpRewards(b){
   const s=rp.s;s.q.tac=1;
   let xp=0,gold=0;b.units.forEach(f=>{if(f.side===1){xp+=f.E.xp;gold+=f.E.gold}});xp=Math.round(xp*BAL.xp);gold=Math.round(gold*(b.v6?1:1.15));s.gold+=gold;
-  {const n=b.units.filter(f=>f.side===1).length;for(const T of RP_TALLIES)if(T.zone===b.zone&&test(T.if))s.q[T.flag]=(s.q[T.flag]||0)+n}
+  if(!b.v6){const n=b.units.filter(f=>f.side===1).length;for(const T of RP_TALLIES)if(T.zone===b.zone&&test(T.if))s.q[T.flag]=(s.q[T.flag]||0)+n}
   const ups=[];if(b.v6){xp=Math.round(xp*(b.xpMul||1));v6GiveXp(b,xp,ups)}else s.party.forEach(m=>{if(m.hp<=0)m.hp=1;m.xp+=xp;while(m.xp>=rpXpNeed(m.lvl)){m.xp-=rpXpNeed(m.lvl);m.lvl++;m.pend=(m.pend||0)+1;const st=rpStats(m);m.hp=Math.min(st.hp,m.hp+9);ups.push(m.name+' reached level '+m.lvl+'!')}});if(!b.v6)rpBenchXp(xp,rpXpNeed);
   b.drops=[];
   /* a boss counts for you only if you have reached that step of your own story (ready); a friend who is past it
      and came to help gets helper's spark dust instead (done) */
-  const B=b.boss&&RP_BOSSES[b.boss];let help='';
+  const B=!b.v6&&b.boss&&RP_BOSSES[b.boss];let help='';   // v6 fights: drops and materials arrive with items (build step 13)
   if(b.win)run(b.win);
   if(B&&(!B.ready||test(B.ready))){run(B.win);b.drops.push(...B.drops)}
   else if(B){if(B.done&&test(B.done)){s.dust=(s.dust||0)+3;help=' Helper\'s spark dust +3.'}else help=' (This fight isn\'t part of your story yet.)'}
-  else{const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
-  const sp=rpBattleSpoils(b);b.drops.forEach(rpGive);
+  else if(!b.v6){const z=b.zone==='g'?'C':(RP_ZONE[b.zone]&&RP_ZONE[b.zone].loot)||b.zone,it=rpLootRoll(z,.3);if(it)b.drops.push(it)}
+  const sp=b.v6?'':rpBattleSpoils(b);b.drops.forEach(rpGive);b.xp6=xp;
   b.msg='Victory! +'+xp+' XP, +'+gold+' gold.'+(b.drops.length?' Found: '+b.drops.map(i=>RP_IT[i].n).join(', ')+'!':'')+(sp?' Materials: '+sp+'.':'')+(ups.length?' '+ups.join(' '):'')+help;
   b.units.forEach(u=>{u.buff={atk:0,def:0};u.guard=0;u.watch=0;b.vis.fill(2)});
   if(!rp.headless){confetti();sfx('win')}

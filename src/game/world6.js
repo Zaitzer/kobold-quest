@@ -13,6 +13,7 @@ import {LINKS6,MAPS6,ROOMS6} from '../data/v6/maps.js';
 import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
 import {rpStats} from './stats.js';
+import {s6Step} from './story6.js';
 
 /* ------------------------------------------------------------------ places and tiles */
 const W6_SOLID_OUT=new Set(['#','K','B','T','~','F','b','o','t','r','O','W','X','x','P']);
@@ -77,6 +78,7 @@ function w6Flooded(p,x,y){const F=MAPS6[p]&&MAPS6[p].flood;return!!(F&&!w6Dry()&
 function w6Step(x,y,c){const s=rp.s,p=s.w6,st=s.w6st;st.since=(st.since||0)+1;
   const L=w6LinkAt(p,x,y,'step');if(L)return w6Follow(L);
   if(w6StableAt(p,x,y))return w6Stable(p,x,y);
+  if(s6Step(x,y))return true;
   if(w6PatrolCheck(x,y,c))return true;
   const E=W6_ENC[p];if(!E||rp.grace>0||st.since<W6_GAP)return false;
   const chance=c==='"'?E.grass||0:E.floor&&!w6Solid(c)?E.floor:0;if(!chance||Math.random()>=chance)return false;

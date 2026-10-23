@@ -11,6 +11,7 @@ import {regionZone} from '../data/overworld.js';
 import {RP_DIR} from '../data/world.js';
 import {clamp} from '../engine/util.js';
 import {rpTalk} from './npcs.js';
+import {s6Bump,s6NpcAt} from './story6.js';
 import {rpBfs,rpChestAt,rpNpcAt,rpOpenChest,rpSolid} from './world.js';
 import {w6Bump,w6LinkAt,w6Step,w6Use} from './world6.js';
 
@@ -26,13 +27,13 @@ function rpBlockedAt(x,y){
 /* things you can interact with on a tile */
 function rpInteractAt(x,y){
   if(!rp.grid[y])return false;const c=rp.grid[y][x];
+  if(rp.s.w6){if(s6Bump(x,y)||w6Bump(x,y)||w6Use(x,y)){rp.path=null;return true}return false}
   const npc=rpNpcAt(x,y);if(npc){rp.path=null;rpTalk(npc.id);return true}
   const ch=rpChestAt(x,y);if(ch){rp.path=null;rpOpenChest(ch);return true}
-  if(rp.s.w6){if(w6Bump(x,y)||w6Use(x,y)){rp.path=null;return true}return false}
   /* doors, shrines, boards, stalls...: whatever feature registered this tile letter */
   const t=tiles[c];if(t){rp.path=null;t.use(x,y);return true}
   return false}
-function rpSpecialAt(x,y){const c=rp.grid[y]&&rp.grid[y][x];if(rp.s.w6)return!!(c&&'FocxpHSC'.includes(c))||!!w6LinkAt(rp.s.w6,x,y,'bump');return!!(rpNpcAt(x,y)||tiles[c]||rpChestAt(x,y))}
+function rpSpecialAt(x,y){const c=rp.grid[y]&&rp.grid[y][x];if(rp.s.w6)return!!(c&&'FocxpHSC'.includes(c))||!!w6LinkAt(rp.s.w6,x,y,'bump')||!!s6NpcAt(x,y,true);return!!(rpNpcAt(x,y)||tiles[c]||rpChestAt(x,y))}
 /* Pip steps onto a new tile */
 function rpEnterTile(tx,ty){
   const s=rp.s;s.x=tx;s.y=ty;rp.pt=[tx,ty];s.steps++;

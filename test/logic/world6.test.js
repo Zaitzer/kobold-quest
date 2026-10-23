@@ -49,7 +49,7 @@ for(const L of X.LINKS6){if(L[7])continue;fresh();X.w6Go(L[3],L[4],L[5]);const s
  X.w6Cart();ok(s.w6st.cart==='done','setting the two loop switches brings the cart home')}
 // every mark on every map can be reached on foot from the map's entry (the done-when of build step 11)
 for(const [k,M] of Object.entries(X.MAPS6)){fresh();X.rp.s.q.pb=6;X.w6Go(k,...M.entry);const s=X.rp.s,seen=new Set([s.x+','+s.y]),q=[[s.x,s.y]];
-  while(q.length){const [x,y]=q.shift();for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,kk=nx+','+ny;if(seen.has(kk)||X.rpSolid(nx,ny))continue;seen.add(kk);q.push([nx,ny])}}
+  while(q.length){const [x,y]=q.shift();for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,kk=nx+','+ny;if(seen.has(kk)||X.w6Solid((X.rp.grid[ny]||[])[nx]||'#',nx,ny)||nx<0||ny<0)continue;seen.add(kk);q.push([nx,ny])}}   // the map's own ground: people standing about do not count
   for(const [mx,my,l] of M.marks){const near=[[0,0],[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>seen.has((mx+dx)+','+(my+dy)));ok(near,k+': "'+l+'" can be reached')}}
 // R1 in the engine: 120 steps gate to gate, 40% of the middle on tall grass
 {fresh();X.w6Go('r1',0,12);const s=X.rp.s;const prev=new Map([[s.x+','+s.y,null]]),q=[[s.x,s.y]];while(q.length){const [x,y]=q.shift();for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,kk=nx+','+ny;if(prev.has(kk)||!(nx===99&&ny===9||',"='.includes((X.rp.grid[ny]||[])[nx])))continue;prev.set(kk,[x,y]);q.push([nx,ny])}}

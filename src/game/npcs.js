@@ -12,6 +12,7 @@ import {sfx} from '../engine/audio.js';
 import {rpSay,rpToast} from './dialogue.js';
 import {rpCanEquip,rpGive,rpItemDesc} from './items.js';
 import {rpGiveXp,rpStats} from './stats.js';
+import {s6GoalLine} from './story6.js';
 import {rpUI} from '../ui/hud.js';
 function rpHealAll(){rp.s.party.forEach(m=>{const st=rpStats(m);m.hp=st.hp;m.mp=st.mp})}
 /* shop */
@@ -19,7 +20,7 @@ function rpBuyItem(k){const it=RP_ITEMS[k];if(!it||it.keep||rp.s.gold<it.price)r
 /* shop: buying puts gear in the backpack */
 /* talking: every villager's lines and quest steps are rules in data/dialogue.js */
 function rpTalk(id){emit('talk',id);const T=TALK[id];if(T)talk(T.rules,T.who)}
-function rpQuestLine(){if(rp.s&&rp.s.w6)return'';   // the v6 goal bar arrives with the story (build step 12)
+function rpQuestLine(){if(rp.s&&rp.s.w6)return s6GoalLine();   // the v6 goal bar arrives with the story (build step 12)
   const r=QUEST_LINE.find(r=>test(r.if));return r?fill(r.text):''}
 function rpQuestList(){const q=rp.s.q,L=[];
   for(const e of QUEST_LOG){if(!test(e.show))continue;const t=typeof e.text==='function'?e.text(q):e.text;L.push((e.hint?'·':e.done&&test(e.done)?'✔':'•')+' '+t)}

@@ -3,6 +3,7 @@
    Copies of the save come from sources (this browser, the cloud when online); the newest valid one wins. */
 import {store} from '../adapters/storage.js';
 import {emit} from './bus.js';
+import {v6Store} from './save6.js';
 import {rp} from './state.js';
 import {rpAutoTalents,rpClsOfWeapon,rpStats} from '../game/stats.js';
 
@@ -29,6 +30,6 @@ function migrate(o){
 function rpLoad(){let best=null;
   for(const src of saveSources){let o=null;try{o=src.get()}catch(e){}if(o&&o.party&&o.party.length&&(o.epoch||0)>=SAVE_EPOCH&&(!best||(o.savedAt||0)>(best.savedAt||0)))best=o}
   try{return migrate(best)}catch(e){return null}}
-function rpSave(){if(rp.headless||(rp.s&&rp.s.w6))return;   /* a v6 game saves through save6.js (switched on in step 12) */
+function rpSave(){if(rp.headless)return;if(rp.s&&rp.s.w6){v6Store('guest',0,rp.s);emit('save',rp.s);return}   /* a v6 story saves through save6.js (one slot until the select screen, step 14) */
   rp.s.savedAt=Date.now();rp.s.epoch=SAVE_EPOCH;store.set(saveKey,rp.s);emit('save',rp.s)}
 export {MIGRATIONS,SAVE_EPOCH,SAVE_KEY,SAVE_VERSION,migrate,rpLoad,rpSave,saveKey,saveSources,setSaveKey};

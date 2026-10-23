@@ -115,6 +115,11 @@ The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules wr
   XP and no gold, and the foes stay where they were. Leaving a downed friend behind is deed 5 in `corruption.md` (the downed kobold is
   carried out, cartoon rules).
 - **Retries:** a boss can be retried at once; the potions used are the only cost. Set pieces can be retried the same way.
+- **How strong a set piece is (a rule, 23 Oct):** the script says *how many* foes a set piece has; the rule says *how strong*. A set
+  piece's foes add up to at most a normal fight's weight for the pack that fights it, **0.75 × the kobolds in it** (`balance.md` §4: a
+  normal fight is three foes of weight 1 for a pack of four). If the script's foes weigh more, each one's HP, attack and XP are scaled by
+  `0.75 × kobolds ÷ their total weight` (the drill's recruits are training, the boss rat is a big rat, not an elite). Bosses are not
+  set pieces: they follow the boss rules. *Found when the first playthrough lost the cellar to a five-times-HP "boss rat".*
 
 ## 5. Recovery between fights
 

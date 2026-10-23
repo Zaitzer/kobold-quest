@@ -18,7 +18,7 @@ function runAll(list,n){return new Promise(done=>{let i=0,live=0;const next=()=>
     const c=spawn('node',[file],{cwd:path.dirname(file),env:process.env});const kill=setTimeout(()=>c.kill('SIGKILL'),600000);
     c.stdout.on('data',d=>so+=d);c.stderr.on('data',d=>se+=d);c.on('close',code=>{clearTimeout(kill);live--;judge(name,t0,code,so,se);next()})}};next()})}
 execFileSync('node',[R+'/tools/imports.js'],{stdio:'inherit'});execFileSync('node',[R+'/tools/build.js'],{stdio:'inherit'});
-for(const f of fs.readdirSync(R+'/test/logic').filter(f=>f.endsWith('.test.js')))run('logic/'+f,R+'/test/logic/'+f);
+for(const f of fs.readdirSync(R+'/test/logic').filter(f=>f.endsWith('.test.js')))run('logic/'+f,R+'/test/logic/'+f,quick?['quick']:[],null,f==='story6.test.js'?1200000:600000);   // quick: the story with one class, the full run with all eight
 run('sim/battle meadow',R+'/test/sim/battle.js',[],{N:'12'});run('sim/battle gorb',R+'/test/sim/battle.js',[],{N:'6',BOSS:'gorb',LVL:'7'});
 run('sim/slice',R+'/test/sim/slice.js',[],{RUNS:'2'});
 (async()=>{const T0=Date.now();
