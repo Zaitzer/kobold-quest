@@ -2,7 +2,7 @@ import {rpBattle} from '../battle/flow.js';
 import {hooks,rpInputReset,rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
-import {v6PackKobold} from '../core/save6.js';
+import {v6PackKobold} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
@@ -10,18 +10,18 @@ import {SKILLS6} from '../data/v6/skills.js';
 import {WEAPONS} from '../engine/art.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {rpStats} from '../game/stats.js';
+import {v6Stats} from '../game/sheet.js';
 import {netSendStart} from './battle.js';
 import {net,netByPeer,netEmit,netFocus,netName,netPartnerFree,netPresence,netRid} from './core.js';
 function netParty(){return rp.s.party.map(v6PackKobold)}
 function netCleanParty(p){return Array.isArray(p)?netClean6(p):[]}
-/* a friend's v6 kobolds: only the saved fields (save6.js), checked so a bad message can't break the fight */
+/* a friend's v6 kobolds: only the saved fields (save.js), checked so a bad message can't break the fight */
 function netClean6(p){const num=(v,a,b,d)=>{v=+v;return Number.isFinite(v)?clamp(Math.round(v),a,b):d},obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{},ids=v=>Array.isArray(v)?v.filter(id=>typeof id==='string'&&SKILLS6[id]):[];
   return p.filter(m=>m&&m.v6&&CLASSES6[m.cls]).slice(0,3).map(m=>{const c=v6PackKobold(m);
     Object.assign(c,{v6:1,name:String(m.name||'Kobold').slice(0,16),lvl:num(m.lvl,1,30,1),xp:num(m.xp,0,1e7,0),hp:num(m.hp,0,1e5,0),mp:num(m.mp,0,1e5,0),
       scores:Object.fromEntries(Object.entries(obj(m.scores)).map(([k,v])=>[k,num(v,1,40,10)])),skills:ids(m.skills).slice(0,4),known:ids(m.known),ranks:obj(m.ranks),dark:obj(m.dark),
       gear:obj(m.gear),lead:obj(m.lead),passives:Array.isArray(m.passives)?m.passives.filter(x=>typeof x==='string'):[],w:WEAPONS[m.w]?m.w:'stick',pend:0});
-    try{rpStats(c)}catch(e){return null}return c}).filter(Boolean)}
+    try{v6Stats(c)}catch(e){return null}return c}).filter(Boolean)}
 const clsName=c=>(CLASSES6[c]||{n:''}).n;
 /* ---------- the lobby before a battle ---------- */
 function rpFight(keys,opt){if(netPartnerFree()&&!opt.duel){netOpenLobby(keys,opt)}else rpBattle(keys,opt)}
@@ -37,18 +37,18 @@ function netLobFix(L,who){
     if(!L.duel){while(L.hsel.length+L.g.sel.length>4){if(who==='g'&&L.hsel.length>1)L.hsel.pop();else if(L.g.sel.length>1)L.g.sel.pop();else L.hsel.pop()}}}
 }
 function netLobSend(){const L=net.lob;if(!L||!L.host)return;
-  const sum=p=>p.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:Math.max(0,m.hp),mx:rpStats(m).hp}));
+  const sum=p=>p.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:Math.max(0,m.hp),mx:v6Stats(m).hp}));
   netEmit({t:'lob',id:L.id,duel:L.duel,title:netLobTitle(L),hp:sum(rp.s.party),hsel:L.hsel,g:L.g?{peer:L.g.peer,sel:L.g.sel}:null,cap:L.duel?0:rp.s.party[0].lvl});L.sent=performance.now()}
 function netLobTitle(L){const o=L.opt||{};return L.duel?'Duel':o.title?o.title:o.boss&&RP_E[o.boss]?RP_E[o.boss].n:'Battle'}
 function netLobHtml(){
   const L=net.lob;if(!L)return'';const host=L.host,V=L.view||{};
-  const chips=(party,sel,mine,who)=>party.map((m,i)=>{const on=sel.includes(i),hp=m.hp!=null?m.hp:0,mx=m.mx||rpStats(m).hp,dn=hp<=0;
+  const chips=(party,sel,mine,who)=>party.map((m,i)=>{const on=sel.includes(i),hp=m.hp!=null?m.hp:0,mx=m.mx||v6Stats(m).hp,dn=hp<=0;
     return '<button class="lobk'+(on?' on':'')+(dn?' dn':'')+'" type="button"'+(mine&&!dn?' data-net="pick" data-who="'+who+'" data-i="'+i+'"':' disabled')+'><b>'+esc2(m.n||m.name)+'</b><small>'+clsName(m.c||m.cls)+' '+(m.l||m.lvl)+' · '+Math.max(0,hp)+' HP</small></button>'}).join('');
   let h='<div class="rpdlg"><div class="who">'+esc2(host?netLobTitle(L):(V.title||'Battle'))+(L.duel?' ⚔':'')+'</div>';
   if(host){const g=L.g;const tot=L.hsel.length+(g?g.sel.length:0);
     h+='<p>'+(L.duel?(g?'Pick 1 to 3 kobolds each, then start.':'Waiting for '+esc2(netName())+' to answer…'):g?'Pick who fights: at least one each, up to 4 together ('+tot+'/4).':'Pick your kobolds. '+esc2(netName())+' can join now, or start without them.')+'</p></div>';
     h+='<div class="lobp"><small>Your party</small>'+chips(rp.s.party,L.hsel,true,'h')+'</div>';
-    if(g)h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(g.party.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:m.hp,mx:rpStats(m).hp})),g.sel,false)+'</div>';
+    if(g)h+='<div class="lobp"><small>'+esc2(netName())+'</small>'+chips(g.party.map(m=>({n:m.name,c:m.cls,l:m.lvl,hp:m.hp,mx:v6Stats(m).hp})),g.sel,false)+'</div>';
     if(g&&!L.duel&&g.party.some(m=>m.lvl>rp.s.party[0].lvl))h+='<p class="rptip">'+esc2(netName())+'\'s kobolds fight at level '+rp.s.party[0].lvl+' (level sync).</p>';
     h+='<div class="tbar two"><button class="rpb x" type="button" data-net="lobcancel">'+(L.duel?'✕ Cancel duel':'✕ '+(g?'Fight alone':'Back'))+'</button><button class="rpb go" type="button" data-net="lobstart"'+(L.duel&&!g?' disabled':'')+'>Start battle ▸<small>'+(g?'with '+esc2(netName()):'on your own')+'</small></button></div>';
     if(!L.duel&&!g&&L.keys&&L.opt&&!L.opt.boss)h=h.replace('✕ Back','✕ Back');}
@@ -71,7 +71,7 @@ function netLobPick(who,i){const L=net.lob;if(!L)return;
 /* level sync: a friend's kobolds above the host's level fight as if they were at the host's level (talents beyond it
    rest, promotion only from level 10); health and mana keep the same share they had */
 function netLevelSync(m,cap){if(!m||m.lvl<=cap)return m;
-  const c=JSON.parse(JSON.stringify(m)),a=rpStats(m);c.lvl=cap;c.synced=m.lvl;const b=rpStats(c);   /* the sheet at the host's level; scores, skills and gear stay */
+  const c=JSON.parse(JSON.stringify(m)),a=v6Stats(m);c.lvl=cap;c.synced=m.lvl;const b=v6Stats(c);   /* the sheet at the host's level; scores, skills and gear stay */
   c.hp=Math.max(1,Math.round(b.hp*Math.min(1,m.hp/a.hp)));c.mp=Math.round(b.mp*Math.min(1,(m.mp||0)/Math.max(1,a.mp)));return c}
 /* ---------- starting a battle together ---------- */
 function netStart(){

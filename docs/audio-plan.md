@@ -87,7 +87,7 @@ Music dips indoors, more while someone talks, and nearly vanishes under a jingle
 
 ## As built (23 Oct, build step 18)
 
-`src/game/music6.js` holds the rule: a pure function of the game's state picks the track (Hearthspire's four versions by `act`,
+`src/game/music.js` holds the rule: a pure function of the game's state picks the track (Hearthspire's four versions by `act`,
 `empty` and `march`; the castle yard and hall; Glitterbeak while he speaks; Mallow's hum and the fire in the bakery; the tower's
 fire alone; Pebblebrook without drums until `pb 6`, then with them, and the wheel's creak within 7 tiles of the mill; R1; the mine,
 the dark floor with a sine lead; fights and bosses, Snatchclaw on the castle track). The rhyme is the `tune` field; Hearthspire's

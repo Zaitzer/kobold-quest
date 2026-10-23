@@ -11,7 +11,7 @@ function drain(cls,pick){for(let guard=0;guard<2000;guard++){const rp=X.rp;
   if(rp.bt){const b=rp.bt;let s=0;while(!b.over&&s<60000){X.rpBattleStep(1/30);s++}if(!b.over){if(b.story)throw new Error('a story fight did not end');stalls++;b.over='run';b.phase='end'}   // a rare hide-and-seek stall of the test bot in a random fight: counted, then leftfights++;
     if(b.over==='lose'){losses++;if(X.v6CanRetry(b)&&tries<3){retries++;tries++;X.v6Retry();continue}}tries=0;X.rpEndBattle();
     /* a player walks back to a fountain or a campfire when the pack is low; the test rests them instead (it checks the story, not the pace) */
-    const P=X.rp.s.party,f=P.reduce((a,m)=>a+Math.max(0,m.hp),0)/P.reduce((a,m)=>a+X.rpStats(m).hp,0);if(f<0.5){rests++;X.w6HealAll()}continue}
+    const P=X.rp.s.party,f=P.reduce((a,m)=>a+Math.max(0,m.hp),0)/P.reduce((a,m)=>a+X.v6Stats(m).hp,0);if(f<0.5){rests++;X.w6HealAll()}continue}
   if(rp.mode==='dialog'){const d=rp.dlg;if(d.i<d.lines.length-1||!d.choices)X.rpDlgNext();else X.rpChoose(pick&&d.choices.findIndex(c=>c.t===pick)>=0?d.choices.findIndex(c=>c.t===pick):0);continue}
   if(rp.mode==='w6class'){X.pickClass(cls);continue}
   if(rp.mode!=='map')rp.mode='map';return}throw new Error('drain did not settle')}

@@ -21,8 +21,8 @@ function start(){X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter',
 // a leaver's kobold guards on its turn
 {const {b,k}=start();const g=k[2];g.ctl='guard';b.queue=[g];b.cur=null;b.over=null;b.phase='busy';b.seq=[];X.tcNext();ok(g.guard===1&&g.ap===0,'a leaver\'s kobold guards: '+g.guard+' '+g.ap)}
 // level sync and the friend's party
-{const m=X.v6Kobold('Tansy','rogue',9,{});m.hp=Math.round(X.rpStats(m).hp/2);const c=X.netLevelSync(m,5);ok(c.lvl===5&&c.synced===9&&m.lvl===9,'synced to 5, the real kobold untouched');
- ok(Math.abs(c.hp/X.rpStats(c).hp-0.5)<0.06,'the same share of HP');
+{const m=X.v6Kobold('Tansy','rogue',9,{});m.hp=Math.round(X.v6Stats(m).hp/2);const c=X.netLevelSync(m,5);ok(c.lvl===5&&c.synced===9&&m.lvl===9,'synced to 5, the real kobold untouched');
+ ok(Math.abs(c.hp/X.v6Stats(c).hp-0.5)<0.06,'the same share of HP');
  const p=X.netCleanParty([Object.assign(X.v6PackKobold(m),{skills:['nope'].concat(m.skills),lvl:99,name:'x'.repeat(40)}),{v6:1,cls:'dragon'}]);
  ok(p.length===1&&p[0].lvl===30&&p[0].name.length===16&&!p[0].skills.includes('nope'),'a friend\'s party is checked: '+JSON.stringify(p.map(x=>[x.lvl,x.name.length,x.skills])))}
 // XP suited to the real level: a synced kobold gets the same share of its own level

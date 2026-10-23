@@ -1,4 +1,4 @@
-/* ---------- gifts: gold, a potion or ether, a material or a piece from the backpack, to a friend online (game/items6.js "trade") ---------- */
+/* ---------- gifts: gold, a potion or ether, a material or a piece from the backpack, to a friend online (game/items.js "trade") ---------- */
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
@@ -6,7 +6,7 @@ import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {tradeLabel,tradeList,tradePut,tradeTake,tradeValid} from '../game/items6.js';
+import {tradeLabel,tradeList,tradePut,tradeTake,tradeValid} from '../game/items.js';
 import {net,netEmit,netName,netNameOf,netOnline,netRid} from './core.js';
 
 function netGive(kind,val){

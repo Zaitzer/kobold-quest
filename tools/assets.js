@@ -3,7 +3,7 @@
 /* Kobold Quest v6: every art asset the new game needs, as sprite sheets.
    Writes art/templates/*.png (guides: frame borders, feet line, safe box), one empty (fully transparent) placeholder PNG per
    asset in sorted folders under art/, and art/ASSETS.md (the checklist). Never overwrites a drawn file.
-   The game draws every sheet, the stand-ins too, until Joakim draws over them (engine/sheets6.js).
+   The game draws every sheet, the stand-ins too, until Joakim draws over them (engine/sheets.js).
    Usage: node tools/assets.js            (safe to re-run)                                                              */
 const fs=require('fs'),path=require('path'),zlib=require('zlib');
 const ROOT=path.join(__dirname,'..','art');

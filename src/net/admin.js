@@ -2,14 +2,14 @@
    The Admin screen in ☰ (owner and moderators): one tab per job, two to three taps per action; every tool runs and is checked
    on the server (server/admin.js). The player's side: the message of the day, announcements, warnings, mutes, the festival,
    the report button, error reports, and the fixes an admin leaves in a hero's save (applied when the hero is played). */
-import {v6XpNeed} from '../battle/v6end.js';
+import {v6XpNeed} from '../battle/end.js';
 import {rpUI} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {MAPS6} from '../data/v6/maps.js';
 import {esc2} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
-import {v6LevelUp} from '../game/v6talent.js';
+import {v6LevelUp} from '../game/talents.js';
 import {net} from './core.js';
 import {adminCall} from './mail.js';
 

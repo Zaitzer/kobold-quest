@@ -1,9 +1,9 @@
 /* ---------- Kobold Quest v6: the battle layer (build steps 5, 6, 8) ----------
-   Kobolds and foes fight by the rules in battle/v6rules.js. The engine's own functions (rules.js, flow.js, input.js) call in here at a
+   Kobolds and foes fight by the rules in battle/math.js. The engine's own functions (rules.js, flow.js, input.js) call in here at a
    few marked hooks: tcStat, tcHit, tcDmg, tcCrit, tcActCost, tcMov, the turn queue, the start of a turn, tcStrike, tcDo. */
 import {rpBattle,tcDo,tcFloatU,tcFx,tcKo,tcQ,tcWake} from './flow.js';
-import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcMov,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcUnitAt} from './rules.js';
-import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './v6rules.js';
+import {tcCheb,tcCover,tcEuc,tcFits,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcNear,tcPath,tcReach,tcSees,tcShown,tcSideSees,tcStat,tcT,tcUnitAt} from './grid.js';
+import {MAP,QUICK_MUL,STREAK_MAX,critChance,damage,darkMul,dotAmount,hitChance,moraleP,packMorale,pickByThreat,spellLand,statusLand,tick} from './math.js';
 import {shareFx} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
@@ -16,8 +16,8 @@ import {SKILLS6} from '../data/v6/skills.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {set_shake,shake} from '../engine/fx.js';
-import {v6Kobold,v6Stats} from '../game/v6sheet.js';
-import {w6Start} from '../game/world6.js';
+import {v6Kobold,v6Stats} from '../game/sheet.js';
+import {w6Start} from '../game/world.js';
 
 const V6_WEAK=new Set(['cleric','druid','bard']);           // their basic attack is a melee bonk with the focus (−10 accuracy)
 const V6_ROLE_LOOK={normal:'stick',brute:'club',quick:'spoon',ranged:'popgun',caster:'firewand',elite:'sword',swarm:'fish'};
@@ -222,7 +222,7 @@ function v6AiTurn(b,u){const E=u.E;
   const pod=b.units.filter(v=>v.side===1&&v.pod===u.pod),lost=pod.filter(v=>!tcLive(v)).length/Math.max(1,pod.length);
   if(!E.boss&&u.hp<u.max*0.25&&lost>=0.5)u.fleeing=true;
   if(u.fleeing){if(u.y===0){u.fled=true;tcFloatU(u,'runs off','#d7c9e3');b.msg=u.name+' runs off!';u.ap=0;b.phase='ai';return true}
-    const R=tcReach(b,u,tcMov(u));let best=null,by=1e9;R.dist.forEach((d,k)=>{const y=(k/b.W)|0;if(y<by){by=y;best=k}});
+    const R=tcReach(b,u,v6Move(u));let best=null,by=1e9;R.dist.forEach((d,k)=>{const y=(k/b.W)|0;if(y<by){by=y;best=k}});
     if(best!=null){const p=tcPath(R,best%b.W,(best/b.W)|0);if(p&&p.length)tcDo(u,{k:'move',path:p,cost:1})}u.ap=0;b.phase='ai';return true}
   if(v6Habit(b,u))return true;
   const seen=b.units.filter(v=>v.side===0&&tcLive(v)&&tcSideSees(b,1,v));u.focus=v6HabitFocus(b,u,seen)||v6Focus(b,u,seen);return false}
@@ -241,7 +241,7 @@ function v6Habit(b,u){const E=u.E,F=FOES6[E.id]||{},how=F.how||'';u.tt=(u.tt||0)
   if(/calls a guard if alone/.test(how)&&!u.called&&!b.units.some(v=>v!==u&&v.side===1&&tcLive(v))){u.called=1;b.msg=u.name+' shouts for help!';v6Spawn(b,u,1,'guard recruit');u.ap=1;return false}
   if(/shouts weaken/.test(how)&&u.tt%3===1){const ks=b.units.filter(v=>v.side===0&&tcLive(v)&&tcEuc(u,v)<=4);if(ks.length){b.msg=u.name+' bellows at the pack!';
     ks.forEach(v=>{if(Math.random()<v6FoeStatusP(u,v))v6Status(v,{k:'weaken',turns:2});else tcFloatU(v,'resisted','#d7c9e3')});u.ap=1;return false}}
-  if(E.role==='ranged'){const near=b.units.filter(v=>v.side===0&&tcLive(v)&&tcCheb(u,v)<=1);if(near.length){const R=tcReach(b,u,tcMov(u));let best=null,bv=-1e9;
+  if(E.role==='ranged'){const near=b.units.filter(v=>v.side===0&&tcLive(v)&&tcCheb(u,v)<=1);if(near.length){const R=tcReach(b,u,v6Move(u));let best=null,bv=-1e9;
     R.dist.forEach((d,k)=>{const x=k%b.W,y=(k/b.W)|0,dd=Math.min(...b.units.filter(v=>v.side===0&&tcLive(v)).map(v=>Math.hypot(v.x-x,v.y-y)));if(dd>bv){bv=dd;best=[x,y]}});
     if(best&&bv>1.5){const p=tcPath(R,best[0],best[1]);if(p&&p.length){tcDo(u,{k:'move',path:p,cost:1});b.msg=u.name+' backs away.'}}}}
   return false}
@@ -269,7 +269,7 @@ function v6BossTurn(b,u){const E=u.E;u.bt=(u.bt||0)+1;
   u.ap=0;b.phase='ai';return true}
 /* the boss walks the shortest way (over the whole board, as a 2 × 2) to where it can hit its focus, as far as one move goes; if even a
    dash would not get it there it dashes (the four attacks need a target, so a turn spent walking is the price) */
-function v6BossWalk(b,u,focus,reach){const R=tcReach(b,u,99),mov=tcMov(u);let goal=null,gd=1e9;const ox=u.x,oy=u.y;
+function v6BossWalk(b,u,focus,reach){const R=tcReach(b,u,99),mov=v6Move(u);let goal=null,gd=1e9;const ox=u.x,oy=u.y;
   R.dist.forEach((d,k)=>{if(d>=gd)return;u.x=k%b.W;u.y=(k/b.W)|0;if(reach(focus)){gd=d;goal=[u.x,u.y]}});u.x=ox;u.y=oy;
   if(!goal)return;const path=tcPath(R,goal[0],goal[1]);if(!path||!path.length)return;
   const budget=gd<=mov?mov:mov*2,cut=path.filter(([x,y])=>R.dist.get(y*b.W+x)<=budget);if(cut.length)tcDo(u,{k:'move',path:cut,cost:gd<=mov?1:2})}

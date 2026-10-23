@@ -6,9 +6,8 @@ import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {rp} from '../core/state.js';
 import {clamp} from '../engine/util.js';
-import {s6Bump,s6NpcAt} from './story6.js';
-import {rpBfs,rpSolid} from './world.js';
-import {w6Bump,w6LinkAt,w6Step,w6Use} from './world6.js';
+import {s6Bump,s6NpcAt} from './story.js';
+import {rpBfs,rpSolid,w6Bump,w6LinkAt,w6Step,w6Use} from './world.js';
 
 const RP_SPEED=4.6,RP_R=.28;
 const RP_DIR={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};

@@ -1,11 +1,11 @@
 /* ---------- Kobold Quest v6: a kobold and its character sheet (build step 7) ----------
    One rule per stat, from balance.md §3 (the level table, the class table, the ability scores and their mapping, the new stats),
-   items.md (gear) and corruption.md. A v6 kobold is a plain object with v6:1; rpStats() hands it to v6Stats(). */
-import {SCORES,balanceOf,mbar,modOf} from '../battle/v6rules.js';
+   items.md (gear) and corruption.md. A v6 kobold is a plain object with v6:1; the battle reads its numbers from v6Stats(). */
+import {SCORES,balanceOf,mbar,modOf} from '../battle/math.js';
 import {BASE6,CLASSES6,FAMILIES,TIER_POWER} from '../data/v6/classes.js';
 import {GEAR6} from '../data/v6/items.js';
 import {KITS6,PASSIVES6} from '../data/v6/skills.js';
-import {v6GearExtras} from './items6.js';
+import {v6GearExtras} from './items.js';
 
 const V6_ARRAY=[15,14,13,12,10,8];
 const V6_TIERS=[1,5,10,16,22,28];
@@ -56,7 +56,7 @@ function statsSig(m){let g='';const G=m.gear;if(G)for(const k in G){const x=G[k]
   return m.cls+'|'+m.lvl+'|'+sc+'|'+s0+'|'+(m.passives?m.passives.join('+'):'')+'|'+g+'|'+(m.luck||0)+'|'+(m.corr||0)}
 function v6Stats(m){const sig=statsSig(m),c=statsMemo.get(m);if(c&&c.sig===sig)return c.S;const S=v6StatsCalc(m);statsMemo.set(m,{sig,S});return S}   /* shared: callers read it, never write it */
 function v6StatsCalc(m){
-  const C=CLASSES6[m.cls],L=m.lvl,sc=m.scores,st0=m.start||v6StartScores(m.cls),G=v6Gear(m),X=v6GearExtras(m);   // X: bonuses, sets, uniques (items6.js)
+  const C=CLASSES6[m.cls],L=m.lvl,sc=m.scores,st0=m.start||v6StartScores(m.cls),G=v6Gear(m),X=v6GearExtras(m);   // X: bonuses, sets, uniques (items.js)
   const P={};for(const n of m.passives||[]){const d=(PASSIVES6[m.cls]||[]).find(x=>x.n===n);if(d)for(const [k,v] of Object.entries(d.fx))P[k]=(P[k]||0)+v}
   const mod=k=>k==='mbar'?mbar(sc):modOf(sc[k]),grow=k=>k==='mbar'?mbar(sc)-mbar(st0):modOf(sc[k])-modOf(st0[k]);
   const f=k=>(1+0.05*mod(k))/1.10;             // the level table is the fighter with its scores (×1.10): balance.md §3, "Reconciled"
@@ -80,4 +80,8 @@ function v6StatsCalc(m){
     sight:X.sight||0,stealth:X.stealth||0};   // gear's sight (of the Owl) and stealth, read by the battle's line of sight
   if(m.cls==='monk')S.kiMul=0.5+S.balance;
   return S}
-export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};
+
+/* the four equipped skills; the class's name */
+function rpMemSkills(m){return(m.skills||[]).slice()}   /* the four equipped skills */
+function rpClsName(m){return(CLASSES6[m.cls]||{n:m.cls}).n}
+export {V6_ARRAY,V6_ATK_SCORE,V6_CAST_SCORE,V6_LOOK,V6_TIERS,V6_VARIANT,rpClsName,rpMemSkills,statsMemo,statsSig,v6AutoLead,v6AutoPassives,v6AutoScores,v6Gear,v6KitAt,v6KitSkills,v6KnownAt,v6Kobold,v6StartScores,v6Stats,v6StatsCalc,v6TierFor};

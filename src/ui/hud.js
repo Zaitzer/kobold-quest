@@ -8,17 +8,16 @@ import {sfx} from '../engine/audio.js';
 import {$,clamp,esc2} from '../engine/util.js';
 import {rpSay} from '../game/dialogue.js';
 import {rpActFacing,rpTry} from '../game/move.js';
-import {rpClsName,rpStats} from '../game/stats.js';
-import {s6GoalLine} from '../game/story6.js';
-import {rpArea} from '../game/world.js';
-import {w6RailHint} from '../game/world6.js';
+import {rpClsName,v6Stats} from '../game/sheet.js';
+import {s6GoalLine} from '../game/story.js';
+import {rpArea,w6RailHint} from '../game/world.js';
 import {net} from '../net/core.js';
 import {netMapRow} from '../net/ui.js';
-import {v6PackHtml} from './v6screens.js';
+import {v6PackHtml} from './screens.js';
 
 const CB={'#7ad67a':'#5fb0ff','#ff6b6b':'#ff9f1c','#ffc857':'#ffe066'};
 function rpBar(v,m,col){const p=clamp(v/m*100,0,100);if(rpOpt.cb)col=CB[col]||col;return '<i class="rpbar"><b style="width:'+p.toFixed(0)+'%;background:'+col+'"></b></i>'}
-function rpPartyHtml(){if(rp.s.w6)return v6PackHtml();return '<div class="rpparty">'+rp.s.party.map(m=>{const st=rpStats(m);return '<div class="rpm'+(m.hp<=0?' down':'')+'"><b>'+esc2(m.name)+' <small>'+rpClsName(m)+' '+m.lvl+(m.pend?' ★':'')+'</small></b>'+rpBar(m.hp,st.hp,m.hp>st.hp*.5?'#7ad67a':m.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>HP '+Math.max(0,m.hp)+'/'+st.hp+' · MP '+m.mp+'/'+st.mp+'</small></div>'}).join('')+'</div>'}
+function rpPartyHtml(){if(rp.s.w6)return v6PackHtml();return '<div class="rpparty">'+rp.s.party.map(m=>{const st=v6Stats(m);return '<div class="rpm'+(m.hp<=0?' down':'')+'"><b>'+esc2(m.name)+' <small>'+rpClsName(m)+' '+m.lvl+(m.pend?' ★':'')+'</small></b>'+rpBar(m.hp,st.hp,m.hp>st.hp*.5?'#7ad67a':m.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>HP '+Math.max(0,m.hp)+'/'+st.hp+' · MP '+m.mp+'/'+st.mp+'</small></div>'}).join('')+'</div>'}
 function hudRender(force){
   const top=$('rp-top');if(!top||!rp.s)return;
   const s=rp.s,area=rp.mode==='battle'?(rp.bt&&rp.bt.boss?'Boss battle':'Battle'):rpArea(s.x,s.y);

@@ -63,7 +63,7 @@ Modular arithmetic instead of dice (the charge-time system of *Final Fantasy Tac
 
 ## 2. The battle board
 
-The engine's generator (`battle/rules.js`, `tcGen`) is kept, with these rules written down and given goals:
+The engine's generator (`battle/grid.js`, `tcGen`) is kept, with these rules written down and given goals:
 
 - **Size:** normal fights 9 × 12 (one or two foes), 10 × 13 (three), 11 × 14 (four or more); bosses 12 × 14. The 2 × 2 boss has room
   cleared around its start, and **every floor tile a kobold can stand on is reachable by the 2 × 2 boss** (no one-tile gaps between

@@ -1,4 +1,4 @@
-/* a fresh game state: the v6 save (core/save6.js) fills it; the story (game/story6.js) starts it */
+/* a fresh game state: the v6 save (core/save.js) fills it; the story (game/story.js) starts it */
 
 function rpNewState(){return{v:6,x:0,y:0,face:'down',gold:30,party:[],bag:{potion:3,ether:1},inv:[],chests:[],q:{},steps:0}}
 /* state */

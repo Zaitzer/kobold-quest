@@ -1,12 +1,12 @@
 /* ---------- AI (enemies, and the party when a test bot plays) ---------- */
+import {v6AiTurn,v6Crit,v6DmgRange,v6Hit,v6InReach,v6Move,v6PosHabit,v6TogetherOpts} from './combat.js';
 import {tcDo,tcQ} from './flow.js';
-import {rpTW,tcActCost,tcAt,tcCheb,tcCover,tcCrit,tcDmg,tcEuc,tcHit,tcInReach,tcLive,tcMelee,tcMov,tcPath,tcReach,tcSideSees,tcT,tcW} from './rules.js';
-import {v6AiTurn,v6PosHabit,v6TogetherOpts} from './v6battle.js';
+import {rpTW,tcActCost,tcAt,tcCheb,tcCover,tcEuc,tcLive,tcMelee,tcPath,tcReach,tcSideSees,tcT,tcW} from './grid.js';
 import {rp} from '../core/state.js';
 import {RP_ST} from '../data/battle.js';
 import {RP_SK} from '../data/classes.js';
 import {pick} from '../engine/util.js';
-import {rpMemSkills,rpStats} from '../game/stats.js';
+import {rpMemSkills,v6Stats} from '../game/sheet.js';
 
 function tcFoes(b,u){return b.units.filter(t=>t.side!==u.side&&tcLive(t)&&(u.side===1?tcSideSees(b,1,t):tcSideSees(b,0,t)))}
 function tcAvg(r){return(r[0]+r[1])/2}
@@ -16,8 +16,8 @@ function tcPosScore(b,u,x,y){
   const foes=tcFoes(b,u).length?tcFoes(b,u):b.lastSeen.filter(o=>u.side===1&&tcLive(o.u)).map(o=>({x:o.x,y:o.y,sz:1,side:0,u:o.u,ghost:1}));
   let threat=0,dn=99;const melee=tcMelee(u),TW=rpTW(tcW(u));
   foes.forEach(f=>{const F=f.ghost?f.u:f,fx=F.x,fy=F.y;F.x=f.x;F.y=f.y;
-    const d=tcEuc(F,u);dn=Math.min(dn,d);const fm=tcMelee(F),reach=fm?tcMov(F)*2+rpTW(tcW(F)).r:tcMov(F)+rpTW(tcW(F)).r;
-    if(d<=reach+.5){const cv=fm?0:tcCover(b,u,F.x,F.y).c,h=(fm?.9:.75)-cv*.2-(u.sz===1&&tcT(tcAt(b,x,y)).grass?.1:0);threat+=Math.max(.05,h)*tcAvg(tcDmg(b,F,u,1))*(F.E&&F.E.boss?.35:1)}   // v6: a boss's blows land wherever you stand (focus by threat)
+    const d=tcEuc(F,u);dn=Math.min(dn,d);const fm=tcMelee(F),reach=fm?v6Move(F)*2+rpTW(tcW(F)).r:v6Move(F)+rpTW(tcW(F)).r;
+    if(d<=reach+.5){const cv=fm?0:tcCover(b,u,F.x,F.y).c,h=(fm?.9:.75)-cv*.2-(u.sz===1&&tcT(tcAt(b,x,y)).grass?.1:0);threat+=Math.max(.05,h)*tcAvg(v6DmgRange(b,F,u,1))*(F.E&&F.E.boss?.35:1)}   // v6: a boss's blows land wherever you stand (focus by threat)
     F.x=fx;F.y=fy});
   /* bosses don't get scared when hurt: they keep coming instead of hiding out of sight */
   let s=-threat/Math.max(8,u.E&&u.E.boss?u.max:u.hp)*30;
@@ -34,18 +34,18 @@ function tcPosScore(b,u,x,y){
 function tcOptions(b,u,apLeft){
   const out=[],foes=tcFoes(b,u),w=tcW(u);
   const pay=c=>c==='end'?apLeft>=1:apLeft>=c;
-  const val=(t,mul,o)=>{const H=o&&o.spell?{h:100,fl:false}:tcHit(b,u,t,o),dm=tcAvg(tcDmg(b,u,t,mul,o))*(1+tcCrit(b,u,t,H.fl)*.5),ev=H.h/100*dm;return ev/Math.max(10,t.E&&t.E.boss?Math.min(t.max,u.max||100):t.max)*55+(dm>=t.hp?22*H.h/100:0)};
-  if(pay(tcActCost(u,{k:'atk'})))foes.forEach(t=>{if(tcInReach(b,u,t))out.push({act:{k:'atk',t},v:val(t,1,{})+(rpTW(w).splash?4:0)})});
-  if(u.m){const m=u.m,st=rpStats(m);
+  const val=(t,mul,o)=>{const H=o&&o.spell?{h:100,fl:false}:v6Hit(b,u,t,o),dm=tcAvg(v6DmgRange(b,u,t,mul,o))*(1+v6Crit(b,u,t,H.fl)*.5),ev=H.h/100*dm;return ev/Math.max(10,t.E&&t.E.boss?Math.min(t.max,u.max||100):t.max)*55+(dm>=t.hp?22*H.h/100:0)};
+  if(pay(tcActCost(u,{k:'atk'})))foes.forEach(t=>{if(v6InReach(b,u,t))out.push({act:{k:'atk',t},v:val(t,1,{})+(rpTW(w).splash?4:0)})});
+  if(u.m){const m=u.m,st=v6Stats(m);
     rpMemSkills(m).forEach(sk=>{const S=RP_SK[sk],T=RP_ST[sk]||{ap:'end'};if(m.mp<S.mp||!pay(T.ap))return;const mpc=S.mp*.6;
-      if(T.area){foes.forEach(t=>{if(!tcInReach(b,u,{x:t.x,y:t.y,sz:1},T.rng==='w'?rpTW(w).r:T.rng))return;let v=0;b.units.forEach(x=>{if(!tcLive(x)||Math.hypot(x.x-t.x,x.y-t.y)>T.area+.01)return;if(x.side!==u.side)v+=val(x,S.mul,{spell:T.spell})*(T.chan?.7:1);else if(T.ff)v-=25});out.push({act:{k:'sk',sk,cx:t.x,cy:t.y},v:v-mpc-(T.chan?6:0)})})}
+      if(T.area){foes.forEach(t=>{if(!v6InReach(b,u,{x:t.x,y:t.y,sz:1},T.rng==='w'?rpTW(w).r:T.rng))return;let v=0;b.units.forEach(x=>{if(!tcLive(x)||Math.hypot(x.x-t.x,x.y-t.y)>T.area+.01)return;if(x.side!==u.side)v+=val(x,S.mul,{spell:T.spell})*(T.chan?.7:1);else if(T.ff)v-=25});out.push({act:{k:'sk',sk,cx:t.x,cy:t.y},v:v-mpc-(T.chan?6:0)})})}
       else if(T.around){let v=0;foes.forEach(t=>{if(tcCheb(u,t)<=rpTW(w).r)v+=val(t,S.mul,{})});if(v)out.push({act:{k:'sk',sk},v:v-mpc})}
       else if(T.self){const al=b.units.filter(t=>t.side===u.side&&tcLive(t)&&tcCheb(u,t)<=T.self);
         if(S.heal){let v=0;al.forEach(t=>{v+=Math.min(t.max*S.heal,t.max-t.hp)/t.max*30});if(v>14)out.push({act:{k:'sk',sk},v:v-mpc})}
         else if(S.buff&&foes.length&&!al.some(t=>t.buff[S.buff]>0))out.push({act:{k:'sk',sk},v:al.length*4-mpc})}
-      else if(S.heal){b.units.forEach(t=>{if(t.side===u.side&&tcLive(t)&&t.hp<t.max*.6&&tcInReach(b,u,t,T.rng))out.push({act:{k:'sk',sk,t},v:Math.min(t.max*S.heal,t.max-t.hp)/t.max*40-mpc})})}
+      else if(S.heal){b.units.forEach(t=>{if(t.side===u.side&&tcLive(t)&&t.hp<t.max*.6&&v6InReach(b,u,t,T.rng))out.push({act:{k:'sk',sk,t},v:Math.min(t.max*S.heal,t.max-t.hp)/t.max*40-mpc})})}
       else if(S.revive){b.units.forEach(t=>{if(t.side===u.side&&!t.fled&&t.hp<=0&&tcCheb(u,t)<=1)out.push({act:{k:'sk',sk,t},v:40})})}
-      else foes.forEach(t=>{if(!tcInReach(b,u,t,T.rng))return;const o={spell:T.spell,aim:T.aim};let v=val(t,S.mul,o)-mpc;if(S.stun&&!(t.E&&t.E.boss))v+=6;if(T.chain)v*=1.8;out.push({act:{k:'sk',sk,t},v})})});
+      else foes.forEach(t=>{if(!v6InReach(b,u,t,T.rng))return;const o={spell:T.spell,aim:T.aim};let v=val(t,S.mul,o)-mpc;if(S.stun&&!(t.E&&t.E.boss))v+=6;if(T.chain)v*=1.8;out.push({act:{k:'sk',sk,t},v})})});
     if(pay(1))v6TogetherOpts(b,u).forEach(({f,t})=>out.push({act:{k:'together',f,t},v:val(t,1,{})+val(t,1,{})*0.8}));
     if((rp.s.bag.potion||0)>0&&pay(1))b.units.forEach(t=>{if(t.side===u.side&&!t.fled&&tcCheb(u,t)<=1&&tcLive(t)&&t.hp<t.max*.35)out.push({act:{k:'it',it:'potion',t},v:18})})}
   if(u.focus&&u.E)out.forEach(o=>{const t=o.act&&o.act.t;if(t&&t.side!==u.side&&t!==u.focus)o.v*=0.25});   // v6: the focus drawn by threat
@@ -57,7 +57,7 @@ function rpAiTurn(u){
   if(u.side===1&&!u.aware){/* idle groups shuffle about a little */
     if(Math.random()<.45){const R=tcReach(b,u,2),opts=[];R.dist.forEach((d,k)=>{if(d>0)opts.push(k)});if(opts.length){const k=pick(opts);const p=tcPath(R,k%b.W,(k/b.W)|0);if(p)tcQ({k:'move',u,path:p,i:0,id:++b.moveId})}}
     u.ap=0;b.phase='ai';return}
-  const mov=tcMov(u),R1=tcReach(b,u,mov),R2=u.ap>=2?tcReach(b,u,mov*2):null;
+  const mov=v6Move(u),R1=tcReach(b,u,mov),R2=u.ap>=2?tcReach(b,u,mov*2):null;
   let best={v:-1e9,plan:null};
   const here=tcPosScore(b,u,u.x,u.y);
   const consider=(x,y,cost,path)=>{const ap2=u.ap-cost;if(ap2<0)return;
@@ -80,13 +80,13 @@ function rpAiTurn(u){
   if(P&&P.path&&P.path.length)tcDo(u,{k:'move',path:P.path,cost:P.cost});
   if(P&&P.act){const act=P.act;tcQ({k:'fn',fn:()=>{if(!tcLive(u)||rp.bt!==b)return;
       if(act.t&&!tcLive(act.t)&&act.k!=='sk'&&act.k!=='it')return;
-      if(act.k==='atk'&&!tcInReach(b,u,act.t))return;
+      if(act.k==='atk'&&!v6InReach(b,u,act.t))return;
       tcDo(u,act)}})}
   if(!P||(!P.path&&!P.act))b.msg=u.name+' waits.';
   b.phase='ai';
 }
 function tcAooRisk(b,u,ox,oy,path){if(!path)return 0;let r=0,px=ox,py=oy;
   for(const [x,y] of path){b.units.forEach(o=>{if(o.side===u.side||!tcLive(o)||!tcMelee(o)||(o.side===1&&!o.aware))return;const rr=rpTW(tcW(o)).r;
-      if(tcCheb(o,{x:px,y:py,sz:u.sz})<=rr&&tcCheb(o,{x,y,sz:u.sz})>rr)r+=.8*tcAvg(tcDmg(b,o,u,1))/Math.max(8,u.hp)*30});px=x;py=y}
+      if(tcCheb(o,{x:px,y:py,sz:u.sz})<=rr&&tcCheb(o,{x,y,sz:u.sz})>rr)r+=.8*tcAvg(v6DmgRange(b,o,u,1))/Math.max(8,u.hp)*30});px=x;py=y}
   return r}
 export {rpAiTurn,tcAooRisk,tcAvg,tcFoes,tcOptions,tcPosScore};

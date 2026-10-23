@@ -1,4 +1,4 @@
-/* The ☰ menu (its screen is v6MenuHtml in ui/v6screens.js), the settings anything can add (feature options:[...]), quitting. */
+/* The ☰ menu (its screen is v6MenuHtml in ui/screens.js), the settings anything can add (feature options:[...]), quitting. */
 import {show} from '../core/app.js';
 import {rpExitFull,rpGoFull} from '../core/layout.js';
 import {rpBuzz,rpOpt,rpOptSave} from '../core/options.js';
@@ -8,7 +8,7 @@ import {rp} from '../core/state.js';
 import {audio,set_soundOn,sfx,soundOn} from '../engine/audio.js';
 import {$} from '../engine/util.js';
 import {netLeaveRpg} from '../net/core.js';
-import {V6S,v6MenuHtml} from './v6screens.js';
+import {V6S,v6MenuHtml} from './screens.js';
 
 function soundLabel(){const sb=$('sound');if(sb){sb.setAttribute('aria-pressed',soundOn?'true':'false');sb.textContent=soundOn?'Sound on':'Sound off'}}
 feature({id:'menu',

@@ -1,10 +1,10 @@
-/* v6 combat rules (build step 5): src/battle/v6rules.js against the design's model (tools/balance-model.js) and the numbers
+/* v6 combat rules (build step 5): src/battle/math.js against the design's model (tools/balance-model.js) and the numbers
    balance.md states. Every line of `node tools/balance-model.js rules` has a check here. */
 process.emitWarning=()=>{};
 const path=require('path');let fails=0,checks=0;const bad=m=>{fails++;console.log('FAIL',m)};
 const near=(a,b,eps,what)=>{checks++;if(Math.abs(a-b)>eps)bad(what+': '+a+' vs '+b)};
 const M=require('../../tools/balance-model.js');
-(async()=>{const V=await import(path.join(__dirname,'../../src/battle/v6rules.js'));
+(async()=>{const V=await import(path.join(__dirname,'../../src/battle/math.js'));
   // 1 the level table's basic hit (9, 44, 119)
   for(const L of [1,10,30]){const r=M.ref(L);near(V.damage(r.atk,1,M.foeDef(L),0,0.5),M.foe(L).D,1e-6,'basic hit at L'+L)}
   near(V.HF(10,10),1,1e-9,'equal attack and defence');near(V.HF(100,1),1+0.05*40*99/101,1e-9,'factor high');near(V.HF(1,100),0.3,1e-9,'factor floor');

@@ -5,7 +5,7 @@ import {rp} from '../core/state.js';
 import {yip} from '../engine/audio.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {rpPlace} from '../game/world6.js';
+import {rpPlace} from '../game/world.js';
 import {adminReport} from './admin.js';
 import {net,netEmit,netNameOf,netOnline} from './core.js';
 

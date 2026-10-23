@@ -1,30 +1,29 @@
 /* Test hooks (only in the test build): window handles (__rp, __v6, __rpB...) the browser tests drive the game with. */
+import {v6FoeKey,v6Mix,v6Move} from '../battle/combat.js';
 import {rpBattle} from '../battle/flow.js';
-import {tcMov,tcReach} from '../battle/rules.js';
-import {v6FoeKey,v6Mix} from '../battle/v6battle.js';
+import {tcReach} from '../battle/grid.js';
 import {rpUI} from '../core/hooks.js';
 import {rpSave} from '../core/save.js';
 import {rp,rpNewState} from '../core/state.js';
 import {registry} from './registry_view.js';
 import {set_soundOn,sfx} from '../engine/audio.js';
 import {rpMus} from '../engine/music.js';
-import {recolour,sheetDraws,sheetOfFoe,sheetOfKobold,sheetOfNpc} from '../engine/sheets6.js';
+import {recolour,sheetDraws,sheetOfFoe,sheetOfKobold,sheetOfNpc} from '../engine/sheets.js';
 import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
-import {v6Piece} from '../game/items6.js';
+import {v6Piece} from '../game/items.js';
 import {rpSpecialAt,rpTapTile} from '../game/move.js';
-import {MILL} from '../game/music6.js';
-import {s6Npcs} from '../game/story6.js';
-import {v6Kobold} from '../game/v6sheet.js';
-import {rpBfs,rpSolid} from '../game/world.js';
-import {w6Go,w6Start} from '../game/world6.js';
+import {MILL} from '../game/music.js';
+import {v6Kobold} from '../game/sheet.js';
+import {s6Npcs} from '../game/story.js';
+import {rpBfs,rpSolid,w6Go,w6Start} from '../game/world.js';
 import {net,netBtn} from '../net/core.js';
 import {rpFight} from '../net/lobby.js';
 import {rpTacBtn,rpTacTap} from '../ui/battle.js';
 
 export function installHooks(){
   window.__rp=rp;
-  window.__rpB={reach:()=>{const b=rp.bt,u=b.cur,R=tcReach(b,u,tcMov(u)),out=[];R.dist.forEach((d,k)=>{if(d>0)out.push([k%b.W,Math.floor(k/b.W),d])});return out},battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
+  window.__rpB={reach:()=>{const b=rp.bt,u=b.cur,R=tcReach(b,u,v6Move(u)),out=[];R.dist.forEach((d,k)=>{if(d>0)out.push([k%b.W,Math.floor(k/b.W),d])});return out},battle:(k,o)=>rpBattle(k,o),tap:(x,y)=>{rpTacTap(x,y);rpUI(true)},btn:d=>{rpTacBtn(d);rpUI(true)}};
   window.__net=net;window.__rpF=(k,o)=>rpFight(k,o);window.__netBtn=d=>{netBtn(d);rpUI(true)};window.__rpS=()=>rpSave();
   window.__kq={say:rpSay,registry,sprite};
   window.__w6go=(p,x,y)=>{w6Go(p,x,y);rpUI(true)};

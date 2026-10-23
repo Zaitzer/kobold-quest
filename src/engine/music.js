@@ -71,7 +71,7 @@ const RP_DRUMS={/* 16 steps per bar: k kick, s snare, h hat, d drip */
   soft:['k','','','','h','','','','s','','','','h','','',''],drip:['','','','','d','','','','','','d','','','','',''],
   march:['k','','s','','k','','s','s','k','','s','','k','s','s','s'],drive:['k','h','s','h','k','k','s','h','k','h','s','h','k','k','s','s']};
 /* one step of the music, given what the game wants: a track's key (or none), an ambient loop, and how loud (0 to 1 of the music's
-   level; a jingle ducks it further). game/music6.js calls it every frame. */
+   level; a jingle ducks it further). game/music.js calls it every frame. */
 function rpMusicTick(want,amb,loud){
   rpMus.amb=amb||null;const a=ac;   /* 'quiet' plays no notes: only the ambient (the tower fire) */
   if(!want){if(rpMus.g&&a){rpMus.g.gain.setTargetAtTime(0,a.currentTime,.15);rpMus.g=null;rpMus.key=null}return}

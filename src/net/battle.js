@@ -1,6 +1,7 @@
 import {rpAiTurn} from '../battle/ai.js';
+import {v6Move} from '../battle/combat.js';
 import {rpFloat,rpRewards,tcCamTo,tcDo,tcEndTurn,tcFloatU} from '../battle/flow.js';
-import {tcHome,tcLive,tcMov,tcPath,tcReach,tcShown,tcT,tcUnitAt,tcVis} from '../battle/rules.js';
+import {tcHome,tcLive,tcPath,tcReach,tcShown,tcT,tcUnitAt,tcVis} from '../battle/grid.js';
 import {hooks,rpInputReset,rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
@@ -11,12 +12,12 @@ import {RP_E} from '../data/monsters.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {confetti} from '../engine/fx.js';
-import {sheetOfFoe,sheetOfKobold} from '../engine/sheets6.js';
+import {sheetOfFoe,sheetOfKobold} from '../engine/sheets.js';
 import {artName} from '../engine/sprites.js';
 import {clamp} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
-import {rpMemSkills,rpStats} from '../game/stats.js';
-import {s6SharedWin} from '../game/story6.js';
+import {rpMemSkills,v6Stats} from '../game/sheet.js';
+import {s6SharedWin} from '../game/story.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
 import {netCleanParty,netLobFix,netLobSend,netParty} from './lobby.js';
 const NET_TURN_MS=20000,NET_LOST_MS=8000;
@@ -40,7 +41,7 @@ function netBuildMirror(d,hostPeer){
   if(d.v6){b.v6=true;b.theme6=typeof d.th6==='string'?d.th6:null;b.dark=!!d.dk;b.xpMul=clamp(+d.xm||1,1,3);b.syncCap=clamp(+d.cap||0,0,30);b.shared=typeof d.sp==='string'?d.sp.slice(0,40):null}
   d.u.forEach(o=>{const side=flip?1-o.s:o.s,y=flip?H-o.z-o.y:o.y;let u;
     if(o.o==='g'||o.o==='h'){const m=o.o==='g'?s.party[o.gi]:netCleanParty([o.m])[0];if(!m)return;
-      u={side,m,name:m.name,x:o.x,y,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,own:o.o,ctl:o.o==='g'?'me':'remote',get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
+      u={side,m,name:m.name,x:o.x,y,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,own:o.o,ctl:o.o==='g'?'me':'remote',get hp(){return m.hp},set hp(v){m.hp=v},get max(){return v6Stats(m).hp}};
       u.k=makeK({team:o.o==='g'?0:(flip?3:0),name:m.name,art:artName(m.name),weapon:m.w,hp:u.max,size:.62},0,0,true)}
     else{if(d.v6&&!RP_E[o.k]&&/^v6/.test(String(o.k))&&o.E&&typeof o.E==='object')RP_E[o.k]=netClean6E(o.E);const E=RP_E[o.k];if(!E)return;u={side,E,key:o.k,name:E.n,x:o.x,y,sz:o.z,hp:o.hp,max:o.mx,atk:o.a,def:o.d,spd:o.sp,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:!!o.aw,pod:o.pd,turns:0,fled:false,own:'e',ctl:'ai'};
       u.k=makeK({team:E.team,name:E.n,art:E.art||o.k,weapon:E.w,hp:E.hp,size:E.boss?1.25:.62*(E.size||1)},0,0,true)}
@@ -120,8 +121,8 @@ function netHostAct(b,d){
   if(a.sk){if(!RP_SK[a.sk]||!rpMemSkills(u.m).includes(a.sk))return;act.sk=a.sk}
   if(a.it){if(!RP_ITEMS[a.it])return;act.it=a.it}
   if(a.cx!=null){act.cx=a.cx|0;act.cy=a.cy|0}
-  if(a.k==='move'){const R=tcReach(b,u,tcMov(u)*(u.ap>=2?2:1)),last=Array.isArray(a.path)&&a.path[a.path.length-1];if(!last)return;const p=tcPath(R,last[0]|0,last[1]|0);if(!p||!p.length)return;
-    const d2=R.dist.get(last[1]*b.W+last[0]);act.path=p;act.cost=d2<=tcMov(u)?1:2}
+  if(a.k==='move'){const R=tcReach(b,u,v6Move(u)*(u.ap>=2?2:1)),last=Array.isArray(a.path)&&a.path[a.path.length-1];if(!last)return;const p=tcPath(R,last[0]|0,last[1]|0);if(!p||!p.length)return;
+    const d2=R.dist.get(last[1]*b.W+last[0]);act.path=p;act.cost=d2<=v6Move(u)?1:2}
   b.net.lastAct=d.n;
   if(tcDo(u,act)){b.phase='busy';if(!rp.headless)sfx('drop')}else netSendSnap(b);
 }

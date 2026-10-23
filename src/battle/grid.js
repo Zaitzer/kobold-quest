@@ -1,9 +1,9 @@
-import {v6AtkCost,v6Crit,v6DmgRange,v6FoeStat,v6Hit,v6InReach,v6Move} from './v6battle.js';
+import {v6AtkCost,v6FoeStat} from './combat.js';
 import {TT} from '../core/layout.js';
 import {RP_ST,RP_TT,RP_TW,TC_DIR8} from '../data/battle.js';
 import {WEAPONS} from '../engine/art.js';
 import {seeded} from '../engine/util.js';
-import {rpStats} from '../game/stats.js';
+import {v6Stats} from '../game/sheet.js';
 const rpTW=w=>RP_TW[w]||{r:1};
 const tcT=c=>RP_TT[c]||{};
 /* ---------- board generation ---------- */
@@ -46,8 +46,7 @@ function tcLos(b,a,c){for(const [x0,y0] of tcTiles(a))for(const [x1,y1] of tcTil
 function tcNear(a,c){let best=null,bd=1e9;for(const [x,y] of tcTiles(a)){const d=Math.hypot(x-c.x,y-c.y);if(d<bd){bd=d;best=[x,y]}}return best}
 /* ---------- units ---------- */
 function tcW(u){return u.m?u.m.w:u.E.w}
-function tcStat(u){return u.m?rpStats(u.m):v6FoeStat(u)}
-function tcMov(u){return v6Move(u)}
+function tcStat(u){return u.m?v6Stats(u.m):v6FoeStat(u)}
 function tcSight(b,u){return(b.dark?3:b.theme==='cave'?5:7)+(tcStat(u).sight||0)}
 function tcGrass(b,u){return u.sz===1&&!!tcT(tcAt(b,u.x,u.y)).grass}
 function tcSees(b,a,c){
@@ -85,10 +84,6 @@ function tcCover(b,t,ax,ay){
   return{c,fl:!!any&&!c};
 }
 function tcMelee(u){return!WEAPONS[tcW(u)].ranged}
-function tcInReach(b,a,t,rng){return v6InReach(b,a,t,rng)}
-function tcHit(b,a,t,o){return v6Hit(b,a,t,o)}
-function tcDmg(b,a,t,mul,o){return v6DmgRange(b,a,t,mul,o)}
-function tcCrit(b,a,t,fl){return v6Crit(b,a,t,fl,false)}
 /* ---------- action costs ---------- */
 function tcActCost(u,act){
   if(act.k==='atk')return v6AtkCost(u);
@@ -99,4 +94,4 @@ function tcActCost(u,act){
 function tcCanPay(u,c){return c==='end'?u.ap>=1:u.ap>=c}
 function tcPay(u,c){u.ap=c==='end'?0:u.ap-c}
 /* ---------- building a battle ---------- */
-export {rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcCrit,tcDmg,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHit,tcHome,tcInReach,tcLive,tcLos,tcLosT,tcMelee,tcMov,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTiles,tcUnitAt,tcVis,tcW};
+export {rpTW,tcActCost,tcAt,tcBase,tcCanPay,tcCheb,tcCost,tcCover,tcEuc,tcFits,tcGap,tcGen,tcGrass,tcHome,tcLive,tcLos,tcLosT,tcMelee,tcNear,tcPath,tcPay,tcReach,tcSees,tcShown,tcSideSees,tcSight,tcStat,tcT,tcTiles,tcUnitAt,tcVis,tcW};

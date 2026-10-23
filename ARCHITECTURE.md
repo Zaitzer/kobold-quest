@@ -27,17 +27,23 @@ redraws the panel), it calls a hook in `core/hooks.js`, which the higher module 
 
 | folder | what lives there |
 |---|---|
-| `engine/` | the kobold drawn in code, sprite sheets, sound effects, the music synth (it plays what `game/music6.js` asks for), particles, small helpers |
+| `engine/` | the kobold drawn in code, sprite sheets, sound effects, the music synth (it plays what `game/music.js` asks for), particles, small helpers |
 | `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design and `world/` by `tools/gen-data.js`), the registries the battle code reads, consumables |
 | `adapters/` | browser storage and the page's online services (room, user, db) |
-| `core/` | game state (`state.js`), the hooks (`hooks.js`), event bus, feature registry, story conditions, options, layout and the battle view's size, the save format (`save6.js`) |
-| `game/` | the world (`world6.js`), the story (`story6.js`), the character sheet, talents, items, music choice, movement, dialogue |
+| `core/` | game state (`state.js`), the hooks (`hooks.js`), event bus, feature registry, story conditions, options, layout and the battle view's size, the save format (`save.js`) |
+| `game/` | the world (`world.js`), the story (`story.js`), the character sheet, talents, items, music choice, movement, dialogue |
 | `battle/` | tactical battles: rules, flow (and its camera), boards, endings, enemy AI |
 | `net/` | friends online (the server link is `net.online`, made by `ui/login.js`) |
-| `render/` | drawing the map (`map.js`, `map6.js`) and the battle (`battle.js`) |
+| `render/` | drawing the map (`map.js`, `map.js`) and the battle (`battle.js`) |
 | `ui/` | the heroes screen, the HUD, the ☰ menu, the pack's sheets, the Book, settings, the battle's buttons (`battle.js`), login |
 | `app/` | boot, the frame (`play.js`), keyboard and touch input |
 | `dev/` | test hooks, only in the test build |
+
+**Names.** Every module-level name is unique across `src/` (`tools/imports.js` checks it), so a name says where it lives:
+`tc…` the battle grid (`battle/grid.js`), `v6…` characters and battle rules (`game/sheet.js`, `battle/combat.js`, `battle/math.js`),
+`w6…` the world (`game/world.js`), `s6…` the story, `c6…` the heroes screen, `net…` the network, `rp…` the engine and screens.
+`node tools/rename.js old=new` renames a name everywhere it is used (by scope: a local that shares the name is left alone), tests included;
+`--into` moves the callers of a pass-through function onto the function it called.
 
 `src/systems.js` lists every module in load order. `src/main.js` imports it, then `app/boot.js` runs
 each feature's `init()` and starts the frame loop.
@@ -69,18 +75,18 @@ Events on the bus (`core/bus.js`): `game:start`, `tile:enter`, `talk`, `battle:w
 * **Everything is made from the design.** `tools/gen-data.js` reads the design's tools and documents and writes `src/data/v6/`
   (classes, skills, foes, items, the slice's maps and rooms, the script and its scenes). Don't edit those files; change the design and
   run it again. `test/logic/v6data.test.js` fails if they are out of date.
-* **The story** (`docs/story-hatching.md`, `docs/slice-dialogue.md`) is played by `game/story6.js`: scenes from `world/scenes.json` (the map editor)
+* **The story** (`docs/story-hatching.md`, `docs/slice-dialogue.md`) is played by `game/story.js`: scenes from `world/scenes.json` (the map editor)
   with their places, conditions (`core/rules.js`) and steps (say, fight, choice, join, give, deed…). `test/logic/story6.test.js`
   plays it from the bakery to the tube, once per class.
-* **The world** is `game/world6.js` on the maps in `data/v6/maps.js` (generated from `world/`, made in the map editor `tools/editor`; the tile legend, encounters, music, dark floors are per map there): links, fountains, stables, patrols, encounters, chests, the
+* **The world** is `game/world.js` on the maps in `data/v6/maps.js` (generated from `world/`, made in the map editor `tools/editor`; the tile legend, encounters, music, dark floors are per map there): links, fountains, stables, patrols, encounters, chests, the
   dark floor, the flood, the rail puzzle.
 * **Sprite sheets** (`art/`, listed in `art/ASSETS.md`; a stand-in in each until Joakim draws over it) replace the look drawn in code
-  (`engine/sheets6.js`). The website fetches `art/manifest.json` (the test build has test sheets built in as `KQ_ART`), which
+  (`engine/sheets.js`). The website fetches `art/manifest.json` (the test build has test sheets built in as `KQ_ART`), which
   `deploy/install.sh` makes on every update with `server/art.js`.
 
 ## Saves
 
-`core/save6.js` owns the format (one document per hero, six slots: `ui/chars6.js`). Missing fields take their defaults as a save
+`core/save.js` owns the format (one document per hero, six slots: `ui/heroes.js`). Missing fields take their defaults as a save
 loads; a change of shape gets a migration in `MIGRATIONS6`. `SAVE6_EPOCH` with `"epoch"` in `server/config.json` resets everyone's
 progress once. Cloud docs `data/users/<id>/char<n>` and `lock<n>`, market collection `market`, room topic `kq`.
 

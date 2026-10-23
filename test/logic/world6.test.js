@@ -34,9 +34,9 @@ for(const L of X.LINKS6){if(L[7])continue;fresh();X.w6Go(L[3],L[4],L[5]);const s
 // a fight from the grass is a v6 fight on a meadow board; losing wakes you at the last fountain with half the gold
 {const s=fresh({map:'r1'});s.gold=100;s.w6st.respawn='pebblebrook';X.w6Fight('r1',X.w6Enc('r1'));const b=X.rp.bt;ok(b&&b.v6&&b.theme6==='meadow','a meadow v6 fight');
  b.units.filter(u=>u.side===0).forEach(u=>{u.hp=0;X.tcKo(u)});X.tcCheckEnd();X.rpEndBattle();ok(s.w6==='pebblebrook'&&s.gold===50,'lost: back at the Pebblebrook fountain with half the gold ('+s.w6+', '+s.gold+')');
- ok(s.party.every(m=>m.hp===X.rpStats(m).hp),'everyone healed')}
+ ok(s.party.every(m=>m.hp===X.v6Stats(m).hp),'everyone healed')}
 // fountain, campfire once a visit, chest once, beds
-{const s=fresh();s.party[0].hp=1;X.w6Go('hearthspire',19,14);X.rpInteractAt(19,15);ok(s.party[0].hp===X.rpStats(s.party[0]).hp,'the fountain heals');ok(s.w6st.respawn==='hearthspire'&&s.w6st.fountains.includes('hearthspire'),'and sets the respawn');
+{const s=fresh();s.party[0].hp=1;X.w6Go('hearthspire',19,14);X.rpInteractAt(19,15);ok(s.party[0].hp===X.v6Stats(s.party[0]).hp,'the fountain heals');ok(s.w6st.respawn==='hearthspire'&&s.w6st.fountains.includes('hearthspire'),'and sets the respawn');
  X.w6Go('mine2',16,12);s.party[0].hp=1;X.rpInteractAt(16,13);ok(s.party[0].hp>1,'the campfire heals');s.party[0].hp=1;X.rpInteractAt(16,13);ok(s.party[0].hp===1,'only once a visit');
  X.w6Go('mine1',29,3);X.w6Go('mine2',29,2);X.rpInteractAt(16,13);ok(s.party[0].hp>1,'a new visit, a new heal');
  X.w6Go('r1',33,19);X.rpInteractAt(33,20);ok(s.w6st.chests.includes('r1:33,20'),'the chest opens');const n=s.w6st.chests.length;X.rpInteractAt(33,20);ok(s.w6st.chests.length===n,'once')}

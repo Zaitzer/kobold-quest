@@ -2,8 +2,8 @@
    Scenes from src/data/v6/story.js: the script's own lines, played where and when world/scenes.json (the map editor) puts them, with their fights,
    the class pick, companions joining, items, deeds and flags. NPCs stand at their places and say their lines; the goal bar and the
    quest log read the flags; campfire chats play at an inn's hearth; the pack is chosen at the roster board. */
+import {v6BossKey,v6EliteKey,v6FoeKey} from '../battle/combat.js';
 import {rpBattle} from '../battle/flow.js';
-import {v6BossKey,v6EliteKey,v6FoeKey} from '../battle/v6battle.js';
 import {emit} from '../core/bus.js';
 import {openLetter,partnerName,startFight} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
@@ -16,9 +16,9 @@ import {FOES6} from '../data/v6/foes.js';
 import {CHATS6,COMPANIONS6,DEEDS6,GOALS6,KIND6,MINERS6,NPCS6,SCENES6,SCRIPT6,SETPIECES6,WAVE16} from '../data/v6/story.js';
 import {esc2} from '../engine/util.js';
 import {rpSay,rpToast} from './dialogue.js';
-import {needOf,v6Buy,v6CanWear,v6Craft,v6Drops,v6ItemName,v6OpenChest,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock} from './items6.js';
-import {v6Kobold,v6Stats} from './v6sheet.js';
-import {w6Cart,w6Go,w6Start} from './world6.js';
+import {needOf,v6Buy,v6CanWear,v6Craft,v6Drops,v6ItemName,v6OpenChest,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock} from './items.js';
+import {v6Kobold,v6Stats} from './sheet.js';
+import {w6Cart,w6Go,w6Start} from './world.js';
 
 const PACK=4;
 const hero=()=>rp.s.party.find(m=>m.hero)||rp.s.party[0];

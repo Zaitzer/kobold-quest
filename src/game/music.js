@@ -9,7 +9,7 @@ import {rp} from '../core/state.js';
 import {LINKS6} from '../data/v6/maps.js';
 import {sfx,soundOn} from '../engine/audio.js';
 import {rpMusicTick} from '../engine/music.js';
-import {w6Place} from './world6.js';
+import {w6Place} from './world.js';
 
 const YARD=[14,5,25,12];   // the castle yard on Hearthspire's map (the Nest, the drill)
 const MILL=(()=>{const L=LINKS6.find(l=>l[0]==='pebblebrook'&&l[3]==='room:mill');return L?[L[1],L[2]]:null})();

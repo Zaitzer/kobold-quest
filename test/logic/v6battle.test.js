@@ -20,7 +20,7 @@ seeded(7,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['rogue',null,
   const full=X.v6DmgRange(b,r,f,1,{}),q=X.v6DmgRange(b,r,f,1,{quick:1});checks++;if(Math.abs(q[1]/full[1]-0.635)>0.03)bad('quick hit should be ×0.635: '+q[1]+' vs '+full[1]);
   const fi=X.v6Kobold('T','fighter',5);checks++;if(X.tcActCost({m:fi},{k:'atk'})!=='end')bad('a sword attack should end the turn');
   // statuses: root stops movement, slow halves it, and they wear off on the unit's own turns
-  f.vs={root:2};checks++;if(X.tcMov(f)!==0)bad('a rooted foe cannot move');f.vs={slow:2};const m=X.tcMov(f);checks++;if(m!==Math.ceil(f.E.move/2))bad('slow halves movement: '+m);
+  f.vs={root:2};checks++;if(X.v6Move(f)!==0)bad('a rooted foe cannot move');f.vs={slow:2};const m=X.v6Move(f);checks++;if(m!==Math.ceil(f.E.move/2))bad('slow halves movement: '+m);
   X.v6TurnStart(b,f);X.v6TurnStart(b,f);checks++;if(f.vs.slow)bad('slow should wear off after two of its turns');
   // hex: +25% damage taken
   const plain=X.v6DmgRange(b,r,f,1,{})[1];f.vs={hex:3};const hexed=X.v6DmgRange(b,r,f,1,{})[1];checks++;if(Math.abs(hexed/plain-1.25)>0.03)bad('hex should be +25%: '+hexed+' vs '+plain);f.vs={};

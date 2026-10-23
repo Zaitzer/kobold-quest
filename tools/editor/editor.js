@@ -53,7 +53,7 @@ async function loadAll(){const fs=E.fs,W={tiles:JSON.parse(await fs.read('world/
   E.cur=E.cur&&W.places[E.cur]?E.cur:(W.places.hearthspire?'hearthspire':Object.keys(W.places)[0]);
   loadArt()}
 /* the pixel art in art/, drawn or still the stand-in (as in the game): found by
-   file name, the way the game finds them (engine/sheets6.js) */
+   file name, the way the game finds them (engine/sheets.js) */
 async function loadArt(){const ix={};
   for(const p of await (E.fs.walk?E.fs.walk('art'):[]))if(p.endsWith('.png')&&!/\/(templates|portraits|icons|fx)\//.test(p))ix[p.split('/').pop().slice(0,-4)]=p;   // faces and icons share names with the sheets
   E.art={};E.artIndex=ix;

@@ -6,7 +6,7 @@ import {rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
 import {clamp,esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {tradeLabel,tradeList,tradePrice,tradePut,tradeTake,tradeValid} from '../game/items6.js';
+import {tradeLabel,tradeList,tradePrice,tradePut,tradeTake,tradeValid} from '../game/items.js';
 import {net} from './core.js';
 
 function netMarketInit(){try{const col=net.db.collection('market');
@@ -14,7 +14,7 @@ function netMarketInit(){try{const col=net.db.collection('market');
       if(ids.length&&net.user){ids.forEach(i=>net.names[i]='');net.user.profiles(ids).then(r=>{ids.forEach(i=>net.names[i]=(r[i]&&r[i].name)||'')}).catch(()=>{})}rp.sig=''},()=>{});
     col.where('seller','==',net.me).onSnapshot(sn=>{net.mine=sn.docs.map(d=>Object.assign({id:d.id},d.data()));netMarketPayouts();rp.sig=''},()=>{});
   }catch(e){}}
-/* a listing is a trade (game/items6.js): 'bag', 'mat' or 'item' with its value */
+/* a listing is a trade (game/items.js): 'bag', 'mat' or 'item' with its value */
 function netMkLabel(m){return tradeValid(m.kind,m.val)?tradeLabel(m.kind,m.val):'?'}
 function netMkValid(m){return m&&Number.isFinite(+m.price)&&+m.price>0&&tradeValid(m.kind,m.val)}
 const netMarketPrice=(kind,val)=>tradePrice(kind,val),netTake=(kind,val)=>tradeTake(kind,val),netPut=(kind,val)=>tradePut(kind,val);

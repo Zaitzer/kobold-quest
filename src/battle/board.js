@@ -1,7 +1,7 @@
 /* ---------- Kobold Quest v6: battle boards by theme (systems.md §2, build step 9) ----------
    The engine's generator (tcGen) makes the terrain; a v6 theme picks its base and adds what is new: dark boards (sight 3), flooded
    boards (difficult water), town boards, and for bosses the rule that the 2 × 2 boss can reach every tile a kobold can stand on. */
-import {tcBase,tcGen,tcT} from './rules.js';
+import {tcBase,tcGen,tcT} from './grid.js';
 import {TC_DIR8} from '../data/battle.js';
 import {seeded} from '../engine/util.js';
 

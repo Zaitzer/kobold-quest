@@ -7,7 +7,7 @@ const kobs=b=>b.units.filter(u=>u.side===0);
 // a fall: −1 streak, and the win is not clean
 {const b=start(0);const k=kobs(b)[1];k.m.streak=2;k.hp=0;X.tcKo(k);ok(k.m.streak===1,'a fall should cost 1 streak: '+k.m.streak);ok(b.falls===1,'the fight should count the fall')
  const m0=kobs(b)[0].m;m0.streak=1;m0.mp=0;b.units.filter(u=>u.side===1).forEach(u=>u.hp=0);X.rpWin();ok(m0.streak===1,'no streak for a win where someone fell');
- ok(m0.mp===Math.round(X.rpStats(m0).mp*0.1),'a win gives 10% mana back: '+m0.mp)}
+ ok(m0.mp===Math.round(X.v6Stats(m0).mp*0.1),'a win gives 10% mana back: '+m0.mp)}
 // a clean win: +1 streak, at most +3; no HP back
 {const b=start(0);const [a,c]=kobs(b);a.m.streak=0;c.m.streak=3;a.m.hp=10;b.units.filter(u=>u.side===1).forEach(u=>u.hp=0);X.rpWin();
  ok(a.m.streak===1,'a clean win is +1 streak');ok(c.m.streak===3,'the streak stops at +3');ok(a.m.hp===10,'a win gives no HP back')}

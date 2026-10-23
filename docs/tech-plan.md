@@ -95,7 +95,7 @@ or removed in one pass, at the progress reset, then `node tools/imports.js` and 
 | Witch Yarrow | removed (Mallow is the mentor) | person | `data/dialogue.js`, `data/quests.js`, `data/places.js`, `data/world.js` |
 | Tikka, Fennel | removed (the roster is Pip and the seven) | people | `data/dialogue.js`, `data/quests.js`, `data/banter.js` |
 | `moot`, `vote`, `pb`, `ch` | **`act`, `pb`, `grubb`, `miner_*`** | story flags | as `docs/slice-dialogue.md` §7; `core/state.js`, `data/world.js`, `render/map.js`, `game/npcs.js` |
-| Gorb, Vexx, the hoard guards | Grubb, Snipe, the bestiary's bosses | old bosses | `data/monsters.js`, `data/items.js`, `game/gear.js`, `battle/rules.js`, `battle/flow.js`, `battle/ai.js`, `core/state.js` |
+| Gorb, Vexx, the hoard guards | Grubb, Snipe, the bestiary's bosses | old bosses | `data/monsters.js`, `data/items.js`, `game/gear.js`, `battle/grid.js`, `battle/flow.js`, `battle/ai.js`, `core/state.js` |
 | the banter (5 old chats) | the companions' chats | campfire chats | `data/banter.js` (`companions.md`) |
 
 ## Before going public (not needed for friends)

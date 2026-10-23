@@ -1,4 +1,4 @@
-/* Loading Joakim's sprite sheets (art/, see engine/sheets6.js): name → image, ready once loaded. */
+/* Loading Joakim's sprite sheets (art/, see engine/sheets.js): name → image, ready once loaded. */
 const SPR={};let onLoad=[];
 /* list: {name: url}. Called once at start with the website's art folder or the sheets built into the page */
 function spritesInit(list){

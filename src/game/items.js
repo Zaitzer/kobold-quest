@@ -6,7 +6,7 @@ import {RP_ITEMS} from '../data/items.js';
 import {BASE6,CLASSES6} from '../data/v6/classes.js';
 import {AFFIXES6,CONSUMABLES6,GEAR6,PRICES6,RECIPES6,UNIQUES6,WEAPONS6} from '../data/v6/items.js';
 import {CHESTS6} from '../data/v6/story.js';
-import {V6_TIERS,V6_VARIANT,v6TierFor} from './v6sheet.js';
+import {V6_TIERS,V6_VARIANT,v6TierFor} from './sheet.js';
 
 const GEAR_SLOTS6=['weapon','armour','shield','helm','boots','cloak','neck','ring1','ring2'];
 const slotOf=k=>k.startsWith('ring')?'ring':k;

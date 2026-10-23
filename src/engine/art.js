@@ -1,4 +1,4 @@
-import {drawSheet} from './sheets6.js';
+import {drawSheet} from './sheets.js';
 import {R,clamp,eob,heartPath,rr,starPath} from './util.js';
 let ctx=null;let selected=null;
 const TEAMS=[
@@ -27,7 +27,7 @@ const WEAPONS={
   spear:{n:'Spear'}
 };
 /* a kobold to draw (the map's people, the battle's units, a friend on the map): where it is and what it is doing; a character with a
-   sheet (engine/sheets6.js) is drawn from it, the rest in code */
+   sheet (engine/sheets.js) is drawn from it, the rest in code */
 function makeK(e,x,y,pop){
   const k={e,team:e.team,name:e.name,art:e.art||null,weapon:e.weapon,W:WEAPONS[e.weapon],x,y,z:0,vz:0,hp:e.cur!=null?e.cur:e.hp,max:e.hp,size:e.size||1,
     boss:!!e.boss,face:x<240?1:-1,state:'idle',st:0,stun:0,hurt:0,phase:R(0,6),bob:R(0,6),walk:0,moving:false,pop:pop?0:1,
@@ -130,7 +130,7 @@ function drawKobold(k){
   ctx.scale(pop*(1+.2*sq)*k.face*k.size,pop*(1-.2*sq)*k.size);
   ctx.translate(0,bob);
   /* the character's sheet (art/), if it has one */
-  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a sheet from art/ (engine/sheets6.js) */}
+  if(sh&&drawSheet(ctx,sh,k,{colour:k.colour6,map:k.onMap})){/* a sheet from art/ (engine/sheets.js) */}
   else{
   ctx.lineCap='round';ctx.lineJoin='round';
   // tail

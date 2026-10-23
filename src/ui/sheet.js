@@ -1,15 +1,15 @@
 /* ---------- Kobold Quest v6: the character sheet screen (build step 7, ui-design.md "Talent pick") ----------
    Every stat, the three talent cards when a pick is waiting, the subclass at 8, the kit with its dark toggles, Pip's leader points.
    For now it opens from the fight lab; the roster and the inn reach it when the v6 world is built (step 11). */
-import {v6Lab} from '../battle/v6battle.js';
+import {v6Lab} from '../battle/combat.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {KITS6,PASSIVES6,SKILLS6} from '../data/v6/skills.js';
 import {esc2} from '../engine/util.js';
-import {v6CanWear,v6Equip6,v6ItemName,v6PieceName,v6Unequip} from '../game/items6.js';
-import {v6Stats} from '../game/v6sheet.js';
-import {V6_EQUIP,v6AtRest,v6Cards,v6ChooseSub,v6DarkOpen,v6Equip,v6IsSub,v6Known,v6LeadAdd,v6LeadFree,v6LeadTotal,v6LevelUp,v6Pick,v6SubOptions,v6ToggleDark} from '../game/v6talent.js';
+import {v6CanWear,v6Equip6,v6ItemName,v6PieceName,v6Unequip} from '../game/items.js';
+import {v6Stats} from '../game/sheet.js';
+import {V6_EQUIP,v6AtRest,v6Cards,v6ChooseSub,v6DarkOpen,v6Equip,v6IsSub,v6Known,v6LeadAdd,v6LeadFree,v6LeadTotal,v6LevelUp,v6Pick,v6SubOptions,v6ToggleDark} from '../game/talents.js';
 import {rpBar} from './hud.js';
 
 const sheet={i:0,msg:''};

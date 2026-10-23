@@ -2,10 +2,10 @@
    skills.md §1–2 (one pick a level from level 2, three cards, one of each kind; the subclass at 8 with skills at 8 and 16;
    four skills equipped, changed at rest), corruption.md §1 (dark versions unlock at corruption 10 / 25 / 50, swapped like any
    skill), balance.md §3 (Pip: one leader point every second level, in Might, Wits or Leadership). */
-import {SCORES} from '../battle/v6rules.js';
+import {SCORES} from '../battle/math.js';
 import {rp} from '../core/state.js';
 import {KITS6,PASSIVES6,SKILLS6} from '../data/v6/skills.js';
-import {v6Stats} from './v6sheet.js';
+import {v6Stats} from './sheet.js';
 
 const V6_EQUIP=4,V6_RANK_MAX=3,V6_SUB_LVL=[8,16];
 /* the skills a kobold knows: its start, the talent skills it picked, its subclass skills */

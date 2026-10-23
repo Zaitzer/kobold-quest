@@ -1,8 +1,8 @@
 /* ---------- player input ---------- */
+import {v6Crit,v6DmgRange,v6Hit,v6InReach,v6LegalTiles,v6Move,v6ReviveOK,v6TogetherOpts} from '../battle/combat.js';
+import {v6CanRetry,v6Retry} from '../battle/end.js';
 import {rpEndBattle,rpTacBegin,tcDo,tcUpcoming} from '../battle/flow.js';
-import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcCrit,tcDmg,tcHit,tcHome,tcInReach,tcLive,tcLosT,tcMelee,tcMov,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from '../battle/rules.js';
-import {v6LegalTiles,v6ReviveOK,v6TogetherOpts} from '../battle/v6battle.js';
-import {v6CanRetry,v6Retry} from '../battle/v6end.js';
+import {rpTW,tcActCost,tcAt,tcCanPay,tcCheb,tcCover,tcHome,tcLive,tcLosT,tcMelee,tcPath,tcReach,tcShown,tcT,tcTiles,tcUnitAt,tcVis,tcW} from '../battle/grid.js';
 import {rpUI} from '../core/hooks.js';
 import {BVH,BVW,TT,rpLoc,rpVec,rpcv} from '../core/layout.js';
 import {rpOpt,rpOptSave} from '../core/options.js';
@@ -14,7 +14,7 @@ import {RP_ITEMS} from '../data/items.js';
 import {WEAPONS} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {clamp,esc2} from '../engine/util.js';
-import {rpMemSkills,rpStats} from '../game/stats.js';
+import {rpMemSkills,v6Stats} from '../game/sheet.js';
 import {netSendAct,netSerAct} from '../net/battle.js';
 import {net,netEmit,netName} from '../net/core.js';
 import {rpBar} from './hud.js';
@@ -22,21 +22,21 @@ import {rpBar} from './hud.js';
 function tcTargets(b,u){
   const m=b.mode;
   if(m==='tog')return[...new Set(v6TogetherOpts(b,u).map(o=>o.t))];
-  if(m==='move'||m==='atk')return tcCanPay(u,tcActCost(u,{k:'atk'}))?b.units.filter(t=>t.side===1&&tcLive(t)&&tcShown(b,t)&&tcInReach(b,u,t)):[];
+  if(m==='move'||m==='atk')return tcCanPay(u,tcActCost(u,{k:'atk'}))?b.units.filter(t=>t.side===1&&tcLive(t)&&tcShown(b,t)&&v6InReach(b,u,t)):[];
   if(m.startsWith('sk:')){const sk=m.slice(3),S=RP_SK[sk],T=RP_ST[sk]||{};
-    if(S.heal&&!T.self)return b.units.filter(t=>t.side===0&&tcLive(t)&&tcInReach(b,u,t,T.rng));
+    if(S.heal&&!T.self)return b.units.filter(t=>t.side===0&&tcLive(t)&&v6InReach(b,u,t,T.rng));
     if(S.revive)return b.units.filter(t=>t.side===0&&!t.fled&&t.hp<=0&&tcCheb(u,t)<=1);
     if(T.area||T.self||T.around)return[];
-    return b.units.filter(t=>t.side===1&&tcLive(t)&&tcShown(b,t)&&tcInReach(b,u,t,T.rng))}
+    return b.units.filter(t=>t.side===1&&tcLive(t)&&tcShown(b,t)&&v6InReach(b,u,t,T.rng))}
   if(m.startsWith('it:')){const it=m.slice(3);return b.units.filter(t=>t.side===0&&!t.fled&&tcCheb(u,t)<=1&&(it==='feather'?t.hp<=0:tcLive(t)))}
   return[];
 }
 /* the hit chance and a skull when the hit can fell the foe, drawn over every foe the chosen action reaches (ui-design.md §5) */
 function tcHitBadge(b,u,t){const sk=b.mode.startsWith('sk:')?b.mode.slice(3):null,T=sk?RP_ST[sk]||{}:{},o=sk?{spell:T.spell,aim:T.aim}:{};if(sk&&RP_SK[sk].heal)return null;
-  const h=o.spell?100:tcHit(b,u,t,o).h,D=tcDmg(b,u,t,sk?RP_SK[sk].mul||1:1,o);return{h,kill:D[0]>=t.hp}}
+  const h=o.spell?100:v6Hit(b,u,t,o).h,D=v6DmgRange(b,u,t,sk?RP_SK[sk].mul||1:1,o);return{h,kill:D[0]>=t.hp}}
 function tcPreviewAttack(b,u,t,act){
   const o=act.k==='sk'?{spell:(RP_ST[act.sk]||{}).spell,aim:(RP_ST[act.sk]||{}).aim}:{};const mul=act.k==='sk'?RP_SK[act.sk].mul||1:1;
-  const H=o.spell?{h:100,parts:['spells never miss'],fl:false}:tcHit(b,u,t,o),D=tcDmg(b,u,t,mul,o),cr=Math.round(tcCrit(b,u,t,H.fl)*100);
+  const H=o.spell?{h:100,parts:['spells never miss'],fl:false}:v6Hit(b,u,t,o),D=v6DmgRange(b,u,t,mul,o),cr=Math.round(v6Crit(b,u,t,H.fl)*100);
   const nm=act.k==='sk'?RP_SK[act.sk].n:WEAPONS[tcW(u)].n,c=tcActCost(u,act);
   act=Object.assign({},act,{t});
   return{t,act,info:'<b>'+esc2(nm)+' → '+esc2(t.name)+'</b>: <b class="hp">'+H.h+'%</b> to hit · '+D[0]+'–'+D[1]+' damage · '+cr+'% crit'+(H.parts.length?' <small>('+H.parts.join(', ')+')</small>':'')+' · '+(c==='end'?'ends turn':c+' AP')}}
@@ -72,7 +72,7 @@ function rpTacTap0(x,y){
   if(m==='tog'){const o=t&&v6TogetherOpts(b,u).find(o=>o.t===t);if(!o){b.msg='Pick a foe that you and a friend both stand next to.';b.pend=null;return}
     b.pend={act:{k:'together',f:o.f,t},t,tx:x,ty:y,info:'<b>Together</b> with '+esc2(o.f.name)+' on '+esc2(t.name)+': both attack now, flanking (no cover, better crits); '+esc2(o.f.name)+' spends its next turn · 1 AP · once a fight per pair'};return}
   if(t&&t.side===1&&tcShown(b,t)){
-    if(!tcInReach(b,u,t)){b.msg=t.name+' is out of reach. '+(tcMelee(u)?'Walk next to it first.':'Get closer or find a clear line.');b.pend=null;return}
+    if(!v6InReach(b,u,t)){b.msg=t.name+' is out of reach. '+(tcMelee(u)?'Walk next to it first.':'Get closer or find a clear line.');b.pend=null;return}
     if(!tcCanPay(u,tcActCost(u,{k:'atk'}))){b.msg='Not enough AP to attack with that weapon.';return}
     b.pend=Object.assign(tcPreviewAttack(b,u,t,{k:'atk',t}),{tx:x,ty:y});return}
   const dn=!t&&b.units.find(v=>v.side===0&&v.m&&v.hp<=0&&!v.fled&&v.x===x&&v.y===y);
@@ -80,7 +80,7 @@ function rpTacTap0(x,y){
     else{b.msg=(dn.own||'h')===(u.own||'h')?dn.name+' is down. In a shared fight a friend\'s kobold can help it up.':'Stand next to '+dn.name+' to help it up (1 AP).';b.pend=null}return}
   if(t&&t.side===0){b.msg=t===u?u.name+' · '+u.ap+' AP left.':t.name+': '+t.hp+'/'+t.max+' HP.';b.pend=null;return}
   /* move */
-  const mov=tcMov(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov),d=R2.dist.get(y*b.W+x);
+  const mov=v6Move(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov),d=R2.dist.get(y*b.W+x);
   if(d==null||d===0){b.msg='Can\'t walk there.';b.pend=null;return}
   const cost=d<=mov?1:2,path=tcPath(R2,x,y),aoo=[];let px=u.x,py=u.y;
   path.forEach(([ax,ay])=>{b.units.forEach(o=>{if(o.side!==1||!tcLive(o)||!o.aware||!tcMelee(o)||!tcShown(b,o)||aoo.includes(o))return;const rr=rpTW(tcW(o)).r;if(tcCheb(o,{x:px,y:py,sz:1})<=rr&&tcCheb(o,{x:ax,y:ay,sz:1})>rr)aoo.push(o)});px=ax;py=ay});
@@ -123,7 +123,7 @@ function rpTacPanel(){
      owner's colour and the active one counts down its 20 seconds */
   const left=b.net&&!b.duel&&b.turnT&&u&&u.side===0&&(b.phase==='turn'||b.phase==='remote')?Math.max(0,20-Math.floor((performance.now()-b.turnT)/1000)):null;
   let h='<div class="tq">'+up.map((x,i)=>{const hid=x.side===1&&!tcShown(b,x);return '<span class="'+(x.side?'foe':'pal')+(b.net&&x.side===0?(x.own==='g'?' og':' oh'):'')+(i===0&&b.phase!=='place'?' now':'')+'">'+(hid?'?':esc2(x.name.split(' ').pop().slice(0,6)))+(i===0&&left!=null?' <i>'+left+'s</i>':'')+'</span>'}).join('')+'</div>';
-  h+='<div class="tparty">'+b.units.filter(x=>x.side===0).map(x=>{const st=rpStats(x.m);return '<div class="tpm'+(x.hp<=0?' down':'')+(x.fled?' gone':'')+(x===u?' on':'')+(x.ctl==='remote'?' fr':'')+'"><b>'+esc2(x.name)+(x.ctl==='remote'?' <i>'+esc2(netName())+'</i>':'')+'</b>'+rpBar(Math.max(0,x.hp),st.hp,x.hp>st.hp*.5?'#7ad67a':x.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>'+Math.max(0,x.hp)+' HP · '+x.m.mp+' MP'+(x===u&&b.phase!=='place'?' · '+'●'.repeat(Math.max(0,x.ap))+'○'.repeat(Math.max(0,2-x.ap)):'')+'</small></div>'}).join('')+'</div>';
+  h+='<div class="tparty">'+b.units.filter(x=>x.side===0).map(x=>{const st=v6Stats(x.m);return '<div class="tpm'+(x.hp<=0?' down':'')+(x.fled?' gone':'')+(x===u?' on':'')+(x.ctl==='remote'?' fr':'')+'"><b>'+esc2(x.name)+(x.ctl==='remote'?' <i>'+esc2(netName())+'</i>':'')+'</b>'+rpBar(Math.max(0,x.hp),st.hp,x.hp>st.hp*.5?'#7ad67a':x.hp>st.hp*.25?'#ffc857':'#ff6b6b')+'<small>'+Math.max(0,x.hp)+' HP · '+x.m.mp+' MP'+(x===u&&b.phase!=='place'?' · '+'●'.repeat(Math.max(0,x.ap))+'○'.repeat(Math.max(0,2-x.ap)):'')+'</small></div>'}).join('')+'</div>';
   h+='<div class="rpmsg tmsg">'+(b.pend?b.pend.info:esc2(b.msg))+'</div>';
   if(b.phase==='place'&&!(b.net&&b.net.role==='guest'))h+='<div class="tbar two"><button class="pill" type="button" data-tac="auto">Auto<small>as they stand</small></button><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';
   else if(b.phase==='place')h+=b.net&&b.net.role==='guest'?'<div class="tbar"><p class="rptip">Tap one of your kobolds, then a blue tile to move it. '+esc2(netName())+' starts the battle.</p></div>':'<div class="tbar"><p class="rptip">Tap a kobold, then a blue tile to move it. '+(b.net?esc2(netName())+' can place theirs too.':'Enemies hide in the fog.')+'</p><button class="pill go big" type="button" data-tac="start">Start battle ▸</button></div>';

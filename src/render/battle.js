@@ -1,6 +1,6 @@
 /* ---------- drawing ---------- */
-import {tcBase,tcHome,tcLive,tcMov,tcReach,tcShown,tcT} from '../battle/rules.js';
-import {v6LegalTiles} from '../battle/v6battle.js';
+import {v6LegalTiles,v6Move} from '../battle/combat.js';
+import {tcBase,tcHome,tcLive,tcReach,tcShown,tcT} from '../battle/grid.js';
 import {BVH,BVW,RT,TT,rpDpr,rpS,rpctx,rpcv} from '../core/layout.js';
 import {rp} from '../core/state.js';
 import {OL,ctx,drawKobold,el,set_ctx} from '../engine/art.js';
@@ -40,7 +40,7 @@ function rpDrawBattle(){
   /* start zone while placing */
   if(b.phase==='place'){ctx.fillStyle='rgba(111,184,255,.22)';ctx.fillRect(0,(b.H-3)*TT,b.W*TT,3*TT);if(b.placeSel){const h=tcHome(b.placeSel);ctx.strokeStyle='#ffd54a';ctx.lineWidth=2.5;ctx.strokeRect(b.placeSel.x*TT+2,b.placeSel.y*TT+2,TT-4,TT-4)}}
   /* where the active kobold can go: blue = 1 AP, gold = 2 AP */
-  if(mine&&b.mode==='move'&&!b.pend){const mov=tcMov(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov);
+  if(mine&&b.mode==='move'&&!b.pend){const mov=v6Move(u),R2=tcReach(b,u,u.ap>=2?mov*2:mov);
     R2.dist.forEach((d,kk)=>{const x=kk%b.W,y=(kk/b.W)|0;if(x===u.x&&y===u.y)return;ctx.fillStyle=d<=mov?'rgba(111,184,255,.28)':'rgba(255,213,74,.22)';ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2)})}
   /* the legal tiles for a tile or area skill (build step 4) */
   if(mine&&!b.pend&&b.mode.startsWith('sk:')){const L=v6LegalTiles(b,u,b.mode.slice(3));if(L){ctx.fillStyle='rgba(155,227,107,'+(.18+.06*Math.sin(b.t*4))+')';L.forEach(([x,y])=>ctx.fillRect(x*TT+1,y*TT+1,TT-2,TT-2))}}

@@ -13,9 +13,9 @@ import {KITS6,SKILLS6} from '../data/v6/skills.js';
 import {WAVE16} from '../data/v6/story.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {goals,pickClass} from '../game/story6.js';
-import {v6Stats} from '../game/v6sheet.js';
-import {w6Pieces} from '../game/world6.js';
+import {v6Stats} from '../game/sheet.js';
+import {goals,pickClass} from '../game/story.js';
+import {w6Pieces} from '../game/world.js';
 import {net} from '../net/core.js';
 import {rpBar} from './hud.js';
 

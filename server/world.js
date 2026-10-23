@@ -9,7 +9,7 @@ const MAX_MSG=4096,MAX_DOC=64*1024,MAX_MARKET_DOC=2048,SESSION_DAYS=180,MAX_LIST
 /* how fast one connection may talk: [per second, burst]. Anything faster is dropped, so one player (or a script) can't flood the
    others or the server. Generous for play: a co-op fight sends a few messages a second, chat a line now and then. */
 const RATE={all:[30,120],emit:[15,60],pres:[10,30],chat:[1,5]};
-/* the documents a player's page may keep under data/users/<id>/: a hero per slot and its one-device lock (ui/chars6.js) */
+/* the documents a player's page may keep under data/users/<id>/: a hero per slot and its one-device lock (ui/heroes.js) */
 const PRIVATE_DOC=/^(char|lock)[0-5]$/;
 const scrypt=(pass,salt)=>new Promise((ok,no)=>crypto.scrypt(pass,salt,32,{N:16384,r:8,p:1},(e,k)=>e?no(e):ok(k.toString('hex'))));
 const sha=t=>crypto.createHash('sha256').update(t).digest('hex');
