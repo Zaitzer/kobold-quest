@@ -18,6 +18,8 @@ import {rpSay,rpToast} from './dialogue.js';
 import {needOf,v6Buy,v6CanWear,v6Craft,v6Drops,v6ItemName,v6OpenChest,v6Price,v6Recipes,v6Sell,v6SellPrice,v6ShopStock} from './items6.js';
 import {v6Kobold,v6Stats} from './v6sheet.js';
 import {w6Cart,w6Go,w6Start} from './world6.js';
+import {netName} from '../net/core.js';
+import {rpFight} from '../net/lobby.js';
 
 const PACK=4;
 const hero=()=>rp.s.party.find(m=>m.hero)||rp.s.party[0];
@@ -51,6 +53,7 @@ function next(){const sc=story.scene;if(!sc)return;const st=story.q.shift();if(!
   next()}
 /* the set pieces (slice-dialogue.md: five in act 1, then the slice's fixed fights); a lost set piece can be tried again at once */
 function setPiece(id){const S=SETPIECES6[id];if(!S){next();return}const s=rp.s,h=hero();
+  const beat=s.w6st.beat||{};if(beat[id]){delete beat[id];rpSay([{who:'',text:'You already beat this one, with '+beat[id+':who']+'.'}],null,next);delete beat[id+':who'];return}
   const members=(S.solo?[h]:s.party).map(m=>({m,ctl:'me',own:'h'}));
   /* the set-piece rule (systems.md §4): the script's foes weigh at most 0.75 × the kobolds in the fight; heavier, and each is scaled down */
   const has=(tag,t)=>!!tag&&tag.split('+').includes(t);
@@ -58,7 +61,13 @@ function setPiece(id){const S=SETPIECES6[id];if(!S){next();return}const s=rp.s,h
   const total=base.reduce((a,x)=>a+x.w,0),scale=total?Math.min(1,0.75*members.length/total):1;
   const keys=S.boss?[v6BossKey(S.boss)]:S.foes.map(([f,L,tag,name],i)=>{const k=base[i].k,E=RP_E[k];if(scale===1&&!name&&!tag)return k;const nk=k+':'+id+':'+i;
     const big=has(tag,'big'),m=scale*(big?2:1);RP_E[nk]=Object.assign({},E,{n:name||E.n,tele:has(tag,'tele')?1:0,hp:Math.max(1,Math.round(E.hp*m)),atk:+(E.atk*scale*(big?1.2:1)).toFixed(1),xp:Math.max(1,Math.round(E.xp*m)),size:big?1.2:E.size});return nk});
-  story.fight=id;rpBattle(keys,Object.assign({members,zone:',',v6:1,theme:S.theme,setPiece:1},S.boss?{boss:keys[0]}:{}));if(rp.bt){rp.bt.v6=1;rp.bt.story=id}}
+  /* a boss can be fought together (systems.md §12): the lobby opens when a friend is free in the same place */
+  story.fight=id;const opt=Object.assign({members,zone:',',v6:1,theme:S.theme,setPiece:1,story:id},S.boss?{boss:keys[0],title:RP_E[keys[0]].n}:{});
+  if(S.boss&&!S.solo)rpFight(keys,opt);else rpBattle(keys,opt)}
+/* a shared boss won as the friend: it counts if this player's story has reached that scene, else a helper's mark */
+function s6SharedWin(id){if(!id||!rp.s||!rp.s.w6st)return;const st=rp.s.w6st,sc=SCENES6.find(c=>c.steps.some(x=>x[0]==='fight'&&x[1]===id));
+  if(sc&&due(sc)&&!(st.beat||{})[id]){st.beat=st.beat||{};st.beat[id]=1;st.beat[id+':who']=netName();rpToast('This counts for your story!')}
+  else{st.helps=(st.helps||0)+1;rpToast('A helper\'s mark! ('+st.helps+')')}}
 /* ------------------------------------------------------------------ what scenes do */
 /* a companion joins (systems.md §7): at the pack's mean level rounded down, never above the hero, with its kit and this tier's gear;
    into the pack if there is room, else to the bench at the inn */
@@ -155,4 +164,4 @@ feature({id:'story6',
     'battle:end':b=>{if(!b||!b.story||!story.busy)return;if(b.over==='win'){story.fight=null;setTimeout0(next)}else{story.busy=false;story.scene=null;story.q=null}}}});   // lost (and not retried) or fled: the scene stops; walking back in plays it again
 /* a lost set piece: the scene stops, so walking back in plays it again (systems.md §4: set pieces can be retried) */
 const setTimeout0=f=>{if(rp.headless)f();else setTimeout(f,0)};
-export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6Step,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};
+export {COLOURS,ITEMS,PACK,benchXp,chat,classHtml,deed,done,due,fillHero,give,goals,hero,join,lineOf,linesOf,logHtml,newForm,newHtml,next,npcLine,pickClass,play,roster,s6Bump,s6Continue,s6Enter,s6GoalLine,s6NewGame,s6NpcAt,s6Npcs,s6SharedWin,s6Step,sceneAt,sceneById,seen,setPiece,setTimeout0,shopHtml,story,swap,w6RosterHtml};

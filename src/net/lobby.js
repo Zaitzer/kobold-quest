@@ -31,7 +31,7 @@ const clsName=c=>(CLASSES6[c]||RP_CLS[c]||{n:''}).n;
 function rpFight(keys,opt){if(netPartnerFree()&&!opt.duel){netOpenLobby(keys,opt)}else rpBattle(keys,opt)}
 function netOpenLobby(keys,opt,duel){
   const alive=rp.s.party.map((m,i)=>m.hp>0?i:-1).filter(i=>i>=0);
-  net.lob={id:netRid(),host:true,duel:!!duel,keys,opt:opt||{},hsel:alive.slice(0,3),g:null};
+  net.lob={id:netRid(),host:true,duel:!!duel,keys,opt:opt||{},hsel:alive.slice(0,rp.s.w6?4:3),g:null};
   rp.mode='lobby';rp.path=null;rpInputReset();netPresence(true);netLobSend();rpUI(true);
 }
 /* each side keeps at least one kobold; together at most 4 (duels: up to 3 each) */
@@ -87,8 +87,7 @@ function netStart(){
   net.lob=null;
   if(L.duel){if(!theirs.length)return rpToast('Waiting for '+netName()+'.');rpBattle([],{duel:true,members:mine,foes:theirs,net:L.g.peer,nid:L.id,gParty:L.g.party})}
   else{let keys=L.keys;const o=L.opt||{};
-    /* v6: one more foe from the same fight for each of the friend's kobolds (not bosses or set pieces) */
-    if(o.v6){if(!o.boss&&!o.setPiece&&theirs.length&&keys.length){keys=keys.slice();const k0=keys.slice();theirs.forEach((x,i)=>keys.push(k0[i%k0.length]))}}
+        if(o.v6){}   /* v6: nothing scales with the players (design.md §10) */
     else if(!o.boss&&theirs.length){const Z=RP_ZONE[o.zone],lvl=s.party[0].lvl,n=clamp(mine.length+theirs.length+(lvl>=2?1:0)-(Math.random()<.4?1:0),1,(Z.base||o.zone)===','?3:5);keys=[];for(let i=0;i<n;i++)keys.push(wpick(Z.t))}
     rpBattle(keys,Object.assign({},o,{members:mine.concat(theirs),net:theirs.length?L.g.peer:null,nid:L.id,gParty:L.g?L.g.party:[]}))}
   if(rp.bt&&rp.bt.net)netSendStart(rp.bt);

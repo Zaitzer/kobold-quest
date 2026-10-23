@@ -25,4 +25,18 @@ function start(){X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=['fighter',
  ok(Math.abs(c.hp/X.rpStats(c).hp-0.5)<0.06,'the same share of HP');
  const p=X.netCleanParty([Object.assign(X.v6PackKobold(m),{skills:['nope'].concat(m.skills),lvl:99,name:'x'.repeat(40)}),{v6:1,cls:'dragon'}]);
  ok(p.length===1&&p[0].lvl===30&&p[0].name.length===16&&!p[0].skills.includes('nope'),'a friend\'s party is checked: '+JSON.stringify(p.map(x=>[x.lvl,x.name.length,x.skills])))}
+// XP suited to the real level: a synced kobold gets the same share of its own level
+{const {b,k}=start();b.syncCap=5;const m=k[0].m;m.lvl=9;m.xp=0;X.v6GiveXp(b,10,[]);ok(m.xp===Math.round(10*X.v6XpNeed(9)/X.v6XpNeed(5)),'synced XP scaled up: '+m.xp);
+ const c=k[1].m;c.xp=0;X.v6GiveXp(b,10,[]);ok(c.xp===10,'an unsynced kobold gets the plain XP: '+c.xp)}
+// a shared fight is not retried at once
+{const {b}=start();b.over='lose';b.boss='x';b.net={role:'host'};ok(!X.v6CanRetry(b),'no instant retry in a shared fight')}
+// boss credit: counts when the friend's story has reached the scene, else a helper's mark
+{X.rp.s=X.rpNewState();const pack=['fighter'].map(c=>X.v6Kobold('Pip',c,5,{hero:1}));X.w6Start(pack);const st=X.rp.s.w6st,q=X.rp.s.q;
+ const sc=X.SCENES6.find(c=>c.steps.some(x=>x[0]==='fight'&&x[1]==='grubb'));ok(!!sc,'Grubb is fought in a scene');
+ Object.keys(q).forEach(k=>delete q[k]);X.s6SharedWin('grubb');ok(st.helps===1&&!(st.beat||{}).grubb,'not reached yet: a helper\'s mark');
+ Object.assign(q,sc.when||{});for(const [k,v] of Object.entries(q))if(v&&typeof v==='object')q[k]=v.gte!=null?v.gte:v.lte!=null?v.lte:0;
+const due=!st.seen||!st.seen[sc.id];X.s6SharedWin('grubb');ok(due&&st.beat&&st.beat.grubb===1,'reached: it counts '+JSON.stringify(sc.when));
+ st.seen=st.seen||{};st.seen[sc.id]=1;delete st.beat.grubb;X.s6SharedWin('grubb');ok(st.helps===2,'already played: a helper\'s mark')}
+// phasing: Hearthspire's morning is your own copy of the place
+{X.rp.s.q.act=3;const a=X.rpPlace();X.rp.s.q.act=7;const c=X.rpPlace();ok(/:own:/.test(a)&&!/:own/.test(c),'phased in act 1 only: '+a+' / '+c)}
 console.log((fails?'FAIL':'ok')+' v6 co-op: '+checks+' checks');process.exitCode=fails?1:0;

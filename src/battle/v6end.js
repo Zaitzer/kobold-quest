@@ -17,7 +17,7 @@ function v6Won(b){if(!b||!b.v6)return;b.units.filter(u=>u.side===0&&u.m).forEach
 function v6Lost(b){if(!b||!b.v6)return;const boss=b.units.find(u=>u.E&&u.E.v6boss);if(!boss||!rp.s)return;rp.s.bossDefeats=rp.s.bossDefeats||{};rp.s.bossDefeats[boss.E.id]=(rp.s.bossDefeats[boss.E.id]||0)+1}
 /* the start of a fight, kept so a boss or set piece can be retried at once: HP and mana as they were; potions used stay used */
 function v6Keep(b,keys,opt){if(!b||!b.v6)return;b.start6={keys:keys.slice(),opt:Object.assign({},opt),hm:(opt.members||[]).map(x=>[x.m,x.m.hp,x.m.mp])}}
-function v6CanRetry(b){return!!(b&&b.v6&&b.over==='lose'&&b.start6&&(b.boss||b.start6.opt.setPiece))}
+function v6CanRetry(b){return!!(b&&b.v6&&!b.net&&b.over==='lose'&&b.start6&&(b.boss||b.start6.opt.setPiece))}
 function v6Retry(){const b=rp.bt;if(!v6CanRetry(b))return false;const S=b.start6;S.hm.forEach(([m,hp,mp])=>{m.hp=hp;m.mp=mp});
   const boss=b.units.find(u=>u.E&&u.E.v6boss),keys=boss?[v6BossKey(boss.E.id)]:S.keys;   // a boss's entry is rebuilt so its softening counts
   rp.bt=null;rp.mode='map';rpBattle(keys,boss?Object.assign({},S.opt,{boss:keys[0]}):S.opt);if(rp.bt){rp.bt.v6=1;for(const k of ['story','patrol','xpMul'])if(b[k]!=null)rp.bt[k]=b[k]}/* story fights set b.story after the start */return true}
@@ -26,8 +26,10 @@ function v6End(b){if(!b||!b.v6)return;b.units.filter(u=>u.side===0&&u.m).forEach
 /* XP (balance.md §3, the level table: XP to the next level = 12 × L^1.6): every kobold in the fight gets the fight's XP, the downed too
    (systems.md §4); a level brings its pick (v6LevelUp) */
 const v6XpNeed=L=>Math.round(12*Math.pow(L,1.6));
+/* a kobold synced down for a friend's fight (systems.md §12) earns the same share of its own level as the fight gave at the synced one */
+function v6SyncXp(b,m,xp){const c=b&&b.syncCap;return c&&m.lvl>c?Math.round(xp*v6XpNeed(m.lvl)/v6XpNeed(c)):xp}
 function v6GiveXp(b,xp,ups){const mine=b.net&&b.net.role==='guest'?'g':'h';   /* XP is personal (systems.md §12): only this player's kobolds */
-  b.units.filter(u=>u.side===0&&u.m&&u.m.v6&&!u.fled&&(u.own||'h')===mine).forEach(u=>{const m=u.m;if(m.hp<=0)m.hp=1;m.xp=(m.xp||0)+xp;
+  b.units.filter(u=>u.side===0&&u.m&&u.m.v6&&!u.fled&&(u.own||'h')===mine).forEach(u=>{const m=u.m;if(m.hp<=0)m.hp=1;m.xp=(m.xp||0)+v6SyncXp(b,m,xp);
   while(m.lvl<30&&m.xp>=v6XpNeed(m.lvl)){m.xp-=v6XpNeed(m.lvl);v6LevelUp(m);ups.push(m.name+' reached level '+m.lvl+'!')}})}
 feature({id:'v6end',on:{'battle:won':b=>v6Won(b),'battle:lost':b=>v6Lost(b),'battle:end':b=>v6End(b)}});
-export {v6CanRetry,v6End,v6Fall,v6GiveXp,v6Keep,v6Leave,v6Lost,v6Retry,v6Won,v6XpNeed};
+export {v6CanRetry,v6End,v6Fall,v6GiveXp,v6Keep,v6Leave,v6Lost,v6Retry,v6SyncXp,v6Won,v6XpNeed};

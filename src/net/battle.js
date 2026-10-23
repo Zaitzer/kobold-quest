@@ -16,6 +16,7 @@ import {artName} from '../engine/sprites.js';
 import {clamp} from '../engine/util.js';
 import {rpSay,rpToast} from '../game/dialogue.js';
 import {rpHat,rpMemSkills,rpStats} from '../game/stats.js';
+import {s6SharedWin} from '../game/story6.js';
 import {net,netEmit,netFocus,netName,netOnline,netPresence,netRid} from './core.js';
 import {netCleanParty,netLobFix,netLobSend,netParty} from './lobby.js';
 import {rpUI} from '../ui/hud.js';
@@ -26,7 +27,7 @@ function netUnitIdx(b,u){return b.units.indexOf(u)}
 function netSendStart(b){
   const units=b.units.map(u=>{const o={s:u.side,o:u.own,x:u.x,y:u.y,z:u.sz,hp:u.hp,mx:u.max,aw:u.aware?1:0,pd:u.pod||0};
     if(u.own==='h')o.m=netParty()[rp.s.party.indexOf(u.m)];else if(u.own==='g')o.gi=u.gi!=null?u.gi:b.net.gParty.indexOf(u.m);else{o.k=u.key;o.a=Math.round(u.atk*100)/100;o.d=u.def;o.sp=u.spd;if(b.v6)o.E=RP_E[u.key]}if(b.v6){o.ct=u.ct||0;o.se=u.seat}return o});
-  const msg={t:'start',id:b.net.id,to:b.net.peer,duel:b.duel?1:0,W:b.W,H:b.H,th:b.theme,boss:b.boss,zone:b.zone,ex:b.exits?1:0,g:b.g.map(r=>r.join('')).join('|'),u:units,v6:b.v6?1:0,th6:b.theme6||null,dk:b.dark?1:0,xm:b.xpMul||1};
+  const msg={t:'start',id:b.net.id,to:b.net.peer,duel:b.duel?1:0,W:b.W,H:b.H,th:b.theme,boss:b.boss,zone:b.zone,ex:b.exits?1:0,g:b.g.map(r=>r.join('')).join('|'),u:units,v6:b.v6?1:0,sp:b.v6&&b.boss&&b.story?b.story:null,cap:b.v6?rp.s.party[0].lvl:0,th6:b.theme6||null,dk:b.dark?1:0,xm:b.xpMul||1};
   netEmit(msg);b.net.startMsg=msg;b.net.startT=b.net.startT0=performance.now();
 }
 /* the joining player builds a copy of the host's battle and then just follows its snapshots */
@@ -36,7 +37,7 @@ function netBuildMirror(d,hostPeer){
   const L=net.lob;net.lob=null;
   const b={W,H,g:rows.map(r=>r.split('')),theme:d.th,units:[],vis:new Uint8Array(W*H),queue:[],cur:null,round:0,phase:'place',mode:'move',pend:null,seq:[],step:null,cam:{x:0,y:0},camT:null,over:null,
     boss:d.boss||null,zone:d.zone||null,msg:'',exits:!!d.ex,lastSeen:[],chans:[],img:null,placeSel:null,moveId:0,t:0,duel:!!d.duel,net:{role:'guest',id:d.id,peer:hostPeer,flip,lastSnap:performance.now(),n:0}};
-  if(d.v6){b.v6=true;b.theme6=typeof d.th6==='string'?d.th6:null;b.dark=!!d.dk;b.xpMul=clamp(+d.xm||1,1,3)}
+  if(d.v6){b.v6=true;b.theme6=typeof d.th6==='string'?d.th6:null;b.dark=!!d.dk;b.xpMul=clamp(+d.xm||1,1,3);b.syncCap=clamp(+d.cap||0,0,30);b.shared=typeof d.sp==='string'?d.sp.slice(0,40):null}
   d.u.forEach(o=>{const side=flip?1-o.s:o.s,y=flip?H-o.z-o.y:o.y;let u;
     if(o.o==='g'||o.o==='h'){const m=o.o==='g'?s.party[o.gi]:netCleanParty([o.m])[0];if(!m)return;
       u={side,m,name:m.name,x:o.x,y,sz:1,ap:0,stun:0,slow:0,buff:{atk:0,def:0},guard:0,watch:0,chan:null,aware:true,fled:false,own:o.o,ctl:o.o==='g'?'me':'remote',get hp(){return m.hp},set hp(v){m.hp=v},get max(){return rpStats(m).hp}};
@@ -125,7 +126,7 @@ function netHostAct(b,d){
 }
 /* guest: battle over, my own rewards */
 function netGuestEnd(b){
-  if(b.over==='win'){rpRewards(b)}
+  if(b.over==='win'){rpRewards(b);if(b.v6)s6SharedWin(b.shared)}
   else if(b.over==='lose')b.msg='Your side fell...';
   else if(b.over==='run')b.msg='You slipped away.';
   else if(b.over==='duelwin'){b.msg='You won the duel against '+netName()+'!';if(!rp.headless)confetti()}

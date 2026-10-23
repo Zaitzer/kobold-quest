@@ -30,7 +30,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  out.push('host units '+ua);if(0)out.push('guest dbg '+await B.evaluate(()=>JSON.stringify({mode:__rp.mode,lob:!!__net.lob,start:!!__net.lastStart,fail:__net.mirrorFail,u:__net.lastStart&&__net.lastStart.u.map(o=>o.o+(o.k||'')+(o.E?'E':'')+(o.m?'m':'')+(o.gi!=null?'gi'+o.gi:''))})));out.push('guest '+JSON.stringify(ub));
  check(/Tansy:remote:5/.test(ua||''),'Bob\'s level-7 rogue fights at Alice\'s level 5');
  check(!!(ub&&ub.v6&&ub.foes>0&&/Tansy:me/.test(ub.u)),'Bob\'s page has the v6 battle with its foes');
- check(await A.evaluate(()=>__rp.bt.units.filter(u=>u.side===1).length)===3,'Bob\'s two kobolds add two foes');
+ check(await A.evaluate(()=>__rp.bt.units.filter(u=>u.side===1).length)===1,'nothing scales with the players');
  const xp0=await B.evaluate(()=>__rp.s.party.map(m=>m.lvl+':'+m.xp).join(' '));
  await A.evaluate(()=>__rpB.btn({tac:'start'}));
  const play=p=>p.evaluate(()=>{const b=__rp.bt;if(!b||b.phase!=='turn')return 0;const u=b.cur;const foes=b.units.filter(t=>t.side===1&&t.hp>0&&!t.fled);
