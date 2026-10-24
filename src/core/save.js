@@ -6,7 +6,7 @@ import {emit} from './bus.js';
 import {rp} from './state.js';
 
 const SAVE6_VERSION = 1,
-  SAVE6_EPOCH = 3,
+  SAVE6_EPOCH = 4,
   SLOTS6 = 6;
 /* the kobold fields a save keeps (systems.md §11: level, XP, scores, talents, skills equipped and known, dark or plain, gear, HP, mana,
    bond, streak, corruption); everything else on a kobold is rebuilt from these */

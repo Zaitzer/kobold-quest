@@ -137,7 +137,7 @@ Tell Joakim the build id (`release/server/BUILD`) to look for at https://joakims
   be lowercase with dashes (NPC ids go through `artName`, e.g. `keepera.png`).
 - **Saves:** `SAVE_EPOCH` in `src/core/save.js`, plus `"epoch"` in `server/config.json`, reset everyone's progress
   once when bumped. Old saves need no compatibility (Joakim, 23 Oct): progress was reset
-  for v6 (epoch 2; the server also clears v6 heroes, locks and legacy docs). Keep the room topic `kq` and db paths.
+  for v6 (epoch 2; again on 24 Oct, epoch 4, for point buy; the server also clears v6 heroes, locks and legacy docs). Keep the room topic `kq` and db paths.
 - **Browser tests** use `window.__rp`, `window.__kq`, `window.__kqA` (sound) and `window.__rpB` from
   `src/dev/hooks.js` (test build only). `browser/tsite` starts the real server and must run on its own.
 - **Quest rules** are data (`src/core/rules.js`). Choices can carry `if` (greyed out) or `show` (hidden until true).
