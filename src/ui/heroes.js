@@ -233,7 +233,8 @@ function askDelete(i) {
   C6.del = {i, typed: ''};
   rp.mode = 'c6del';
 }
-function doDelete() {
+/* delete: kept 7 days to restore, or (now) gone at once, from this device and the server; the name typed either way */
+function doDelete(now) {
   const i = C6.del && C6.del.i,
     info = slotInfo(i),
     e = typeof document !== 'undefined' && document.getElementById('c6-name');
@@ -242,10 +243,14 @@ function doDelete() {
     rpToast('Type ' + (info ? info.name : 'the name') + ' to delete.');
     return;
   }
-  const d = Object.assign({}, raw(i), {deletedAt: Date.now()});
-  write(i, d);
   C6.del = null;
   rp.mode = 'c6';
+  if (now) {
+    purge(i, true);
+    rpToast(info.name + ' is gone.');
+    return;
+  }
+  write(i, Object.assign({}, raw(i), {deletedAt: Date.now()}));
   rpToast(info.name + ' is kept for 7 days, then gone.');
 }
 function restore(i) {
@@ -254,9 +259,9 @@ function restore(i) {
   write(i, d);
   rpToast('Welcome back, ' + d.hero.name + '!');
 }
-function purge(i) {
+function purge(i, now) {
   const info = slotInfo(i);
-  if (info && info.deleted && Date.now() - info.deleted > KEEP) {
+  if (info && (now || (info.deleted && Date.now() - info.deleted > KEEP))) {
     store.set(key(acct(), i), null);
     const r = cloudRef(i);
     if (r) r.delete().catch(() => {});
@@ -352,7 +357,7 @@ function selectHtml() {
     }
     if (x.deleted) {
       h +=
-        '<button class="c6card gone" type="button" data-rp="c6restore" data-v="' +
+        '<div class="c6slot"><button class="c6card gone" type="button" data-rp="c6restore" data-v="' +
         i +
         '">' +
         heroCv(x.cls, x.colour) +
@@ -360,7 +365,9 @@ function selectHtml() {
         esc2(x.name) +
         '</b><small>deleted · tap to restore · ' +
         Math.max(0, Math.ceil((KEEP - (Date.now() - x.deleted)) / DAY)) +
-        ' days left</small></button>';
+        ' days left</small></button>' +
+        button('c6delask', '✕', {cls: 'c6del', v: i, aria: 'Delete ' + x.name + ' now'}) +
+        '</div>';
       continue;
     }
     h +=
@@ -536,9 +543,14 @@ function delHtml() {
     heroCv(x.cls, x.colour, true) +
     '<div class="rpdlg"><div class="who">Delete ' +
     esc2(x.name) +
-    '?</div><p>Type the hero\'s name to confirm. You can restore them from this screen for 7 days.</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div>' +
+    "?</div><p>Type the hero's name to confirm. " +
+    (x.deleted
+      ? 'Deleting now cannot be undone.'
+      : '<b>Delete</b> keeps them here for 7 days to restore; <b>Delete now</b> cannot be undone.') +
+    '</p><div class="chatin"><input id="c6-name" maxlength="12" aria-label="Type the name"></div></div>' +
     '<div class="tbar">' +
-    button('c6del', 'Delete', {cls: 'x'}) +
+    (x.deleted ? '' : button('c6del', 'Delete', {cls: 'x'})) +
+    button('c6delnow', 'Delete now', {cls: 'x'}) +
     button('c6back', 'Keep them', {cls: 'go'}) +
     '</div></div>'
   );
@@ -667,6 +679,7 @@ feature({
     },
     c6delask: d => askDelete(+d.v),
     c6del: () => doDelete(),
+    c6delnow: () => doDelete(true),
     c6restore: d => restore(+d.v),
     c6keep: d => keepGuest(+d.v),
     c6menu: () => {

@@ -23,6 +23,7 @@ X.rp.s=X.rpNewState();C.slot=null;X.chars6Play(2,true);setTimeout(()=>{
   C.del={i:2,typed:'Pip'};X.doDelete();ok(!X.slotInfo(2).deleted,'the wrong name does not delete');
   C.del={i:2,typed:'Tansy'};X.doDelete();ok(X.slotInfo(2).deleted,'typing the name deletes');X.restore(2);ok(!X.slotInfo(2).deleted,'restored within 7 days');
   C.del={i:2,typed:'Tansy'};X.doDelete();const raw=JSON.parse(JSON.stringify(X.store.get('kq6:guest:2')));raw.deletedAt=Date.now()-8*864e5;X.store.set('kq6:guest:2',raw);X.purge(2);ok(!X.slotInfo(2),'after 7 days the hero is gone');
+  C.form=form('Moss','green',2);X.chars6Create();C.del={i:2,typed:'Moss'};X.doDelete(true);ok(!X.slotInfo(2)&&!X.store.get('kq6:guest:2'),'Delete now: gone at once, the slot free');
   /* every save is stamped, and the newest copy wins (a phone's progress is not lost to an older copy on the PC) */
   C.form=form('Wick','blue',4);X.chars6Create();while(X.rp.mode==='dialog')X.rpDlgNext();X.chars6Save(X.rp.s);
   const mine=X.store.get('kq6:guest:4');ok(mine&&mine.savedAt>0,'a save carries the time it was made');

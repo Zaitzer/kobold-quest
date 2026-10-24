@@ -336,7 +336,8 @@ gear and gold: one save (§11). The account holds what belongs to the player rat
   its role and first skills, and the hero on the stage puts on its outfit), then the six scores by point buy (`balance.md` §3:
   27 points, scores 8 to 15, *Suggest* fills in the class's order), then *Begin* and the story starts with the hero already that
   class. The class is set for good; the yard drill only tests it. **Deleting:** hold the slot, then type the hero's name to confirm; a deleted hero is kept for **7 days** and can be restored
-  from the same screen, then it is gone.
+  from the same screen, then it is gone. *Delete now* (24 Oct, also on a deleted hero's card) removes it at once, from the device
+  and the server, with the name typed the same way.
 - **One device at a time.** A character can be played on one device at once: opening it takes a lock that the game renews every 30 s.
   Opening it elsewhere asks *"{hero} is being played on another device. Play here instead?"*; yes moves the lock, and the other device saves
   and returns to the select screen. Two *different* characters of one account can be online at the same time (two devices, two heroes,
