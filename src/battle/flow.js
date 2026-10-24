@@ -510,6 +510,15 @@ function tcStepRun(dt) {
         b.step = null;
         continue;
       }
+      /* one unit to a tile, always: a path planned before another unit moved stops short of a tile that is taken now */
+      if (st.t === 0 && !tcFits(b, st.u, st.path[st.i][0], st.path[st.i][1])) {
+        b.step = null;
+        st.u.k.moving = false;
+        const h = tcHome(st.u);
+        st.u.k.x = h.x;
+        st.u.k.y = h.y;
+        continue;
+      }
       const per = 0.13;
       if (sp) st.t += dt * sp;
       else st.t = per;

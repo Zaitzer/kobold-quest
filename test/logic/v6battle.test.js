@@ -11,6 +11,10 @@ function lab(pack,L,place,seed){return seeded(seed,()=>{X.rp.s=X.rpNewState();X.
 for(const [pack,L,place] of [[['fighter','cleric','wizard','rogue'],5,0],[['ranger','monk','bard','sorcerer'],7,1],[['fighter','fighter','fighter','fighter'],3,0]]){
   const b=lab(pack,L,place,1234);checks++;if(!b||!b.over)bad('a lab fight did not end: '+pack.join('+'));
   for(const u of b.units.filter(u=>u.side===1)){checks++;const F=X.FOES6[u.E.id],s=F.by[u.E.L];if(u.max!==s.hp)bad(u.name+' HP '+u.max+' is not the bestiary\'s '+s.hp+' (no runtime scaling)')}}
+// one unit to a tile, always: no two living units ever share a tile, through whole fights (scrambling foes once picked the same spot)
+{let over=0;for(let seed=1;seed<=12;seed++)seeded(seed,()=>{X.rp.s=X.rpNewState();X.rpApplyWorld();X.v6Lab.pack=seed%2?['fighter','cleric','wizard','rogue']:['ranger','monk','bard','sorcerer'];X.v6Lab.lvl=3+seed%8;X.v6Lab.place=seed%5;X.v6Lab.ks=null;X.v6LabStart();
+  const b=X.rp.bt;for(let s=0;b&&!b.over&&s<40000;s++){X.rpBattleStep(1/30);if(b.step&&b.step.k==='move')continue;const L=b.units.filter(X.tcLive);
+    for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const a=L[i],c=L[j];if(a.x<c.x+c.sz&&c.x<a.x+a.sz&&a.y<c.y+c.sz&&c.y<a.y+a.sz){over++;if(over===1)bad('seed '+seed+': '+a.name+' and '+c.name+' share a tile')}}}});checks++}
 // the timeline: a unit with initiative 14 acts before one with 10, and gains turns
 {const units=[{id:1,side:1,x:0,hp:1,init:10},{id:2,side:0,x:1,hp:1,init:14}];const order=[];for(let t=0;t<25;t++)X.tick(units).forEach(u=>order.push(u.id));
  checks++;if(order[0]!==2)bad('the faster unit should act first');checks++;if(order.filter(i=>i===2).length!==26)bad('initiative 14 should act 26 times in 25 ticks, got '+order.filter(i=>i===2).length)}
