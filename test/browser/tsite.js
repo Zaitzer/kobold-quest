@@ -67,7 +67,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  check(cheat,'nobody can list things in someone else\'s name');
  // Alice makes a hero on the heroes screen, saves, then logs in on a new device and plays the same hero
  await A.evaluate(()=>{__rp.mode='menu'});await A.waitForTimeout(200);await A.click('#rp-panel [data-rp="quit"]');await A.waitForTimeout(300);
- await A.click('#go-rpg');await A.waitForTimeout(600);await A.click('#rp-panel [data-rp="c6new"][data-v="0"]');await A.fill('#c6-new','Tansy');await A.click('#rp-panel [data-rp="c6make"]');await A.waitForTimeout(500);
+ await A.click('#go-rpg');await A.waitForTimeout(600);await A.click('#rp-panel [data-rp="c6new"][data-v="0"]');await A.fill('#c6-new','Tansy');for(const s of ['[data-rp="c6cls"][data-v="fighter"]','[data-rp="c6next"]','[data-rp="c6suggest"]','[data-rp="c6make"]'])await A.click('#rp-panel '+s);await A.waitForTimeout(500);
  await A.evaluate(()=>{__rp.dlg=null;__rp.mode='map';__rp.s.gold=4321;__rpS()});
  check(await wait(A,async()=>{const d=(await __net.db.doc('data/users/'+__net.me+'/char0').get()).data();return!!d&&d.gold===4321},null,12000),'the hero is saved on the server');
  const A2=await page({width:1280,height:800},'A2');r=await loginAs(A2,'ALICE','secret1');check(r.play,'Alice logs in on another device (name in any case)');

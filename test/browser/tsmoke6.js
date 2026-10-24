@@ -20,7 +20,6 @@ const SIZES=[['land',844,390],['se',667,375],['tall',390,844],['tiny',568,320]];
   await look('book',()=>{__rp.mode='v6book'});
   await look('settings',()=>{__rp.mode='v6set'});
   await look('log',()=>{__rp.mode='w6log'});
-  await look('class',()=>{__rp.mode='w6class'});
   await look('shop',()=>{__rp.w6shop='hearthspire';__rp.w6tab='buy';__rp.mode='w6shop'});
   await look('dialog',()=>{__kq.say(['A line of dialogue, about as long as the script allows, which is one hundred and forty characters at most.','Two'],[{t:'Yes'},{t:'No'}])});
   await look('fight',()=>{__rp.dlg=null;__rp.mode='map';__v6.fight()});

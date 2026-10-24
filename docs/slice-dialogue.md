@@ -72,7 +72,7 @@ the maps in `world/` (the places named here are the maps' marks). Nothing in the
 **Bib:** I'd help, but I'm sitting. You can't help AND sit. I've tried.
 **Bib:** The fountain's nice today. It was nice yesterday too.
 
-### 1.4 The castle yard (the drill) · `act 2` · set-piece fights 3 and 4: the recruits, then the sergeant; **the class is picked here**
+### 1.4 The castle yard (the drill) · `act 2` · set-piece fights 3 and 4: the recruits, then the sergeant
 
 *The castle gate. Two guards, yawning.*
 
@@ -80,9 +80,7 @@ the maps in `world/` (the places named here are the maps' marks). Nothing in the
 **Guard:** Go on, then. Mind the drill.
 *In the yard, a sergeant is shouting at recruits. Snatchclaw watches from the wall.*
 **Sergeant:** YOU. Small one. Pick up something and show me what you are.
-*The class picker opens: fighter, barbarian, paladin, ranger, rogue, monk, cleric, druid, bard, wizard, sorcerer, warlock
-(wave 1 offers its eight: fighter, ranger, wizard, cleric, monk, sorcerer, bard, rogue). Then a short drill against two recruits
-teaches skills and mana.*
+*A short drill against two recruits teaches skills and mana (the class was picked when the hero was made, `systems.md` §16).*
 **Sergeant:** Not bad. For a kobold who eats that many buns. Now try ME.
 *The second bout: the sergeant and one recruit. It teaches the telegraphed big swing ("he's winding up, step away").*
 **Sergeant:** *(winding up)* AND... SWING.

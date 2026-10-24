@@ -4,7 +4,7 @@
      world/tiles.json         the tile letters, one legend for maps and one for rooms: name, colour, solid, sheet (art/tiles), under
      world/maps/<id>.json     a map (outdoors; the game calls it <id>)
      world/rooms/<id>.json    a room (indoors; the game calls it room:<id>)
-     world/scenes.json        the story's wiring: companions, the class pick, set pieces, scenes, campfire chats
+     world/scenes.json        the story's wiring: companions, the classes a new hero can be, set pieces, scenes, campfire chats
 
    A place: {id, kind:'map'|'room', title, w, h, rows (one string a row, one letter a tile), entry [x,y] (maps), marks, notes,
      links [{x,y,to,tx,ty,how:'step'|'bump',flag}] (to = another place's game id, or '' with flag 'never' for a way that is shut),

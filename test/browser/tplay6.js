@@ -9,7 +9,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  const E=(f,a)=>p.evaluate(f,a),until=async(f,a,ms=10000)=>{const t=Date.now();while(Date.now()-t<ms){if(await E(f,a).catch(()=>false))return true;await p.waitForTimeout(80)}return false};
  const talk=async()=>{for(let i=0;i<60;i++){const m=await E(()=>__rp.mode);if(m!=='dialog')return;const c=await p.$('#rp-panel [data-rp="choose"]');if(c)await c.click();else await p.click('#rp-panel [data-rp="next"]');await p.waitForTimeout(60)}};
  await p.click('#go-rpg');await p.waitForTimeout(400);
- await p.click('#rp-panel [data-rp="c6new"][data-v="0"]');await p.fill('#c6-new','Tansy');await p.click('#rp-panel [data-rp="c6make"]');await p.waitForTimeout(400);
+ await p.click('#rp-panel [data-rp="c6new"][data-v="0"]');await p.fill('#c6-new','Tansy');for(const s of ['[data-rp="c6cls"][data-v="fighter"]','[data-rp="c6next"]','[data-rp="c6suggest"]','[data-rp="c6make"]'])await p.click('#rp-panel '+s);await p.waitForTimeout(400);
  await talk();out.push('morning: '+await E(()=>__rp.s.w6+' act '+__rp.s.q.act));if(await E(()=>__rp.s.w6!=='room:bakery'||__rp.s.q.act!==1))fail.push('the morning did not end in the bakery at act 1');
  /* the cellar stairs: tap them, walk there, go down */
  await E(()=>__v6.tile(11,3));const down=await until(()=>__rp.s.w6==='room:cellar'||__rp.mode==='dialog',null,15000);out.push('cellar: '+await E(()=>__rp.s.w6+' '+__rp.mode));if(!down)fail.push('could not walk down to the cellar');

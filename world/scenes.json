@@ -50,7 +50,6 @@
    "when": {"act":2,"drill":0},
    "steps": [
     ["say",null,"show me what you are"],
-    ["class"],
     ["fight","drill1"],
     ["say","Not bad.","Now try ME"],
     ["fight","drill2"],

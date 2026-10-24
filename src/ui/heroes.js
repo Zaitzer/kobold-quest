@@ -4,6 +4,7 @@
    even number of path parts, so "chars/<n>" became "char<n>"). Deleting keeps a hero for 7 days. One device at a time per hero:
    a lock document renewed every 30 seconds. Old saves are not carried over (progress was reset for v6). */
 import {store} from '../adapters/storage.js';
+import {SCORES, modOf} from '../battle/math.js';
 import {show} from '../core/app.js';
 import {rpUI} from '../core/hooks.js';
 import {rpLayout, rpResize} from '../core/layout.js';
@@ -11,11 +12,13 @@ import {feature, frames} from '../core/registry.js';
 import {SLOTS6, key6, rpSave, v6HeroName, v6Load, v6SaveOf} from '../core/save.js';
 import {rp, rpNewState, walker} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
+import {KITS6, SKILLS6} from '../data/v6/skills.js';
+import {WAVE16} from '../data/v6/story.js';
 import {button} from '../engine/html.js';
 import {SHEET6, byBase, recolour} from '../engine/sheets.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
-import {packHero} from '../game/sheet.js';
+import {packHero, v6BuyDone, v6BuyLeft, v6BuyStep, v6StartScores} from '../game/sheet.js';
 import {s6NewGame, s6TestFight, story} from '../game/story.js';
 import {rpApplyWorld, w6Title} from '../game/world.js';
 import {adminApplyFixes, adminLetter, adminSetHooks, adminSetTestFight} from '../net/admin.js';
@@ -26,7 +29,7 @@ const DAY = 864e5,
   LOCK_MS = 60000,
   RENEW_MS = 30000,
   C6_COLOURS = ['orange', 'green', 'blue', 'pink', 'gold', 'purple'];
-const C6 = {slot: null, cloud: {}, form: {name: 'Pip', colour: 'orange', slot: 0}, del: null, lockT: 0, dev: null, ask: null};
+const C6 = {slot: null, cloud: {}, form: null, del: null, lockT: 0, dev: null, ask: null};
 const acct = () => net.me || 'guest';
 const key = key6;
 const devId = () =>
@@ -53,7 +56,7 @@ function slotInfo(i) {
     slot: i,
     name: (s.hero && s.hero.name) || h.name || 'Pip',
     colour: s.hero && s.hero.colour,
-    cls: h.noclass ? null : h.cls,
+    cls: h.cls,
     lvl: h.lvl || 1,
     where: (s.w6st && s.w6st.respawn) || s.w6,
     pieces: ((s.w6st && s.w6st.pieces) || []).length,
@@ -203,6 +206,10 @@ async function c6FixNow() {
 }
 function c6Create() {
   const n = v6HeroName(C6.form.name);
+  if (!C6.form.cls || !v6BuyDone(C6.form.scores)) {
+    rpToast('Spend your points first.');
+    return;
+  }
   if (!n) {
     rpToast('2 to 12 letters, please.');
     return;
@@ -218,7 +225,7 @@ function c6Create() {
   C6.slot = C6.form.slot;
   lockTake(C6.slot);
   rp.s = rpNewState();
-  s6NewGame(n, C6.form.colour);
+  s6NewGame(n, C6.form.colour, C6.form.cls, C6.form.scores);
   rp.s.created = Date.now();
   chars6Save(rp.s);
 }
@@ -394,37 +401,99 @@ function selectHtml() {
   }
   return h + '</div>';
 }
+/* the new hero (systems.md §16, ui-design.md): page 1 the name, the scales and the class; page 2 the scores by point buy (balance.md §3) */
+const newForm = slot => ({name: 'Pip', colour: 'orange', slot, cls: null, scores: allEight(), page: 1});
+const allEight = () => Object.fromEntries(SCORES.map(k => [k, 8]));
+const C6_SCORE = {
+  STR: 'melee attack',
+  DEX: 'ranged attack, dodge, speed',
+  CON: 'health and defence',
+  INT: 'wizard spells, foe weak spots',
+  WIS: 'resisting; cleric, druid, ranger spells',
+  CHA: 'statuses, songs; bard, sorcerer spells'
+};
+const firstSkill = id => {
+  const K = KITS6[id];
+  return K && K.start[0] && SKILLS6[K.start[0]] ? SKILLS6[K.start[0]].n : '';
+};
 function c6NewHtml() {
-  const F = C6.form;
-  return (
+  const F = C6.form,
+    C = F.cls && CLASSES6[F.cls];
+  let h =
     '<div class="c6screen c6make"><div class="c6stage">' +
-    heroCv(null, F.colour, true) +
+    heroCv(F.cls, F.colour, true) +
     '<div class="c6name">' +
     esc2(F.name || '…') +
-    '</div></div><div class="c6form"><h2>A new hero</h2>' +
-    '<label class="c6lbl" for="c6-new">Name</label><div class="c6row"><input id="c6-new" maxlength="12" value="' +
-    esc2(F.name) +
-    '" aria-label="Hero name" autocomplete="off"><button class="rpb" type="button" data-rp="c6dice" aria-label="Another name">🎲</button></div>' +
-    '<label class="c6lbl">Scales</label><div class="c6sw">' +
-    C6_COLOURS.map(
-      c =>
-        '<button class="sw' +
-        (c === F.colour ? ' on' : '') +
-        '" type="button" data-rp="c6col" data-v="' +
-        c +
-        '" style="--c:' +
-        C6_SWATCH[c] +
-        '" aria-label="' +
-        c +
-        '"></button>'
-    ).join('') +
     '</div>' +
-    '<p class="c6note">2 to 12 letters; everyone in the story calls your hero by it. Your class is chosen in the story, at the castle\'s yard drill.</p>' +
-    '<div class="c6btns">' +
-    button('c6make', 'Begin', {cls: 'go big'}) +
-    button('c6back', 'Back', {cls: 'x'}) +
-    '</div></div></div>'
-  );
+    (C ? '<div class="c6role">' + esc2(C.n) + '</div>' : '') +
+    '</div><div class="c6form">';
+  if (F.page !== 2) {
+    h +=
+      '<h2>A new hero</h2><label class="c6lbl" for="c6-new">Name</label><div class="c6row"><input id="c6-new" maxlength="12" value="' +
+      esc2(F.name) +
+      '" aria-label="Hero name" autocomplete="off">' +
+      button('c6dice', '🎲', {aria: 'Another name'}) +
+      '</div><label class="c6lbl">Scales</label><div class="c6sw">' +
+      C6_COLOURS.map(
+        c =>
+          '<button class="sw' +
+          (c === F.colour ? ' on' : '') +
+          '" type="button" data-rp="c6col" data-v="' +
+          c +
+          '" style="--c:' +
+          C6_SWATCH[c] +
+          '" aria-label="' +
+          c +
+          '"></button>'
+      ).join('') +
+      '</div><label class="c6lbl">Class</label><div class="c6cls">' +
+      WAVE16.map(id => button('c6cls', CLASSES6[id].n, {cls: F.cls === id ? 'on' : '', v: id})).join('') +
+      '</div><p class="c6note">' +
+      (C
+        ? '<b>' + esc2(C.n) + '</b>: ' + esc2(C.role) + '. Fights with ' + esc2(C.fam) + '; starts with ' + esc2(firstSkill(F.cls)) + '.'
+        : "Pick a class: it is your hero's for good.") +
+      '</p><div class="c6btns">' +
+      button('c6next', 'Next', {cls: 'go big', disabled: !C}) +
+      button('c6back', 'Back', {cls: 'x'}) +
+      '</div>';
+  } else {
+    const sc = F.scores,
+      left = v6BuyLeft(sc),
+      top = (C.prio || '').split(' ').slice(0, 2);
+    h +=
+      '<h2>Scores</h2><p class="c6note">Points left: <b>' +
+      left +
+      '</b> of 27. Every score starts at 8; higher scores cost more (15 costs 9).</p><div class="c6scores">' +
+      SCORES.map(k => {
+        const m = modOf(sc[k]);
+        return (
+          '<div class="c6sc' +
+          (top.includes(k) ? ' key' : '') +
+          '"><span class="k"><b>' +
+          k +
+          '</b><small>' +
+          esc2(C6_SCORE[k]) +
+          '</small></span>' +
+          button('c6sc', '−', {v: k, data: {d: -1}, disabled: sc[k] <= 8, aria: 'Lower ' + k}) +
+          '<span class="n">' +
+          sc[k] +
+          '<small>' +
+          (m >= 0 ? '+' : '') +
+          m +
+          '</small></span>' +
+          button('c6sc', '+', {v: k, data: {d: 1}, disabled: v6BuyStep(sc, k) > left, aria: 'Raise ' + k}) +
+          '</div>'
+        );
+      }).join('') +
+      '</div><div class="c6btns">' +
+      button('c6suggest', 'Suggest', {sub: esc2(C.n) + "'s order"}) +
+      button('c6reset', 'Reset', {cls: 'x'}) +
+      '</div><div class="c6btns">' +
+      button('c6make', 'Begin', {cls: 'go big', disabled: !v6BuyDone(sc)}) +
+      button('c6prev', 'Back', {cls: 'x'}) +
+      '</div>';
+  }
+  return h + '</div></div>';
 }
 /* paint every hero canvas on the screen: the battle idle row of the hero's sheet (its class outfit once it has one), in its colour */
 let paintT = 0;
@@ -554,8 +623,31 @@ feature({
       c6Play(C6.ask, true);
     },
     c6new: d => {
-      C6.form = {name: 'Pip', colour: 'orange', slot: +d.v};
+      C6.form = newForm(+d.v);
       rp.mode = 'c6new';
+    },
+    c6cls: d => {
+      readName();
+      C6.form.cls = d.v;
+    },
+    c6next: () => {
+      readName();
+      if (C6.form.cls) C6.form.page = 2;
+    },
+    c6prev: () => {
+      C6.form.page = 1;
+    },
+    c6sc: d => {
+      const sc = C6.form.scores,
+        k = d.v;
+      if (+d.d > 0 && v6BuyStep(sc, k) <= v6BuyLeft(sc)) sc[k]++;
+      else if (+d.d < 0 && sc[k] > 8) sc[k]--;
+    },
+    c6suggest: () => {
+      C6.form.scores = v6StartScores(C6.form.cls);
+    },
+    c6reset: () => {
+      C6.form.scores = allEight();
     },
     c6col: d => {
       readName();
@@ -598,6 +690,7 @@ export {
   C6,
   C6_COLOURS,
   C6_NAMES,
+  C6_SCORE,
   C6_SWATCH,
   DAY,
   KEEP,
@@ -605,6 +698,7 @@ export {
   RENEW_MS,
   acct,
   ago,
+  allEight,
   askDelete,
   busyHtml,
   c6Create,
@@ -620,6 +714,7 @@ export {
   delHtml,
   devId,
   doDelete,
+  firstSkill,
   guestHeroes,
   heroCv,
   hm,
@@ -629,6 +724,7 @@ export {
   lockFree,
   lockRef,
   lockTake,
+  newForm,
   openSelect,
   paintHeroes,
   paintT,

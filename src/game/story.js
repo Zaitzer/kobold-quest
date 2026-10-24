@@ -30,7 +30,7 @@ import {
   v6SellPrice,
   v6ShopStock
 } from './items.js';
-import {packHero, packMeanLevel, v6Kobold, v6Stats} from './sheet.js';
+import {packHero, packMeanLevel, v6BuyDone, v6Kobold, v6Stats} from './sheet.js';
 import {w6Cart, w6Go, w6Start} from './world.js';
 
 const PACK = 4;
@@ -94,9 +94,6 @@ function next() {
     }
     case 'fight':
       setPiece(a);
-      return;
-    case 'class':
-      rp.mode = 'w6class';
       return;
     case 'choice': {
       rpSay(
@@ -291,24 +288,6 @@ function deed(D, n, bad) {
   m.corr = Math.max(0, (m.corr || 0) + D.v);
   rpToast((bad ? 'Corruption +' : 'Corruption ') + D.v);
 }
-/* the class pick at the yard drill (wave 1's eight): the hero becomes that class at its level, keeping its XP and name */
-function pickClass(cls) {
-  if (!WAVE16.includes(cls)) return false;
-  const s = rp.s,
-    old = hero(),
-    i = s.party.indexOf(old);
-  const m = v6Kobold(old.name, cls, old.lvl, {hero: 1});
-  m.xp = old.xp || 0;
-  m.colour = old.colour;
-  m.corr = old.corr || 0;
-  s.party[i] = m;
-  walker.pk = null;
-  rp.mode = 'map';
-  rpToast(fillHero('{hero} the ' + CLASSES6[cls].n.toLowerCase() + '!'));
-  next();
-  return true;
-}
-
 /* ------------------------------------------------------------------ triggers */
 const due = sc => !seen()[sc.id] && test(sc.when || null);
 function sceneAt(kind, p, x, y, npc) {
@@ -508,10 +487,11 @@ function w6RosterHtml() {
 }
 
 /* ------------------------------------------------------------------ a new story */
-function s6NewGame(name, colour) {
+/* the hero as made on the new-hero screen (systems.md §16): a wave-1 class and bought scores (the class's suggestion if they don't add up) */
+function s6NewGame(name, colour, cls, scores) {
   const s = rp.s;
-  const h = v6Kobold(name || 'Pip', 'fighter', 1, {hero: 1, skills: [], known: [], passives: []});
-  h.noclass = 1;
+  cls = WAVE16.includes(cls) ? cls : 'fighter';
+  const h = v6Kobold(name || 'Pip', cls, 1, {hero: 1, scores: v6BuyDone(scores) ? Object.assign({}, scores) : null});
   h.colour = colour || 'orange';
   s.q = {act: 0, pb: 0};
   s.buns = 0;
@@ -712,7 +692,6 @@ export {
   logHtml,
   next,
   npcLine,
-  pickClass,
   play,
   roster,
   s6Bump,

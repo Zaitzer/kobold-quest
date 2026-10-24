@@ -36,10 +36,9 @@ const KOBOLD_KEYS = [
   'mp',
   'colour',
   'cid',
-  'noclass',
   'w'
 ];
-/* a new character: the hero alone, before the yard drill gives it a class (slice-dialogue.md) */
+/* a new character's save: its name and colour (the hero itself is made by the story's new game, systems.md §16) */
 function v6NewSave(opt) {
   opt = opt || {};
   const name = v6HeroName(opt.name) || 'Pip';

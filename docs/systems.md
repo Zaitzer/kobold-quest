@@ -332,8 +332,10 @@ gear and gold: one save (§11). The account holds what belongs to the player rat
   character, at the moon shrine.
 - **The character select screen** (after login, and from ☰ → *Characters*): six slots, each showing the hero's portrait and colour, name,
   class, level, where they are (the last fountain), the Smiler pieces, the time played and when last played. Tap a slot to play; an empty
-  slot says *New hero*. **Creating:** name, scale colour, then the story begins (the class is picked at the yard drill, as in the
-  script). **Deleting:** hold the slot, then type the hero's name to confirm; a deleted hero is kept for **7 days** and can be restored
+  slot says *New hero*. **Creating** (24 Oct): name and scale colour, the class (the eight wave-1 cards; a tap shows
+  its role and first skills, and the hero on the stage puts on its outfit), then the six scores by point buy (`balance.md` §3:
+  27 points, scores 8 to 15, *Suggest* fills in the class's order), then *Begin* and the story starts with the hero already that
+  class. The class is set for good; the yard drill only tests it. **Deleting:** hold the slot, then type the hero's name to confirm; a deleted hero is kept for **7 days** and can be restored
   from the same screen, then it is gone.
 - **One device at a time.** A character can be played on one device at once: opening it takes a lock that the game renews every 30 s.
   Opening it elsewhere asks *"{hero} is being played on another device. Play here instead?"*; yes moves the lock, and the other device saves

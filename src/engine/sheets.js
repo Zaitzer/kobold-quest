@@ -36,7 +36,7 @@ const dash = s =>
 /* the sheet for a v6 kobold: the hero's class outfit, else the plain hero; a companion's own sheet */
 function sheetOfKobold(m) {
   if (!m || !m.v6) return null;
-  if (m.hero) return (m.cls && !m.noclass && byBase('pip-' + m.cls)) || byBase('pip');
+  if (m.hero) return (m.cls && byBase('pip-' + m.cls)) || byBase('pip');
   return m.cid ? byBase(dash(m.cid)) : byBase(dash(m.name));
 }
 /* a foe or a boss: its id in the bestiary */

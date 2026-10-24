@@ -352,7 +352,7 @@ function tilesTab(){const kind=place().kind,L=E.W.tiles[kind];
       h('p',{class:'dim'},'The game draws a new tile as its colour until it has a sheet; the engine\'s own drawings belong to the letters it knows.')])]}
 
 /* ---------------------------------------------------------------- scenes */
-const STEPS=[['say','say lines'],['fight','a set-piece fight'],['class','the class pick'],['join','a companion joins'],['give','give an item'],['set','set flags'],['deed','a dark deed (corruption)'],['kind','a kind deed'],
+const STEPS=[['say','say lines'],['fight','a set-piece fight'],['join','a companion joins'],['give','give an item'],['set','set flags'],['deed','a dark deed (corruption)'],['kind','a kind deed'],
   ['choice','a choice'],['chest','open a chest'],['goto','move the hero'],['scene','play another scene'],['tint','tint the screen'],['piece','a Smiler piece'],['chat','a campfire chat'],['cart','push the cart (mine)']];
 const TRIG=[['npc','talk to someone'],['area','walk near a spot'],['tile','bump into a tile'],['bump','bump into something near a spot'],['enter','come into the place'],['start','a new game'],['none','only from another scene']];
 function trigKind(a){return a.start?'start':a.none?'none':a.npc?'npc':a.area?'area':a.tile?'tile':a.bump?'bump':a.enter?'enter':'none'}
@@ -369,7 +369,7 @@ function scenesTab(){const SC=E.W.scenes,list=SC.scenes,out=[];
     btn('+ Scene',()=>change(()=>{const id=uniq('new',new Set(list.map(s=>s.id)));list.push({id,at:{place:E.cur,enter:1},when:{},steps:[['say']]});E.scene=id;E.sceneFilter='here'}))));
   if(E.sceneFilter==='setpieces')return out.concat(setPiecesEd());
   if(E.sceneFilter==='chats')return out.concat(chatsEd());
-  if(E.sceneFilter==='more')return out.concat([card('Companions',[field('',SC,'companions',{type:'area',fmt:v=>KW.format(v),parse:v=>JSON.parse(v)})]),card('Classes offered at the yard drill',[field('',SC,'wave1',{fmt:v=>v.join(', '),parse:v=>v.split(',').map(s=>s.trim()).filter(Boolean)})])]);
+  if(E.sceneFilter==='more')return out.concat([card('Companions',[field('',SC,'companions',{type:'area',fmt:v=>KW.format(v),parse:v=>JSON.parse(v)})]),card('Classes a new hero can be',[field('',SC,'wave1',{fmt:v=>v.join(', '),parse:v=>v.split(',').map(s=>s.trim()).filter(Boolean)})])]);
   out.push(h('div',{class:'list'},...shown.map(sc=>h('button',{class:'item'+(E.scene===sc.id?' on':''),onclick:()=>{E.scene=E.scene===sc.id?null:sc.id;panel();draw()}},
     h('b',{},sc.id),' · ',TRIG.find(t=>t[0]===trigKind(sc.at||{}))[1]+((sc.at||{}).npc?' ('+sc.at.npc+')':'')+(sc.at&&sc.at.place&&E.sceneFilter==='all'?' in '+sc.at.place:'')))));
   const sc=list.find(s=>s.id===E.scene);if(sc)out.push(sceneEd(sc));return out}
@@ -397,7 +397,7 @@ function sceneEd(sc){const a=sc.at=sc.at||{},k=trigKind(a),SC=E.W.scenes,P=E.W.p
       btn('Delete',()=>{if(confirm('Delete scene '+sc.id+'?'))change(()=>{SC.scenes.splice(SC.scenes.indexOf(sc),1);E.scene=null})},'bad'))])}
 function stepsEd(sc,steps){return h('div',{},...steps.map((st,i)=>stepEd(sc,steps,st,i)),
   h('div',{class:'row'},h('select',{},opts(STEPS)),btn('+ Add',e=>{const k=e.target.previousSibling.value;change(()=>{steps.push(newStep(k))})})))}
-function newStep(k){return{say:['say'],fight:['fight',Object.keys(E.W.scenes.setpieces)[0]],class:['class'],join:['join',Object.keys(E.W.scenes.companions)[0]],give:['give','potion',1],set:['set',{}],deed:['deed',1],kind:['kind',1],
+function newStep(k){return{say:['say'],fight:['fight',Object.keys(E.W.scenes.setpieces)[0]],join:['join',Object.keys(E.W.scenes.companions)[0]],give:['give','potion',1],set:['set',{}],deed:['deed',1],kind:['kind',1],
   choice:['choice',[['Yes',[]],['No',[]]]],chest:['chest',allChests()[0]||''],goto:['goto',E.cur,1,1],scene:['scene',''],tint:['tint','dusk'],piece:['piece','tube'],chat:['chat',(E.W.scenes.chats[0]||{}).id||''],cart:['cart']}[k]}
 function stepEd(sc,steps,st,i){const k=st[0],kids=[];
   const sel=(idx,list)=>h('select',{onchange:e=>change(()=>{st[idx]=e.target.value}),value:st[idx]},opts(list,st[idx]));

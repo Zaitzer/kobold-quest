@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: the screens of build step 17 (ui-design.md §6–8) ----------
-   The ☰ menu (the pack, the goal, items, the map, the Book, settings, then the rare things), the class pick, the Book (foes, lore and
+   The ☰ menu (the pack, the goal, items, the map, the Book, settings, then the rare things), the Book (foes, lore and
    the Smiler, places, stamps), the settings, and the Book's own records (foes met and beaten, places seen, festival stamps). */
 import {rpUI} from '../core/hooks.js';
 import {rpBuzz, rpOpt, rpOptSave} from '../core/options.js';
@@ -9,18 +9,16 @@ import {rp} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {FOES6} from '../data/v6/foes.js';
 import {MAPS6} from '../data/v6/maps.js';
-import {KITS6, SKILLS6} from '../data/v6/skills.js';
-import {WAVE16} from '../data/v6/story.js';
 import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
 import {rpToast} from '../game/dialogue.js';
 import {v6Stats} from '../game/sheet.js';
-import {goals, pickClass} from '../game/story.js';
+import {goals} from '../game/story.js';
 import {w6Pieces} from '../game/world.js';
 import {net} from '../net/core.js';
 import {rpBar} from './hud.js';
 
-const V6S = {book: 'foes', item: null, cls: null, page: null};
+const V6S = {book: 'foes', item: null, page: null};
 const bk = () => {
   const st = rp.s.w6st;
   return (st.book = st.book || {foes: {}, places: {}, stamps: []});
@@ -45,7 +43,7 @@ function v6PackHtml() {
           '"><b>' +
           esc2(m.name) +
           ' <small>' +
-          esc2(m.noclass ? '' : CLASSES6[m.cls].n) +
+          esc2(CLASSES6[m.cls].n) +
           ' ' +
           m.lvl +
           (m.pend > 0 ? ' <i class="badge">!</i>' : '') +
@@ -140,48 +138,6 @@ function v6PackUse() {
       .join('') +
     '</div>'
   );
-}
-
-/* ------------------------------------------------------------------ the class pick: eight cards; a tap shows more, a second confirms */
-function v6ClassHtml() {
-  const c = V6S.cls;
-  let h =
-    '<div class="rpdlg"><div class="who">Pick up something and show what you are</div><p>' +
-    (c ? 'Tap ' + esc2(CLASSES6[c].n) + ' again to be one.' : 'Tap a card to see more.') +
-    '</p></div><div class="rpcmd">';
-  h +=
-    WAVE16.map(id => {
-      const C = CLASSES6[id],
-        K = KITS6[id],
-        two = [K.start[0], (K.talents[0] || {}).id]
-          .filter(Boolean)
-          .map(x => SKILLS6[x].n)
-          .join(', ');
-      return button('w6cls', esc2(C.n), {cls: c === id ? 'go on' : '', v: id, sub: esc2(C.role) + ' · ' + esc2(two), raw: 1});
-    }).join('') + '</div>';
-  if (c) {
-    const C = CLASSES6[c],
-      K = KITS6[c];
-    h +=
-      '<div class="rpdlg"><div class="who">' +
-      esc2(C.n) +
-      ', ' +
-      esc2(flav(C)) +
-      '</div><p>' +
-      esc2(C.role) +
-      '. Fights with ' +
-      esc2(C.fam) +
-      '.</p><p><small>' +
-      [K.start[0]]
-        .concat(K.talents.map(t => t.id))
-        .slice(0, 5)
-        .map(x => '<b>' + esc2(SKILLS6[x].n) + '</b>: ' + esc2(SKILLS6[x].d))
-        .join('<br>') +
-      '</small></p><p><small>At 8: ' +
-      Object.keys(K.subs).map(esc2).join(' or ') +
-      '.</small></p></div>';
-  }
-  return h;
 }
 
 /* ------------------------------------------------------------------ the Book (systems.md §15): Mallow's book, four tabs */
@@ -338,17 +294,10 @@ feature({
   },
   on: {'battle:end': b => v6BookFight(b), 'world:apply': () => v6BookPlace()},
   panels: {
-    w6class: {sig: () => 'c' + V6S.cls, html: v6ClassHtml},
     v6book: {sig: () => JSON.stringify([V6S.book, V6S.page, rp.s && rp.s.w6st && rp.s.w6st.book]), html: v6BookHtml},
     v6set: {sig: () => JSON.stringify(rpOpt), html: v6SetHtml}
   },
   actions: {
-    w6cls: d => {
-      if (V6S.cls === d.v) {
-        V6S.cls = null;
-        pickClass(d.v);
-      } else V6S.cls = d.v;
-    }, // the class pick at the yard drill: tap twice to choose
     v6use: d => {
       V6S.item = d.v || null;
     },
@@ -388,7 +337,6 @@ export {
   v6BookFight,
   v6BookHtml,
   v6BookPlace,
-  v6ClassHtml,
   v6MenuHtml,
   v6PackHtml,
   v6PackUse,

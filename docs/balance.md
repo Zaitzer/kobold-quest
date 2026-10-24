@@ -236,7 +236,15 @@ in `design.md` §8 (the character sheet).
 - **One point of modifier = 5 power points (J)**, split inside its score (CON: +5% HP; STR: +5% attack; DEX: +2.5 dodge points and +2.5 accuracy; INT/WIS/CHA: +5% of the casting or status effect they govern). It uses the same price as gear (`items.md`). Since +2 to a score is +1 to its modifier, **+1 to a score costs 2.5 pp** and
   +2 costs 5 pp (corrected 22 Oct).
 - **Modifier = (score − 10) ÷ 2, rounded down.** A score of 10 is average and adds nothing.
-- **Every class starts with the same six numbers, 15, 14, 13, 12, 10 and 8** (the D&D standard array), handed out in the class's own priority order, so every class has the same total (modifiers +2, +2, +1, +1, 0, −1: 5 modifier points, 25 power points) and the budget stays equal by construction:
+- **The player buys the six scores (point buy, J, Joakim, 24 Oct),** on the new-hero screen after picking the class: every score
+  starts at 8, and **27 points** raise them to at most 15 at the D&D price (a score of 9 costs 1 point in all, 10: 2, 11: 3, 12: 4,
+  13: 5, 14: 7, 15: 9). Everyone has the same 27 points, so the budget stays equal by construction. *Begin* waits until no point can be
+  spent (a hero never starts weak by a slip).
+  The price makes a peak cost total: 15, 15, 15, 8, 8, 8 is +3 in modifiers, the standard array +5, an even spread (12s and 14s)
+  at most +6. That is the trade, not a flaw: the peak is in the score the class's attack uses.
+- **Suggest** fills in the class's **standard array, 15, 14, 13, 12, 10 and 8** (exactly 27 points), in the class's own priority
+  order below (modifiers +2, +2, +1, +1, 0, −1: 5 modifier points, 25 power points). Companions and test heroes use it, and it is
+  the class's **reference** that accuracy is read against:
 
 | class | priority order (15, 14, 13, 12, 10, 8) |
 |---|---|
@@ -244,16 +252,16 @@ in `design.md` §8 (the character sheet).
 | Paladin | STR, CHA, CON, WIS, DEX, INT |
 | Ranger | DEX, WIS, CON, STR, INT, CHA |
 | Rogue | DEX, INT, CON, CHA, WIS, STR |
-| Monk | none: the even array 12, 12, 12, 12, 12, 12 (same score total, Balance 100%; one modifier point more than the others, about 5 pp, accepted 22 Oct, P25) |
+| Monk | none: the even array 12, 12, 12, 12, 12, 12 (24 points, 3 left to spend; Balance 100%; one modifier point more than the others, about 5 pp, accepted 22 Oct, P25) |
 | Cleric | WIS, CON, STR, CHA, DEX, INT |
 | Druid | WIS, CON, DEX, INT, STR, CHA |
 | Bard | CHA, DEX, CON, WIS, INT, STR |
 | Wizard | INT, CON, DEX, WIS, CHA, STR |
 | Sorcerer, Warlock | CHA, CON, DEX, INT or WIS, WIS or INT, STR |
 
-- **Accuracy is read the same way (D, P17, 22 Oct).** Every class puts its 15 or 14 in the score its attack uses, so the class
-  accuracy table (§4a) is read **including the starting scores**: a score adds +2.5 accuracy per modifier point only *above its
-  start* (stat picks, gear). Counting the start again put fighters at 100% in melee and the average hit at 87%, over the target;
+- **Accuracy is read the same way (D, P17, 22 Oct; point buy 24 Oct).** The class's reference puts its 15 or 14 in the score its
+  attack uses, so the class accuracy table (§4a) is read **including the reference scores**: a score adds +2.5 accuracy per
+  modifier point *above the reference* and takes 2.5 per point below it (a fighter who buys STR 8 instead of 15 misses 7.5 more). Counting the start again put fighters at 100% in melee and the average hit at 87%, over the target;
   read this way the average is **84%** (model, `node tools/balance-model.js rules`).
 - **Growth:** the stat picks among the talents (about 30% of the 30 picks, so about 9) each give **+1 to a score**, up to a
   cap of 20. A cap makes the player spread points instead of stacking one. This replaces the old "+0.45 attack, +0.375

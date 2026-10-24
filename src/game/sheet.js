@@ -74,6 +74,13 @@ function v6StartScores(cls) {
   C.prio.split(' ').forEach((k, i) => (o[k] = V6_ARRAY[i]));
   return o;
 }
+/* point buy (balance.md §3): every score starts at 8 and 27 points raise them to 15 at most; Begin once no point can be spent */
+const V6_BUY = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9},
+  V6_POINTS = 27;
+const v6BuyCost = sc => SCORES.reduce((a, k) => a + (V6_BUY[sc[k]] ?? 99), 0);
+const v6BuyStep = (sc, k) => (sc[k] < 15 ? V6_BUY[sc[k] + 1] - V6_BUY[sc[k]] : 99); // what one more point in k costs
+const v6BuyLeft = sc => V6_POINTS - v6BuyCost(sc);
+const v6BuyDone = sc => !!sc && v6BuyLeft(sc) >= 0 && SCORES.every(k => v6BuyStep(sc, k) > v6BuyLeft(sc));
 const v6TierFor = lvl => {
   let t = 0;
   V6_TIERS.forEach((x, i) => {
@@ -339,8 +346,10 @@ function packMeanLevel(P) {
 export {
   V6_ARRAY,
   V6_ATK_SCORE,
+  V6_BUY,
   V6_CAST_SCORE,
   V6_LOOK,
+  V6_POINTS,
   V6_TIERS,
   V6_VARIANT,
   packHero,
@@ -352,6 +361,10 @@ export {
   v6AutoLead,
   v6AutoPassives,
   v6AutoScores,
+  v6BuyCost,
+  v6BuyDone,
+  v6BuyLeft,
+  v6BuyStep,
   v6Gear,
   v6KitAt,
   v6KitSkills,
