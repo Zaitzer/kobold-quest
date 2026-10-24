@@ -4,12 +4,13 @@
 
 /* title: logo, three kobolds, one big Play button. Upright phones stack it; anything wide puts the button beside the art */
 #v-title{position:fixed;inset:0;z-index:40;display:grid;place-content:center;justify-items:center;gap:10px;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));text-align:center;overflow:hidden;
-  background:radial-gradient(ellipse at 50% 30%,#8a6bff 0%,#3a22a0 55%,#1a0d4a 100%)}
+  background:radial-gradient(ellipse at 50% 100%,#ff9a3c 0%,#c2457a 24%,#4a2a9e 58%,#1a0d4a 100%)}
 #v-title::before{content:"";position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 40%,rgba(255,255,255,.07) 0 5deg,transparent 5deg 10deg);pointer-events:none}
 #v-title>*{position:relative}
 .tlogo{font:400 clamp(46px,13vmin,92px)/.92 var(--font-display);color:#fff;-webkit-text-stroke:5px var(--line);paint-order:stroke fill;text-shadow:0 7px 0 var(--line);transform:rotate(-3deg)}
 .tlogo span{color:var(--amber);display:block}
-#title-cv{display:block;width:min(300px,78vw);height:auto;aspect-ratio:300/130}
+#title-cv{display:block;width:min(360px,86vw);height:auto;aspect-ratio:360/170;image-rendering:pixelated}
+.ttag{margin:-2px 0 0;max-width:min(340px,86vw);font:600 15px/1.3 var(--font-ui);color:#ffe6b0;text-shadow:0 2px 0 var(--line)}
 .bigplay{position:relative;min-width:220px;min-height:64px;padding:6px 40px;border:4px solid var(--line);border-radius:999px;background:var(--gel-gold);color:#4a2400;
   font:400 32px/1 var(--font-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(255,255,255,.7);box-shadow:0 6px 0 var(--line),inset 0 3px 0 rgba(255,255,255,.65);transition:transform .07s,box-shadow .07s,filter .1s}
 .bigplay:hover{filter:brightness(1.08)}
@@ -17,8 +18,8 @@
 .trow{display:flex;gap:10px;justify-content:center}
 #v-title .foot{margin:2px 0 0;font-size:11.5px}
 @media (orientation:landscape) and (max-height:560px){
-  #v-title{grid-template-columns:auto auto;grid-template-areas:"logo play" "art play" "art user" "art row" "foot foot";column-gap:28px;align-items:center}
-  .tlogo{grid-area:logo;font-size:clamp(40px,14vh,72px)}#title-cv{grid-area:art;width:min(300px,42vw)}.bigplay{grid-area:play;align-self:end}#v-title>.trow{grid-area:row;align-self:start}#v-title .foot{grid-area:foot}}
+  #v-title{grid-template-columns:auto auto;grid-template-areas:"logo play" "tag play" "art play" "art user" "art row" "foot foot";column-gap:28px;align-items:center}
+  .tlogo{grid-area:logo;font-size:clamp(40px,14vh,72px)}#title-cv{grid-area:art;width:min(360px,44vw)}.ttag{grid-area:tag}.bigplay{grid-area:play;align-self:end}#v-title>.trow{grid-area:row;align-self:start}#v-title .foot{grid-area:foot}}
 /* website login on the title screen */
 .tlogin{display:grid;gap:8px;width:min(300px,86vw)}
 .tlogin input{font:600 17px var(--font-ui);color:#fff;background:#1a0d4a;border:3px solid var(--line);border-radius:14px;padding:9px 14px;box-shadow:inset 0 2px 0 rgba(0,0,0,.35);text-shadow:none}
