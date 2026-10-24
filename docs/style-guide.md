@@ -41,6 +41,8 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 
 **Characters are one tile (Joakim, 24 Oct):** a kobold is as big as a tile, squat and big-headed, with no tall frame for the head to rise
 over the tile behind. Half the pixels of the old 32 × 64, and the same pixel size as the map, so nothing clashes.
+Joakim's first Pip (drawn on the old 32 × 64 sheet the same day) is kept in `art/reference/pip-32x64.png`; `pip.png` and the
+12 class sheets were shrunk from it automatically as a start, so their outlines need tidying by hand.
 
 ## Style rules (suggested)
 
