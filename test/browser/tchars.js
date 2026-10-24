@@ -16,5 +16,9 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  const label=await p.evaluate(()=>{const b=document.querySelector('[data-rp="c6play"][data-v="0"]');return b?b.textContent:''});out.push('slot '+label.slice(0,40));
  await p.click('[data-rp="c6play"][data-v="0"]');await p.waitForTimeout(500);out.push('played '+await p.evaluate(()=>window.__rp.mode+' '+window.__rp.s.gold));
  await p.screenshot({path:__dirname+'/../out/chars_play.png'});
- const good=out[0]==='select c6'&&/^story map room:bakery Tansy/.test(out[1])&&/Tansy/.test(out[2])&&out[3]==='played map 55';
+ /* a desktop window: the heroes screen fills it (desktop.css once pushed it half off the screen) */
+ {const d=await br.newPage({viewport:{width:1918,height:1000}});await d.goto(FILE);await d.evaluate(()=>sessionStorage.setItem('kobold-pit-booted','1'));await d.reload();await d.waitForTimeout(300);
+  await d.click('#go-rpg');await d.waitForTimeout(500);const r=await d.evaluate(()=>{const b=document.getElementById('rp-panel').getBoundingClientRect();return[b.x,b.y,b.width,b.height]});
+  out.push('desktop '+r.join(','));await d.screenshot({path:__dirname+'/../out/chars_desktop.png'});await d.close()}
+ const good=out.some(o=>o==='desktop 0,0,1918,1000')&&out[0]==='select c6'&&/^story map room:bakery Tansy/.test(out[1])&&/Tansy/.test(out[2])&&out[3]==='played map 55';
  console.log(out.join(' | '),good?'ok':'WRONG','errors',JSON.stringify(errs));await br.close();process.exitCode=good&&!errs.length?0:1})();
