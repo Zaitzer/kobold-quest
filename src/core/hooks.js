@@ -1,7 +1,7 @@
 /* Calls from a lower layer to a higher one (the layers are in ARCHITECTURE.md; tools/imports.js checks them). A lower module never
    imports a higher one: it calls the hook here, and the higher module fills the hook in when it loads. Each default does nothing,
    so a feature that is switched off (or not loaded, as in the logic tests) leaves the rest working. */
-import {rp} from './state.js';
+import {controls} from './state.js';
 
 const hooks = {
   ui: () => {}, // redraw the side panel and the top bar (ui/hud.js)
@@ -30,11 +30,11 @@ function shareFx(o) {
 }
 /* drop whatever the thumbs and keys were holding (a screen changed under them) */
 function rpInputReset() {
-  rp.joy = null;
-  rp.joyP = null;
-  rp.held = null;
-  rp.keys.clear();
-  if (rp.stick) rp.stick = null;
+  controls.joy = null;
+  controls.joyP = null;
+  controls.held = null;
+  controls.keys.clear();
+  if (controls.stick) controls.stick = null;
   hooks.joyKnob(0, 0);
 }
 export {hooks, openLetter, partnerName, rpInputReset, rpUI, shareFx, startFight};

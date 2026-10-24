@@ -41,9 +41,6 @@ import {
 import {shareFx} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
-import {RP_ST} from '../data/battle.js';
-import {RP_SK} from '../data/classes.js';
-import {RP_E} from '../data/monsters.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {BOSSES6, FOES6, PLACES6, ROLES6, TRIALS6} from '../data/v6/foes.js';
 import {SKILLS6} from '../data/v6/skills.js';
@@ -599,8 +596,11 @@ function v6AtkCost(u) {
   return s.quick ? 1 : s.heavy ? 2 : 'end';
 }
 
-/* ---------------------------------------------------------------- v6 skills, translated into the engine's tables */
-function v6RegisterSkills() {
+/* ---------------------------------------------------------------- v6 skills, translated into the battle's tables once, at load:
+   RP_SK (what a skill does: target, damage share, heal) and RP_ST (how it is cast: AP, range, area) */
+function v6SkillTables() {
+  const RP_SK = {},
+    RP_ST = {};
   RP_SK.v6_bigswing = {n: 'Big swing', mp: 0, t: 'foes', mul: 0.6, d: 'the telegraphed attack'};
   RP_ST.v6_bigswing = {ap: 'end', area: 1.5, chan: 1, v6: {sure: 1}};
   for (const [id, s] of Object.entries(SKILLS6)) {
@@ -660,7 +660,12 @@ function v6RegisterSkills() {
     RP_SK[id] = sk;
     RP_ST[id] = st;
   }
+  return {RP_SK, RP_ST};
 }
+const {RP_SK, RP_ST} = v6SkillTables();
+/* the foe entries fights use, made on demand (v6FoeKey, v6EliteKey, v6BossKey; a set piece's own versions in game/story.js; a friend's
+   shared fight in net/battle.js): a cache, the same key always gives the same foe */
+const RP_E = {};
 /* the parts of a v6 skill the old engine does not know: buffs, lines, tiles, statuses on pure-status skills */
 function v6DoSkill(b, u, act, S, T) {
   const s = T.v6;
@@ -1264,9 +1269,6 @@ function v6LabHtml() {
 }
 feature({
   id: 'fightlab',
-  init() {
-    v6RegisterSkills();
-  },
   panels: {
     lab: {
       sig: () =>
@@ -1319,6 +1321,9 @@ function v6LabRead() {
   if (p != null && p !== '') v6Lab.place = /^[bt]:/.test(p) ? p : +p;
 }
 export {
+  RP_E,
+  RP_SK,
+  RP_ST,
   V6_FOE_ST,
   V6_ROLE_LOOK,
   V6_WEAK,
@@ -1366,10 +1371,10 @@ export {
   v6PosHabit,
   v6Queue,
   v6RankMul,
-  v6RegisterSkills,
   v6Revive,
   v6ReviveOK,
   v6Seat,
+  v6SkillTables,
   v6Soft,
   v6Spawn,
   v6Status,

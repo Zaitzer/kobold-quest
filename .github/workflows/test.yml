@@ -1,0 +1,21 @@
+# Every push and pull request runs the whole test suite (logic and browser), so a change that breaks the game shows a red cross on
+# GitHub, not only on the machine that made it. Releases still go out by committing release/ (or by world.yml for map editor changes).
+name: Tests
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['art/**', 'docs/**', 'release/**', '**/*.md']
+  pull_request:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci && (cd server && npm ci)
+      - run: npx playwright install --with-deps chromium
+      - name: Test (everything)
+        run: node test/run.js

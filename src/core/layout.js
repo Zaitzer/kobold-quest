@@ -1,6 +1,6 @@
 /* ---------- Kobold Quest (RPG) ---------- */
 import {rpOpt} from './options.js';
-import {rp} from './state.js';
+import {rp, walker} from './state.js';
 import {$} from '../engine/util.js';
 
 const RT = 32,
@@ -52,7 +52,7 @@ function rpResize() {
     rpcv.height = ch;
   }
   rpS = w / VW;
-  rp.mapImg = null;
+  walker.mapImg = null;
   if (rp.bt) rp.bt.img = null;
 }
 /* sideways only: an upright phone gets the whole view turned a quarter turn, so it is held like a handheld */

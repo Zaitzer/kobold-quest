@@ -44,16 +44,14 @@ function sheetOfFoe(E) {
   if (!E) return null;
   return byBase(dash(E.v6boss ? E.v6boss : E.id || E.n));
 }
-/* a villager on the map: the sheet named in the world (world/: "sheet"), else its id, then the id's parts ("mallow_nest" → "mallow",
-   "guard_castle" → "guard"); only a character's or a boss's sheet (never a tile that shares a word, like the fountain) */
+/* a person on the map: the first of the sheets they may look like (world/: looksOf in tools/world/world.js) that is drawn as a character
+   or a boss (never a tile that shares a word, like the fountain) */
 const personSheet = b => {
   const k = byBase(b);
   return k && /^(characters|bosses)\//.test(k) ? k : null;
 };
-function sheetOfNpc(id, sheet) {
-  if (sheet) return personSheet(sheet);
-  const d = dash(id);
-  return personSheet(d) || d.split('-').map(personSheet).find(Boolean) || null;
+function sheetOfPerson(looks) {
+  return (looks || []).map(personSheet).find(Boolean) || null;
 }
 function typeOf(key) {
   if (/^bosses\//.test(key)) return 'boss';
@@ -192,6 +190,6 @@ export {
   sheetDraws,
   sheetOfFoe,
   sheetOfKobold,
-  sheetOfNpc,
+  sheetOfPerson,
   typeOf
 };

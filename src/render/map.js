@@ -1,10 +1,10 @@
 /* Drawing the map: its tiles (below), the people standing on it, Pip, friends, and the "!" over someone with a scene */
 import {RPH, RPW, RT, rpDpr, rpS, rpctx, rpcv} from '../core/layout.js';
 import {test} from '../core/rules.js';
-import {rp} from '../core/state.js';
+import {controls, rp, walker} from '../core/state.js';
 import {MAPS6, TILES6} from '../data/v6/maps.js';
 import {OL, WEAPONS, ctx, drawKobold, makeK, set_ctx} from '../engine/art.js';
-import {byBase, sheetOfKobold, sheetOfNpc} from '../engine/sheets.js';
+import {byBase, sheetOfKobold, sheetOfPerson} from '../engine/sheets.js';
 import {artName, sprite} from '../engine/sprites.js';
 import {R, clamp, rr, seeded} from '../engine/util.js';
 import {packHero} from '../game/sheet.js';
@@ -17,14 +17,14 @@ function rpTile(g, c, x, y, X, Y) {
   w6Tile(g, c, x, y, X, Y);
 }
 /* the map is drawn in chunks of 16 × 16 tiles, made the first time they come on screen and kept for a while
-   (the world is far too big for one picture). rp.mapImg is the chunk store; setting it to null redraws everything. */
+   (the world is far too big for one picture). walker.mapImg is the chunk store; setting it to null redraws everything. */
 const CHUNK = 16,
   CHUNK_KEEP = 48;
 function rpMapImage() {
-  rp.mapImg = {chunks: new Map(), k: Math.min(2.5, rpS * rpDpr)};
+  walker.mapImg = {chunks: new Map(), k: Math.min(2.5, rpS * rpDpr)};
 }
 function rpChunk(cx, cy) {
-  const M = rp.mapImg,
+  const M = walker.mapImg,
     key = cx + ',' + cy;
   let c = M.chunks.get(key);
   if (c) {
@@ -69,22 +69,22 @@ function rpDrawChunks(cx, cy) {
         im,
         Math.round((i * size - cx) * k),
         Math.round((j * size - cy) * k),
-        Math.round((im.width / rp.mapImg.k) * k),
-        Math.round((im.height / rp.mapImg.k) * k)
+        Math.round((im.width / walker.mapImg.k) * k),
+        Math.round((im.height / walker.mapImg.k) * k)
       );
     }
 }
 function rpNpcK(n) {
-  let k = rp.npcK[n.id];
+  let k = walker.npcK[n.id];
   if (!k) {
     k = makeK({team: n.team, name: n.name, art: artName(n.art || n.id), weapon: n.w, hp: 30, size: (n.size || 1) * 0.72}, 0, 0, false);
     k.face =
       n.face || 1; /* never undefined: a scale of NaN is skipped by the canvas, which drew people a third too big until Pip came near */
     if (String(n.id).startsWith('v6:')) {
-      k.sheetFn = () => sheetOfNpc(n.id, n.sheet);
+      k.sheetFn = () => sheetOfPerson(n.looks);
       k.onMap = 1;
     }
-    rp.npcK[n.id] = k;
+    walker.npcK[n.id] = k;
   }
   return k;
 }
@@ -92,13 +92,13 @@ function rpDrawMap(dt) {
   const s = rp.s,
     ctx0 = ctx;
   set_ctx(rpctx);
-  if (!rp.mapImg) rpMapImage();
-  let px = rp.pos ? rp.pos.x - 0.5 : s.x,
-    py = rp.pos ? rp.pos.y - 0.5 : s.y;
+  if (!walker.mapImg) rpMapImage();
+  let px = walker.pos ? walker.pos.x - 0.5 : s.x,
+    py = walker.pos ? walker.pos.y - 0.5 : s.y;
   /* keep Pip in the open part of the screen when a sheet (dialogue, shop, menu) covers one side */
   const sheet = rp.mode !== 'map' && rp.mode !== 'battle',
     land = RPW > RPH,
-    o = rp.camOff || (rp.camOff = {x: 0, y: 0}),
+    o = walker.camOff || (walker.camOff = {x: 0, y: 0}),
     tx = sheet && land ? 0.23 : 0,
     ty = sheet && !land ? 0.23 : 0;
   o.x += (tx - o.x) * Math.min(1, dt * 8);
@@ -108,7 +108,7 @@ function rpDrawMap(dt) {
     mh = rp.grid.length * RT;
   const cx = mw <= RPW ? (mw - RPW) / 2 : clamp(px * RT + RT / 2 - RPW / 2 + o.x * RPW, 0, mw - RPW),
     cy = mh <= RPH ? (mh - RPH) / 2 : clamp(py * RT + RT / 2 - RPH / 2 + o.y * RPH, 0, mh - RPH);
-  rp.cam = {x: cx, y: cy};
+  walker.cam = {x: cx, y: cy};
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, rpcv.width, rpcv.height);
   const k = rpS * rpDpr;
@@ -116,9 +116,9 @@ function rpDrawMap(dt) {
   ctx.fillRect(0, 0, rpcv.width, rpcv.height);
   rpDrawChunks(cx, cy);
   ctx.setTransform(k, 0, 0, k, -cx * k, -cy * k);
-  if (rp.path && rp.path.length) {
+  if (walker.path && walker.path.length) {
     ctx.fillStyle = 'rgba(255,226,122,.55)';
-    rp.path.forEach(([x, y]) => {
+    walker.path.forEach(([x, y]) => {
       ctx.beginPath();
       ctx.arc(x * RT + 16, y * RT + 16, 3, 0, 7);
       ctx.fill();
@@ -139,7 +139,7 @@ function rpDrawMap(dt) {
     return kk;
   });
   const P0 = s.party[0] && WEAPONS[s.party[0].w] ? s.party[0] : Object.assign({}, s.party[0] || {}, {w: 'stick'}); // the heroes screen has nobody yet; a save without a weapon look draws a stick
-  const pk = rp.pk || (rp.pk = makeK({team: 0, name: 'Pip', art: 'pip', weapon: P0.w, hp: 30, size: 0.72}, 0, 0, false));
+  const pk = walker.pk || (walker.pk = makeK({team: 0, name: 'Pip', art: 'pip', weapon: P0.w, hp: 30, size: 0.72}, 0, 0, false));
   if (pk.weapon !== P0.w) {
     pk.weapon = P0.w;
     pk.W = WEAPONS[pk.weapon];
@@ -149,8 +149,8 @@ function rpDrawMap(dt) {
   pk.t += dt;
   pk.blink -= dt;
   if (pk.blink < -0.12) pk.blink = R(2, 5);
-  pk.moving = rp.moving;
-  if (rp.moving) pk.walk += dt * 12;
+  pk.moving = walker.moving;
+  if (walker.moving) pk.walk += dt * 12;
   if (s.face === 'left') pk.face = -1;
   else if (s.face === 'right') pk.face = 1;
   if (s.w6) {
@@ -190,11 +190,11 @@ function rpDrawMap(dt) {
     ctx.fillStyle = gr;
     ctx.fillRect(0, 0, RPW, RPH);
   }
-  if (rp.stick && rp.stick.on) {
-    const sx = rp.stick.lx * RPW,
-      sy = rp.stick.ly * RPH,
-      m = Math.min(1, Math.hypot(rp.stick.dx, rp.stick.dy) / 40),
-      a = Math.atan2(rp.stick.dy, rp.stick.dx);
+  if (controls.stick && controls.stick.on) {
+    const sx = controls.stick.lx * RPW,
+      sy = controls.stick.ly * RPH,
+      m = Math.min(1, Math.hypot(controls.stick.dx, controls.stick.dy) / 40),
+      a = Math.atan2(controls.stick.dy, controls.stick.dx);
     ctx.fillStyle = 'rgba(20,10,53,.35)';
     ctx.strokeStyle = 'rgba(255,226,122,.8)';
     ctx.lineWidth = 2.5;

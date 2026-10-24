@@ -1,7 +1,7 @@
 /* ---------- chat ---------- */
 import {view} from '../core/app.js';
 import {feature} from '../core/registry.js';
-import {rp} from '../core/state.js';
+import {rp, walker} from '../core/state.js';
 import {yip} from '../engine/audio.js';
 import {button} from '../engine/html.js';
 import {esc2} from '../engine/util.js';
@@ -68,7 +68,7 @@ function netYip() {
 function netGotYip(d, msg) {
   const P = (net.others || []).find(p => p.peer === msg.peer);
   if (!P || !rp.s) return;
-  const me = rp.pos || {x: rp.s.x + 0.5, y: rp.s.y + 0.5};
+  const me = walker.pos || {x: rp.s.x + 0.5, y: rp.s.y + 0.5};
   const L = netYipLevel(me, P.presence);
   if (!L) return;
   net.bubbles[msg.peer] = {txt: 'Yip!', t: performance.now()};

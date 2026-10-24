@@ -4,11 +4,12 @@ import {rpBattle} from '../battle/flow.js';
 import {tcReach} from '../battle/grid.js';
 import {rpUI} from '../core/hooks.js';
 import {rpSave} from '../core/save.js';
-import {rp, rpNewState} from '../core/state.js';
+import {controls, rp, rpNewState, walker} from '../core/state.js';
+import {NPCS6} from '../data/v6/story.js';
 import {registry} from './registry_view.js';
 import {set_soundOn, sfx} from '../engine/audio.js';
 import {rpMus} from '../engine/music.js';
-import {recolour, sheetDraws, sheetOfFoe, sheetOfKobold, sheetOfNpc} from '../engine/sheets.js';
+import {recolour, sheetDraws, sheetOfFoe, sheetOfKobold, sheetOfPerson} from '../engine/sheets.js';
 import {sprite} from '../engine/sprites.js';
 import {rpSay} from '../game/dialogue.js';
 import {v6Piece} from '../game/items.js';
@@ -23,6 +24,8 @@ import {rpTacBtn, rpTacTap} from '../ui/battle.js';
 
 export function installHooks() {
   window.__rp = rp;
+  window.__walker = walker;
+  window.__controls = controls;
   window.__rpB = {
     reach: () => {
       const b = rp.bt,
@@ -72,7 +75,7 @@ export function installHooks() {
       draws: () => sheetDraws.n,
       kob: i => sheetOfKobold(rp.s.party[i]),
       foe: id => sheetOfFoe({id}),
-      npc: id => sheetOfNpc(id),
+      npc: id => sheetOfPerson((NPCS6.find(n => n.id === id) || {}).looks),
       blue: () => {
         const c = recolour('characters/heroes/pip', 'blue');
         if (!c || !c.img.getContext) return null;

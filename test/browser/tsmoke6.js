@@ -13,7 +13,7 @@ const SIZES=[['land',844,390],['se',667,375],['tall',390,844],['tiny',568,320]];
     if(r.wide)fail.push(n+' '+name+': the panel scrolls sideways');if(r.small.length)fail.push(n+' '+name+': small buttons '+JSON.stringify(r.small.slice(0,4)));
     await p.screenshot({path:__dirname+'/../out/smoke6_'+n+'_'+name+'.png'})};
   await look('heroes',()=>{});
-  await p.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5],['Wizzle','wizard',5],['Bork','bard',5]]);__rp.grace=1e9;__rp.s.hero=__rp.s.hero||{name:'Pip',colour:'orange'}});
+  await p.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5],['Wizzle','wizard',5],['Bork','bard',5]]);__walker.grace=1e9;__rp.s.hero=__rp.s.hero||{name:'Pip',colour:'orange'}});
   await look('map',()=>{__rp.mode='map'});
   await look('menu',()=>{__rp.mode='menu'});
   await look('sheet',()=>{__rp.mode='v6sheet'});

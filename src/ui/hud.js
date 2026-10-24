@@ -3,7 +3,7 @@ import {hooks, rpUI} from '../core/hooks.js';
 import {rpResize} from '../core/layout.js';
 import {rpOpt} from '../core/options.js';
 import {actions, feature, panels, routes} from '../core/registry.js';
-import {rp} from '../core/state.js';
+import {controls, rp} from '../core/state.js';
 import {sfx} from '../engine/audio.js';
 import {button} from '../engine/html.js';
 import {$, clamp, esc2} from '../engine/util.js';
@@ -84,7 +84,7 @@ function hudRender(force) {
   }
   const sig = rp.mode + '|' + (pn.sig ? pn.sig() : '');
   /* never rebuild the panel under a thumb that is holding the joystick */
-  if (rp.joyP && rp.mode === 'map' && P.querySelector && P.querySelector('[data-joy]')) return;
+  if (controls.joyP && rp.mode === 'map' && P.querySelector && P.querySelector('[data-joy]')) return;
   if (force || sig !== rp.sig) {
     rp.sig = sig; /* keep what the player is typing (chat, a letter) when the sheet redraws */
     const ae = document.activeElement,

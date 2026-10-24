@@ -4,7 +4,7 @@ import {view} from '../core/app.js';
 import {hooks, rpInputReset, rpUI} from '../core/hooks.js';
 import {RPH, RPW, RT, rpLayout, rpLoc, rpResize, rpVec, rpcv} from '../core/layout.js';
 import {feature} from '../core/registry.js';
-import {rp} from '../core/state.js';
+import {controls, rp, walker} from '../core/state.js';
 import {$} from '../engine/util.js';
 import {rpChoose, rpDlgNext} from '../game/dialogue.js';
 import {rpTapTile} from '../game/move.js';
@@ -13,16 +13,16 @@ import {rpTacClick} from '../ui/battle.js';
 import {rpMenuClick} from '../ui/hud.js';
 
 function rpStickEnd(e) {
-  const S = rp.stick;
+  const S = controls.stick;
   if (!S || (e && S.id !== e.pointerId)) return;
   if (S.on) {
-    rp.held = null;
-    rp.stickUsed = true;
+    controls.held = null;
+    controls.stickUsed = true;
     setTimeout(() => {
-      rp.stickUsed = false;
+      controls.stickUsed = false;
     }, 0);
   }
-  rp.stick = null;
+  controls.stick = null;
 }
 const RP_KEYS = {arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down', arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right'};
 function rpJoyKnob(dx, dy) {
@@ -33,7 +33,7 @@ function rpJoyKnob(dx, dy) {
   j.classList.toggle('on', !!(dx || dy));
 }
 function rpJoyMove(e) {
-  const P = rp.joyP;
+  const P = controls.joyP;
   if (!P) return;
   const v = rpVec(e.clientX - P.cx, e.clientY - P.cy);
   let dx = v.x,
@@ -43,33 +43,33 @@ function rpJoyMove(e) {
     dx *= P.R / d;
     dy *= P.R / d;
   }
-  rp.joy = {x: dx / P.R, y: dy / P.R};
+  controls.joy = {x: dx / P.R, y: dy / P.R};
   rpJoyKnob(dx, dy);
 }
 function rpJoyEnd(e) {
-  const P = rp.joyP;
+  const P = controls.joyP;
   if (!P || (e && e.pointerId !== P.id)) return;
-  rp.joyP = null;
-  rp.joy = null;
+  controls.joyP = null;
+  controls.joy = null;
   rpJoyKnob(0, 0);
 }
 /* never keep walking once no finger is on the screen */
 feature({
   id: 'core-input',
   init() {
-    rp.stick = null;
+    controls.stick = null;
     rpcv.addEventListener('pointerdown', e => {
       if (rp.mode !== 'map') return;
       {
         const L = rpLoc(e, rpcv);
-        rp.stick = {id: e.pointerId, x: e.clientX, y: e.clientY, lx: L.x / L.w, ly: L.y / L.h, dx: 0, dy: 0, on: false};
+        controls.stick = {id: e.pointerId, x: e.clientX, y: e.clientY, lx: L.x / L.w, ly: L.y / L.h, dx: 0, dy: 0, on: false};
       }
       try {
         rpcv.setPointerCapture(e.pointerId);
       } catch (_) {}
     });
     rpcv.addEventListener('pointermove', e => {
-      const S = rp.stick;
+      const S = controls.stick;
       if (!S || S.id !== e.pointerId) return;
       {
         const v = rpVec(e.clientX - S.x, e.clientY - S.y);
@@ -78,14 +78,14 @@ feature({
       }
       if (!S.on && Math.hypot(S.dx, S.dy) > 14) {
         S.on = true;
-        rp.path = null;
+        walker.path = null;
       }
       if (S.on) e.preventDefault();
     });
     rpcv.addEventListener('pointerup', rpStickEnd);
     rpcv.addEventListener('pointercancel', rpStickEnd);
     rpcv.addEventListener('click', e => {
-      if (rp.stickUsed) return;
+      if (controls.stickUsed) return;
       if (rp.mode === 'battle') {
         if (rp.bt) rpTacClick(e);
         return;
@@ -96,22 +96,22 @@ feature({
       }
       if (rp.mode !== 'map') return;
       const L = rpLoc(e, rpcv),
-        x = (L.x / L.w) * RPW + rp.cam.x,
-        y = (L.y / L.h) * RPH + rp.cam.y;
+        x = (L.x / L.w) * RPW + walker.cam.x,
+        y = (L.y / L.h) * RPH + walker.cam.y;
       rpTapTile(Math.floor(x / RT), Math.floor(y / RT));
     });
     $('rp-panel').addEventListener('click', rpMenuClick);
     $('rp-panel').addEventListener('pointerdown', e => {
       const b = e.target.closest && e.target.closest('button[data-dir]');
       if (b) {
-        rp.held = b.dataset.dir;
-        rp.path = null;
+        controls.held = b.dataset.dir;
+        walker.path = null;
         e.preventDefault();
       }
     });
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(t =>
       $('rp-panel').addEventListener(t, () => {
-        rp.held = null;
+        controls.held = null;
       })
     );
     document.addEventListener('keydown', e => {
@@ -126,8 +126,8 @@ feature({
       }
       const k = e.key.toLowerCase();
       if (RP_KEYS[k] && rp.mode === 'map') {
-        rp.keys.add(RP_KEYS[k]);
-        rp.path = null;
+        controls.keys.add(RP_KEYS[k]);
+        walker.path = null;
         e.preventDefault();
         return;
       }
@@ -174,11 +174,11 @@ feature({
     });
     document.addEventListener('keyup', e => {
       const k = e.key.toLowerCase();
-      if (RP_KEYS[k]) rp.keys.delete(RP_KEYS[k]);
+      if (RP_KEYS[k]) controls.keys.delete(RP_KEYS[k]);
     });
     window.addEventListener('blur', () => {
-      rp.keys.clear();
-      rp.held = null;
+      controls.keys.clear();
+      controls.held = null;
     });
     window.addEventListener('resize', () => {
       if (view === 'rpg') {
@@ -186,13 +186,13 @@ feature({
         rpResize();
       }
     });
-    rp.joy = null;
-    rp.joyP = null;
+    controls.joy = null;
+    controls.joyP = null;
     $('rp-panel').addEventListener('pointerdown', e => {
       const j = e.target.closest && e.target.closest('[data-joy]');
       if (!j) return;
       const r = j.getBoundingClientRect();
-      rp.joyP = {id: e.pointerId, cx: r.left + r.width / 2, cy: r.top + r.height / 2, R: r.width * 0.36};
+      controls.joyP = {id: e.pointerId, cx: r.left + r.width / 2, cy: r.top + r.height / 2, R: r.width * 0.36};
       rpJoyMove(e);
       e.preventDefault();
       try {
@@ -202,7 +202,7 @@ feature({
     window.addEventListener(
       'pointermove',
       e => {
-        if (rp.joyP && e.pointerId === rp.joyP.id) {
+        if (controls.joyP && e.pointerId === controls.joyP.id) {
           rpJoyMove(e);
           e.preventDefault();
         }

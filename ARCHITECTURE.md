@@ -4,10 +4,10 @@ One HTML page is what ships: the website, `server/public/index.html`, served by 
 seven stylesheets in `styles/` and `index.html`.
 
 ```
-npm i                      # esbuild, acorn, eslint-scope, postcss (dev only)
+npm i                      # esbuild, acorn, eslint-scope, postcss, prettier, playwright (dev only)
 node tools/build.js        # → server/public/index.html (the website) and dist/kq_test.html, dist/kq_site_test.html (test hooks)
 node tools/imports.js      # rewrites every module's import/export lines from what it uses, checks the layers, formats (prettier)
-node test/run.js           # everything; `node test/run.js quick` skips the browser scenarios
+node test/run.js           # everything; `node test/run.js quick` skips the browser scenarios (GitHub runs it on every push: .github/workflows/test.yml)
 ```
 
 ## Layers and folders
@@ -28,11 +28,11 @@ redraws the panel), it calls a hook in `core/hooks.js`, which the higher module 
 | folder | what lives there |
 |---|---|
 | `engine/` | the kobold drawn in code, sprite sheets, sound effects, the music synth (it plays what `game/music.js` asks for), particles, small helpers |
-| `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design and `world/` by `tools/gen-data.js`), the registries the battle code reads, consumables |
+| `data/` | the generated content (`data/v6/`: classes, skills, foes, items, maps, story, made from the design and `world/` by `tools/gen-data.js`), weapon reach and terrain tables, consumables |
 | `adapters/` | browser storage and the page's online services (room, user, db) |
-| `core/` | game state (`state.js`), the hooks (`hooks.js`), event bus, feature registry, story conditions, options, layout and the battle view's size, the save format (`save.js`) |
+| `core/` | game state (`state.js`: `rp` the game being played, `controls` the thumbs and keys, `walker` walking and the camera), the hooks (`hooks.js`), event bus, feature registry, story conditions, options, layout and the battle view's size, the save format (`save.js`) |
 | `game/` | the world (`world.js`), the story (`story.js`), the character sheet, talents, items, music choice, movement, dialogue |
-| `battle/` | tactical battles: rules, flow (and its camera), boards, endings, enemy AI |
+| `battle/` | tactical battles: rules, flow (and its camera), boards, endings, enemy AI; the skill tables (built once from the data) and the foe cache are in `combat.js` |
 | `net/` | friends online (the server link is `net.online`, made by `ui/login.js`) |
 | `render/` | drawing the map (`map.js`, `map.js`) and the battle (`battle.js`) |
 | `ui/` | the heroes screen, the HUD, the ☰ menu, the pack's sheets, the Book, settings, the battle's buttons (`battle.js`), login |

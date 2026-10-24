@@ -6,8 +6,6 @@ import './engine/audio.js';
 import './engine/fx.js';
 import './engine/music.js';
 import './data/items.js';
-import './data/classes.js';
-import './data/monsters.js';
 import './data/battle.js';
 import './core/rules.js';
 import './core/state.js';

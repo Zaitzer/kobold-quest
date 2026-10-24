@@ -6,7 +6,7 @@ import {view} from '../core/app.js';
 import {hooks, rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {actions, feature, netHandlers} from '../core/registry.js';
-import {rp} from '../core/state.js';
+import {rp, walker} from '../core/state.js';
 import {rpToast} from '../game/dialogue.js';
 import {rpArea, rpPlace} from '../game/world.js';
 import {netGiftTick} from './gift.js';
@@ -178,7 +178,7 @@ function netPresence(force) {
   if (!force && now - net.lastPres < 120) return; /* the heroes screen: nobody to show yet */
   const s = rp.s,
     m = s.party[0],
-    p = rp.pos || {x: s.x + 0.5, y: s.y + 0.5};
+    p = walker.pos || {x: s.x + 0.5, y: s.y + 0.5};
   const pr = {
     kq: 1,
     pl: rpPlace(),

@@ -1,5 +1,5 @@
 /* ---------- player input ---------- */
-import {v6Crit, v6DmgRange, v6Hit, v6InReach, v6LegalTiles, v6Move, v6ReviveOK, v6TogetherOpts} from '../battle/combat.js';
+import {RP_SK, RP_ST, v6Crit, v6DmgRange, v6Hit, v6InReach, v6LegalTiles, v6Move, v6ReviveOK, v6TogetherOpts} from '../battle/combat.js';
 import {v6CanRetry, v6Retry} from '../battle/end.js';
 import {rpEndBattle, rpTacBegin, tcDo, tcUpcoming} from '../battle/flow.js';
 import {
@@ -27,8 +27,6 @@ import {BVH, BVW, TT, rpLoc, rpVec, rpcv} from '../core/layout.js';
 import {rpOpt, rpOptSave} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {rp} from '../core/state.js';
-import {RP_ST} from '../data/battle.js';
-import {RP_SK} from '../data/classes.js';
 import {RP_ITEMS} from '../data/items.js';
 import {WEAPONS} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';

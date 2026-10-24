@@ -14,7 +14,7 @@ const BUILD_ID=process.env.KQ_BUILD||new Date().toISOString().slice(0,19)+'Z';
 const {sheets}=require('../server/art.js');
 const TEST_ART={};for(const [key,b] of sheets(R+'/test/fixtures/art'))TEST_ART[key]='data:image/png;base64,'+b.toString('base64');
 function bundle(test,site){return esbuild.buildSync({entryPoints:[R+'/src/main.js'],bundle:true,format:'iife',target:'es2020',write:false,
-  define:{TEST:test?'true':'false',SITE:site?'true':'false',BUILD_ID:JSON.stringify(BUILD_ID),KQ_ART:site?'null':JSON.stringify(TEST_ART)},minifySyntax:!test,legalComments:'none',charset:'utf8'}).outputFiles[0].text}
+  define:{TEST:test?'true':'false',SITE:site?'true':'false',BUILD_ID:JSON.stringify(BUILD_ID),KQ_ART:site?'null':JSON.stringify(TEST_ART)},minifySyntax:!test,minifyWhitespace:!test,legalComments:'none',charset:'utf8'}).outputFiles[0].text}
 fs.mkdirSync(R+'/dist',{recursive:true});
 const page=js=>tpl.replace('/*CSS*/',()=>css).replace('/*JS*/',()=>js.replace(/<\/script/gi,'<\\/script'));
 fs.writeFileSync(R+'/dist/kq_test.html','<!doctype html><html lang="en"><head><meta charset="utf-8">\n'+page(bundle(true))+'\n</html>');

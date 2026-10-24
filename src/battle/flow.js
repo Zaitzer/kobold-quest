@@ -3,6 +3,9 @@
 import {rpAiTurn, tcPosScore} from './ai.js';
 import {v6Gen, v6Theme} from './board.js';
 import {
+  RP_E,
+  RP_SK,
+  RP_ST,
   v6Crit,
   v6DmgRange,
   v6DoSkill,
@@ -49,11 +52,8 @@ import {hooks, partnerName, rpInputReset, rpUI, shareFx} from '../core/hooks.js'
 import {BVH, BVW, TT, rpResize} from '../core/layout.js';
 import {rpBuzz, rpOpt} from '../core/options.js';
 import {rpSave} from '../core/save.js';
-import {rp} from '../core/state.js';
-import {RP_ST} from '../data/battle.js';
-import {RP_SK} from '../data/classes.js';
+import {controls, rp, walker} from '../core/state.js';
 import {RP_ITEMS} from '../data/items.js';
-import {RP_E} from '../data/monsters.js';
 import {WEAPONS, makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {burst, confetti, ftext, parts, set_shake, shake, texts} from '../engine/fx.js';
@@ -260,8 +260,8 @@ function rpBattle(keys, opt) {
   tcVis(b);
   tcCamTo(b, b.units[0], true);
   rp.mode = 'battle';
-  rp.path = null;
-  rp.held = null;
+  walker.path = null;
+  controls.held = null;
   rpInputReset();
   b.msg = duel
     ? 'Duel with ' + partnerName() + '! Place your kobolds, then start.'
@@ -1144,7 +1144,7 @@ function rpEndBattle() {
   if (b.over === 'lost' || b.over === 'duelwin' || b.over === 'duellose') b.over = b.over === 'lost' ? 'run' : 'duel';
   rp.bt = null;
   rp.mode = 'map';
-  rp.grace = 8;
+  walker.grace = 8;
   parts.length = 0;
   texts.length = 0;
   s.party.forEach(m => {

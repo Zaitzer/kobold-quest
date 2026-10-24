@@ -20,7 +20,6 @@ const RP_TW = {
 };
 /* skills on the grid. ap: 1, 2 or 'end' (needs 1, uses the rest). spell: never misses.
    area: blast radius around a tile. around: everything in reach. self: allies within n tiles. chan: lands next turn */
-const RP_ST = {}; /* how each skill is cast: filled with the v6 skills (battle/combat.js) */
 /* terrain: mv move cost, cov 1 half / 2 full cover, los blocks sight, grass hides */
 const RP_TT = {
   '.': {},
@@ -48,4 +47,4 @@ const TC_DIR8 = [
   [-1, 1],
   [-1, -1]
 ];
-export {RP_ST, RP_TT, RP_TW, TC_DIR8};
+export {RP_TT, RP_TW, TC_DIR8};

@@ -4,7 +4,7 @@
 import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
-import {rp} from '../core/state.js';
+import {controls, rp, walker} from '../core/state.js';
 import {clamp} from '../engine/util.js';
 import {s6Bump, s6NpcAt} from './story.js';
 import {rpBfs, rpSolid, w6Bump, w6LinkAt, w6Step, w6Use} from './world.js';
@@ -32,7 +32,7 @@ function rpSyncPos() {
       s.y = best[1];
     }
   }
-  rp.pos = {x: s.x + 0.5, y: s.y + 0.5};
+  walker.pos = {x: s.x + 0.5, y: s.y + 0.5};
   rp.pt = [s.x, s.y];
 }
 /* is the point inside something you can't walk through */
@@ -53,7 +53,7 @@ function rpBlockedAt(x, y) {
 function rpInteractAt(x, y) {
   if (!rp.grid[y]) return false;
   if (s6Bump(x, y) || w6Bump(x, y) || w6Use(x, y)) {
-    rp.path = null;
+    walker.path = null;
     return true;
   }
   return false;
@@ -71,31 +71,31 @@ function rpEnterTile(tx, ty) {
   s.steps++;
   const c = rp.grid[ty][tx];
   emit('tile:enter', tx, ty, c);
-  const g = rp.grace > 0;
+  const g = walker.grace > 0;
   if (w6Step(tx, ty, c)) {
     if (s.steps % 10 === 0) rpSave();
     return;
   }
-  if (g) rp.grace--;
+  if (g) walker.grace--;
   if (s.steps % 10 === 0) rpSave();
 }
 /* the direction Pip wants to go this frame (length 0..1) */
 function rpWant() {
   const s = rp.s;
-  if (rp.joy && !rp.joyP) rp.joy = null;
-  if (rp.joy) {
-    const m = Math.hypot(rp.joy.x, rp.joy.y);
+  if (controls.joy && !controls.joyP) controls.joy = null;
+  if (controls.joy) {
+    const m = Math.hypot(controls.joy.x, controls.joy.y);
     if (m > 0.18) {
-      rp.path = null;
+      walker.path = null;
       const k = clamp((m - 0.18) / 0.62, 0.35, 1);
-      return {x: (rp.joy.x / m) * k, y: (rp.joy.y / m) * k};
+      return {x: (controls.joy.x / m) * k, y: (controls.joy.y / m) * k};
     }
   }
-  if (rp.stick && rp.stick.on) {
-    const d = Math.hypot(rp.stick.dx, rp.stick.dy);
+  if (controls.stick && controls.stick.on) {
+    const d = Math.hypot(controls.stick.dx, controls.stick.dy);
     if (d > 0) {
       const m = clamp((d - 8) / 40, 0.35, 1);
-      return {x: (rp.stick.dx / d) * m, y: (rp.stick.dy / d) * m};
+      return {x: (controls.stick.dx / d) * m, y: (controls.stick.dy / d) * m};
     }
   }
   let x = 0,
@@ -105,29 +105,29 @@ function rpWant() {
     x += v[0];
     y += v[1];
   };
-  rp.keys.forEach(add);
-  if (rp.held && !rp.keys.has(rp.held)) add(rp.held);
+  controls.keys.forEach(add);
+  if (controls.held && !controls.keys.has(controls.held)) add(controls.held);
   if (x || y) {
     const d = Math.hypot(x, y);
     return {x: x / d, y: y / d};
   }
-  if (rp.path) {
-    if (!rp.path.length) {
-      rp.path = null;
-      if (rp.pathEnd) {
-        const [tx, ty] = rp.pathEnd;
-        rp.pathEnd = null;
+  if (walker.path) {
+    if (!walker.path.length) {
+      walker.path = null;
+      if (walker.pathEnd) {
+        const [tx, ty] = walker.pathEnd;
+        walker.pathEnd = null;
         s.face = tx > s.x ? 'right' : tx < s.x ? 'left' : ty > s.y ? 'down' : 'up';
         rpInteractAt(tx, ty);
       }
       return {x: 0, y: 0};
     }
-    const [nx, ny] = rp.path[0],
-      dx = nx + 0.5 - rp.pos.x,
-      dy = ny + 0.5 - rp.pos.y,
+    const [nx, ny] = walker.path[0],
+      dx = nx + 0.5 - walker.pos.x,
+      dy = ny + 0.5 - walker.pos.y,
       d = Math.hypot(dx, dy);
     if (d < 0.14) {
-      rp.path.shift();
+      walker.path.shift();
       return rpWant();
     }
     return {x: dx / d, y: dy / d, path: 1};
@@ -136,19 +136,19 @@ function rpWant() {
 }
 function rpMoveFrame(dt) {
   const s = rp.s;
-  if (!rp.pos) rpSyncPos();
+  if (!walker.pos) rpSyncPos();
   if (rp.pt[0] !== s.x || rp.pt[1] !== s.y) rpSyncPos();
   const w = rpWant();
-  rp.moving = false;
+  walker.moving = false;
   if (!w.x && !w.y) {
-    rp.bumpT = 0;
-    rp.bumpLock = null;
+    controls.bumpT = 0;
+    controls.bumpLock = null;
     return;
   }
   if (Math.abs(w.x) > Math.abs(w.y) * 1.05) s.face = w.x > 0 ? 'right' : 'left';
   else if (Math.abs(w.y) > 0.01) s.face = w.y > 0 ? 'down' : 'up';
   const step = RP_SPEED * dt,
-    p = rp.pos;
+    p = walker.pos;
   let moved = false,
     hit = null;
   /* move in small slices so fast frames never skip a wall */
@@ -192,7 +192,7 @@ function rpMoveFrame(dt) {
       }
     }
   }
-  rp.moving = moved;
+  walker.moving = moved;
   const tx = Math.floor(p.x),
     ty = Math.floor(p.y);
   if (tx !== s.x || ty !== s.y) {
@@ -205,22 +205,22 @@ function rpMoveFrame(dt) {
       fy = s.y + RP_DIR[s.face][1];
     if (rpSpecialAt(fx, fy)) {
       const key = fx + ',' + fy;
-      if (rp.bumpLock !== key) {
-        rp.bumpT += dt;
-        if (rp.bumpT > 0.12) {
-          rp.bumpT = 0;
-          rp.bumpLock = key;
-          rp.held = null;
+      if (controls.bumpLock !== key) {
+        controls.bumpT += dt;
+        if (controls.bumpT > 0.12) {
+          controls.bumpT = 0;
+          controls.bumpLock = key;
+          controls.held = null;
           rpInteractAt(fx, fy);
         }
       }
-    } else rp.bumpT = 0;
+    } else controls.bumpT = 0;
   } else if (!hit) {
-    rp.bumpT = 0;
-    rp.bumpLock = null;
+    controls.bumpT = 0;
+    controls.bumpLock = null;
   }
-  if (rp.path && !moved && hit) {
-    rp.path = null;
+  if (walker.path && !moved && hit) {
+    walker.path = null;
   }
 }
 /* one-tile nudge (keyboard Enter on a d-pad button, tests) */
@@ -232,8 +232,8 @@ function rpTry(dir) {
   s.face = dir;
   if (rpInteractAt(nx, ny)) return false;
   if (rpSolid(nx, ny)) return false;
-  rp.path = [[nx, ny]];
-  rp.pathEnd = null;
+  walker.path = [[nx, ny]];
+  walker.pathEnd = null;
   return true;
 }
 function rpTapTile(tx, ty) {
@@ -243,16 +243,16 @@ function rpTapTile(tx, ty) {
   if (rpSpecialAt(tx, ty)) {
     const p = rpBfs(tx, ty, true);
     if (p) {
-      rp.path = p;
-      rp.pathEnd = [tx, ty];
+      walker.path = p;
+      walker.pathEnd = [tx, ty];
     }
     return;
   }
   if (rpSolid(tx, ty)) return;
   const p = rpBfs(tx, ty, false);
   if (p && p.length) {
-    rp.path = p;
-    rp.pathEnd = null;
+    walker.path = p;
+    walker.pathEnd = null;
   }
 }
 function rpActFacing() {
@@ -272,12 +272,12 @@ function rpActFacing() {
 feature({
   id: 'game-move',
   init() {
-    rp.pos = null;
+    walker.pos = null;
     rp.pt = null;
-    rp.keys = new Set();
-    rp.bumpT = 0;
-    rp.bumpLock = null;
-    rp.moving = false;
+    controls.keys = new Set();
+    controls.bumpT = 0;
+    controls.bumpLock = null;
+    walker.moving = false;
   }
 });
 export {

@@ -1,16 +1,14 @@
 /* Shared fights over the network (systems.md §12): the host runs the battle and sends snapshots and effects; the guest mirrors it and
    sends its turns. Also the 20-second turn timer, a friend who drops (their kobolds guard), duels, and cleaning what a friend's page sends. */
 import {rpAiTurn} from '../battle/ai.js';
-import {v6Move} from '../battle/combat.js';
+import {RP_E, RP_SK, v6Move} from '../battle/combat.js';
 import {rpFloat, rpRewards, tcCamTo, tcDo, tcEndTurn, tcFloatU} from '../battle/flow.js';
 import {tcHome, tcLive, tcPath, tcReach, tcShown, tcT, tcUnitAt, tcVis} from '../battle/grid.js';
 import {hooks, rpInputReset, rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
-import {rp} from '../core/state.js';
-import {RP_SK} from '../data/classes.js';
+import {rp, walker} from '../core/state.js';
 import {RP_ITEMS} from '../data/items.js';
-import {RP_E} from '../data/monsters.js';
 import {makeK} from '../engine/art.js';
 import {sfx} from '../engine/audio.js';
 import {confetti} from '../engine/fx.js';
@@ -233,7 +231,7 @@ function netBuildMirror(d, hostPeer) {
   }
   rp.bt = b;
   rp.mode = 'battle';
-  rp.path = null;
+  walker.path = null;
   rpInputReset();
   tcVis(b);
   tcCamTo(b, b.units.find(u => u.ctl === 'me') || b.units[0], true);

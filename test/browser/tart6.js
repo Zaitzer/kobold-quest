@@ -5,7 +5,7 @@ const {chromium}=require('playwright');const path=require('path');
 const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
 (async()=>{const br=await chromium.launch();const p=await br.newPage({viewport:{width:844,height:390}});const errs=[],fail=[];p.on('pageerror',e=>errs.push(e.message));
   await p.goto(FILE);await p.evaluate(()=>sessionStorage.setItem('kobold-pit-booted','1'));await p.reload();await p.waitForTimeout(300);await p.click('#go-rpg');await p.waitForTimeout(300);
-  await p.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Wizzle','sorcerer',5],['Glint','bard',5]]);const P=__rp.s.party;P[1].cid='wizzle';P[2].cid='glint';__rp.s.hero=__rp.s.hero||{name:'Pip'};__rp.s.hero.colour='blue';__rp.grace=1e9});
+  await p.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Wizzle','sorcerer',5],['Glint','bard',5]]);const P=__rp.s.party;P[1].cid='wizzle';P[2].cid='glint';__rp.s.hero=__rp.s.hero||{name:'Pip'};__rp.s.hero.colour='blue';__walker.grace=1e9});
   await p.waitForTimeout(600);
   const S=await p.evaluate(()=>({pip:__v6.sheets.kob(0),wiz:__v6.sheets.kob(1),glint:__v6.sheets.kob(2),rat:__v6.sheets.foe('cellar_rat'),scout:__v6.sheets.foe('nettlenose_scout'),draws:__v6.sheets.draws(),blue:__v6.sheets.blue()}));
   if(S.pip!=='characters/heroes/pip')fail.push('the hero has no sheet: '+S.pip);if(S.wiz!=='characters/companions/wizzle')fail.push('Wizzle has no sheet: '+S.wiz);

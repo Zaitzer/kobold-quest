@@ -2,15 +2,14 @@
    Scenes from src/data/v6/story.js: the script's own lines, played where and when world/scenes.json (the map editor) puts them, with their fights,
    the class pick, companions joining, items, deeds and flags. NPCs stand at their places and say their lines; the goal bar and the
    quest log read the flags; campfire chats play at an inn's hearth; the pack is chosen at the roster board. */
-import {v6BossKey, v6EliteKey, v6FoeKey} from '../battle/combat.js';
+import {RP_E, v6BossKey, v6EliteKey, v6FoeKey} from '../battle/combat.js';
 import {rpBattle} from '../battle/flow.js';
 import {emit} from '../core/bus.js';
 import {openLetter, partnerName, startFight} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
 import {rpSave} from '../core/save.js';
-import {rp} from '../core/state.js';
-import {RP_E} from '../data/monsters.js';
+import {controls, rp, walker} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {FOES6} from '../data/v6/foes.js';
 import {CHATS6, COMPANIONS6, DEEDS6, GOALS6, KIND6, MINERS6, NPCS6, SCENES6, SCRIPT6, SETPIECES6, WAVE16} from '../data/v6/story.js';
@@ -60,8 +59,8 @@ function play(id) {
   story.scene = sc;
   story.q = sc.steps.slice();
   story.busy = true;
-  rp.path = null;
-  rp.held = null;
+  walker.path = null;
+  controls.held = null;
   next();
   return true;
 }
@@ -303,7 +302,7 @@ function pickClass(cls) {
   m.colour = old.colour;
   m.corr = old.corr || 0;
   s.party[i] = m;
-  rp.pk = null;
+  walker.pk = null;
   rp.mode = 'map';
   rpToast(fillHero('{hero} the ' + CLASSES6[cls].n.toLowerCase() + '!'));
   next();
@@ -400,7 +399,7 @@ function s6Npcs() {
     y: n.y,
     team: 2,
     art: n.id,
-    sheet: n.sheet,
+    looks: n.looks,
     w: 'stick',
     col: n.colour
   }));

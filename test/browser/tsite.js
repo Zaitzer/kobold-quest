@@ -21,7 +21,7 @@ const errs=[];let fails=0;const check=(ok,msg)=>{console.log((ok?'ok  ':'FAIL')+
  const loginAs=async(p,name,pass,kind)=>{await p.fill('#login-name',name);await p.fill('#login-pass',pass);await p.click(kind==='new'?'#login-new':'#login-go');
    await wait(p,()=>!document.getElementById('go-rpg').hidden||/[A-Za-z]/.test(document.getElementById('login-msg').textContent)&&!/…/.test(document.getElementById('login-msg').textContent));
    return p.evaluate(()=>({play:!document.getElementById('go-rpg').hidden,msg:document.getElementById('login-msg').textContent,me:window.__net&&__net.me}))};
- const play=async(p,gold)=>{await p.click('#go-rpg');await p.waitForTimeout(600);await p.evaluate(g=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5]]);__rp.grace=1e9;if(g!=null)__rp.s.gold=g},gold)};
+ const play=async(p,gold)=>{await p.click('#go-rpg');await p.waitForTimeout(600);await p.evaluate(g=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5]]);__walker.grace=1e9;if(g!=null)__rp.s.gold=g},gold)};
 
  const A=await page({width:844,height:390},'A');
  await A.screenshot({path:R+'/test/out/site_login.png'});check(await A.evaluate(()=>!document.getElementById('login').hidden&&document.getElementById('go-rpg').hidden),'website starts at the login form, Play hidden');

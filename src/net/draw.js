@@ -1,7 +1,7 @@
 /* everyone else on my map */
 import {view} from '../core/app.js';
 import {RT} from '../core/layout.js';
-import {rp} from '../core/state.js';
+import {rp, walker} from '../core/state.js';
 import {OL, WEAPONS, ctx, makeK} from '../engine/art.js';
 import {R, rr} from '../engine/util.js';
 import {rpPlace} from '../game/world.js';
@@ -91,6 +91,6 @@ function netDrawTags() {
     if (B && now - B.t < 5000) netBubble(k.x, k.y - 62, B.txt);
   });
   const mine = net.bubbles.me;
-  if (mine && now - mine.t < 5000 && rp.pk) netBubble(rp.pk.x, rp.pk.y - 50, mine.txt);
+  if (mine && now - mine.t < 5000 && walker.pk) netBubble(walker.pk.x, walker.pk.y - 50, mine.txt);
 }
 export {netBubble, netDrawTags, netHere, netPartnerK};

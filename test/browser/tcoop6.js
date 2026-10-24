@@ -13,8 +13,8 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
    await p.click('#go-rpg');await p.waitForTimeout(400);return p};
  const check=(ok,msg)=>{out.push((ok?'ok ':'FAIL ')+msg);if(!ok)bad.push(msg)};
  const A=await mk('u_alice'),B=await mk('u_bob');
- await A.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5]]);__rp.grace=9999});
- await B.evaluate(()=>{__v6.pack([['Tansy','rogue',7],['Wizzle','wizard',6]]);__rp.grace=9999});
+ await A.evaluate(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5]]);__walker.grace=9999});
+ await B.evaluate(()=>{__v6.pack([['Tansy','rogue',7],['Wizzle','wizard',6]]);__walker.grace=9999});
  await A.waitForTimeout(1000);
  check(await A.evaluate(()=>!!__net.partner&&__net.partner.presence.pl===('w6:'+__rp.s.w6)),'Alice sees Bob in the same place');
  /* fight one: Alice opens it, Bob joins */

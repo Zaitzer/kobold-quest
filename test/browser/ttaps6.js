@@ -15,7 +15,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
  const row=async(name,budget,fn)=>{T.n=0;let ok=false,why='';try{ok=await fn()}catch(e){why=e.message.split('\n')[0].slice(0,90)}
    const over=T.n>budget+1;if(!ok||over)bad++;rows.push((ok&&!over?'ok  ':'FAIL')+' '+name.padEnd(34)+' '+T.n+' taps (budget '+budget+')'+(ok?'':' did not happen '+why))};
  const na=name=>rows.push('--   '+name.padEnd(34)+' not in the slice yet');
- const fresh=async()=>{await E(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5],['Wizzle','wizard',5],['Bork','bard',5]]);__rp.grace=1e9;__rp.s.q.tac=1;
+ const fresh=async()=>{await E(()=>{__v6.pack([['Pip','fighter',5],['Glint','cleric',5],['Wizzle','wizard',5],['Bork','bard',5]]);__walker.grace=1e9;__rp.s.q.tac=1;
    const P=__rp.s.party;P[1].skills=['cleric_heal','cleric_blessing'];P[2].skills=['wizard_ice_bolt','wizard_fireball'];P[3].skills=['bard_rousing_song','bard_vicious_mockery']});await p.waitForTimeout(200)};
  await fresh();
  /* ---------- the overworld ---------- */

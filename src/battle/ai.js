@@ -1,10 +1,8 @@
 /* ---------- AI (enemies, and the party when a test bot plays) ---------- */
-import {v6AiTurn, v6Crit, v6DmgRange, v6Hit, v6InReach, v6Move, v6PosHabit, v6TogetherOpts} from './combat.js';
+import {RP_SK, RP_ST, v6AiTurn, v6Crit, v6DmgRange, v6Hit, v6InReach, v6Move, v6PosHabit, v6TogetherOpts} from './combat.js';
 import {tcDo, tcQ} from './flow.js';
 import {rpTW, tcActCost, tcAt, tcCheb, tcCover, tcEuc, tcLive, tcMelee, tcPath, tcReach, tcSideSees, tcT, tcW} from './grid.js';
 import {rp} from '../core/state.js';
-import {RP_ST} from '../data/battle.js';
-import {RP_SK} from '../data/classes.js';
 import {pick} from '../engine/util.js';
 import {rpMemSkills, v6Stats} from '../game/sheet.js';
 

@@ -7,7 +7,7 @@ import {emit} from '../core/bus.js';
 import {startFight} from '../core/hooks.js';
 import {feature} from '../core/registry.js';
 import {test} from '../core/rules.js';
-import {PHASE, rp} from '../core/state.js';
+import {PHASE, controls, rp, walker} from '../core/state.js';
 import {PLACES6} from '../data/v6/foes.js';
 import {LINKS6, MAPS6, ROOMS6, TILES6} from '../data/v6/maps.js';
 import {CHESTS6} from '../data/v6/story.js';
@@ -77,7 +77,7 @@ function rpPlace() {
 function rpApplyWorld() {
   const R = rp.s && rp.s.w6 && w6Rows(rp.s.w6);
   if (R) rp.grid = R.map(r => r.split(''));
-  rp.mapImg = null;
+  walker.mapImg = null;
   emit('world:apply');
 }
 /* ------------------------------------------------------------------ entering a place */
@@ -109,10 +109,10 @@ function w6Go(p, x, y) {
   s.y = ay;
   s.face = isRoom(p) ? 'up' : 'down';
   rpApplyWorld();
-  rp.pos = null;
-  rp.path = null;
-  rp.held = null;
-  rp.grace = 4;
+  walker.pos = null;
+  walker.path = null;
+  controls.held = null;
+  walker.grace = 4;
   if (from && !isRoom(from) && from !== p && !isRoom(p)) s.w6visit = (s.w6visit || 0) + 1; // a new visit: campfires heal again (systems.md §5)
   if (!rp.headless) sfx('door');
   emit('w6:enter', p, from);
@@ -144,7 +144,7 @@ function w6Start(pack, opt) {
   const M = MAPS6[opt.map || 'hearthspire'];
   w6Go(opt.map || 'hearthspire', ...(opt.at || M.entry));
   rp.mode = 'map';
-  rp.pk = null;
+  walker.pk = null;
   rp.bt = null;
   return s;
 }
@@ -197,8 +197,8 @@ function w6PatrolFight(p, t, aware) {
     P = PLACES6[E.place],
     L = w6PatrolLevel(p),
     keys = [v6EliteKey(P.pool[0], L)].concat(v6Mix(Object.assign({}, P, {L, target: P.target - 1})));
-  rp.path = null;
-  rp.held = null;
+  walker.path = null;
+  controls.held = null;
   rp.s.w6st.fighting = t.id;
   /* shared with a friend in the same place when one is free (systems.md §12) */
   startFight(keys, {
@@ -288,7 +288,7 @@ function w6Step(x, y, c) {
   if (s6Step(x, y)) return true;
   if (w6PatrolCheck(x, y, c)) return true;
   const E = w6Enc(p);
-  if (!E || rp.grace > 0 || st.since < W6_GAP) return false;
+  if (!E || walker.grace > 0 || st.since < W6_GAP) return false;
   const chance = c === '"' ? E.grass || 0 : E.floor && !w6Solid(c) ? E.floor : 0;
   if (!chance || Math.random() >= chance) return false;
   st.since = 0;
@@ -301,8 +301,8 @@ function w6Follow(L) {
   const [, , , to, tx, ty, , flag] = L;
   if (!linkOpen(flag)) {
     rpToast(flag === 'never' ? 'That way is for later.' : 'The way is shut.');
-    rp.path = null;
-    rp.held = null;
+    walker.path = null;
+    controls.held = null;
     return true;
   }
   return w6Go(to, tx, ty);
@@ -315,8 +315,8 @@ function w6Fight(p, E) {
   const lv = Math.max(P.L - 1, Math.min(P.L + 2, L)),
     keys = v6Mix(Object.assign({}, P, {L: lv}));
   rp.s.w6st.enc[p] = (rp.s.w6st.enc[p] || 0) + 1;
-  rp.path = null;
-  rp.held = null;
+  walker.path = null;
+  controls.held = null;
   startFight(keys, {
     members: rp.s.party.map(m => ({m, ctl: 'me', own: 'h'})),
     zone: ',',

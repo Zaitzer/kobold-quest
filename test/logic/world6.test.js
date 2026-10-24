@@ -26,11 +26,11 @@ const nx0=x=>x;
 // every link in the data arrives on open ground that is not itself a link
 for(const L of X.LINKS6){if(L[7])continue;fresh();X.w6Go(L[3],L[4],L[5]);const s=X.rp.s;ok(!X.rpSolid(s.x,s.y)&&!X.w6LinkAt(s.w6,s.x,s.y),'arriving from '+L[0]+' '+L[1]+','+L[2]+' lands free: '+s.w6+' '+s.x+','+s.y)}
 // encounters: none in towns, grass on R1 only, every floor step in the mine, 12 steps apart
-{const s=fresh();let n=0;for(let i=0;i<400;i++){X.rp.grace=0;s.w6st.since=99;if(X.w6Step(s.x,s.y,'M'))n++;X.rp.bt=null}ok(n===0,'no fights in town');
- X.w6Go('r1',0,12);let g=0,road=0;for(let i=0;i<4000;i++){X.rp.grace=0;s.w6st.since=99;X.rp.s.w6='r1';if(X.w6Step(50,1,'"'))g++;X.rp.bt=null;if(X.w6Step(50,2,','))road++;X.rp.bt=null;X.rp.s.w6='r1'}
+{const s=fresh();let n=0;for(let i=0;i<400;i++){X.walker.grace=0;s.w6st.since=99;if(X.w6Step(s.x,s.y,'M'))n++;X.rp.bt=null}ok(n===0,'no fights in town');
+ X.w6Go('r1',0,12);let g=0,road=0;for(let i=0;i<4000;i++){X.walker.grace=0;s.w6st.since=99;X.rp.s.w6='r1';if(X.w6Step(50,1,'"'))g++;X.rp.bt=null;if(X.w6Step(50,2,','))road++;X.rp.bt=null;X.rp.s.w6='r1'}
  ok(Math.abs(g/4000-0.075)<0.015,'tall grass rolls 7.5%: '+(g/40).toFixed(1)+'%');ok(road===0,'the road never rolls');
- let m=0;for(let i=0;i<4000;i++){X.rp.grace=0;s.w6st.since=99;X.rp.s.w6='mine1';if(X.w6Step(5,5,'f'))m++;X.rp.bt=null}ok(Math.abs(m/4000-0.06)<0.015,'a mine floor step rolls 6%: '+(m/40).toFixed(1)+'%');
- X.rp.s.w6='r1';s.w6st.since=0;let early=0;for(let i=0;i<11;i++){X.rp.grace=0;if(X.w6Step(50,1,'"'))early++;X.rp.bt=null}ok(early===0,'no fight within 12 steps of the last')}
+ let m=0;for(let i=0;i<4000;i++){X.walker.grace=0;s.w6st.since=99;X.rp.s.w6='mine1';if(X.w6Step(5,5,'f'))m++;X.rp.bt=null}ok(Math.abs(m/4000-0.06)<0.015,'a mine floor step rolls 6%: '+(m/40).toFixed(1)+'%');
+ X.rp.s.w6='r1';s.w6st.since=0;let early=0;for(let i=0;i<11;i++){X.walker.grace=0;if(X.w6Step(50,1,'"'))early++;X.rp.bt=null}ok(early===0,'no fight within 12 steps of the last')}
 // a fight from the grass is a v6 fight on a meadow board; losing wakes you at the last fountain with half the gold
 {const s=fresh({map:'r1'});s.gold=100;s.w6st.respawn='pebblebrook';X.w6Fight('r1',X.w6Enc('r1'));const b=X.rp.bt;ok(b&&b.v6&&b.theme6==='meadow','a meadow v6 fight');
  b.units.filter(u=>u.side===0).forEach(u=>{u.hp=0;X.tcKo(u)});X.tcCheckEnd();X.rpEndBattle();ok(s.w6==='pebblebrook'&&s.gold===50,'lost: back at the Pebblebrook fountain with half the gold ('+s.w6+', '+s.gold+')');

@@ -64,7 +64,7 @@ function artFor(base){if(!base||!E.artIndex)return null;if(base in E.art)return 
 const dash=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 /* a person's sheet: their id, then its parts ("mallow_nest" → mallow, "guard_castle" → guard) */
 const person=b=>E.artIndex&&E.artIndex[b]&&/^art\/(characters|bosses)\//.test(E.artIndex[b]);
-function npcArt(n){if(n.sheet)return person(n.sheet)?artFor(n.sheet):null;const d=dash(n.id);if(person(d))return artFor(d);for(const p of d.split('-'))if(person(p))return artFor(p);return null}
+function npcArt(n){for(const b of KW.looksOf(n))if(person(b))return artFor(b);return null}   // the same rule as the game (tools/world/world.js)
 /* a patrol looks like the first foe of its map's encounters */
 function patrolArt(P){const en=P.encounters,pl=en&&E.places6pool[en.place];return pl&&pl[0]?artFor(dash(pl[0])):null}
 

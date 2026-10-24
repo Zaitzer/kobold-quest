@@ -1,12 +1,12 @@
 /* The lobby (systems.md §12): a fight is offered to a free friend in the same place, they pick kobolds to bring (synced to the host's
    level), then the shared battle starts. rpFight is the game's way to start any fight (core/hooks.js: startFight). */
+import {RP_E} from '../battle/combat.js';
 import {rpBattle} from '../battle/flow.js';
 import {hooks, rpInputReset, rpUI} from '../core/hooks.js';
 import {rpBuzz} from '../core/options.js';
 import {feature} from '../core/registry.js';
 import {v6PackKobold} from '../core/save.js';
-import {rp} from '../core/state.js';
-import {RP_E} from '../data/monsters.js';
+import {rp, walker} from '../core/state.js';
 import {CLASSES6} from '../data/v6/classes.js';
 import {SKILLS6} from '../data/v6/skills.js';
 import {WEAPONS} from '../engine/art.js';
@@ -74,7 +74,7 @@ function netOpenLobby(keys, opt, duel) {
   const alive = rp.s.party.map((m, i) => (m.hp > 0 ? i : -1)).filter(i => i >= 0);
   net.lob = {id: netRid(), host: true, duel: !!duel, keys, opt: opt || {}, hsel: alive.slice(0, rp.s.w6 ? 4 : 3), g: null};
   rp.mode = 'lobby';
-  rp.path = null;
+  walker.path = null;
   rpInputReset();
   netPresence(true);
   netLobSend();

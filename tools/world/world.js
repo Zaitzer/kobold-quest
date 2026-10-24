@@ -53,6 +53,12 @@ function parseScript(text){const S={};let part=null,cur=null;
 /* the item an anchor names, at or after `from`; -1 when none */
 function findLine(items,a,from){return items.findIndex((it,j)=>j>=(from||0)&&((it.text||'')+' '+(it.dir||'')).includes(a.replace(/\bPip\b/g,'{hero}')))}
 
+/* ---------------------------------------------------------------- how a person looks: the sprite sheets they may use, in order (the one
+   named in the world as "sheet", else their id, then the id's parts: "mallow_nest" → mallow-nest, mallow, nest). The game (engine/sheets.js)
+   and the editor take the first one drawn in art/characters or art/bosses. */
+const dashName=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function looksOf(n){if(n.sheet)return[n.sheet];const d=dashName(n.id);return[d].concat(d.split('-').filter(p=>p&&p!==d))}
+
 /* ---------------------------------------------------------------- walking */
 const solidIn=(W,P)=>{const L=W.tiles[P.kind]||{};return c=>!!(L[c]&&L[c].solid)};
 /* steps from a tile to every tile reachable (a solid tile can be the goal: stand next to it) */
@@ -140,7 +146,7 @@ function toGame(W,script,places6){const MAPS6={},ROOMS6={},LINKS6=[],NPCS6=[],CH
       MAPS6[P.id]=Object.assign({flood:P.flood||null,title:P.title,w:P.w,h:P.h,rows:P.rows,marks:P.marks||[],entry:P.entry,notes:P.notes||'',patrols:P.patrols||[],stables:P.stables||[]},enc?{enc}:{},extra)}
     else ROOMS6[P.id]=Object.assign({title:P.title,rows:P.rows,marks:P.marks||[],solid:roomSolid},extra);
     for(const L of P.links||[])LINKS6.push(L.flag?[gid,L.x,L.y,L.to||'',L.tx||0,L.ty||0,L.how||'step',L.flag]:[gid,L.x,L.y,L.to,L.tx,L.ty,L.how||'step']);
-    for(const n of P.npcs||[]){const o=Object.assign({},n,{place:gid});if(o.from&&script){const it=(script[o.from]||{items:[]}).items;o.lines=(o.lines||[]).map(a=>findLine(it,a,0))}NPCS6.push(o)}
+    for(const n of P.npcs||[]){const o=Object.assign({},n,{place:gid,looks:looksOf(n)});if(o.from&&script){const it=(script[o.from]||{items:[]}).items;o.lines=(o.lines||[]).map(a=>findLine(it,a,0))}NPCS6.push(o)}
     for(const c of P.chests||[])CHESTS6.push({name:c.name,place:c.x!=null?gid:null,x:c.x!=null?c.x:null,y:c.y!=null?c.y:null,where:c.where||'',items:c.items})}
   /* the scenes with their anchors turned into line numbers: ['say', from, to, i, j] */
   const SC=JSON.parse(JSON.stringify((W.scenes||{}).scenes||[]));
@@ -160,4 +166,4 @@ function save(rootDir,W){const fs=require('fs'),path=require('path'),D=path.join
 const ORDER=['id','title','w','h','entry','notes','town','music','theme','dark','encounters','flood','rows','marks','links','npcs','chests','patrols','stables','goals'];
 function placeFile(P){const o={};for(const k of ORDER)if(P[k]!==undefined)o[k]=P[k];for(const k of Object.keys(P))if(!(k in o)&&k!=='kind')o[k]=P[k];return o}
 
-return{format,gameId,fileOf,blank,parseScript,findLine,NOTE,reach,stepsTo,roomStart,check,toGame,load,save,placeFile,ORDER}});
+return{looksOf,format,gameId,fileOf,blank,parseScript,findLine,NOTE,reach,stepsTo,roomStart,check,toGame,load,save,placeFile,ORDER}});
