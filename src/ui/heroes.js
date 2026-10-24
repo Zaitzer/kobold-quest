@@ -330,7 +330,7 @@ const heroCv = (cls, colour, big) =>
   '" width="' +
   (big ? 96 : 48) +
   '" height="' +
-  (big ? 192 : 96) +
+  (big ? 96 : 48) +
   '" data-hero="' +
   (cls || '') +
   '" data-colour="' +

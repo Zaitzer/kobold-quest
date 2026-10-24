@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: sprite sheets (build step 19, art/ASSETS.md, style-guide.md) ----------
-   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 64 frames (bosses 64 × 96),
+   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 32 frames, one tile (bosses 64 × 64, 2 × 2 tiles; 24 Oct),
    facing right (flipped for left), drawn pixel for pixel with no smoothing. A sheet is used only when it is drawn (the stand-ins are
    left out by the build and the server); anything without one keeps its look drawn in code. The hero's sheet is drawn orange and
    recoloured to the hero's colour (style-guide.md, "The hero's colour"). */
@@ -7,12 +7,12 @@ import {SPR, sprite} from './sprites.js';
 
 /* the sheet types (ASSETS.md "Sheet types"): frame size and the rows' names */
 const SHEET6 = {
-  hero: {fw: 32, fh: 64, rows: {down: 0, up: 1, side: 2, idle: 3, attack: 4, cast: 5, hurt: 6}, n: [3, 3, 3, 2, 3, 2, 4]},
-  villager: {fw: 32, fh: 64, rows: {down: 0, up: 1, side: 2, talk: 3}, n: [3, 3, 3, 2]},
-  foe: {fw: 32, fh: 64, rows: {idle: 0, side: 1, attack: 2, hurt: 3}, n: [2, 3, 3, 2]},
-  boss: {fw: 64, fh: 96, rows: {idle: 0, attack: 1, tele: 2, hurt: 3}, n: [2, 3, 2, 2]}
+  hero: {fw: 32, fh: 32, rows: {down: 0, up: 1, side: 2, idle: 3, attack: 4, cast: 5, hurt: 6}, n: [3, 3, 3, 2, 3, 2, 4]},
+  villager: {fw: 32, fh: 32, rows: {down: 0, up: 1, side: 2, talk: 3}, n: [3, 3, 3, 2]},
+  foe: {fw: 32, fh: 32, rows: {idle: 0, side: 1, attack: 2, hurt: 3}, n: [2, 3, 3, 2]},
+  boss: {fw: 64, fh: 64, rows: {idle: 0, attack: 1, tele: 2, hurt: 3}, n: [2, 3, 2, 2]}
 };
-const FEET = 60 / 64; // the feet line (row 60 of 64)
+const FEET = 30 / 32; // the feet line (row 30 of 32; a boss's row 60 of 64)
 /* every loaded v6 sheet by its last name ("wizzle", "cellar-rat"), so a character finds its sheet without knowing the folder */
 let index = null,
   indexN = 0;
@@ -151,8 +151,8 @@ function frameOf(type, k, map) {
   }
   return [row, Math.min(f, T.n[row] - 1)];
 }
-/* draw one frame with its feet at (0,0), crisp: a 32 × 64 frame stands about as tall as a kobold drawn in code (76 units) */
-const UNIT = 76 / 60;
+/* draw one frame with its feet at (0,0), crisp, at the tiles' pixel size: a 32-pixel frame is one tile (40 units), a boss's 64 two */
+const UNIT = 40 / 32;
 function drawSheet(g, key, k, opt) {
   opt = opt || {};
   const type = typeOf(key),
@@ -160,7 +160,7 @@ function drawSheet(g, key, k, opt) {
     s = opt.colour ? recolour(key, opt.colour) : sprite(key);
   if (!s) return false;
   const [row, f] = frameOf(type, k, opt.map),
-    u = UNIT * (type === 'boss' ? 0.8 : 1),
+    u = UNIT,
     fw = T.fw,
     fh = T.fh;
   const sm = g.imageSmoothingEnabled;

@@ -5,13 +5,15 @@ PNG, animations in rows, frames left to right, each frame the size below. Every 
 transparent placeholder**, in its folder, and `tools/placeholder-art.py` has drawn a simple stand-in in each (22 Oct; their hashes are in
 `placeholders.json`, so a file you change counts as your drawing and is never touched). The game shows the stand-ins until you draw over them; your drawing is on the
 website about 2 minutes after you push it to `main`. Characters,
-foes, bosses and the main map tiles are wired (build step 19); the hero's sheet is drawn orange and recoloured to the hero's colour. Pixel art at twice Ruby's resolution (`docs/style-guide.md`).*
+foes, bosses and the main map tiles are wired (build step 19); the hero's sheet is drawn orange and recoloured to the hero's colour. Pixel art at twice Ruby's resolution, characters one tile in size (`docs/style-guide.md`).*
 
 ## How to draw one
 
 1. Open the asset's file in Paint.NET (a stand-in at the right size: select all and delete it, or draw over it).
-2. **Layers → Import from file** → the sheet's template from `templates/`. It shows each frame's border (pink), the feet line
-   (red, characters only), the safe box (green) and a dotted diagonal on frames the sheet doesn't use.
+2. **Layers → Import from file** → the sheet's template from `templates/`. It shows each frame's border (pink), its label in
+   the top-left corner (blue: **DN1** is walk down, frame 1; the list is below), the feet line (red, characters only), the safe box
+   (green, everything but characters) and a dotted diagonal on frames the sheet doesn't use. `templates/guides/` has each
+   character sheet blown up with every frame named in words, to keep open beside the drawing.
 3. Draw on the bottom layer, frame by frame, one pixel per pixel, antialiasing off. **Delete the template layer**, save as PNG
    (flatten), commit and push. A file that still matches its hash in `placeholders.json` counts as not drawn.
 
@@ -19,10 +21,10 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 
 | type | frame | sheet | rows (frames) | for | template |
 |---|---|---|---|---|---|
-| `hero` | 32 × 64 | 128 × 448 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: battle idle (2); row 5: attack (3); row 6: cast or skill (2); row 7: hurt, down, cheer, cheer (4) | Pip and the seven companions | `templates/hero-128x448.png` |
-| `villager` | 32 × 64 | 96 × 256 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: talk (facing down) (2) | anyone who walks around | `templates/villager-96x256.png` |
-| `foe` | 32 × 64 | 96 × 256 | row 1: battle idle (2); row 2: walk side (on the map, as a patrol) (3); row 3: attack (3); row 4: hurt, storms off (2) | every opponent that is not a boss | `templates/foe-96x256.png` |
-| `boss` | 64 × 96 | 192 × 384 | row 1: battle idle (2); row 2: attack (3); row 3: telegraph (the big attack winding up) (2); row 4: hurt, defeated (2) | 2 × 2-tile foes | `templates/boss-192x384.png` |
+| `hero` | 32 × 32 | 128 × 224 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: battle idle (2); row 5: attack (3); row 6: cast or skill (2); row 7: hurt, down, cheer, cheer (4) | Pip and the seven companions | `templates/hero-128x224.png` |
+| `villager` | 32 × 32 | 96 × 128 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: talk (facing down) (2) | anyone who walks around | `templates/villager-96x128.png` |
+| `foe` | 32 × 32 | 96 × 128 | row 1: battle idle (2); row 2: walk side (on the map, as a patrol) (3); row 3: attack (3); row 4: hurt, storms off (2) | every opponent that is not a boss | `templates/foe-96x128.png` |
+| `boss` | 64 × 64 | 192 × 256 | row 1: battle idle (2); row 2: attack (3); row 3: telegraph (the big attack winding up) (2); row 4: hurt, defeated (2) | 2 × 2-tile foes | `templates/boss-192x256.png` |
 | `tile` | 32 × 32 | 32 × 32 | row 1: the tile (1) | static map tiles | `templates/tile-32x32.png` |
 | `tileanim` | 32 × 32 | 128 × 32 | row 1: loop (4) | animated map tiles (water, fire, grass) | `templates/tileanim-128x32.png` |
 | `building` | 128 × 96 | 128 × 96 | row 1: the building (1) | 4 × 3 tiles, door bottom middle | `templates/building-128x96.png` |
@@ -33,6 +35,10 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 | `icon` | 32 × 32 | 32 × 32 | row 1: icon (1) | items | `templates/icon-32x32.png` |
 | `icon16` | 16 × 16 | 16 × 16 | row 1: icon (1) | statuses and small marks | `templates/icon16-16x16.png` |
 | `object` | 32 × 32 | 64 × 32 | row 1: still, wobble (2) | story objects | `templates/object-64x32.png` |
+
+**The labels:** DN walk down, UP walk up, SD walk side, ID battle idle, AT attack, CA cast or skill, TK talk, WK walk (a foe on
+the map), TELE telegraph; HURT, DOWN (knocked down or defeated), CHR1 and CHR2 (the victory cheer), OFF (storms off). A character
+frame is one tile, 32 × 32 (24 Oct, Joakim: characters the size of a tile); a boss is 2 × 2 tiles, 64 × 64.
 
 Characters face **right**; the game flips them for left. Walk cycles are three frames (standing, left foot, right foot), like
 Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.

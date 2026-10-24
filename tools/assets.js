@@ -21,10 +21,10 @@ function canvas(w,h){const px=Buffer.alloc(w*h*4);return{w,h,px,set(x,y,[r,g,b,a
 
 /* ------------------------------------------------------------------ sheet types: frame size and rows (animation, frames) */
 const SHEET={
- hero:{fw:32,fh:64,feet:60,rows:[['walk down',3],['walk up',3],['walk side (facing right)',3],['battle idle',2],['attack',3],['cast or skill',2],['hurt, down, cheer, cheer',4]],note:'Pip and the seven companions'},
- villager:{fw:32,fh:64,feet:60,rows:[['walk down',3],['walk up',3],['walk side (facing right)',3],['talk (facing down)',2]],note:'anyone who walks around'},
- foe:{fw:32,fh:64,feet:60,rows:[['battle idle',2],['walk side (on the map, as a patrol)',3],['attack',3],['hurt, storms off',2]],note:'every opponent that is not a boss'},
- boss:{fw:64,fh:96,feet:92,rows:[['battle idle',2],['attack',3],['telegraph (the big attack winding up)',2],['hurt, defeated',2]],note:'2 × 2-tile foes'},
+ hero:{fw:32,fh:32,feet:30,rows:[['walk down',3,'DN'],['walk up',3,'UP'],['walk side (facing right)',3,'SD'],['battle idle',2,'ID'],['attack',3,'AT'],['cast or skill',2,'CA'],['hurt, down, cheer, cheer',4,['HURT','DOWN','CHR1','CHR2']]],note:'Pip and the seven companions'},
+ villager:{fw:32,fh:32,feet:30,rows:[['walk down',3,'DN'],['walk up',3,'UP'],['walk side (facing right)',3,'SD'],['talk (facing down)',2,'TK']],note:'anyone who walks around'},
+ foe:{fw:32,fh:32,feet:30,rows:[['battle idle',2,'ID'],['walk side (on the map, as a patrol)',3,'WK'],['attack',3,'AT'],['hurt, storms off',2,['HURT','OFF']]],note:'every opponent that is not a boss'},
+ boss:{fw:64,fh:64,feet:60,rows:[['battle idle',2,'ID'],['attack',3,'AT'],['telegraph (the big attack winding up)',2,'TELE'],['hurt, defeated',2,['HURT','DOWN']]],note:'2 × 2-tile foes'},
  tile:{fw:32,fh:32,rows:[['the tile',1]],note:'static map tiles'},
  tileanim:{fw:32,fh:32,rows:[['loop',4]],note:'animated map tiles (water, fire, grass)'},
  building:{fw:128,fh:96,rows:[['the building',1]],note:'4 × 3 tiles, door bottom middle'},
@@ -120,16 +120,42 @@ for(const [s,list] of Object.entries(SLOTS))list.forEach((n,i)=>add('icons/items
 [['dark','a dark version (on a skill button)'],['might','Might (leader point)'],['wits','Wits (leader point)'],['leadership','Leadership (leader point)'],['pick','a talent pick waiting']]
   .forEach(([f,w])=>add('icons/status',f,'icon16',w,true));
 
-/* ------------------------------------------------------------------ write templates, placeholders and the list */
+/* ------------------------------------------------------------------ a 3 × 5 pixel font for the templates' labels */
+const FONT={A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'110101101101110',E:'111100110100111',F:'111100110100100',G:'011100101101011',
+ H:'101101111101101',I:'111010010010111',J:'001001001101010',K:'101101110101101',L:'100100100100111',M:'101111111101101',N:'110101101101101',
+ O:'010101101101010',P:'110101110100100',Q:'010101101110011',R:'110101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',
+ V:'101101101101010',W:'101101111111101',X:'101101010101101',Y:'101101010010010',Z:'111001010100111','0':'111101101101111','1':'010110010010111',
+ '2':'110001010100111','3':'110001010001110','4':'101101111001001','5':'111100110001110','6':'011100111101111','7':'111001010010010',
+ '8':'111101111101111','9':'111101111001110',' ':'000000000000000','-':'000000111000000','(':'010100100100010',')':'010001001001010',',':'000000000010100','.':'000000000000010','→':'000010111010000'};
+function text(cv,x,y,s,c,k){for(const ch of String(s).toUpperCase()){const g=FONT[ch]||FONT[' '];for(let i=0;i<15;i++)if(g[i]==='1')for(let a=0;a<k;a++)for(let b=0;b<k;b++)cv.set(x+(i%3)*k+a,y+((i/3)|0)*k+b,c);x+=4*k}}
+const textW=(s,k)=>String(s).length*4*k;
+/* the label of frame i in a row: the row's code and the frame's number ("DN1"), or the frame's own code ("HURT") */
+const label=(row,i)=>Array.isArray(row[2])?row[2][i]:row[2]?row[2]+(i+1):'';
+const frameName=(row,i)=>Array.isArray(row[2])?row[0].split(', ')[i]||row[0]:row[0]+(row[1]>1?' '+(i+1):'');
+
+/* ------------------------------------------------------------------ write templates, guides, placeholders and the list */
 const C_FRAME=[255,0,255,255],C_FEET=[255,40,40,255],C_SAFE=[40,200,90,255],C_ROW=[60,140,255,255];
 function template(t){const S=SHEET[t],{w,h}=sheetSize(t),cv=canvas(w,h);
   S.rows.forEach(([name,n],r)=>{for(let i=0;i<Math.max(...S.rows.map(x=>x[1]));i++){const x=i*S.fw,y=r*S.fh;
       if(i<n){cv.rect(x,y,S.fw,S.fh,C_FRAME);if(S.feet){cv.hline(x+1,x+S.fw-2,y+S.feet,C_FEET)}
-        if(S.fh>=32){const m=Math.max(2,Math.round(S.fw/8));cv.rect(x+m,y+m,S.fw-2*m,S.fh-2*m,C_SAFE)}}
+        if(S.fh>=32&&!S.feet){const m=Math.max(2,Math.round(S.fw/8));cv.rect(x+m,y+m,S.fw-2*m,S.fh-2*m,C_SAFE)}
+        const L=label([name,n,S.rows[r][2]],i);if(L)text(cv,x+2,y+2,L,C_ROW,1)}   // the frame's label in its top-left corner (DN1: walk down, frame 1)
       else{for(let k=0;k<Math.min(S.fw,S.fh);k+=2)cv.set(x+k*S.fw/Math.min(S.fw,S.fh)|0,y+k*S.fh/Math.min(S.fw,S.fh)|0,C_ROW)}}});   // a dotted diagonal marks an unused frame
   return cv}
 fs.mkdirSync(path.join(ROOT,'templates'),{recursive:true});
+for(const f of fs.readdirSync(path.join(ROOT,'templates')))if(/\.png$/.test(f))fs.unlinkSync(path.join(ROOT,'templates',f));   // sizes change: no old template stays
 for(const t of Object.keys(SHEET)){const {w,h}=sheetSize(t);template(t).save(path.join(ROOT,'templates',`${t}-${w}x${h}.png`))}
+/* the guides (characters only): the template blown up 8 ×, each frame named in words under it, to keep open beside the drawing */
+function guide(t){const S=SHEET[t],Z=8,{w,h}=sheetSize(t),cols=Math.max(...S.rows.map(r=>r[1])),cw=Math.max(S.fw*Z,150),ch=S.fh*Z+24,G=canvas(cols*cw+8,S.rows.length*ch+40);
+  const bg=[30,20,70,255],ink=[255,240,200,255];for(let y=0;y<G.h;y++)for(let x=0;x<G.w;x++)G.set(x,y,bg);
+  text(G,8,8,t+' sheet: frame '+S.fw+' x '+S.fh+', feet on row '+S.feet,ink,2);
+  const T=template(t);S.rows.forEach((row,r)=>{for(let i=0;i<row[1];i++){const ox=4+i*cw,oy=32+r*ch;
+      for(let y=0;y<S.fh;y++)for(let x=0;x<S.fw;x++){const k=((r*S.fh+y)*w+i*S.fw+x)*4,a=T.px[k+3];const c=a?[T.px[k],T.px[k+1],T.px[k+2],255]:((x>>2)+(y>>2))%2?[58,46,110,255]:[48,36,96,255];
+        for(let a2=0;a2<Z;a2++)for(let b2=0;b2<Z;b2++)G.set(ox+x*Z+a2,oy+y*Z+b2,c)}
+      text(G,ox,oy+S.fh*Z+6,frameName(row,i),ink,2)}});
+  return G}
+fs.mkdirSync(path.join(ROOT,'templates','guides'),{recursive:true});
+for(const t of ['hero','villager','foe','boss'])guide(t).save(path.join(ROOT,'templates','guides',t+'-guide.png'));
 let made=0,kept=0;
 for(const a of A){const dir=path.join(ROOT,a.folder);fs.mkdirSync(dir,{recursive:true});const f=path.join(dir,a.file+'.png');
   if(fs.existsSync(f)){kept++;continue}const {w,h}=sheetSize(a.type);canvas(w,h).save(f);made++}
@@ -146,13 +172,15 @@ PNG, animations in rows, frames left to right, each frame the size below. Every 
 transparent placeholder**, in its folder, and \`tools/placeholder-art.py\` has drawn a simple stand-in in each (22 Oct; their hashes are in
 \`placeholders.json\`, so a file you change counts as your drawing and is never touched). The game shows the stand-ins until you draw over them; your drawing is on the
 website about 2 minutes after you push it to \`main\`. Characters,
-foes, bosses and the main map tiles are wired (build step 19); the hero's sheet is drawn orange and recoloured to the hero's colour. Pixel art at twice Ruby's resolution (\`docs/style-guide.md\`).*
+foes, bosses and the main map tiles are wired (build step 19); the hero's sheet is drawn orange and recoloured to the hero's colour. Pixel art at twice Ruby's resolution, characters one tile in size (\`docs/style-guide.md\`).*
 
 ## How to draw one
 
 1. Open the asset's file in Paint.NET (a stand-in at the right size: select all and delete it, or draw over it).
-2. **Layers → Import from file** → the sheet's template from \`templates/\`. It shows each frame's border (pink), the feet line
-   (red, characters only), the safe box (green) and a dotted diagonal on frames the sheet doesn't use.
+2. **Layers → Import from file** → the sheet's template from \`templates/\`. It shows each frame's border (pink), its label in
+   the top-left corner (blue: **DN1** is walk down, frame 1; the list is below), the feet line (red, characters only), the safe box
+   (green, everything but characters) and a dotted diagonal on frames the sheet doesn't use. \`templates/guides/\` has each
+   character sheet blown up with every frame named in words, to keep open beside the drawing.
 3. Draw on the bottom layer, frame by frame, one pixel per pixel, antialiasing off. **Delete the template layer**, save as PNG
    (flatten), commit and push. A file that still matches its hash in \`placeholders.json\` counts as not drawn.
 
@@ -161,6 +189,10 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 | type | frame | sheet | rows (frames) | for | template |
 |---|---|---|---|---|---|
 ${types.join('\n')}
+
+**The labels:** DN walk down, UP walk up, SD walk side, ID battle idle, AT attack, CA cast or skill, TK talk, WK walk (a foe on
+the map), TELE telegraph; HURT, DOWN (knocked down or defeated), CHR1 and CHR2 (the victory cheer), OFF (storms off). A character
+frame is one tile, 32 × 32 (24 Oct, Joakim: characters the size of a tile); a boss is 2 × 2 tiles, 64 × 64.
 
 Characters face **right**; the game flips them for left. Walk cycles are three frames (standing, left foot, right foot), like
 Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.

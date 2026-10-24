@@ -10,7 +10,7 @@ const FILE='file://'+path.join(__dirname,'../../dist/kq_test.html')+'?v6';
   const S=await p.evaluate(()=>({pip:__v6.sheets.kob(0),wiz:__v6.sheets.kob(1),glint:__v6.sheets.kob(2),rat:__v6.sheets.foe('cellar_rat'),scout:__v6.sheets.foe('nettlenose_scout'),draws:__v6.sheets.draws(),blue:__v6.sheets.blue()}));
   if(S.pip!=='characters/heroes/pip')fail.push('the hero has no sheet: '+S.pip);if(S.wiz!=='characters/companions/wizzle')fail.push('Wizzle has no sheet: '+S.wiz);
   if(S.glint!==null)fail.push('Glint has no drawing, so no sheet: '+S.glint);if(S.rat!=='foes/hearthspire/cellar-rat'||S.scout!==null)fail.push('foes: '+S.rat+' / '+S.scout);
-  if(!(S.draws>0))fail.push('no sheet was drawn on the map');if(!S.blue||!(S.blue.b>50)||S.blue.o>0)fail.push('the hero\'s colour: '+JSON.stringify(S.blue));
+  if(!(S.draws>0))fail.push('no sheet was drawn on the map');if(!S.blue||!(S.blue.b>50)||S.blue.o>S.blue.b*0.01)fail.push('the hero\'s colour: '+JSON.stringify(S.blue));
   const tile=await p.evaluate(()=>{__w6go('r1',10,12);return new Promise(ok=>setTimeout(()=>{const c=document.getElementById('rpcv'),g=c.getContext('2d'),d=g.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(d[i]===90&&d[i+1]===200&&d[i+2]===90)n++;ok(n)},700))});
   if(!(tile>1000))fail.push('the drawn grass tile is not on the map: '+tile+' pixels');
   await p.screenshot({path:__dirname+'/../out/art6_map.png'});

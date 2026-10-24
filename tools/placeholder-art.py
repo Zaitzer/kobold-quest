@@ -14,8 +14,8 @@ LIST = os.path.join(ART, 'ASSETS.md')
 MARK = os.path.join(ART, 'placeholders.json')
 INK = (0x14, 0x0a, 0x35, 255)
 SHEET = {  # frame w, h, frames per row (tools/assets.js SHEET)
-    'hero': (32, 64, [3, 3, 3, 2, 3, 2, 4]), 'villager': (32, 64, [3, 3, 3, 2]), 'foe': (32, 64, [2, 3, 3, 2]),
-    'boss': (64, 96, [2, 3, 2, 2]), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
+    'hero': (32, 32, [3, 3, 3, 2, 3, 2, 4]), 'villager': (32, 32, [3, 3, 3, 2]), 'foe': (32, 32, [2, 3, 3, 2]),
+    'boss': (64, 64, [2, 3, 2, 2]), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
     'buildanim': (128, 96, [4]), 'fx': (32, 32, [6]), 'fxbig': (64, 64, [6]), 'portrait': (64, 64, [3]),
     'icon': (32, 32, [1]), 'icon16': (16, 16, [1]), 'object': (32, 32, [2])}
 # what each character row shows (the pose drawn in that row)
@@ -59,9 +59,9 @@ def outline(im):
     return im
 
 def creature(fw, fh, col, pose, i, big=False):
-    """a big-headed creature facing right, standing on the feet line (fh - 4)"""
+    """a big-headed creature facing right, standing on the feet line (row 30 of 32): one tile tall, so a squat kobold"""
     im = Image.new('RGBA', (fw, fh), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    s = fw / 32; feet = fh - 4
+    s = fw / 32 * 0.68; feet = fh - 2 * fw / 32
     dx = dy = 0; c = col; lying = False
     if pose == 'walk': dy = -1 if i == 1 or i == 2 else 0; leg = i
     else: leg = 0
@@ -169,7 +169,7 @@ def sha(path):
 
 def main():
     marks = json.load(open(MARK)) if os.path.exists(MARK) else {}
-    rows = re.findall(r'^\| [★·] \| `([^`]+)` \| [^|]* \| (\w+) \|', open(LIST, encoding='utf8').read(), re.M)
+    rows = re.findall(r'^\| [★·✅] \| `([^`]+)` \| [^|]* \| (\w+) \|', open(LIST, encoding='utf8').read(), re.M)
     made = kept = 0
     for rel, kind in rows:
         path = os.path.join(ART, rel)

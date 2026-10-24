@@ -34,12 +34,13 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 | what | canvas (draw at this size) | template | on screen | rules |
 |---|---|---|---|---|
 | Map tile | **32 × 32** | `tile-32.png` | 32 px, scaled up whole on dense screens | edges tile with the same tile on every side |
-| Character (kobold, villager, foe) | **32 × 64** | `character-32x64.png` | one tile wide, two tall | **facing right** (the game flips it for left); feet on the red line (row 60); stay inside the green box |
-| Boss (a 2 × 2-tile foe) | **64 × 96** | `boss-64x96.png` | two tiles wide, three tall | same rules, twice as wide |
+| Character (kobold, villager, foe) | **32 × 32** (24 Oct) | `hero-128x224.png`, `villager-96x128.png`, `foe-96x128.png` | one tile, the same pixel size as the tiles | **facing right** (the game flips it for left); feet on the red line (row 30); each frame is labelled (DN1 = walk down, frame 1); `templates/guides/` names every frame in words |
+| Boss (a 2 × 2-tile foe) | **64 × 64** | `boss-192x256.png` | two tiles by two | same rules, feet on row 60 |
 | House or building | **128 × 96** (4 × 3 tiles) | `house-128x96.png` | | door in the red box, bottom middle |
 | Portrait (dialogue, optional) | **64 × 64** | `portrait-64.png` | shown at 3× | head and shoulders, facing right |
 
-**Pip** was drawn on the old 128 × 128 template and needs redrawing at 32 × 64 (a shrunk copy loses the pixel look).
+**Characters are one tile (Joakim, 24 Oct):** a kobold is as big as a tile, squat and big-headed, with no tall frame for the head to rise
+over the tile behind. Half the pixels of the old 32 × 64, and the same pixel size as the map, so nothing clashes.
 
 ## Style rules (suggested)
 
@@ -90,39 +91,39 @@ draw underneath, delete the template layer, save, push. The list below says what
 The slice is **Hearthspire act 1 → the capital gate → R1 → Pebblebrook and the mine** (`scope.md` M1). Everything not on this
 list stays drawn in code until phase 3, so draw top to bottom and stop anywhere: each drawing makes the game better on its own.
 The old game's drawings (`art/sprites`, on the 128 × 128 template) were retired with the old game on 23 Oct; they are in the
-repository's history if any are worth redrawing at 32 × 64.
+repository's history if any are worth redrawing at 32 × 32.
 
 **A. The first ten (the faces of the whole game)**
 
 | # | file | who / what | template | why first |
 |---|---|---|---|---|
-| 0 | `pip.png` | Pip (redraw at 32 × 64) | character-32x64 | the hero; the old drawing was on the 128 template |
-| 1 | `mallow.png` | Mallow, the baker | character-32x64 | the mentor; on screen in every act |
-| 2 | `bib.png` | Bib on his bench | character-32x64 | the theme in one kobold; first and last scene |
-| 3 | `wizzle.png` | Wizzle | character-32x64 | joins in act 1 |
-| 4 | `glint.png` | Glint | character-32x64 | joins in act 1 |
-| 5 | `bork.png` | Bork | character-32x64 | joins at the gate |
-| 6 | `guard.png` | one of Snatchclaw's guards | character-32x64 | the most common foe and villager of the game |
-| 7 | `scout.png` | a Nettlenose scout | character-32x64 | the first foe on R1 |
-| 8 | `glitterbeak.png` | Glitterbeak, hatched | boss-64x96 | the hatching's big moment |
+| 0 | `pip.png` | Pip (redraw at 32 × 32) | character-32x32 | the hero; the old drawing was on the 128 template |
+| 1 | `mallow.png` | Mallow, the baker | character-32x32 | the mentor; on screen in every act |
+| 2 | `bib.png` | Bib on his bench | character-32x32 | the theme in one kobold; first and last scene |
+| 3 | `wizzle.png` | Wizzle | character-32x32 | joins in act 1 |
+| 4 | `glint.png` | Glint | character-32x32 | joins in act 1 |
+| 5 | `bork.png` | Bork | character-32x32 | joins at the gate |
+| 6 | `guard.png` | one of Snatchclaw's guards | character-32x32 | the most common foe and villager of the game |
+| 7 | `scout.png` | a Nettlenose scout | character-32x32 | the first foe on R1 |
+| 8 | `glitterbeak.png` | Glitterbeak, hatched | boss-64x64 | the hatching's big moment |
 | 9 | `tile-marble.png` | Hearthspire's street | tile-32 | the capital is the first place anyone sees |
-| 10 | `nugget.png` | Nugget | character-32x64 | joins in the mine |
+| 10 | `nugget.png` | Nugget | character-32x32 | joins in the mine |
 
 **B. The rest of the slice's cast**
 
 | file | who / what | template |
 |---|---|---|
-| `ruddle.png` | Miller Ruddle (keeper) | character-32x64 |
-| `grubb.png` | Grubb (boss) | boss-64x96 |
-| `snipe.png` | Snipe on his copper cart (boss) | boss-64x96 |
-| `smudge.png` | Smudge, the friendly cousin | character-32x64 |
-| `bramble.png` | Bramble, who backs the sprouty egg | character-32x64 |
-| `egg-sprouty.png`, `egg-sleepy.png`, `egg-shiny.png` | the three eggs at the nest | character-32x64 |
-| `slinger.png` | a Nettlenose slinger | character-32x64 |
-| `beetle.png` | a copper beetle | character-32x64 |
-| `glowgrub.png` | a glow grub | character-32x64 |
-| `rat.png` | a cellar rat | character-32x64 |
-| `miner.png` | a miner (Ore, Tansy, Flint and Grit, Marl share it, tinted) | character-32x64 |
+| `ruddle.png` | Miller Ruddle (keeper) | character-32x32 |
+| `grubb.png` | Grubb (boss) | boss-64x64 |
+| `snipe.png` | Snipe on his copper cart (boss) | boss-64x64 |
+| `smudge.png` | Smudge, the friendly cousin | character-32x32 |
+| `bramble.png` | Bramble, who backs the sprouty egg | character-32x32 |
+| `egg-sprouty.png`, `egg-sleepy.png`, `egg-shiny.png` | the three eggs at the nest | character-32x32 |
+| `slinger.png` | a Nettlenose slinger | character-32x32 |
+| `beetle.png` | a copper beetle | character-32x32 |
+| `glowgrub.png` | a glow grub | character-32x32 |
+| `rat.png` | a cellar rat | character-32x32 |
+| `miner.png` | a miner (Ore, Tansy, Flint and Grit, Marl share it, tinted) | character-32x32 |
 
 **C. Places (tiles and buildings)**
 

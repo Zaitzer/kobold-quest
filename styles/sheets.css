@@ -55,8 +55,8 @@ button,.rpb,.pill{touch-action:manipulation}
 .c6card.new .plus{font:400 40px/1 "Lilita One",system-ui;color:#ffd54a}
 .c6card.gone{opacity:.55}
 .c6del{position:absolute;top:4px;right:4px;width:44px;height:44px;min-height:44px!important;border-radius:50%;border:2px solid #140a35;background:#8a2f4a;color:#fff;font-size:15px;cursor:pointer}
-canvas.c6hero{width:48px;height:96px;image-rendering:pixelated}
-canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
+canvas.c6hero{width:64px;height:64px;image-rendering:pixelated}
+canvas.c6hero.big{width:auto;height:min(40vh,240px);aspect-ratio:1/1}
 .c6make{flex-direction:row;justify-content:center;align-items:center;gap:clamp(16px,5vw,60px);flex-wrap:wrap}
 .c6stage{display:flex;flex-direction:column;align-items:center;padding:10px 26px 14px;border-radius:50% 50% 20px 20px/30% 30% 20px 20px;background:radial-gradient(ellipse at 50% 92%,rgba(255,213,74,.28),rgba(255,213,74,0) 65%)}
 .c6name{font:400 24px/1.2 "Lilita One","Fredoka",system-ui;color:#fff;text-shadow:0 2px 0 #140a35;min-height:29px}
@@ -82,4 +82,4 @@ canvas.c6hero.big{width:auto;height:min(46vh,300px);aspect-ratio:1/2}
 .c6btns{display:flex;gap:10px}.c6btns .rpb{flex:1}
 .c6ask{justify-content:center}.c6ask .rpdlg,.c6ask .tbar{width:min(520px,100%)}
 .c6btns .rpb{display:flex;align-items:center;justify-content:center;font-size:18px;min-height:52px}
-@media (max-height:460px){.c6screen{gap:8px;padding-top:10px}.c6screen h2{font-size:24px}.c6head p{font-size:12.5px}.c6card{min-height:118px;padding:6px}canvas.c6hero{width:36px;height:72px}.c6grid{gap:8px}}
+@media (max-height:460px){.c6screen{gap:8px;padding-top:10px}.c6screen h2{font-size:24px}.c6head p{font-size:12.5px}.c6card{min-height:118px;padding:6px}canvas.c6hero{width:48px;height:48px}.c6grid{gap:8px}}

@@ -85,7 +85,7 @@ export function installHooks() {
         for (let i = 0; i < d.length; i += 4) {
           if (d[i + 3] < 40) continue;
           if (d[i + 2] > d[i] + 60) b++;
-          if (d[i] > d[i + 2] + 60 && d[i + 1] > 80) o++;
+          if (d[i] > d[i + 2] + 60 && d[i + 1] > 80) o++; // orange left over (a yellow weapon in the attack frame is not skin, so a few may stay)
         }
         return {b, o};
       }

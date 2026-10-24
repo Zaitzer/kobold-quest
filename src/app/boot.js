@@ -104,14 +104,14 @@ function drawTitle(dt) {
     const key = byBase(k.sheet);
     g.save();
     g.translate(k.x, GROUND);
-    g.scale(k.face, 1);
+    g.scale(k.face * 1.5, 1.5);
     if (!(key && drawSheet(g, key, k, {colour: k.colour}))) {
       g.fillStyle = k.tint;
       g.beginPath();
-      g.ellipse(0, -26, 13, 26, 0, 0, 7);
+      g.ellipse(0, -12, 11, 12, 0, 0, 7);
       g.fill();
       g.beginPath();
-      g.arc(4, -56, 11, 0, 7);
+      g.arc(4, -26, 9, 0, 7);
       g.fill();
     }
     g.restore();
@@ -119,7 +119,7 @@ function drawTitle(dt) {
   /* embers: each kobold sends one up and over to the egg */
   if (Math.random() < dt * 2.4) {
     const k = title.ks[(Math.random() * title.ks.length) | 0];
-    title.embers.push({x0: k.x, y0: GROUND - 50, t: 0});
+    title.embers.push({x0: k.x, y0: GROUND - 40, t: 0});
   }
   title.embers = title.embers.filter(e => (e.t += dt * 0.7) < 1);
   for (const e of title.embers) {
