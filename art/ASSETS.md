@@ -21,10 +21,10 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 
 | type | frame | sheet | rows (frames) | for | template |
 |---|---|---|---|---|---|
-| `hero` | 32 × 32 | 128 × 224 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: battle idle (2); row 5: attack (3); row 6: cast or skill (2); row 7: hurt, down, cheer, cheer (4) | Pip and the seven companions | `templates/hero-128x224.png` |
-| `villager` | 32 × 32 | 96 × 128 | row 1: walk down (3); row 2: walk up (3); row 3: walk side (facing right) (3); row 4: talk (facing down) (2) | anyone who walks around | `templates/villager-96x128.png` |
-| `foe` | 32 × 32 | 96 × 128 | row 1: battle idle (2); row 2: walk side (on the map, as a patrol) (3); row 3: attack (3); row 4: hurt, storms off (2) | every opponent that is not a boss | `templates/foe-96x128.png` |
-| `boss` | 64 × 64 | 192 × 256 | row 1: battle idle (2); row 2: attack (3); row 3: telegraph (the big attack winding up) (2); row 4: hurt, defeated (2) | 2 × 2-tile foes | `templates/boss-192x256.png` |
+| `hero` | 32 × 32 | 128 × 512 | row 1: walk down (stand, step, stand, other step) (4); row 2: walk down-right (stand, step, stand, other step) (4); row 3: walk right (stand, step, stand, other step) (4); row 4: walk up-right (stand, step, stand, other step) (4); row 5: walk up (stand, step, stand, other step) (4); row 6: walk up-left (stand, step, stand, other step) (4); row 7: walk left (stand, step, stand, other step) (4); row 8: walk down-left (stand, step, stand, other step) (4); row 9: battle idle, facing right (4); row 10: attack, facing right (4); row 11: cast or skill, facing right (4); row 12: hurt, down, cheer, cheer, facing right (4); row 13: battle idle, facing left (4); row 14: attack, facing left (4); row 15: cast or skill, facing left (4); row 16: hurt, down, cheer, cheer, facing left (4) | Pip and the seven companions | `templates/hero-128x512.png` |
+| `villager` | 32 × 32 | 128 × 288 | row 1: walk down (stand, step, stand, other step) (4); row 2: walk down-right (stand, step, stand, other step) (4); row 3: walk right (stand, step, stand, other step) (4); row 4: walk up-right (stand, step, stand, other step) (4); row 5: walk up (stand, step, stand, other step) (4); row 6: walk up-left (stand, step, stand, other step) (4); row 7: walk left (stand, step, stand, other step) (4); row 8: walk down-left (stand, step, stand, other step) (4); row 9: talk (facing down) (4) | anyone who walks around | `templates/villager-128x288.png` |
+| `foe` | 32 × 32 | 128 × 256 | row 1: battle idle, facing right (4); row 2: walk (a patrol on the map), facing right (4); row 3: attack, facing right (4); row 4: hurt, storms off, storms off, storms off, facing right (4); row 5: battle idle, facing left (4); row 6: walk (a patrol on the map), facing left (4); row 7: attack, facing left (4); row 8: hurt, storms off, storms off, storms off, facing left (4) | every opponent that is not a boss | `templates/foe-128x256.png` |
+| `boss` | 64 × 64 | 256 × 512 | row 1: battle idle, facing right (4); row 2: attack, facing right (4); row 3: telegraph (the big attack winding up), facing right (4); row 4: hurt, defeated, defeated, defeated, facing right (4); row 5: battle idle, facing left (4); row 6: attack, facing left (4); row 7: telegraph (the big attack winding up), facing left (4); row 8: hurt, defeated, defeated, defeated, facing left (4) | 2 × 2-tile foes | `templates/boss-256x512.png` |
 | `tile` | 32 × 32 | 32 × 32 | row 1: the tile (1) | static map tiles | `templates/tile-32x32.png` |
 | `tileanim` | 32 × 32 | 128 × 32 | row 1: loop (4) | animated map tiles (water, fire, grass) | `templates/tileanim-128x32.png` |
 | `building` | 128 × 96 | 128 × 96 | row 1: the building (1) | 4 × 3 tiles, door bottom middle | `templates/building-128x96.png` |
@@ -36,12 +36,14 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 | `icon16` | 16 × 16 | 16 × 16 | row 1: icon (1) | statuses and small marks | `templates/icon16-16x16.png` |
 | `object` | 32 × 32 | 64 × 32 | row 1: still, wobble (2) | story objects | `templates/object-64x32.png` |
 
-**The labels:** DN walk down, UP walk up, SD walk side, ID battle idle, AT attack, CA cast or skill, TK talk, WK walk (a foe on
-the map), TELE telegraph; HURT, DOWN (knocked down or defeated), CHR1 and CHR2 (the victory cheer), OFF (storms off). A character
-frame is one tile, 32 × 32 (24 Oct, Joakim: characters the size of a tile); a boss is 2 × 2 tiles, 64 × 64.
+**The labels:** walking DN down, DR down-right, RT right, UR up-right, UP up, UL up-left, LT left, DL down-left; TK talk; then
+the battle poses with R (facing right) or L (facing left): IR / IL idle, AR / AL attack, CR / CL cast, WR / WL a foe's walk, TR / TL
+a boss's telegraph; HUR hurt, DWN knocked down, CH1 / CH2 the cheer, OF1–3 storming off, DF1–3 defeated. The number is the frame.
+A character frame is one tile, 32 × 32 (24 Oct); a boss is 2 × 2 tiles, 64 × 64.
 
-Characters face **right**; the game flips them for left. Walk cycles are three frames (standing, left foot, right foot), like
-Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.
+**Nothing is mirrored** (25 Oct): every direction and facing is its own row, so a character can hold things in one hand. Walk
+cycles are four frames: standing, one step, standing, the other step (frame 1 is also the standing pose). "Hurt, down, cheer,
+cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.
 
 ## The list (484 assets; **215 are needed for the slice**, marked ★)
 

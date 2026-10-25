@@ -18,7 +18,7 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
 5. About **2 minutes** later it's on joakimskar.no (reload the page).
 
-The game takes it from there: it flips characters to face left, picks each row and frame by what the character is doing,
+The game takes it from there: it picks each row (by direction and facing; nothing is mirrored) and frame by what the character is doing,
 and uses the sheet wherever that character or tile appears (map, battles). Anything without a
 drawing keeps its look drawn in code, so you can draw in any order. To change a drawing, save over it and push
 again; to go back, GitHub Desktop's **History** has every version.
@@ -34,10 +34,16 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 | what | canvas (draw at this size) | template | on screen | rules |
 |---|---|---|---|---|
 | Map tile | **32 × 32** | `tile-32.png` | 32 px, scaled up whole on dense screens | edges tile with the same tile on every side |
-| Character (kobold, villager, foe) | **32 × 32** (24 Oct) | `hero-128x224.png`, `villager-96x128.png`, `foe-96x128.png` | one tile, the same pixel size as the tiles | **facing right** (the game flips it for left); feet on the red line (row 30); each frame is labelled (DN1 = walk down, frame 1); `templates/guides/` names every frame in words |
+| Character (kobold, villager, foe) | **32 × 32** (24 Oct) | `hero-128x224.png`, `villager-96x128.png`, `foe-96x128.png` | one tile, the same pixel size as the tiles | every direction drawn (no flipping, 25 Oct); feet on the red line (row 30); each frame is labelled (DN1 = walk down, frame 1); `templates/guides/` names every frame in words |
 | Boss (a 2 × 2-tile foe) | **64 × 64** | `boss-192x256.png` | two tiles by two | same rules, feet on row 60 |
 | House or building | **128 × 96** (4 × 3 tiles) | `house-128x96.png` | | door in the red box, bottom middle |
 | Portrait (dialogue, optional) | **64 × 64** | `portrait-64.png` | shown at 3× | head and shoulders, facing right |
+
+**Eight directions, four frames, nothing mirrored (Joakim, 25 Oct).** A character walks in 8 directions (the map has diagonal
+walking), each a row of 4 frames (stand, step, stand, the other step). Left and right are **drawn separately**, never flipped by
+the game, so a character can be asymmetrical: a staff in the right hand stays in the right hand. The battle poses (idle,
+attack, cast, hurt / down / cheer) each have a facing-right row and a facing-left row, 4 frames each. The rows of every sheet
+type are in `art/ASSETS.md`; each template frame is labelled, and `art/templates/guides/` names every frame in words.
 
 **Characters are one tile (Joakim, 24 Oct):** a kobold is as big as a tile, squat and big-headed, with no tall frame for the head to rise
 over the tile behind. Half the pixels of the old 32 × 64, and the same pixel size as the map, so nothing clashes.

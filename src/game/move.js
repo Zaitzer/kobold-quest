@@ -5,6 +5,7 @@ import {emit} from '../core/bus.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
 import {controls, rp, walker} from '../core/state.js';
+import {dirOf} from '../engine/sheets.js';
 import {clamp} from '../engine/util.js';
 import {s6Bump, s6NpcAt} from './story.js';
 import {rpBfs, rpSolid, w6Bump, w6LinkAt, w6Step, w6Use} from './world.js';
@@ -118,6 +119,7 @@ function rpWant() {
         const [tx, ty] = walker.pathEnd;
         walker.pathEnd = null;
         s.face = tx > s.x ? 'right' : tx < s.x ? 'left' : ty > s.y ? 'down' : 'up';
+        walker.dir8 = s.face;
         rpInteractAt(tx, ty);
       }
       return {x: 0, y: 0};
@@ -147,6 +149,7 @@ function rpMoveFrame(dt) {
   }
   if (Math.abs(w.x) > Math.abs(w.y) * 1.05) s.face = w.x > 0 ? 'right' : 'left';
   else if (Math.abs(w.y) > 0.01) s.face = w.y > 0 ? 'down' : 'up';
+  walker.dir8 = dirOf(w.x, w.y); // the way the kobold looks: 8 ways (its sheet's rows)
   const step = RP_SPEED * dt,
     p = walker.pos;
   let moved = false,
@@ -230,6 +233,7 @@ function rpTry(dir) {
     nx = s.x + dx,
     ny = s.y + dy;
   s.face = dir;
+  walker.dir8 = dir;
   if (rpInteractAt(nx, ny)) return false;
   if (rpSolid(nx, ny)) return false;
   walker.path = [[nx, ny]];
@@ -264,6 +268,7 @@ function rpActFacing() {
     const v = RP_DIR[d];
     if (rpSpecialAt(s.x + v[0], s.y + v[1])) {
       s.face = d;
+      walker.dir8 = d;
       rpInteractAt(s.x + v[0], s.y + v[1]);
       return;
     }

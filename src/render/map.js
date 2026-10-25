@@ -4,7 +4,7 @@ import {test} from '../core/rules.js';
 import {controls, rp, walker} from '../core/state.js';
 import {MAPS6, TILES6} from '../data/v6/maps.js';
 import {OL, WEAPONS, ctx, drawKobold, makeK, set_ctx} from '../engine/art.js';
-import {byBase, sheetOfKobold, sheetOfPerson} from '../engine/sheets.js';
+import {byBase, dirOf, sheetOfKobold, sheetOfPerson} from '../engine/sheets.js';
 import {artName, sprite} from '../engine/sprites.js';
 import {R, clamp, rr, seeded} from '../engine/util.js';
 import {packHero} from '../game/sheet.js';
@@ -133,8 +133,10 @@ function rpDrawMap(dt) {
     if (kk.blink < -0.12) kk.blink = R(2, 5);
     kk.moving = false;
     kk.wa = 0.35 + Math.sin(kk.t * 2 + kk.phase) * 0.4;
+    kk.dir8 = n.dir || 'down';
     if (Math.abs(s.x - n.x) + Math.abs(s.y - n.y) <= 2) {
       kk.face = s.x > n.x ? 1 : s.x < n.x ? -1 : kk.face;
+      kk.dir8 = dirOf(s.x - n.x, s.y - n.y); // turns to look at the hero, 8 ways
     }
     return kk;
   });
@@ -157,7 +159,7 @@ function rpDrawMap(dt) {
     const H = packHero(s);
     pk.sheetFn = () => sheetOfKobold(H);
     pk.onMap = 1;
-    pk.dir6 = s.face;
+    pk.dir8 = walker.dir8 || s.face;
     pk.colour6 = s.hero && s.hero.colour;
   } else pk.sheetFn = null;
   pk.wa += ((WEAPONS[pk.weapon].ranged && !WEAPONS[pk.weapon].magic ? 1.45 : 0.35) - pk.wa) * Math.min(1, dt * 10);

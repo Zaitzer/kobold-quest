@@ -108,6 +108,7 @@ function w6Go(p, x, y) {
   s.x = ax;
   s.y = ay;
   s.face = isRoom(p) ? 'up' : 'down';
+  walker.dir8 = s.face;
   rpApplyWorld();
   walker.pos = null;
   walker.path = null;
@@ -554,6 +555,16 @@ function rpSolid(x, y) {
   if (x < 0 || y < 0 || !rp.grid[y] || x >= rp.grid[y].length) return true;
   return w6Solid(rp.grid[y][x], x, y) || !!rpNpcAt(x, y);
 }
+const DIR8_STEPS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1]
+];
 function rpBfs(tx, ty, toNeighbor) {
   const s = rp.s,
     key = (x, y) => x + ',' + y,
@@ -574,16 +585,22 @@ function rpBfs(tx, ty, toNeighbor) {
       return out;
     }
     if (++seen > 6000) return null; /* only search near the hero (taps are always on screen) */
-    for (const [dx, dy] of [
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1]
-    ]) {
+    /* 8 ways (25 Oct): straight steps first, so a straight line stays straight; a diagonal step never cuts a corner: both tiles
+       beside it must be open and not a door or stairs */
+    for (const [dx, dy] of DIR8_STEPS) {
       const nx = x + dx,
         ny = y + dy,
         k = key(nx, ny);
       if (k in prev || rpSolid(nx, ny) || Math.abs(nx - s.x) + Math.abs(ny - s.y) > 40) continue;
+      if (
+        dx &&
+        dy &&
+        [
+          [x + dx, y],
+          [x, y + dy]
+        ].some(([cx, cy]) => rpSolid(cx, cy) || w6LinkAt(s.w6, cx, cy))
+      )
+        continue;
       prev[k] = [x, y];
       q.push([nx, ny]);
     }
@@ -591,6 +608,7 @@ function rpBfs(tx, ty, toNeighbor) {
   return null;
 }
 export {
+  DIR8_STEPS,
   W6_DIR,
   W6_GAP,
   W6_RAIL,

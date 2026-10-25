@@ -53,7 +53,7 @@ OVERWORLD                                        BATTLE
 
 | action | taps | how |
 |---|---|---|
-| walk anywhere | 1 | tap the tile; the kobold walks (auto-path) |
+| walk anywhere | 1 | tap the tile; the kobold walks (auto-path, diagonals too: a diagonal step never cuts a wall's corner, 25 Oct) |
 | talk to someone | 1 | tap them (walks up and talks) |
 | open a chest, a door, read a sign | 1 | tap it |
 | advance a line of dialogue | 1 | tap anywhere |

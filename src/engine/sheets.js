@@ -1,16 +1,21 @@
 /* ---------- Kobold Quest v6: sprite sheets (build step 19, art/ASSETS.md, style-guide.md) ----------
-   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 32 frames, one tile (bosses 64 × 64, 2 × 2 tiles; 24 Oct),
-   facing right (flipped for left), drawn pixel for pixel with no smoothing. A sheet is used only when it is drawn (the stand-ins are
+   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 32 frames, one tile (bosses 64 × 64, 2 × 2 tiles; 24 Oct), every direction drawn (no mirroring, 25 Oct), drawn pixel for pixel with no smoothing. A sheet is used only when it is drawn (the stand-ins are
    left out by the build and the server); anything without one keeps its look drawn in code. The hero's sheet is drawn orange and
    recoloured to the hero's colour (style-guide.md, "The hero's colour"). */
 import {SPR, sprite} from './sprites.js';
 
-/* the sheet types (ASSETS.md "Sheet types"): frame size and the rows' names */
+/* the sheet types (ASSETS.md "Sheet types", tools/assets.js): frame size and the rows' names, 4 frames in every row. Characters walk in
+   8 directions and have every battle pose facing right (R) and left (L): nothing is mirrored, so a drawing can be asymmetrical (25 Oct) */
+const DIR8 = ['down', 'down-right', 'right', 'up-right', 'up', 'up-left', 'left', 'down-left'];
+/* the 8-way direction of a vector (y down), as the sheets' walking rows name it */
+const dirOf = (x, y) => DIR8[(Math.round(Math.atan2(x, y) / (Math.PI / 4)) + 8) % 8];
+const rowsOf = names => Object.fromEntries(names.map((n, i) => [n, i]));
+const sides = poses => ['R', 'L'].flatMap(s => poses.map(p => p + s));
 const SHEET6 = {
-  hero: {fw: 32, fh: 32, rows: {down: 0, up: 1, side: 2, idle: 3, attack: 4, cast: 5, hurt: 6}, n: [3, 3, 3, 2, 3, 2, 4]},
-  villager: {fw: 32, fh: 32, rows: {down: 0, up: 1, side: 2, talk: 3}, n: [3, 3, 3, 2]},
-  foe: {fw: 32, fh: 32, rows: {idle: 0, side: 1, attack: 2, hurt: 3}, n: [2, 3, 3, 2]},
-  boss: {fw: 64, fh: 64, rows: {idle: 0, attack: 1, tele: 2, hurt: 3}, n: [2, 3, 2, 2]}
+  hero: {fw: 32, fh: 32, rows: rowsOf(DIR8.concat(sides(['idle', 'attack', 'cast', 'hurt'])))},
+  villager: {fw: 32, fh: 32, rows: rowsOf(DIR8.concat(['talk']))},
+  foe: {fw: 32, fh: 32, rows: rowsOf(sides(['idle', 'walk', 'attack', 'hurt']))},
+  boss: {fw: 64, fh: 64, rows: rowsOf(sides(['idle', 'attack', 'tele', 'hurt']))}
 };
 const FEET = 30 / 32; // the feet line (row 30 of 32; a boss's row 60 of 64)
 /* every loaded v6 sheet by its last name ("wizzle", "cellar-rat"), so a character finds its sheet without knowing the folder */
@@ -117,39 +122,39 @@ function recolour(key, colour) {
     return s;
   }
 }
-/* which frame a character shows now: on the map a walk (side when moving, down when still), in a fight its idle, attack, cast, hurt,
-   down or cheer; walk cycles step 0-1-0-2 (standing, a foot, standing, the other foot) */
+/* which frame a character shows now: on the map a walk in its 8-way direction (frame 1 standing; stand, step, stand, other step),
+   in a fight its idle, attack, cast, hurt, down or cheer, facing right or left (k.face) */
 function frameOf(type, k, map) {
-  const T = SHEET6[type],
-    R = T.rows,
-    t = k.t || 0;
-  let row,
+  const R = SHEET6[type].rows,
+    t = k.t || 0,
+    side = (k.face || 1) < 0 ? 'L' : 'R',
+    pose = p => R[p + side];
+  let row = null,
     f = 0;
-  if (k.state === 'ko') {
-    row = R.hurt != null ? R.hurt : R.idle;
-    f = type === 'hero' ? 1 : Math.min(1, T.n[row] - 1);
-  } else if (k.hurt > 0 && R.hurt != null) {
-    row = R.hurt;
-    f = 0;
-  } else if (k.state === 'cheer' && type === 'hero') {
-    row = R.hurt;
+  if (k.state === 'ko' && pose('hurt') != null) {
+    row = pose('hurt');
+    f = 1;
+  } else if (k.hurt > 0 && pose('hurt') != null) row = pose('hurt');
+  else if (k.state === 'cheer' && type === 'hero') {
+    row = pose('hurt');
     f = 2 + (((t * 4) | 0) % 2);
-  } else if ((k.state === 'windup' || k.state === 'strike') && R.attack != null) {
-    row = R.attack;
-    f = k.state === 'windup' ? 0 : 1 + (((t * 8) | 0) % 2);
-  } else if (k.state === 'cast' && R.cast != null) {
-    row = R.cast;
-    f = ((t * 6) | 0) % 2;
-  } else if (map || R.idle == null) {
-    const walk = k.moving,
-      dir = k.dir6 || 'down';
-    row = R.down == null ? (walk && R.side != null ? R.side : R.idle) : dir === 'up' ? R.up : dir === 'down' ? R.down : R.side;
-    f = walk ? [0, 1, 0, 2][((t * 8) | 0) % 4] : 0;
+  } else if ((k.state === 'windup' || k.state === 'strike') && pose('attack') != null) {
+    row = pose('attack');
+    f = k.state === 'windup' ? 0 : 1 + (((t * 8) | 0) % 3);
+  } else if (k.state === 'cast' && pose('cast') != null) {
+    row = pose('cast');
+    f = ((t * 6) | 0) % 4;
+  } else if ((map || pose('idle') == null) && R.down != null) {
+    row = R[k.dir8 && R[k.dir8] != null ? k.dir8 : 'down'];
+    f = k.moving ? ((t * 8) | 0) % 4 : 0;
+  } else if (map && pose('walk') != null) {
+    row = pose('walk');
+    f = k.moving ? ((t * 8) | 0) % 4 : 0;
   } else {
-    row = R.idle;
-    f = ((t * 2) | 0) % T.n[row];
+    row = pose('idle') != null ? pose('idle') : R.down;
+    f = ((t * 3) | 0) % 4;
   }
-  return [row, Math.min(f, T.n[row] - 1)];
+  return [row, f];
 }
 /* draw one frame with its feet at (0,0), crisp, at the tiles' pixel size: a 32-pixel frame is one tile (40 units), a boss's 64 two */
 const UNIT = 40 / 32;
@@ -164,20 +169,25 @@ function drawSheet(g, key, k, opt) {
     fw = T.fw,
     fh = T.fh;
   const sm = g.imageSmoothingEnabled;
+  g.save();
+  if ((k.face || 1) < 0) g.scale(-1, 1); // the caller draws in the kobold's facing (flipped for left); a sheet is never mirrored: undo it
   g.imageSmoothingEnabled = false;
   g.drawImage(s.img, f * fw, row * fh, fw, fh, (-fw / 2) * u, -fh * FEET * u, fw * u, fh * u);
+  g.restore();
   g.imageSmoothingEnabled = sm;
   sheetDraws.n++;
   return true;
 }
 const sheetDraws = {n: 0}; // counted for the test: a drawn sheet really shows
 export {
+  DIR8,
   FEET,
   HUE,
   SHEET6,
   UNIT,
   byBase,
   dash,
+  dirOf,
   drawSheet,
   frameOf,
   hsl2rgb,
@@ -187,9 +197,11 @@ export {
   recol,
   recolour,
   rgb2hsl,
+  rowsOf,
   sheetDraws,
   sheetOfFoe,
   sheetOfKobold,
   sheetOfPerson,
+  sides,
   typeOf
 };

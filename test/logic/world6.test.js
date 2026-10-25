@@ -81,4 +81,15 @@ for(const [k,M] of Object.entries(X.MAPS6)){fresh();X.rp.s.q.pb=6;X.w6Go(k,...M.
  X.rp.s.x=4;X.rp.s.y=12;X.rpEnterTile(5,12);while(X.rp.mode==='dialog')X.rpDlgNext();ok(s.w6st.chests.includes('r1:5,12')&&s.gold===g0+7,'a chest on open ground opens: '+(s.gold-g0)+' gold');X.CHESTS6.pop();
  const L=['r1',3,3,'pebblebrook',31,12,'step','lamp'];ok(X.w6Follow(L)===true&&s.w6==='r1','a link that needs "lamp" is shut before');s.q.lamp=1;X.w6Follow(L);ok(s.w6==='pebblebrook','and open once the flag is set');
  const P=X.MAPS6.hearthspire;P.patrols=[{x:3,y:3,face:'east',name:'t'}];ok(X.w6Patrols('hearthspire').length===0,'patrols need the map\'s encounters');P.patrols=[]}
+// diagonal walking (25 Oct): a tapped path takes diagonal steps on open ground, never cuts a wall's corner; the hero looks 8 ways
+{fresh({map:'r1'});const s=X.rp.s,G=X.rp.grid,open=(x,y)=>!X.rpSolid(x,y)&&!X.w6LinkAt('r1',x,y);let at=null;
+  for(let y=1;y<G.length-4&&!at;y++)for(let x=1;x<G[0].length-4&&!at;x++){let all=true;for(let j=0;j<4;j++)for(let i=0;i<4;i++)if(!open(x+i,y+j))all=false;if(all)at=[x,y]}
+  s.x=at[0];s.y=at[1];const p=X.rpBfs(at[0]+3,at[1]+3,false);ok(p&&p.length===3,'three diagonal steps across open ground: '+JSON.stringify(p));
+  ok(X.dirOf(1,1)==='down-right'&&X.dirOf(-1,0)==='left'&&X.dirOf(0,-1)==='up'&&X.dirOf(-1,-1)==='up-left','the 8 ways a kobold looks');
+  /* a corner: a wall beside the diagonal makes the path go round it */
+  let c=null;for(let y=1;y<G.length-2&&!c;y++)for(let x=1;x<G[0].length-2&&!c;x++)if(open(x,y)&&open(x+1,y+1)&&X.rpSolid(x+1,y)&&open(x,y+1))c=[x,y];
+  s.x=c[0];s.y=c[1];const q=X.rpBfs(c[0]+1,c[1]+1,false);ok(q&&q.length===2,'no corner cut past a wall: '+JSON.stringify(q))}
+// sheets are never mirrored: facing left picks the left rows (25 Oct)
+{const k={face:-1,t:0},kr={face:1,t:0},R=X.SHEET6.hero.rows;ok(X.frameOf('hero',k,false)[0]===R.idleL&&X.frameOf('hero',kr,false)[0]===R.idleR,'facing left draws the left row, not a mirrored right one');
+  ok(X.frameOf('hero',{dir8:'up-left',t:0},true)[0]===R['up-left'],'walking up-left on the map draws its own row')}
 console.log(fails?fails+' failures':'v6 world: '+checks+' checks');process.exitCode=fails?1:0;

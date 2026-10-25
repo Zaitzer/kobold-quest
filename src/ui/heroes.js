@@ -530,8 +530,8 @@ function paintHeroes() {
     const s = recolour(key, c.dataset.colour);
     if (!s || !s.img) return;
     const T = SHEET6.hero,
-      row = T.rows.idle,
-      f = ((t * 2 + i * 0.37) | 0) % T.n[row];
+      row = T.rows.idleR,
+      f = ((t * 3 + i * 0.37) | 0) % 4;
     g.imageSmoothingEnabled = false;
     g.drawImage(s.img, f * T.fw, row * T.fh, T.fw, T.fh, 0, 0, c.width, c.height);
   });

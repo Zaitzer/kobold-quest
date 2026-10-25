@@ -14,13 +14,17 @@ LIST = os.path.join(ART, 'ASSETS.md')
 MARK = os.path.join(ART, 'placeholders.json')
 INK = (0x14, 0x0a, 0x35, 255)
 SHEET = {  # frame w, h, frames per row (tools/assets.js SHEET)
-    'hero': (32, 32, [3, 3, 3, 2, 3, 2, 4]), 'villager': (32, 32, [3, 3, 3, 2]), 'foe': (32, 32, [2, 3, 3, 2]),
-    'boss': (64, 64, [2, 3, 2, 2]), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
+    'hero': (32, 32, [4] * 16), 'villager': (32, 32, [4] * 9), 'foe': (32, 32, [4] * 8),
+    'boss': (64, 64, [4] * 8), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
     'buildanim': (128, 96, [4]), 'fx': (32, 32, [6]), 'fxbig': (64, 64, [6]), 'portrait': (64, 64, [3]),
     'icon': (32, 32, [1]), 'icon16': (16, 16, [1]), 'object': (32, 32, [2])}
 # what each character row shows (the pose drawn in that row)
-POSES = {'hero': ['walk', 'walk', 'walk', 'idle', 'attack', 'cast', 'hurtdowncheer'], 'villager': ['walk', 'walk', 'walk', 'talk'],
-         'foe': ['idle', 'walk', 'attack', 'hurtoff'], 'boss': ['idle', 'attack', 'telegraph', 'hurtdown']}
+# (25 Oct) 8 walking directions, then each battle pose facing right and facing left; '<' marks a left-facing row (the stand-in
+# is mirrored there; a drawing never is, tools/assets.js)
+WALK8 = ['walk', 'walk', 'walk', 'walk', 'walk', 'walk<', 'walk<', 'walk<']
+LR = lambda p: p + [x + '<' for x in p]
+POSES = {'hero': WALK8 + LR(['idle', 'attack', 'cast', 'hurtdowncheer']), 'villager': WALK8 + ['talk'],
+         'foe': LR(['idle', 'walk', 'attack', 'hurtoff']), 'boss': LR(['idle', 'attack', 'telegraph', 'hurtdown'])}
 PALETTE = [('grass|meadow|garden|flowers|tall-grass|nest', '#6cbf4c'), ('tree|forest|plant|bush', '#3f7f3a'),
            ('water|pond|flood|oasis-water|sea', '#3a8fd9'), ('sand|dune|desert|dry', '#e9d18b'), ('snow|ice|frost|white', '#eef4fb'),
            ('rock|cliff|wall|stone|pillar|ledge|pass|ash|mine', '#62526d'), ('wood|plank|pier|hull|fence|bridge|crate|rail|deck|cart', '#a8743f'),
@@ -63,15 +67,15 @@ def creature(fw, fh, col, pose, i, big=False):
     im = Image.new('RGBA', (fw, fh), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
     s = fw / 32 * 0.68; feet = fh - 2 * fw / 32
     dx = dy = 0; c = col; lying = False
-    if pose == 'walk': dy = -1 if i == 1 or i == 2 else 0; leg = i
+    if pose == 'walk': dy = -1 if i in (1, 3) else 0; leg = [0, 1, 0, 2][i]
     else: leg = 0
     if pose == 'idle' or pose == 'talk': dy = -(i % 2)
-    if pose == 'attack': dx = [0, 3, 1][i] * s
+    if pose == 'attack': dx = [0, 3, 1, 0][i] * s
     if pose == 'cast': dy = -2 * (i % 2)
     if pose == 'telegraph': dx = -3 * s * (i + 1) / 2
     if pose in ('hurtdowncheer', 'hurtoff', 'hurtdown'):
         if i == 0: c = shade(col, 0.75); dx = -2 * s
-        elif pose == 'hurtoff' and i == 1: dx = -5 * s
+        elif pose == 'hurtoff': dx = -5 * s * i
         elif pose == 'hurtdowncheer' and i >= 2: dy = -3 * (i - 1)
         else: lying = True
     dark, light = shade(c, 0.7), shade(c, 1.2)
@@ -161,7 +165,10 @@ def sheet(kind, name):
     im = Image.new('RGBA', (fw * max(rows), fh * len(rows)), (0, 0, 0, 0))
     for r, n in enumerate(rows):
         pose = POSES.get(kind, [''] * len(rows))[r]
-        for i in range(n): im.alpha_composite(frame(kind, fw, fh, name, pose, i, n), (i * fw, r * fh))
+        left = pose.endswith('<'); pose = pose.rstrip('<')
+        for i in range(n):
+            fr = frame(kind, fw, fh, name, pose, i, n)
+            im.alpha_composite(fr.transpose(Image.FLIP_LEFT_RIGHT) if left else fr, (i * fw, r * fh))
     return im
 
 def sha(path):

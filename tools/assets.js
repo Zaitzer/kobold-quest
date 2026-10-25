@@ -19,12 +19,21 @@ function canvas(w,h){const px=Buffer.alloc(w*h*4);return{w,h,px,set(x,y,[r,g,b,a
   hline(x0,x1,y,c){for(let x=x0;x<=x1;x++)this.set(x,y,c)},vline(x,y0,y1,c){for(let y=y0;y<=y1;y++)this.set(x,y,c)},
   rect(x,y,ww,hh,c){this.hline(x,x+ww-1,y,c);this.hline(x,x+ww-1,y+hh-1,c);this.vline(x,y,y+hh-1,c);this.vline(x+ww-1,y,y+hh-1,c)},save(f){fs.writeFileSync(f,png(w,h,px))}}}
 
-/* ------------------------------------------------------------------ sheet types: frame size and rows (animation, frames) */
+/* ------------------------------------------------------------------ sheet types: frame size and rows (animation, frames, label)
+   Characters (25 Oct, Joakim): 8 walking directions, 4 frames each (stand, step, stand, the other step); every battle pose facing
+   right and facing left, 4 frames each. Nothing is mirrored by the game, so a drawing can be asymmetrical. Keep this list in step
+   with SHEET6 in src/engine/sheets.js (the rows' order) and tools/placeholder-art.py. */
+const WALK8=[['walk down','DN'],['walk down-right','DR'],['walk right','RT'],['walk up-right','UR'],['walk up','UP'],['walk up-left','UL'],['walk left','LT'],['walk down-left','DL']]
+  .map(([n,c])=>[n+' (stand, step, stand, other step)',4,c]);
+const POSES={hero:[['battle idle','I'],['attack','A'],['cast or skill','C'],['hurt, down, cheer, cheer','H',['HUR','DWN','CH1','CH2']]],
+  foe:[['battle idle','I'],['walk (a patrol on the map)','W'],['attack','A'],['hurt, storms off, storms off, storms off','H',['HUR','OF1','OF2','OF3']]],
+  boss:[['battle idle','I'],['attack','A'],['telegraph (the big attack winding up)','T'],['hurt, defeated, defeated, defeated','H',['HUR','DF1','DF2','DF3']]]};
+const BATTLE=t=>['right','left'].flatMap(side=>POSES[t].map(([n,c,fr])=>[n+', facing '+side,4,fr?fr.map(x=>x+(side==='right'?'R':'L')):c+(side==='right'?'R':'L')]));
 const SHEET={
- hero:{fw:32,fh:32,feet:30,rows:[['walk down',3,'DN'],['walk up',3,'UP'],['walk side (facing right)',3,'SD'],['battle idle',2,'ID'],['attack',3,'AT'],['cast or skill',2,'CA'],['hurt, down, cheer, cheer',4,['HURT','DOWN','CHR1','CHR2']]],note:'Pip and the seven companions'},
- villager:{fw:32,fh:32,feet:30,rows:[['walk down',3,'DN'],['walk up',3,'UP'],['walk side (facing right)',3,'SD'],['talk (facing down)',2,'TK']],note:'anyone who walks around'},
- foe:{fw:32,fh:32,feet:30,rows:[['battle idle',2,'ID'],['walk side (on the map, as a patrol)',3,'WK'],['attack',3,'AT'],['hurt, storms off',2,['HURT','OFF']]],note:'every opponent that is not a boss'},
- boss:{fw:64,fh:64,feet:60,rows:[['battle idle',2,'ID'],['attack',3,'AT'],['telegraph (the big attack winding up)',2,'TELE'],['hurt, defeated',2,['HURT','DOWN']]],note:'2 × 2-tile foes'},
+ hero:{fw:32,fh:32,feet:30,rows:[...WALK8,...BATTLE('hero')],note:'Pip and the seven companions'},
+ villager:{fw:32,fh:32,feet:30,rows:[...WALK8,['talk (facing down)',4,'TK']],note:'anyone who walks around'},
+ foe:{fw:32,fh:32,feet:30,rows:BATTLE('foe'),note:'every opponent that is not a boss'},
+ boss:{fw:64,fh:64,feet:60,rows:BATTLE('boss'),note:'2 × 2-tile foes'},
  tile:{fw:32,fh:32,rows:[['the tile',1]],note:'static map tiles'},
  tileanim:{fw:32,fh:32,rows:[['loop',4]],note:'animated map tiles (water, fire, grass)'},
  building:{fw:128,fh:96,rows:[['the building',1]],note:'4 × 3 tiles, door bottom middle'},
@@ -126,12 +135,15 @@ const FONT={A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'11010
  O:'010101101101010',P:'110101110100100',Q:'010101101110011',R:'110101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',
  V:'101101101101010',W:'101101111111101',X:'101101010101101',Y:'101101010010010',Z:'111001010100111','0':'111101101101111','1':'010110010010111',
  '2':'110001010100111','3':'110001010001110','4':'101101111001001','5':'111100110001110','6':'011100111101111','7':'111001010010010',
- '8':'111101111101111','9':'111101111001110',' ':'000000000000000','-':'000000111000000','(':'010100100100010',')':'010001001001010',',':'000000000010100','.':'000000000000010','→':'000010111010000'};
+ '8':'111101111101111','9':'111101111001110',' ':'000000000000000','-':'000000111000000','(':'010100100100010',')':'010001001001010',',':'000000000010100','.':'000000000000010','→':'000010111010000',':':'000010000010000'};
 function text(cv,x,y,s,c,k){for(const ch of String(s).toUpperCase()){const g=FONT[ch]||FONT[' '];for(let i=0;i<15;i++)if(g[i]==='1')for(let a=0;a<k;a++)for(let b=0;b<k;b++)cv.set(x+(i%3)*k+a,y+((i/3)|0)*k+b,c);x+=4*k}}
 const textW=(s,k)=>String(s).length*4*k;
 /* the label of frame i in a row: the row's code and the frame's number ("DN1"), or the frame's own code ("HURT") */
 const label=(row,i)=>Array.isArray(row[2])?row[2][i]:row[2]?row[2]+(i+1):'';
-const frameName=(row,i)=>Array.isArray(row[2])?row[0].split(', ')[i]||row[0]:row[0]+(row[1]>1?' '+(i+1):'');
+const frameName=(row,i)=>{const face=(row[0].match(/facing \w+/)||[''])[0],base=row[0].replace(/ \(stand.*\)$/,'').replace(/, facing \w+$/,'');
+  if(Array.isArray(row[2]))return base.split(', ')[i]+(face?', '+face:'');
+  if(/^walk /.test(row[0])&&row[1]===4)return base+': '+['stand','step','stand','other step'][i];
+  return base+(face?' '+face.replace('facing ',''):'')+(row[1]>1?' '+(i+1):'')};
 
 /* ------------------------------------------------------------------ write templates, guides, placeholders and the list */
 const C_FRAME=[255,0,255,255],C_FEET=[255,40,40,255],C_SAFE=[40,200,90,255],C_ROW=[60,140,255,255];
@@ -190,12 +202,14 @@ foes, bosses and the main map tiles are wired (build step 19); the hero's sheet 
 |---|---|---|---|---|---|
 ${types.join('\n')}
 
-**The labels:** DN walk down, UP walk up, SD walk side, ID battle idle, AT attack, CA cast or skill, TK talk, WK walk (a foe on
-the map), TELE telegraph; HURT, DOWN (knocked down or defeated), CHR1 and CHR2 (the victory cheer), OFF (storms off). A character
-frame is one tile, 32 × 32 (24 Oct, Joakim: characters the size of a tile); a boss is 2 × 2 tiles, 64 × 64.
+**The labels:** walking DN down, DR down-right, RT right, UR up-right, UP up, UL up-left, LT left, DL down-left; TK talk; then
+the battle poses with R (facing right) or L (facing left): IR / IL idle, AR / AL attack, CR / CL cast, WR / WL a foe's walk, TR / TL
+a boss's telegraph; HUR hurt, DWN knocked down, CH1 / CH2 the cheer, OF1–3 storming off, DF1–3 defeated. The number is the frame.
+A character frame is one tile, 32 × 32 (24 Oct); a boss is 2 × 2 tiles, 64 × 64.
 
-Characters face **right**; the game flips them for left. Walk cycles are three frames (standing, left foot, right foot), like
-Ruby's. "Hurt, down, cheer, cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.
+**Nothing is mirrored** (25 Oct): every direction and facing is its own row, so a character can hold things in one hand. Walk
+cycles are four frames: standing, one step, standing, the other step (frame 1 is also the standing pose). "Hurt, down, cheer,
+cheer" means: frame 1 hurt, frame 2 knocked down, frames 3–4 the victory cheer.
 
 ## The list (${A.length} assets; **${A.filter(a=>a.slice).length} are needed for the slice**, marked ★)
 

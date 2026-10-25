@@ -24,6 +24,7 @@ const walker = {
   pathEnd: null,
   pos: null,
   moving: false,
+  dir8: null, // the way the hero looks on the map, 8 ways (the sheets' walking rows); s.face stays 4-way for the game's logic
   grace: 4,
   pk: null,
   npcK: {},
