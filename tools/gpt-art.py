@@ -7,6 +7,7 @@ the outline. The prompt is in art/templates/gpt/README.md.
     python3 tools/gpt-art.py templates                                   # write art/templates/gpt/
     python3 tools/gpt-art.py slice FILLED.png SHEET.png ROW [--size 32] [--kind hero]  # put the four frames into ROW of SHEET (e.g. "walk down")
     python3 tools/gpt-art.py slice FILLED.png SHEET.png turnaround       # the 8 standing directions: frame 1 of each walking row
+    python3 tools/gpt-art.py sheet FILLED.png SHEET.png [--size 32]       # a filled whole-sheet template (<kind>-sheet-64.png): every row
 
 ROW is a row's name as in art/ASSETS.md without the bracket: "walk down-right", "attack, facing left". The sheet's other rows
 are left as they are; a missing sheet is made empty at the right size.
@@ -170,6 +171,57 @@ def slice_into(filled, sheet_path, row, size=None, kind=None):
     print('put %d frames into %s (%s, %dx%d)' % (len(targets), sheet_path, row, fw, fh))
 
 
+SL, ST, CELL = 220, 36, 64   # the whole-sheet template: a label margin, a header, 64 x 64 frames
+
+
+def sheet_template(kind):
+    names = rows_of(kind)
+    c = CELL * (2 if kind == 'boss' else 1)
+    im = Image.new('RGB', (SL + 4 * c, ST + len(names) * c), (255, 255, 255))
+    d = ImageDraw.Draw(im)
+    for i in range(4):
+        d.text((SL + i * c + c // 2 - 4, 8), str(i + 1), fill=(0, 0, 0), font=font(18))
+    for r, n in enumerate(names):
+        y = ST + r * c
+        lab = n.replace(', facing right', ' (right)').replace(', facing left', ' (left)').replace('hurt, down, cheer, cheer', 'hurt/down/cheer/cheer')
+        lab = re.sub(r'(storms off|defeated)(, \1)+', r'\1', lab)
+        d.text((8, y + c // 2 - 9), '%d %s' % (r + 1, lab), fill=(0, 0, 0), font=font(15))
+        for i in range(4):
+            x = SL + i * c
+            d.rectangle([x, y, x + c - 1, y + c - 1], fill=MAGENTA, outline=BORDER)
+            fy = y + round(c * SHEET[kind]['feet'] / SHEET[kind]['fh'])
+            d.line([x + 4, fy, x + c - 5, fy], fill=LINE)
+    return im
+
+
+def slice_sheet(filled, sheet_path, kind=None, size=None):
+    """a filled whole-sheet template, every frame at once: one scale for the whole sheet, so the character keeps its size"""
+    kind = kind or kind_of(sheet_path)
+    S = SHEET[kind]
+    names = rows_of(kind)
+    c = CELL * (2 if kind == 'boss' else 1)
+    img = Image.open(filled)
+    k = img.width / (SL + 4 * c)
+    fw = fh = int(size) * (2 if kind == 'boss' else 1) if size else S['fw']
+    if not size:
+        fh = S['fh']
+    feet = round(fh * S['feet'] / S['fh'])
+    figs = []
+    for r in range(len(names)):
+        for i in range(4):
+            x, y = (SL + i * c) * k, (ST + r * c) * k
+            figs.append(figure(img.crop((round(x + 2 * k), round(y + 2 * k), round(x + (c - 2) * k), round(y + (c - 2) * k)))))
+    tall = [f.getbbox()[3] - f.getbbox()[1] for f in figs if f.getbbox()]
+    scale = (feet - 1) / sorted(tall)[int(len(tall) * 0.9)] if tall else 1   # the tall frames fill the height (a stray one may poke out)
+    sheet = Image.new('RGBA', (fw * 4, fh * len(names)), (0, 0, 0, 0))
+    for n, f in enumerate(figs):
+        bb = f.getbbox()
+        dx = round(((bb[0] + bb[2]) / 2 - f.width / 2) * scale) if bb else 0
+        sheet.alpha_composite(to_frame(f, scale, fw, fh, feet, dx), ((n % 4) * fw, (n // 4) * fh))
+    sheet.save(sheet_path)
+    print('a whole %s sheet into %s (%dx%d frames)' % (kind, sheet_path, fw, fh))
+
+
 def templates():
     os.makedirs(OUT, exist_ok=True)
     for f in os.listdir(OUT):
@@ -187,6 +239,7 @@ def templates():
             face = ' (facing ' + n.split(', facing ')[1] + ')' if ', facing ' in n else ''
             title = '%s: %s%s. One character per frame, standing on the line, same size in every frame.' % (kind, n.split(', facing ')[0], face)
             template(title, labels, 4, 1).save(os.path.join(OUT, '%s-%s.png' % (kind, n.replace(', ', '-').replace(' ', '-'))))
+        sheet_template(kind).save(os.path.join(OUT, '%s-sheet-64.png' % kind))
         if kind in ('hero', 'villager'):
             labels = ['%d %s' % (i + 1, n.replace('walk ', 'facing ')) for i, n in enumerate(names[:8])]
             template('%s: turnaround, standing still in 8 directions. The same character in every frame.' % kind, labels, 4, 2).save(os.path.join(OUT, '%s-turnaround.png' % kind))
@@ -197,6 +250,8 @@ if __name__ == '__main__':
     a = sys.argv[1:]
     if a[:1] == ['templates']:
         templates()
+    elif a[:1] == ['sheet'] and len(a) >= 3:
+        slice_sheet(a[1], a[2], a[a.index('--kind') + 1] if '--kind' in a else None, a[a.index('--size') + 1] if '--size' in a else None)
     elif a[:1] == ['slice'] and len(a) >= 4:
         size = a[a.index('--size') + 1] if '--size' in a else None
         slice_into(a[1], a[2], a[3], size, a[a.index('--kind') + 1] if '--kind' in a else None)

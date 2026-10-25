@@ -4,6 +4,11 @@ Image AIs draw a character well but can't hold an exact pixel grid, so ChatGPT f
 `tools/gpt-art.py` turns it into a row of the real sheet: it keys out the magenta, scales the four frames by one factor, stands
 each on the feet line, snaps the colours to the game's palette, cleans stray pixels and draws the outline.
 
+**One sheet at once:** `hero-sheet-64.png` (also villager, foe, boss) is the whole sheet in one picture: every row named in the
+margin, every frame a 64 × 64 magenta box (a boss's 128 × 128). Ask ChatGPT to fill every box, then
+`python3 tools/gpt-art.py sheet FILLED.png SHEET.png` turns it into the game's sheet. The AI holds a small grid less well than
+one big row, so if rows come out mixed up, fill the rows one by one with the templates below.
+
 Each template here is one row of a sheet (`art/ASSETS.md`): four frames, each under its label (*1 stand, 2 step, 3 stand, 4 other
 step* for walking), or the **turnaround** (the character standing still in all 8 directions, which also fills frame 1 of every
 walking row). Start a new character with its turnaround, so every later row has the same character to copy.
