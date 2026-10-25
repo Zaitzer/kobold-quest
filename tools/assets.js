@@ -154,6 +154,8 @@ function template(t){const S=SHEET[t],{w,h}=sheetSize(t),cv=canvas(w,h);
         const L=label([name,n,S.rows[r][2]],i);if(L)text(cv,x+2,y+2,L,C_ROW,1)}   // the frame's label in its top-left corner (DN1: walk down, frame 1)
       else{for(let k=0;k<Math.min(S.fw,S.fh);k+=2)cv.set(x+k*S.fw/Math.min(S.fw,S.fh)|0,y+k*S.fh/Math.min(S.fw,S.fh)|0,C_ROW)}}});   // a dotted diagonal marks an unused frame
   return cv}
+module.exports={SHEET};
+if(require.main===module){   // the sheet types are read by tools/gpt-art.py too
 fs.mkdirSync(path.join(ROOT,'templates'),{recursive:true});
 for(const f of fs.readdirSync(path.join(ROOT,'templates')))if(/\.png$/.test(f))fs.unlinkSync(path.join(ROOT,'templates',f));   // sizes change: no old template stays
 for(const t of Object.keys(SHEET)){const {w,h}=sheetSize(t);template(t).save(path.join(ROOT,'templates',`${t}-${w}x${h}.png`))}
@@ -223,3 +225,4 @@ for the special gear use one drawing for all six tiers; the game tints it by the
 `;
 fs.writeFileSync(path.join(ROOT,'ASSETS.md'),md);
 console.log(`assets ${A.length} (slice ${A.filter(a=>a.slice).length}); placeholders made ${made}, kept ${kept}; templates ${Object.keys(SHEET).length}`);
+}

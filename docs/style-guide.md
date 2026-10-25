@@ -45,6 +45,9 @@ the game, so a character can be asymmetrical: a staff in the right hand stays in
 attack, cast, hurt / down / cheer) each have a facing-right row and a facing-left row, 4 frames each. The rows of every sheet
 type are in `art/ASSETS.md`; each template frame is labelled, and `art/templates/guides/` names every frame in words.
 
+**With ChatGPT (25 Oct):** `art/templates/gpt/` has big templates an image AI can fill in (one row of a sheet, or the
+8-way turnaround), the prompt, and `tools/gpt-art.py`, which turns a filled template into the row of the real sheet.
+
 **Characters are one tile (Joakim, 24 Oct):** a kobold is as big as a tile, squat and big-headed, with no tall frame for the head to rise
 over the tile behind. Half the pixels of the old 32 × 64, and the same pixel size as the map, so nothing clashes.
 Joakim's first Pip (drawn on the old 32 × 64 sheet the same day) is kept in `art/reference/pip-32x64.png`; `pip.png` and the
