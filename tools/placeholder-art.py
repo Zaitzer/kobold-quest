@@ -14,8 +14,8 @@ LIST = os.path.join(ART, 'ASSETS.md')
 MARK = os.path.join(ART, 'placeholders.json')
 INK = (0x14, 0x0a, 0x35, 255)
 SHEET = {  # frame w, h, frames per row (tools/assets.js SHEET)
-    'hero': (32, 32, [4] * 16), 'villager': (32, 32, [4] * 9), 'foe': (32, 32, [4] * 8),
-    'boss': (64, 64, [4] * 8), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
+    'hero': (128, 128, [4] * 16), 'villager': (128, 128, [4] * 9), 'foe': (128, 128, [4] * 8),
+    'boss': (256, 256, [4] * 8), 'tile': (32, 32, [1]), 'tileanim': (32, 32, [4]), 'building': (128, 96, [1]),
     'buildanim': (128, 96, [4]), 'fx': (32, 32, [6]), 'fxbig': (64, 64, [6]), 'portrait': (64, 64, [3]),
     'icon': (32, 32, [1]), 'icon16': (16, 16, [1]), 'object': (32, 32, [2])}
 # what each character row shows (the pose drawn in that row)

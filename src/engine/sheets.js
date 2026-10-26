@@ -1,5 +1,5 @@
 /* ---------- Kobold Quest v6: sprite sheets (build step 19, art/ASSETS.md, style-guide.md) ----------
-   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 32 × 32 frames, one tile (bosses 64 × 64, 2 × 2 tiles; 24 Oct), every direction drawn (no mirroring, 25 Oct), drawn pixel for pixel with no smoothing. A sheet is used only when it is drawn (the stand-ins are
+   Joakim's sheets from art/ (and the stand-ins until he draws over them): one PNG per character, animations in rows, frames left to right, 128 × 128 frames shown one tile big (bosses 256 × 256, 2 × 2 tiles; 26 Oct), every direction drawn (no mirroring, 25 Oct), crisp where a frame pixel is a screen pixel or bigger. A sheet is used only when it is drawn (the stand-ins are
    left out by the build and the server); anything without one keeps its look drawn in code. The hero's sheet is drawn orange and
    recoloured to the hero's colour (style-guide.md, "The hero's colour"). */
 import {SPR, sprite} from './sprites.js';
@@ -12,12 +12,12 @@ const dirOf = (x, y) => DIR8[(Math.round(Math.atan2(x, y) / (Math.PI / 4)) + 8) 
 const rowsOf = names => Object.fromEntries(names.map((n, i) => [n, i]));
 const sides = poses => ['R', 'L'].flatMap(s => poses.map(p => p + s));
 const SHEET6 = {
-  hero: {fw: 32, fh: 32, rows: rowsOf(DIR8.concat(sides(['idle', 'attack', 'cast', 'hurt'])))},
-  villager: {fw: 32, fh: 32, rows: rowsOf(DIR8.concat(['talk']))},
-  foe: {fw: 32, fh: 32, rows: rowsOf(sides(['idle', 'walk', 'attack', 'hurt']))},
-  boss: {fw: 64, fh: 64, rows: rowsOf(sides(['idle', 'attack', 'tele', 'hurt']))}
+  hero: {fw: 128, fh: 128, rows: rowsOf(DIR8.concat(sides(['idle', 'attack', 'cast', 'hurt'])))},
+  villager: {fw: 128, fh: 128, rows: rowsOf(DIR8.concat(['talk']))},
+  foe: {fw: 128, fh: 128, rows: rowsOf(sides(['idle', 'walk', 'attack', 'hurt']))},
+  boss: {fw: 256, fh: 256, rows: rowsOf(sides(['idle', 'attack', 'tele', 'hurt']))}
 };
-const FEET = 30 / 32; // the feet line (row 30 of 32; a boss's row 60 of 64)
+const FEET = 124 / 128; // the feet line (row 124 of 128; a boss's row 248 of 256)
 /* every loaded v6 sheet by its last name ("wizzle", "cellar-rat"), so a character finds its sheet without knowing the folder */
 let index = null,
   indexN = 0;
@@ -157,7 +157,7 @@ function frameOf(type, k, map) {
   return [row, f];
 }
 /* draw one frame with its feet at (0,0), crisp, at the tiles' pixel size: a 32-pixel frame is one tile (40 units), a boss's 64 two */
-const UNIT = 40 / 32;
+const UNIT = 40 / 128; // a 128-pixel frame is one tile (40 units), a boss's 256 two (26 Oct)
 function drawSheet(g, key, k, opt) {
   opt = opt || {};
   const type = typeOf(key),
@@ -171,7 +171,11 @@ function drawSheet(g, key, k, opt) {
   const sm = g.imageSmoothingEnabled;
   g.save();
   if ((k.face || 1) < 0) g.scale(-1, 1); // the caller draws in the kobold's facing (flipped for left); a sheet is never mirrored: undo it
-  g.imageSmoothingEnabled = false;
+  /* crisp when a frame pixel is a screen pixel or bigger; smoothed when it is drawn smaller (a phone shows 128 pixels about 1:1, a
+     desktop window fewer), so a big drawing shrinks without flicker */
+  const m = g.getTransform ? g.getTransform() : null;
+  g.imageSmoothingEnabled = !!m && Math.hypot(m.a, m.b) * u < 0.99;
+  g.imageSmoothingQuality = 'high';
   g.drawImage(s.img, f * fw, row * fh, fw, fh, (-fw / 2) * u, -fh * FEET * u, fw * u, fh * u);
   g.restore();
   g.imageSmoothingEnabled = sm;

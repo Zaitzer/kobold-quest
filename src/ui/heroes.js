@@ -328,9 +328,9 @@ const heroCv = (cls, colour, big) =>
   '<canvas class="c6hero' +
   (big ? ' big' : '') +
   '" width="' +
-  (big ? 96 : 48) +
+  128 +
   '" height="' +
-  (big ? 96 : 48) +
+  128 +
   '" data-hero="' +
   (cls || '') +
   '" data-colour="' +
@@ -532,7 +532,8 @@ function paintHeroes() {
     const T = SHEET6.hero,
       row = T.rows.idleR,
       f = ((t * 3 + i * 0.37) | 0) % 4;
-    g.imageSmoothingEnabled = false;
+    g.imageSmoothingEnabled = c.clientWidth > 0 && c.clientWidth < T.fw; // a card shows the 128-pixel frame smaller: smooth it
+    g.imageSmoothingQuality = 'high';
     g.drawImage(s.img, f * T.fw, row * T.fh, T.fw, T.fh, 0, 0, c.width, c.height);
   });
 }

@@ -14,7 +14,7 @@ function sheets(dir){const out=[];
 function prepare(from,to){const out={},warn=[];fs.rmSync(to,{recursive:true,force:true});fs.mkdirSync(to,{recursive:true});
   for(const [key,b] of sheets(from)){
     if(b.length>MAX||b.length<24||b.readUInt32BE(0)!==0x89504e47||b.toString('ascii',12,16)!=='IHDR'){warn.push(key+'.png: not a small PNG');continue}
-    const w=b.readUInt32BE(16),h=b.readUInt32BE(20);if(w>1024||h>1024){warn.push(key+'.png: larger than 1024 × 1024');continue}
+    const w=b.readUInt32BE(16),h=b.readUInt32BE(20);if(w>4096||h>4096){warn.push(key+'.png: larger than 4096 × 4096');continue}   // a 128-pixel character sheet is 512 × 2048 (26 Oct)
     const dest=path.join(to,key+'.png');fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,b);out[key]={v:crypto.createHash('sha1').update(b).digest('hex').slice(0,8),w,h}}
   fs.writeFileSync(path.join(to,'manifest.json'),JSON.stringify(out));return{count:Object.keys(out).length,warn}}
 if(require.main===module){const [from,to]=process.argv.slice(2);const r=prepare(from,to);r.warn.forEach(w=>console.log('art: skipped '+w));console.log('art: '+r.count+' sheets')}

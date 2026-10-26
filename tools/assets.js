@@ -30,10 +30,10 @@ const POSES={hero:[['battle idle','I'],['attack','A'],['cast or skill','C'],['hu
   boss:[['battle idle','I'],['attack','A'],['telegraph (the big attack winding up)','T'],['hurt, defeated, defeated, defeated','H',['HUR','DF1','DF2','DF3']]]};
 const BATTLE=t=>['right','left'].flatMap(side=>POSES[t].map(([n,c,fr])=>[n+', facing '+side,4,fr?fr.map(x=>x+(side==='right'?'R':'L')):c+(side==='right'?'R':'L')]));
 const SHEET={
- hero:{fw:32,fh:32,feet:30,rows:[...WALK8,...BATTLE('hero')],note:'Pip and the seven companions'},
- villager:{fw:32,fh:32,feet:30,rows:[...WALK8,['talk (facing down)',4,'TK']],note:'anyone who walks around'},
- foe:{fw:32,fh:32,feet:30,rows:BATTLE('foe'),note:'every opponent that is not a boss'},
- boss:{fw:64,fh:64,feet:60,rows:BATTLE('boss'),note:'2 × 2-tile foes'},
+ hero:{fw:128,fh:128,feet:124,rows:[...WALK8,...BATTLE('hero')],note:'Pip and the seven companions'},
+ villager:{fw:128,fh:128,feet:124,rows:[...WALK8,['talk (facing down)',4,'TK']],note:'anyone who walks around'},
+ foe:{fw:128,fh:128,feet:124,rows:BATTLE('foe'),note:'every opponent that is not a boss'},
+ boss:{fw:256,fh:256,feet:248,rows:BATTLE('boss'),note:'2 × 2-tile foes'},
  tile:{fw:32,fh:32,rows:[['the tile',1]],note:'static map tiles'},
  tileanim:{fw:32,fh:32,rows:[['loop',4]],note:'animated map tiles (water, fire, grass)'},
  building:{fw:128,fh:96,rows:[['the building',1]],note:'4 × 3 tiles, door bottom middle'},
@@ -160,11 +160,11 @@ fs.mkdirSync(path.join(ROOT,'templates'),{recursive:true});
 for(const f of fs.readdirSync(path.join(ROOT,'templates')))if(/\.png$/.test(f))fs.unlinkSync(path.join(ROOT,'templates',f));   // sizes change: no old template stays
 for(const t of Object.keys(SHEET)){const {w,h}=sheetSize(t);template(t).save(path.join(ROOT,'templates',`${t}-${w}x${h}.png`))}
 /* the guides (characters only): the template blown up 8 ×, each frame named in words under it, to keep open beside the drawing */
-function guide(t){const S=SHEET[t],Z=8,{w,h}=sheetSize(t),cols=Math.max(...S.rows.map(r=>r[1])),cw=Math.max(S.fw*Z,150),ch=S.fh*Z+24,G=canvas(cols*cw+8,S.rows.length*ch+40);
+function guide(t){const S=SHEET[t],Z=Math.max(1,Math.floor(256/S.fw)),{w,h}=sheetSize(t),cols=Math.max(...S.rows.map(r=>r[1])),cw=Math.max(S.fw*Z,150),ch=S.fh*Z+24,G=canvas(cols*cw+8,S.rows.length*ch+40);
   const bg=[30,20,70,255],ink=[255,240,200,255];for(let y=0;y<G.h;y++)for(let x=0;x<G.w;x++)G.set(x,y,bg);
   text(G,8,8,t+' sheet: frame '+S.fw+' x '+S.fh+', feet on row '+S.feet,ink,2);
   const T=template(t);S.rows.forEach((row,r)=>{for(let i=0;i<row[1];i++){const ox=4+i*cw,oy=32+r*ch;
-      for(let y=0;y<S.fh;y++)for(let x=0;x<S.fw;x++){const k=((r*S.fh+y)*w+i*S.fw+x)*4,a=T.px[k+3];const c=a?[T.px[k],T.px[k+1],T.px[k+2],255]:((x>>2)+(y>>2))%2?[58,46,110,255]:[48,36,96,255];
+      for(let y=0;y<S.fh;y++)for(let x=0;x<S.fw;x++){const k=((r*S.fh+y)*w+i*S.fw+x)*4,a=T.px[k+3];const c=a?[T.px[k],T.px[k+1],T.px[k+2],255]:[48,36,96,255];
         for(let a2=0;a2<Z;a2++)for(let b2=0;b2<Z;b2++)G.set(ox+x*Z+a2,oy+y*Z+b2,c)}
       text(G,ox,oy+S.fh*Z+6,frameName(row,i),ink,2)}});
   return G}
@@ -207,7 +207,8 @@ ${types.join('\n')}
 **The labels:** walking DN down, DR down-right, RT right, UR up-right, UP up, UL up-left, LT left, DL down-left; TK talk; then
 the battle poses with R (facing right) or L (facing left): IR / IL idle, AR / AL attack, CR / CL cast, WR / WL a foe's walk, TR / TL
 a boss's telegraph; HUR hurt, DWN knocked down, CH1 / CH2 the cheer, OF1–3 storming off, DF1–3 defeated. The number is the frame.
-A character frame is one tile, 32 × 32 (24 Oct); a boss is 2 × 2 tiles, 64 × 64.
+A character frame is 128 × 128 (26 Oct, Joakim: "use all the pixels" of the ChatGPT drawings), shown one tile big; a boss is
+256 × 256, 2 × 2 tiles.
 
 **Nothing is mirrored** (25 Oct): every direction and facing is its own row, so a character can hold things in one hand. Walk
 cycles are four frames: standing, one step, standing, the other step (frame 1 is also the standing pose). "Hurt, down, cheer,

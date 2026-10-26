@@ -1,259 +1,131 @@
-"""Art made with an image AI (ChatGPT), 25 Oct 2026. Image AIs draw a character well but can't keep an exact pixel grid, so the AI fills
-in a big template (four large frames on magenta, a label over each) and this tool turns the result into a row of a real sheet:
-it keys out the magenta, scales the row's four frames by one factor (so the character keeps its size), stands each on the feet line,
-snaps the colours to the game's palette (the hero's scales stay orange, so the hero colour still works), cleans stray pixels and draws
-the outline. The prompt is in art/templates/gpt/README.md.
+"""Art made with an image AI (ChatGPT; 25-26 Oct 2026). The AI draws a whole sprite sheet (or one row of it) on magenta from the
+description in art/templates/gpt/README.md; it can't keep an exact grid, so this tool finds the frames itself: the rows are the
+bands of drawing between empty magenta lines, the frames of a row the bands across it. Each frame keeps every pixel the AI drew
+(26 Oct, Joakim: "use all the pixels"): the magenta and its fringe are keyed out, the character stands on the feet line, centred
+where its column was. A frame only shrinks if it is bigger than the sheet's frame, and then the whole sheet shrinks by one factor.
 
-    python3 tools/gpt-art.py templates                                   # write art/templates/gpt/
-    python3 tools/gpt-art.py slice FILLED.png SHEET.png ROW [--size 32] [--kind hero]  # put the four frames into ROW of SHEET (e.g. "walk down")
-    python3 tools/gpt-art.py slice FILLED.png SHEET.png turnaround       # the 8 standing directions: frame 1 of each walking row
-    python3 tools/gpt-art.py sheet FILLED.png SHEET.png [--size 32]       # a filled whole-sheet template (<kind>-sheet-64.png): every row
+    python3 tools/gpt-art.py cut FILLED.png SHEET.png                  # a whole sheet (as many rows as the sheet has)
+    python3 tools/gpt-art.py cut FILLED.png SHEET.png "walk down"      # one row (4 frames) into that row
+    python3 tools/gpt-art.py cut FILLED.png SHEET.png turnaround       # 8 standing directions (2 rows of 4): frame 1 of each walk
+    add --kind hero|villager|foe|boss when SHEET is outside art/ (the kind is read from the folder otherwise)
 
-ROW is a row's name as in art/ASSETS.md without the bracket: "walk down-right", "attack, facing left". The sheet's other rows
-are left as they are; a missing sheet is made empty at the right size.
+ROW is a row's name as in art/ASSETS.md without the bracket ("walk down-right", "attack, facing left"). Rows not cut are kept.
 """
 import json, os, re, subprocess, sys
-from collections import Counter
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
-OUT = os.path.join(ROOT, 'art', 'templates', 'gpt')
 SHEET = json.loads(subprocess.check_output(['node', '-e', "console.log(JSON.stringify(require('./tools/assets.js').SHEET))"], cwd=ROOT))
-W, H = 1536, 1024   # the template: GPT's landscape size, four frames each under its label
-MAGENTA, LINE, BORDER = (255, 0, 255), (200, 0, 200), (60, 0, 60)
-FRAME_WORDS = ['stand', 'step', 'stand', 'other step']
-hx = lambda h: tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
-INK = hx('#140a35')
-# the palette a drawing is snapped to (style-guide.md): ramps light to dark; orange is kept for the hero's scales only
-PAL = [hx(c) for c in ['#ffd08a', '#ffb04a', '#f08a2a', '#c4581c', '#8a3414',      # scales (orange: the hero colour)
-                       '#f4e2c0', '#d8b890', '#a08060',                            # bellies, bone, cloth wraps
-                       '#8a5ad8', '#6a3ab8', '#4a2490', '#2e1460',                 # purples
-                       '#7bb6e6', '#3a8fd9', '#235a9a', '#162e5a',                 # blues
-                       '#9be36b', '#5fb04a', '#3f7f3a', '#234a24',                 # greens
-                       '#fff2a0', '#ffd54a', '#c8901c', '#6a4010',                 # golds, leather
-                       '#ff7a6a', '#e83c3c', '#981c2a', '#4a0c22',                 # reds
-                       '#fffbe0', '#ffe066', '#ffffff', '#d8d0e8', '#9c92b4', '#62526d', '#3a3050', '#1a0c14']]
-
-
-def font(size):
-    try:
-        return ImageFont.load_default(size=size)
-    except TypeError:
-        return ImageFont.load_default()
 
 
 def rows_of(kind):
     return [re.sub(r' \([^)]*\)', '', r[0]) for r in SHEET[kind]['rows']]   # 'walk (a patrol on the map), facing right' -> 'walk, facing right'
 
 
-def template(title, labels, cols, rows_n):
-    """cols x rows_n frames, each with its label above it, on magenta; a darker line marks where the feet stand"""
-    im = Image.new('RGB', (W, H), MAGENTA)
-    d = ImageDraw.Draw(im)
-    cw, ch = W // cols, (H - 40) // rows_n
-    d.rectangle([0, 0, W, 40], fill=(255, 255, 255))
-    d.text((12, 8), title, fill=(0, 0, 0), font=font(24))
-    for k, lab in enumerate(labels):
-        c, r = k % cols, k // cols
-        x0, y0 = c * cw, 40 + r * ch
-        d.rectangle([x0, y0, x0 + cw - 1, y0 + 70], fill=(255, 255, 255))
-        d.text((x0 + 12, y0 + 18), lab, fill=(0, 0, 0), font=font(30))
-        d.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=BORDER, width=4)
-        fy = y0 + ch - 40
-        d.line([x0 + 20, fy, x0 + cw - 20, fy], fill=LINE, width=3)
-    return im
+def magenta(c):
+    """the background and the blend at its edge (the AI softens the outline into the magenta)"""
+    r, g, b = c[:3]
+    return (r > 140 and b > 140 and g < 120 and abs(r - b) < 90) or (r > 80 and b > 80 and g < 0.55 * min(r, b) and abs(r - b) < 60)
 
 
-def cells(img, n, cols):
-    """the frame boxes of a filled template, scaled to the size the AI returned it at"""
-    rows_n = (n + cols - 1) // cols
-    sx, sy = img.width / W, img.height / H
-    cw, ch = W // cols, (H - 40) // rows_n
+def bands(profile, gap):
+    out, start = [], None
+    for i, v in enumerate(profile + [0]):
+        if v and start is None:
+            start = i
+        if not v and start is not None:
+            out.append([start, i])
+            start = None
+    merged = []
+    for b in out:   # a gap narrower than `gap` is inside a frame (between a flame and its hand, say)
+        if merged and b[0] - merged[-1][1] < gap:
+            merged[-1][1] = b[1]
+        else:
+            merged.append(b)
+    return merged
+
+
+def frames(img, n_rows):
+    """the frames of a filled picture: [row][column] -> (box, figure with the magenta keyed out)"""
+    rgb = img.convert('RGB')
+    W, H = rgb.size
+    px = rgb.load()
+    mask = [[0 if magenta(px[x, y]) else 1 for x in range(W)] for y in range(H)]
+    rows = bands([sum(r) for r in mask], 6)
+    while len(rows) > n_rows:   # join the closest bands until the count is right
+        g = [rows[i + 1][0] - rows[i][1] for i in range(len(rows) - 1)]
+        i = g.index(min(g))
+        rows[i][1] = rows[i + 1][1]
+        del rows[i + 1]
+    if len(rows) != n_rows:
+        sys.exit('found %d rows of drawing, expected %d' % (len(rows), n_rows))
     out = []
-    for k in range(n):
-        c, r = k % cols, k // cols
-        x0, y0 = c * cw, 40 + r * ch + 74
-        out.append((round((x0 + 10) * sx), round(y0 * sy), round((x0 + cw - 10) * sx), round((y0 + ch - 84) * sy)))
+    for y0, y1 in rows:
+        cols = bands([sum(mask[y][x] for y in range(y0, y1)) for x in range(W)], 14)
+        while len(cols) > 4:
+            g = [cols[i + 1][0] - cols[i][1] for i in range(len(cols) - 1)]
+            i = g.index(min(g))
+            cols[i][1] = cols[i + 1][1]
+            del cols[i + 1]
+        row = []
+        for c, (x0, x1) in enumerate(cols):
+            cell = rgb.crop((x0, y0, x1, y1)).convert('RGBA')
+            p = cell.load()
+            for y in range(cell.height):
+                for x in range(cell.width):
+                    if magenta(p[x, y]):
+                        p[x, y] = (0, 0, 0, 0)
+            bb = cell.getbbox()
+            row.append(((x0, y0, x1, y1), cell.crop(bb), (x0 + (bb[0] + bb[2]) / 2) - (c + 0.5) * W / 4))
+        out.append(row)
     return out
 
 
-def figure(cell):
-    """the character in a frame: everything that isn't magenta (the feet line and the border included in the key)"""
-    rgb = cell.convert('RGB')
-    a = Image.new('L', rgb.size, 0)
-    p, q = rgb.load(), a.load()
-    for y in range(rgb.height):
-        for x in range(rgb.width):
-            r, g, b = p[x, y]
-            bg = (r > 140 and b > 140 and g < 120 and abs(r - b) < 90) or (r < 90 and g < 30 and b < 90 and abs(r - b) < 30 and r > 40)
-            q[x, y] = 0 if bg else 255
-    out = rgb.convert('RGBA')
-    out.putalpha(a)
-    return out
-
-
-def near(c):
-    return min(PAL, key=lambda p: 2 * (p[0] - c[0]) ** 2 + 4 * (p[1] - c[1]) ** 2 + 3 * (p[2] - c[2]) ** 2)
-
-
-def to_frame(fig, scale, fw, fh, feet, dx):
-    """one character, scaled, standing on the feet line, snapped to the palette, cleaned and outlined"""
-    bb = fig.getbbox()
-    out = Image.new('RGBA', (fw, fh), (0, 0, 0, 0))
-    if not bb:
-        return out
-    f = fig.crop(bb)
-    w, h = max(1, round(f.width * scale)), max(1, round(f.height * scale))
-    s = f.resize((w, h), Image.BOX)
-    sp, op = s.load(), out.load()
-    ox, oy = fw // 2 - w // 2 + dx, feet + 1 - h
-    for y in range(h):
-        for x in range(w):
-            r, g, b, a = sp[x, y]
-            if a >= 130 and 0 <= ox + x < fw and 0 <= oy + y < fh:
-                op[ox + x, oy + y] = near((r, g, b)) + (255,)
-    for _ in range(2):   # a lone pixel takes its neighbours' colour
-        for y in range(fh):
-            for x in range(fw):
-                if op[x, y][3] == 0:
-                    continue
-                nb = [op[x + i, y + j] for i, j in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= x + i < fw and 0 <= y + j < fh and op[x + i, y + j][3]]
-                if len(nb) >= 3 and op[x, y] not in nb:
-                    m = Counter(nb).most_common(1)[0]
-                    if m[1] >= 3:
-                        op[x, y] = m[0]
-    solid = [[op[x, y][3] > 0 for x in range(fw)] for y in range(fh)]
-    for y in range(fh):
-        for x in range(fw):
-            if not solid[y][x] and any(0 <= x + i < fw and 0 <= y + j < fh and solid[y + j][x + i] for i, j in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                op[x, y] = INK + (255,)
-    return out
-
-
-def kind_of(sheet_path):
-    p = sheet_path.replace('\\', '/')
+def kind_of(path):
+    p = path.replace('\\', '/')
     return 'boss' if '/bosses/' in p else 'foe' if '/foes/' in p else 'hero' if '/heroes/' in p or '/companions/' in p else 'villager'
 
 
-def slice_into(filled, sheet_path, row, size=None, kind=None):
+def cut(filled, sheet_path, row=None, kind=None):
     kind = kind or kind_of(sheet_path)
     S = SHEET[kind]
-    fw, fh = S['fw'], S['fh']
-    if size:
-        fw = fh = int(size) * (2 if kind == 'boss' else 1)
-    feet = round(fh * S['feet'] / S['fh'])
+    fw, fh, feet = S['fw'], S['fh'], S['feet']
     names = rows_of(kind)
     img = Image.open(filled)
-    if row == 'turnaround':
-        targets = [(names.index(n), 0) for n in names[:8]]
-        boxes = cells(img, 8, 4)
+    if row is None:
+        targets = list(range(len(names)))
+        got = frames(img, len(names))
+        place = [(r, c) for r in targets for c in range(4)]
+        figs = [f for rr in got for f in rr]
+    elif row == 'turnaround':
+        got = frames(img, 2)
+        figs = [f for rr in got for f in rr][:8]
+        place = [(i, 0) for i in range(8)]
     else:
         if row not in names:
             sys.exit('no row "%s"; the rows: %s' % (row, ', '.join(names)))
-        targets = [(names.index(row), i) for i in range(4)]
-        boxes = cells(img, 4, 4)
-    figs = [figure(img.crop(b)) for b in boxes]
-    tallest = max((f.getbbox()[3] - f.getbbox()[1]) for f in figs if f.getbbox())
-    scale = (feet - 1) / tallest          # one scale for the row: the tallest frame fills the height
+        figs = frames(img, 1)[0]
+        place = [(names.index(row), c) for c in range(4)]
+    k = min(1, (feet - 1) / max(f[1].height for f in figs), fw / max(f[1].width for f in figs))   # every pixel, unless it can't fit
     sw, sh = fw * 4, fh * len(names)
     sheet = Image.open(sheet_path).convert('RGBA') if os.path.exists(sheet_path) else Image.new('RGBA', (sw, sh), (0, 0, 0, 0))
     if sheet.size != (sw, sh):
-        big = Image.new('RGBA', (sw, sh), (0, 0, 0, 0))
-        big.alpha_composite(sheet.crop((0, 0, min(sw, sheet.width), min(sh, sheet.height))))
-        sheet = big
-    for (r, i), b, f in zip(targets, boxes, figs):
-        bb = f.getbbox()
-        dx = round(((bb[0] + bb[2]) / 2 - f.width / 2) * scale) if bb else 0   # keep where the figure stands in its frame: no jitter
-        fr = to_frame(f, scale, fw, fh, feet, dx)
-        sheet.paste(Image.new('RGBA', (fw, fh), (0, 0, 0, 0)), (i * fw, r * fh))
-        sheet.alpha_composite(fr, (i * fw, r * fh))
+        sheet = Image.new('RGBA', (sw, sh), (0, 0, 0, 0))
+    for (r, c), (_, fig, off) in zip(place, figs):
+        if k < 1:
+            fig = fig.resize((max(1, round(fig.width * k)), max(1, round(fig.height * k))), Image.BOX)
+        x = max(0, min(fw - fig.width, fw // 2 + round(off * k) - fig.width // 2))
+        sheet.paste(Image.new('RGBA', (fw, fh), (0, 0, 0, 0)), (c * fw, r * fh))
+        sheet.alpha_composite(fig, (c * fw + x, r * fh + max(0, feet - fig.height)))
     sheet.save(sheet_path)
-    print('put %d frames into %s (%s, %dx%d)' % (len(targets), sheet_path, row, fw, fh))
-
-
-SL, ST, CELL = 220, 36, 64   # the whole-sheet template: a label margin, a header, 64 x 64 frames
-
-
-def sheet_template(kind):
-    names = rows_of(kind)
-    c = CELL * (2 if kind == 'boss' else 1)
-    im = Image.new('RGB', (SL + 4 * c, ST + len(names) * c), (255, 255, 255))
-    d = ImageDraw.Draw(im)
-    for i in range(4):
-        d.text((SL + i * c + c // 2 - 4, 8), str(i + 1), fill=(0, 0, 0), font=font(18))
-    for r, n in enumerate(names):
-        y = ST + r * c
-        lab = n.replace(', facing right', ' (right)').replace(', facing left', ' (left)').replace('hurt, down, cheer, cheer', 'hurt/down/cheer/cheer')
-        lab = re.sub(r'(storms off|defeated)(, \1)+', r'\1', lab)
-        d.text((8, y + c // 2 - 9), '%d %s' % (r + 1, lab), fill=(0, 0, 0), font=font(15))
-        for i in range(4):
-            x = SL + i * c
-            d.rectangle([x, y, x + c - 1, y + c - 1], fill=MAGENTA, outline=BORDER)
-            fy = y + round(c * SHEET[kind]['feet'] / SHEET[kind]['fh'])
-            d.line([x + 4, fy, x + c - 5, fy], fill=LINE)
-    return im
-
-
-def slice_sheet(filled, sheet_path, kind=None, size=None):
-    """a filled whole-sheet template, every frame at once: one scale for the whole sheet, so the character keeps its size"""
-    kind = kind or kind_of(sheet_path)
-    S = SHEET[kind]
-    names = rows_of(kind)
-    c = CELL * (2 if kind == 'boss' else 1)
-    img = Image.open(filled)
-    k = img.width / (SL + 4 * c)
-    fw = fh = int(size) * (2 if kind == 'boss' else 1) if size else S['fw']
-    if not size:
-        fh = S['fh']
-    feet = round(fh * S['feet'] / S['fh'])
-    figs = []
-    for r in range(len(names)):
-        for i in range(4):
-            x, y = (SL + i * c) * k, (ST + r * c) * k
-            figs.append(figure(img.crop((round(x + 2 * k), round(y + 2 * k), round(x + (c - 2) * k), round(y + (c - 2) * k)))))
-    tall = [f.getbbox()[3] - f.getbbox()[1] for f in figs if f.getbbox()]
-    scale = (feet - 1) / sorted(tall)[int(len(tall) * 0.9)] if tall else 1   # the tall frames fill the height (a stray one may poke out)
-    sheet = Image.new('RGBA', (fw * 4, fh * len(names)), (0, 0, 0, 0))
-    for n, f in enumerate(figs):
-        bb = f.getbbox()
-        dx = round(((bb[0] + bb[2]) / 2 - f.width / 2) * scale) if bb else 0
-        sheet.alpha_composite(to_frame(f, scale, fw, fh, feet, dx), ((n % 4) * fw, (n // 4) * fh))
-    sheet.save(sheet_path)
-    print('a whole %s sheet into %s (%dx%d frames)' % (kind, sheet_path, fw, fh))
-
-
-def templates():
-    os.makedirs(OUT, exist_ok=True)
-    for f in os.listdir(OUT):
-        if f.endswith('.png'):
-            os.remove(os.path.join(OUT, f))
-    for kind in ('hero', 'villager', 'foe', 'boss'):
-        names = rows_of(kind)
-        for n in names:
-            walk = n.startswith('walk ') and kind != 'foe'
-            if walk:
-                labels = ['%d %s' % (i + 1, FRAME_WORDS[i]) for i in range(4)]
-            else:
-                parts = n.split(', facing ')[0].split(', ')
-                labels = ['%d %s' % (i + 1, parts[i] if len(parts) == 4 else parts[0]) for i in range(4)]
-            face = ' (facing ' + n.split(', facing ')[1] + ')' if ', facing ' in n else ''
-            title = '%s: %s%s. One character per frame, standing on the line, same size in every frame.' % (kind, n.split(', facing ')[0], face)
-            template(title, labels, 4, 1).save(os.path.join(OUT, '%s-%s.png' % (kind, n.replace(', ', '-').replace(' ', '-'))))
-        sheet_template(kind).save(os.path.join(OUT, '%s-sheet-64.png' % kind))
-        if kind in ('hero', 'villager'):
-            labels = ['%d %s' % (i + 1, n.replace('walk ', 'facing ')) for i, n in enumerate(names[:8])]
-            template('%s: turnaround, standing still in 8 directions. The same character in every frame.' % kind, labels, 4, 2).save(os.path.join(OUT, '%s-turnaround.png' % kind))
-    print('templates in', os.path.relpath(OUT, ROOT), len([f for f in os.listdir(OUT) if f.endswith('.png')]))
+    print('%d frames into %s%s' % (len(place), sheet_path, '' if k == 1 else ' (shrunk to %d%%: the drawing was bigger than a frame)' % (k * 100)))
 
 
 if __name__ == '__main__':
     a = sys.argv[1:]
-    if a[:1] == ['templates']:
-        templates()
-    elif a[:1] == ['sheet'] and len(a) >= 3:
-        slice_sheet(a[1], a[2], a[a.index('--kind') + 1] if '--kind' in a else None, a[a.index('--size') + 1] if '--size' in a else None)
-    elif a[:1] == ['slice'] and len(a) >= 4:
-        size = a[a.index('--size') + 1] if '--size' in a else None
-        slice_into(a[1], a[2], a[3], size, a[a.index('--kind') + 1] if '--kind' in a else None)
+    kind = a[a.index('--kind') + 1] if '--kind' in a else None
+    a = [x for i, x in enumerate(a) if x != '--kind' and (i == 0 or a[i - 1] != '--kind')]
+    if a[:1] == ['cut'] and len(a) >= 3:
+        cut(a[1], a[2], a[3] if len(a) > 3 else None, kind)
     else:
         print(__doc__)

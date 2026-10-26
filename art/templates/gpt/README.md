@@ -1,45 +1,37 @@
-# Drawing with ChatGPT (25 Oct 2026)
+# Drawing with ChatGPT (25-26 Oct 2026)
 
-Image AIs draw a character well but can't hold an exact pixel grid, so ChatGPT fills in a big template and
-`tools/gpt-art.py` turns it into a row of the real sheet: it keys out the magenta, scales the four frames by one factor, stands
-each on the feet line, snaps the colours to the game's palette, cleans stray pixels and draws the outline.
+ChatGPT draws a character's whole sheet from the description below; `tools/gpt-art.py cut` turns its picture into the game's sheet
+(it finds the rows and frames itself, keys out the magenta and keeps every pixel ChatGPT drew). Frames are **128 × 128**.
 
-**One sheet at once:** `hero-sheet-64.png` (also villager, foe, boss) is the whole sheet in one picture: every row named in the
-margin, every frame a 64 × 64 magenta box (a boss's 128 × 128). Ask ChatGPT to fill every box, then
-`python3 tools/gpt-art.py sheet FILLED.png SHEET.png` turns it into the game's sheet. The AI holds a small grid less well than
-one big row, so if rows come out mixed up, fill the rows one by one with the templates below.
+## The description to paste
 
-Each template here is one row of a sheet (`art/ASSETS.md`): four frames, each under its label (*1 stand, 2 step, 3 stand, 4 other
-step* for walking), or the **turnaround** (the character standing still in all 8 directions, which also fills frame 1 of every
-walking row). Start a new character with its turnaround, so every later row has the same character to copy.
-
-## The prompt
-
-Attach the template (and, after the first good one, the turnaround you got), then:
-
-> Fill in this template with pixel-art game sprites of the same character in every frame. Draw exactly one character inside each
-> magenta frame, under its label, doing what the label says, feet on the thin line near the bottom of the frame, the same size in
-> every frame. Keep the magenta background, the white labels and the frame borders exactly as they are: no scenery, no shadows, no
-> extra text.
+> A sprite sheet, 512 × 2048 pixels, on a solid pure-magenta (#FF00FF) background. A grid of 4 columns and 16 rows; every cell is
+> exactly 128 × 128 pixels and holds one animation frame. No labels, no grid lines, no borders, no text, no shadows. The character
+> stands in the middle of each cell with its feet about 8 pixels above the cell's bottom edge, the same size in every cell.
 >
-> The character: [DESCRIPTION].
+> The rows, top to bottom (walking rows: column 1 standing, 2 one foot forward, 3 standing, 4 the other foot forward):
+> 1 walking toward the viewer (down); 2 walking down-right (3/4 view, front and right side); 3 walking right (side view);
+> 4 walking up-right (3/4 view from behind, right side); 5 walking away from the viewer (up, back view); 6 walking up-left (3/4 view
+> from behind, left side); 7 walking left (side view); 8 walking down-left (3/4 view, front and left side); 9 battle idle facing
+> right (4 frames of a breathing loop); 10 attack facing right (wind-up, strike, follow-through, recover); 11 casting a spell facing
+> right (raise, charge, release, lower); 12 facing right: hurt, knocked down lying on the ground, cheer with arms up, cheer jumping;
+> 13 battle idle facing left; 14 attack facing left; 15 casting a spell facing left; 16 facing left: hurt, knocked down, cheer, cheer.
 >
-> Style: crisp pixel art like a modern indie RPG, hard pixel edges, no anti-aliasing, no blur, no gradients, about 16–24 colours,
-> a dark outline. Chibi proportions: a big head, a compact body, limbs close to the body, so it fits a square frame.
-
-For a left-facing row add: *"facing left. Draw it facing left, not mirrored: whatever the character holds stays in the same hand."*
+> Left-facing and left-walking rows are drawn as their own poses, not mirrored copies: anything the character holds stays in the
+> same hand. Style: crisp pixel art like a modern indie RPG, hard pixel edges, no anti-aliasing, a dark outline.
+>
+> The character: [DESCRIPTION]
 
 **Pip** (the hero, any class): *Pip, a young kobold (small slim lizard-folk): a long snout with a lighter underjaw, yellow eyes, a
 row of short spines down the back of the head (no horns), digitigrade legs, a thick tail that tapers and curls behind. Scales plain
-orange (#F08A2A) with light orange highlights and darker orange-brown shadows; nothing else orange.* Then the class's outfit, for
-the sorcerer: *a fitted purple tunic (#5A2EA6) with gold trim and belt, a red scarf, wrapped ankles, gold bracers; red and yellow
-flames with white-hot cores in his hands.*
+orange (#F08A2A) with light orange highlights and darker orange-brown shadows; nothing else orange* (the game recolours the orange to
+the hero's colour), then the class's outfit.
+
+ChatGPT tends to draw the left-facing battle rows (13-15) facing right; check them, or ask for those rows again on their own.
 
 ## Into the game
 
-Download the PNG ChatGPT made (not a screenshot) and send it to Claude, or run:
+Download the PNG (not a screenshot) and send it to Claude, or run:
 
-    python3 tools/gpt-art.py slice FILLED.png art/characters/heroes/pip-classes/pip-sorcerer.png "battle idle, facing right"
-    python3 tools/gpt-art.py slice FILLED.png art/characters/heroes/pip-classes/pip-sorcerer.png turnaround
-
-`python3 tools/gpt-art.py templates` writes these templates again (after a change to the sheet types in `tools/assets.js`).
+    python3 tools/gpt-art.py cut FILLED.png art/characters/heroes/pip-classes/pip-sorcerer.png
+    python3 tools/gpt-art.py cut FILLED.png SHEET.png "attack, facing left"     # one row redrawn on its own (4 frames in a line)

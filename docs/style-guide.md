@@ -34,8 +34,8 @@ pixel stays a crisp square on any phone. A drawing is small, so a character take
 | what | canvas (draw at this size) | template | on screen | rules |
 |---|---|---|---|---|
 | Map tile | **32 × 32** | `tile-32.png` | 32 px, scaled up whole on dense screens | edges tile with the same tile on every side |
-| Character (kobold, villager, foe) | **32 × 32** (24 Oct) | `hero-128x224.png`, `villager-96x128.png`, `foe-96x128.png` | one tile, the same pixel size as the tiles | every direction drawn (no flipping, 25 Oct); feet on the red line (row 30); each frame is labelled (DN1 = walk down, frame 1); `templates/guides/` names every frame in words |
-| Boss (a 2 × 2-tile foe) | **64 × 64** | `boss-192x256.png` | two tiles by two | same rules, feet on row 60 |
+| Character (kobold, villager, foe) | **128 × 128** (26 Oct) | `hero-512x2048.png`, `villager-512x1152.png`, `foe-512x1024.png` | one tile | every direction drawn (no flipping, 25 Oct); feet on the red line (row 124); each frame is labelled (DN1 = walk down, frame 1); `templates/guides/` names every frame in words |
+| Boss (a 2 × 2-tile foe) | **256 × 256** | `boss-1024x2048.png` | two tiles by two | same rules, feet on row 248 |
 | House or building | **128 × 96** (4 × 3 tiles) | `house-128x96.png` | | door in the red box, bottom middle |
 | Portrait (dialogue, optional) | **64 × 64** | `portrait-64.png` | shown at 3× | head and shoulders, facing right |
 
@@ -45,8 +45,12 @@ the game, so a character can be asymmetrical: a staff in the right hand stays in
 attack, cast, hurt / down / cheer) each have a facing-right row and a facing-left row, 4 frames each. The rows of every sheet
 type are in `art/ASSETS.md`; each template frame is labelled, and `art/templates/guides/` names every frame in words.
 
-**With ChatGPT (25 Oct):** `art/templates/gpt/` has big templates an image AI can fill in (one row of a sheet, or the
-8-way turnaround), the prompt, and `tools/gpt-art.py`, which turns a filled template into the row of the real sheet.
+**With ChatGPT (25-26 Oct):** ChatGPT draws a whole sheet from the description in `art/templates/gpt/README.md`;
+`tools/gpt-art.py cut` finds its frames and puts them into the game's sheet, every pixel kept.
+
+**Characters are 128 × 128 (Joakim, 26 Oct: "use all the pixels").** A character frame is 128 × 128 pixels (a boss's 256 × 256),
+shown one tile big: on a phone that is about one frame pixel per screen pixel; a smaller window shrinks it smoothly. The map tiles
+are still 32 × 32, so for now a character has finer pixels than the ground it stands on.
 
 **Characters are one tile (Joakim, 24 Oct):** a kobold is as big as a tile, squat and big-headed, with no tall frame for the head to rise
 over the tile behind. Half the pixels of the old 32 × 64, and the same pixel size as the map, so nothing clashes.
