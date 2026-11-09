@@ -22,15 +22,18 @@ function setupKofi() {
   $('go-rpg').insertAdjacentElement('afterend', btn);
   const hint = document.createElement('p');
   hint.id = 'kofi-hint';
-  hint.textContent = 'Your ember matters. Type your name in the Ko-fi note to earn your ⭐ Supporter badge in-game.';
+  hint.textContent = 'Type your in-game username in the Ko-fi note to link your ⭐ Supporter badge.';
   btn.insertAdjacentElement('afterend', hint);
   fetch('/api/supporters')
     .then(r => (r.ok ? r.json() : null))
     .then(d => {
-      if (!d || !d.supporters.length) return;
       const list = document.createElement('p');
       list.id = 'supporters-list';
-      list.textContent = '⭐ ' + d.supporters.join(' · ');
+      if (!d || !d.supporters.length) {
+        list.textContent = 'No supporters yet — be the first ember.';
+      } else {
+        list.textContent = '⭐ ' + d.supporters.join(' · ');
+      }
       hint.insertAdjacentElement('afterend', list);
     })
     .catch(() => {});
@@ -92,6 +95,7 @@ async function loggedIn(me) {
   $('tuser').hidden = false;
   $('go-rpg').hidden = false;
   $('login-pass').value = '';
+  if (!document.getElementById('kofi-btn')) setupKofi();
   checkSupporter();
 }
 async function attempt(kind) {
@@ -139,7 +143,6 @@ feature({
       location.reload();
     });
     $('go-rpg').hidden = true;
-    setupKofi();
     if (online.account.hasToken()) {
       say('Logging in…');
       $('login').hidden = false;
