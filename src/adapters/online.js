@@ -1,7 +1,7 @@
-import {store} from './storage.js';
 /* The website's link to the game server (server/main.js). It offers the room / user / db services the game
    uses (adapters/platform.js); the test build swaps in a mock with the same shape. Logs in, keeps the login token,
    reconnects by itself and restores presence and subscriptions after a drop. */
+import {store} from './storage.js';
 
 const TOKEN_KEY = 'kq-token';
 function createOnline(url) {
