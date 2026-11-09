@@ -5,3 +5,4 @@ server/data/
 server/public/
 dist/
 test/out/
+.hermes-tmp.*
