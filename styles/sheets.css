@@ -82,4 +82,5 @@ canvas.c6hero.big{width:auto;height:min(40vh,240px);aspect-ratio:1/1}
 .c6btns{display:flex;gap:10px}.c6btns .rpb{flex:1}
 .c6ask{justify-content:center}.c6ask .rpdlg,.c6ask .tbar{width:min(520px,100%)}
 .c6btns .rpb{display:flex;align-items:center;justify-content:center;font-size:18px;min-height:52px}
+.c6kofi{text-align:center;font-size:13px;padding:4px 0 2px}.c6kofi p{margin:3px 0 0;font-size:11.5px;opacity:.7}
 @media (max-height:460px){.c6screen{gap:8px;padding-top:10px}.c6screen h2{font-size:24px}.c6head p{font-size:12.5px}.c6card{min-height:118px;padding:6px}canvas.c6hero{width:48px;height:48px}.c6grid{gap:8px}}

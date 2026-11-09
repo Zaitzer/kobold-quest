@@ -406,7 +406,11 @@ function selectHtml() {
       raw: 1
     });
   }
-  return h + '</div>';
+  return (
+    h +
+    '<div class="c6kofi"><a href="https://ko-fi.com/YOUR_KOFI" target="_blank" rel="noopener noreferrer" class="linkbtn">☕ Keep the kobolds warm</a>' +
+    '<p>Put your name in the Ko-fi note to earn your ⭐ Supporter badge.</p></div></div>'
+  );
 }
 /* the new hero (systems.md §16, ui-design.md): page 1 the name, the scales and the class; page 2 the scores by point buy (balance.md §3) */
 const newForm = slot => ({name: 'Pip', colour: 'orange', slot, cls: null, scores: allEight(), page: 1});
