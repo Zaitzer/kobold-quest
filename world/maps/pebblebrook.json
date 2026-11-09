@@ -75,7 +75,15 @@
    "sheet": "villager-hs-1"
   },
   {"id":"shop_pb","n":"Shopkeeper","x":26,"y":17,"door":1,"shop":"pebblebrook","from":"3.13","lines":["Picks, lamps"]},
-  {"id":"board_pb","n":"Note board","x":13,"y":11,"door":1}
+  {"id":"board_pb","n":"Note board","x":13,"y":11,"door":1},
+  {
+   "id": "sign_pb_welcome",
+   "n": "Town sign",
+   "x": 29,
+   "y": 12,
+   "door": 1,
+   "lines": ["PEBBLEBROOK","Mill, mine, and a very nice fountain"]
+  }
  ],
  "chests": [
   {
