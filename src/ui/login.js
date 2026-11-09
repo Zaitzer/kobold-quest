@@ -20,6 +20,20 @@ function setupKofi() {
   btn.className = 'linkbtn';
   btn.textContent = '☕ Support on Ko-fi';
   $('go-rpg').insertAdjacentElement('afterend', btn);
+  const hint = document.createElement('p');
+  hint.id = 'kofi-hint';
+  hint.textContent = 'Type your username in the Ko-fi note to get your ⭐ badge.';
+  btn.insertAdjacentElement('afterend', hint);
+  fetch('/api/supporters')
+    .then(r => (r.ok ? r.json() : null))
+    .then(d => {
+      if (!d || !d.supporters.length) return;
+      const list = document.createElement('p');
+      list.id = 'supporters-list';
+      list.textContent = '⭐ ' + d.supporters.join(' · ');
+      hint.insertAdjacentElement('afterend', list);
+    })
+    .catch(() => {});
   const badge = document.createElement('span');
   badge.id = 'supporter-badge';
   badge.hidden = true;

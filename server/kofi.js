@@ -48,6 +48,12 @@ class Kofi {
     const s = await this.store.get('kofi/player/' + session.lname);
     return !!(s && s.active);
   }
+
+  /* Return sorted list of active supporter usernames (public). */
+  async listSupporters() {
+    const rows = await this.store.list('kofi/player/');
+    return rows.filter(r => r.val && r.val.active).map(r => r.key.slice('kofi/player/'.length)).sort();
+  }
 }
 
 module.exports = {Kofi};
