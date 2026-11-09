@@ -2,11 +2,11 @@
    PORT (default 8080), DATA (default ./data), PUBLIC (default ./public). Put Caddy or another HTTPS proxy in front. */
 const http=require('http'),fs=require('fs'),path=require('path');const {WebSocketServer}=require('ws');
 const {World}=require('./world.js');const {Mail}=require('./mail.js');
-const CONFIG=JSON.parse(fs.readFileSync(path.join(__dirname,'config.json'),'utf8'));const {FileStore}=require('./store.js');
+const CONFIG=JSON.parse(fs.readFileSync(path.join(__dirname,'config.json'),'utf8'));const {FileStore}=require('./store.js');const {Kofi}=require('./kofi.js');
 const PORT=+process.env.PORT||8080,DATA=process.env.DATA||path.join(__dirname,'data'),PUB=process.env.PUBLIC||path.join(__dirname,'public');
 /* which version of the game this server hands out; players on an older page are told to reload */
 let BUILD=process.env.KQ_BUILD||'dev';if(!process.env.KQ_BUILD)try{BUILD=fs.readFileSync(path.join(__dirname,'BUILD'),'utf8').trim()}catch(e){}
-const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG),config:CONFIG,rate:true});
+const store=new FileStore(DATA),world=new World(store,{build:BUILD,mail:new Mail(store,CONFIG),config:CONFIG,rate:true});const kofi=new Kofi(store,CONFIG);
 const {Admin}=require('./admin.js');world.admin=new Admin(world,store,CONFIG,{dir:DATA,fs});world.admin.tidy().catch(e=>console.error('admin tidy',e));
 require('./reset.js').resetWorld(store,CONFIG.epoch).then(r=>{if(r)console.log('progress reset to epoch '+r.epoch+': '+r.saves+' saves and '+r.market+' market listings cleared')}).catch(e=>console.error('reset',e));
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon','.webmanifest':'application/manifest+json','.json':'application/json'};
@@ -15,6 +15,8 @@ const server=http.createServer((req,res)=>{try{serve(req,res)}catch(e){console.e
 function serve(req,res){let u;try{u=decodeURIComponent((req.url||'/').split('?')[0])}catch(e){res.writeHead(400);res.end('bad address');return}if(u==='/health'){res.end('ok');return}
   if(u==='/robots.txt'){res.writeHead(200,{'content-type':'text/plain'});res.end('User-agent: *\nAllow: /\n');return}
   if(u==='/status'){res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(Object.assign({ok:true,build:BUILD,up:Math.round(process.uptime()),online:world.authed().length,connections:world.conns.size,node:process.version},world.stats())));return}
+  if(u==='/api/is-supporter'){const t=(new URLSearchParams((req.url||'').split('?')[1]||'')).get('token')||'';kofi.isSupporter(t).then(s=>{res.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify({supporter:s}))}).catch(e=>{console.error('is-supporter',e);try{res.writeHead(500);res.end()}catch(_){}});return}
+  if(req.method==='POST'&&u==='/api/kofi-webhook'){let b='';req.on('data',c=>{if(b.length<8192)b+=c});req.on('end',()=>{kofi.webhook(b).then(r=>{res.writeHead(r.ok?200:400,{'content-type':'application/json'});res.end(JSON.stringify(r))}).catch(e=>{console.error('kofi webhook',e);try{res.writeHead(500);res.end()}catch(_){}})});return}
   let f=path.normalize(path.join(PUB,u==='/'?'index.html':u));if(!f.startsWith(PUB)||!fs.existsSync(f)||fs.statSync(f).isDirectory())f=path.join(PUB,'index.html');
   res.writeHead(200,{'content-type':TYPES[path.extname(f)]||'application/octet-stream','cache-control':f.endsWith('index.html')||f.endsWith('manifest.json')?'no-store, max-age=0':'max-age=3600','x-content-type-options':'nosniff'});
   fs.createReadStream(f).on('error',()=>{try{res.end()}catch(_){}}).pipe(res)}

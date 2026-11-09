@@ -1,6 +1,7 @@
 /* Website only (SITE build): log in or make an account on the title screen, then play on the shared server. */
 import {createOnline} from '../adapters/online.js';
 import {platform} from '../adapters/platform.js';
+import {store} from '../adapters/storage.js';
 import {view} from '../core/app.js';
 import {feature} from '../core/registry.js';
 import {rpSave} from '../core/save.js';
@@ -10,6 +11,33 @@ import {rpToast} from '../game/dialogue.js';
 import {net, netInit} from '../net/core.js';
 
 let online = null;
+function setupKofi() {
+  const btn = document.createElement('a');
+  btn.href = 'https://ko-fi.com/YOUR_KOFI';
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.id = 'kofi-btn';
+  btn.className = 'linkbtn';
+  btn.textContent = '☕ Support on Ko-fi';
+  $('go-rpg').insertAdjacentElement('afterend', btn);
+  const badge = document.createElement('span');
+  badge.id = 'supporter-badge';
+  badge.hidden = true;
+  badge.textContent = ' ⭐ Supporter';
+  $('tuser').appendChild(badge);
+}
+async function checkSupporter() {
+  const token = store.get('kq-token', null);
+  if (!token) return;
+  try {
+    const r = await fetch('/api/is-supporter?token=' + encodeURIComponent(token));
+    if (r.ok) {
+      const d = await r.json();
+      const badge = document.getElementById('supporter-badge');
+      if (badge) badge.hidden = !d.supporter;
+    }
+  } catch (e) {}
+}
 /* a newer version is live: save and reload, but never in the middle of a fight or a lobby */
 function updateWhenSafe() {
   if (rp.s && (rp.mode === 'battle' || rp.mode === 'lobby')) {
@@ -50,6 +78,7 @@ async function loggedIn(me) {
   $('tuser').hidden = false;
   $('go-rpg').hidden = false;
   $('login-pass').value = '';
+  checkSupporter();
 }
 async function attempt(kind) {
   const name = $('login-name').value.trim(),
@@ -96,6 +125,7 @@ feature({
       location.reload();
     });
     $('go-rpg').hidden = true;
+    setupKofi();
     if (online.account.hasToken()) {
       say('Logging in…');
       $('login').hidden = false;
@@ -109,4 +139,4 @@ feature({
     } else showLoggedOut();
   }
 });
-export {attempt, loggedIn, online, say, showLoggedOut, updateWhenSafe, wsUrl};
+export {attempt, checkSupporter, loggedIn, online, say, setupKofi, showLoggedOut, updateWhenSafe, wsUrl};
