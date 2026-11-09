@@ -18,11 +18,11 @@ function setupKofi() {
   btn.rel = 'noopener noreferrer';
   btn.id = 'kofi-btn';
   btn.className = 'linkbtn';
-  btn.textContent = '☕ Support on Ko-fi';
+  btn.textContent = '☕ Keep the kobolds warm';
   $('go-rpg').insertAdjacentElement('afterend', btn);
   const hint = document.createElement('p');
   hint.id = 'kofi-hint';
-  hint.textContent = 'Type your username in the Ko-fi note to get your ⭐ badge.';
+  hint.textContent = 'Your ember matters. Type your name in the Ko-fi note to earn your ⭐ Supporter badge in-game.';
   btn.insertAdjacentElement('afterend', hint);
   fetch('/api/supporters')
     .then(r => (r.ok ? r.json() : null))
