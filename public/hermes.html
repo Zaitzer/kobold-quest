@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#c9d1d9;font-size:15px;line-height:1.5;padding-bottom:32px}
+
+header{padding:14px 16px 10px;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0d1117;z-index:10}
+header h1{font-size:17px;font-weight:700;color:#f0f6fc;flex:1}
+#ts{font-size:12px;color:#8b949e}
+button{padding:6px 14px;background:#21262d;border:1px solid #30363d;color:#c9d1d9;border-radius:6px;cursor:pointer;font-size:13px;-webkit-tap-highlight-color:transparent}
+
+.chips{display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid #21262d}
+.chip{padding:5px 12px;border-radius:16px;font-size:13px;font-weight:600;border:1px solid}
+.chip.r{background:#0c2d6b;border-color:#1f6feb;color:#79c0ff}
+.chip.p{background:#1c1c2e;border-color:#484f58;color:#8b949e}
+.chip.d{background:#0a2d14;border-color:#238636;color:#56d364}
+.chip.g{background:#1c1a0a;border-color:#bb8009;color:#e3b341}
+.chip.m{background:#1a0a2e;border-color:#8957e5;color:#d2a8ff}
+
+section{padding:0 16px;margin-top:16px}
+h2{font-size:12px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+
+/* workers */
+.worker{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.worker-top{display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0}
+.dot.z{background:#f97316}
+.worker-task{font-weight:600;color:#f0f6fc;flex:1;font-size:14px}
+.worker-meta{color:#8b949e;font-size:12px;margin-top:4px;display:flex;gap:12px}
+.badge-zombie{background:#f97316;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+
+/* commits */
+.commit{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #21262d;font-size:13px;align-items:flex-start}
+.commit:last-child{border-bottom:none}
+.hash{color:#8b949e;font-family:monospace;font-size:12px;flex-shrink:0;padding-top:1px}
+.msg{color:#c9d1d9;word-break:break-word}
+.msg.a{color:#58a6ff}
+.msg.c{color:#d2a8ff}
+
+/* taskboard */
+.task{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #21262d;font-size:13px}
+.task:last-child{border-bottom:none}
+.task-name{flex:1;color:#c9d1d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pri{font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px}
+.pri.h{background:#f97316;color:#fff}
+.pri.m{background:#30363d;color:#8b949e}
+.stat{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
+.stat.ip{background:#1f6feb;color:#fff}
+.stat.d{background:#238636;color:#fff}
+.stat.p{background:#30363d;color:#8b949e}
+
+/* power */
+.prow{padding:8px 0;border-bottom:1px solid #21262d;display:grid;grid-template-columns:90px 1fr 60px 65px;gap:8px;align-items:center;font-size:13px}
+.prow:last-child{border-bottom:none}
+.pts{color:#8b949e;font-family:monospace;font-size:12px}
+.bars{display:flex;flex-direction:column;gap:4px}
+.bar{height:5px;background:#21262d;border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px}
+.bf.c{background:#3b82f6}
+.bf.g{background:#e3b341}
+.pw{color:#8b949e;font-size:12px;text-align:right}
+.pn{color:#56d364;font-size:12px;text-align:right}
+
+/* council */
+.vote{padding:8px 10px;border-radius:6px;margin-bottom:6px;border-left:3px solid}
+.vote.a{border-color:#56d364;background:#0a2d1430}
+.vote.b{border-color:#f97316;background:#2d1a0a30}
+.vote-q{font-size:11px;color:#8b949e;margin-bottom:2px}
+.vote-d{font-weight:600;color:#f0f6fc;font-size:14px}
+.vote-t{font-size:11px;color:#8b949e;margin-top:2px}
+
+/* roadmap */
+.rm{padding:10px 12px;background:#161b22;border:1px solid #21262d;border-radius:8px}
+.rm-s{font-size:13px;padding:4px 10px;border-radius:12px;display:inline-block;font-weight:600}
+.rm-s.ok{background:#0a2d14;border:1px solid #238636;color:#56d364}
+.rm-s.wip{background:#1a0a2e;border:1px solid #8957e5;color:#d2a8ff}
+
+.empty{color:#8b949e;font-size:13px;padding:8px 0}
+.stale{color:#f97316;font-size:12px;padding:4px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🤖 Hermes</h1>
+  <span id="ts">—</span>
+  <button onclick="load()">↻</button>
+</header>
+<div class="chips" id="chips"></div>
+
+<section id="sec-workers"></section>
+<section id="sec-tasks"></section>
+<section id="sec-commits"></section>
+<section id="sec-power"></section>
+<section id="sec-council"></section>
+<section id="sec-roadmap"></section>
+
+<script>
+const url = () => `/hermes-status.json?t=${Date.now()}`;
+
+function ago(isoTs) {
+  const diff = Math.round((Date.now() - new Date(isoTs)) / 1000);
+  if (diff < 90)  return `${diff}s ago`;
+  if (diff < 3600) return `${Math.round(diff/60)}m ago`;
+  return `${Math.round(diff/3600)}h ago`;
+}
+
+function render(d) {
+  const age = d.ts ? ago(d.ts) : '?';
+  document.getElementById('ts').textContent = age;
+  const lp = d.latestPower;
+  const rm = d.roadmap || {};
+  document.getElementById('chips').innerHTML = `
+    <span class="chip r">${d.counts.inProgress} running</span>
+    <span class="chip p">${d.counts.pending} pending</span>
+    <span class="chip d">${d.counts.done} done</span>
+    ${lp ? `<span class="chip g">GPU ${lp.gpu_pct}% · ${(lp.total_w||0).toFixed(0)}W</span>` : ''}
+    ${rm.status ? `<span class="chip m">Roadmap ${rm.status === 'approved' ? '✅' : `v${rm.iteration||0}`}</span>` : ''}
+  `;
+  const staleNote = `<p class="stale">Data from ${age} — refreshes every 15 min</p>`;
+
+  // Workers
+  const ws = document.getElementById('sec-workers');
+  if (d.workers && d.workers.length) {
+    ws.innerHTML = `<h2>Active Workers</h2>` + d.workers.map(w => `
+      <div class="worker">
+        <div class="worker-top">
+          <span class="dot ${w.zombie ? 'z' : ''}"></span>
+          <span class="worker-task">${w.task}</span>
+          ${w.zombie ? '<span class="badge-zombie">⚠ zombie</span>' : ''}
+        </div>
+        <div class="worker-meta">
+          <span>${w.project}</span>
+          ${w.pid ? `<span>pid:${w.pid}</span>` : ''}
+          ${w.elapsedMin !== null ? `<span>${w.elapsedMin}min</span>` : ''}
+          ${w.cpu !== null ? `<span>${(w.cpu||0).toFixed(1)}s CPU</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } else {
+    ws.innerHTML = '';
+  }
+
+  // Taskboard — in-progress first, then pending high, then rest, then done
+  const ord = {high:0, medium:1, low:2};
+  const tasks = [...(d.tasks||[])].sort((a,b) => {
+    const sa = a.status === 'in-progress' ? 0 : a.status === 'done' ? 2 : 1;
+    const sb = b.status === 'in-progress' ? 0 : b.status === 'done' ? 2 : 1;
+    if (sa !== sb) return sa - sb;
+    return (ord[a.priority]||1) - (ord[b.priority]||1);
+  });
+  const ts = document.getElementById('sec-tasks');
+  ts.innerHTML = `<h2>Taskboard</h2>` + tasks.map(t => {
+    const sc = t.status === 'in-progress' ? 'ip' : t.status === 'done' ? 'd' : 'p';
+    const sl = t.status === 'in-progress' ? '●' : t.status === 'done' ? '✓' : '·';
+    return `<div class="task">
+      <span class="task-name">${t.task}</span>
+      <span class="pri ${t.priority[0]}">${t.priority[0].toUpperCase()}</span>
+      <span class="stat ${sc}">${sl}</span>
+    </div>`;
+  }).join('');
+
+  // Commits
+  const cl = document.getElementById('sec-commits');
+  if (d.gitlog && d.gitlog.length) {
+    cl.innerHTML = `<h2>Recent Commits</h2>` + d.gitlog.map(l => {
+      const [hash, ...rest] = l.split(' ');
+      const msg = rest.join(' ');
+      const cls = msg.startsWith('auto:') ? 'a' : msg.startsWith('council:') ? 'c' : msg.startsWith('status:') ? '' : '';
+      return `<div class="commit"><span class="hash">${hash}</span><span class="msg ${cls}">${msg}</span></div>`;
+    }).join('');
+  }
+
+  // Power
+  const pl = document.getElementById('sec-power');
+  if (d.power && d.power.length) {
+    pl.innerHTML = `<h2>Power</h2>` + d.power.map(p => `
+      <div class="prow">
+        <span class="pts">${(p.ts||'').replace('T',' ').slice(5,16)}</span>
+        <div class="bars">
+          <div class="bar"><div class="bf c" style="width:${Math.min(p.cpu_pct||0,100)}%"></div></div>
+          <div class="bar"><div class="bf g" style="width:${Math.min(p.gpu_pct||0,100)}%"></div></div>
+        </div>
+        <span class="pw">${(p.total_w||0).toFixed(0)}W</span>
+        <span class="pn">${(p.nok_hr||0).toFixed(2)} kr/h</span>
+      </div>
+    `).join('');
+  }
+
+  // Council
+  const cv = document.getElementById('sec-council');
+  const votes = (d.council || []).slice().reverse();
+  if (votes.length) {
+    cv.innerHTML = `<h2>Council Votes</h2>` + votes.map(v => `
+      <div class="vote ${(v.winner||'a').toLowerCase()}">
+        <div class="vote-q">${v.date||''}</div>
+        <div class="vote-d">${v.winner==='A'?'✅':'❌'} ${v.decision||''}</div>
+        <div class="vote-t">${Object.entries(v.votes||{}).map(([n,x])=>`${n}: ${x}`).join(' · ')}</div>
+      </div>
+    `).join('');
+  }
+
+  // Roadmap
+  const rb = document.getElementById('sec-roadmap');
+  if (rm.status) {
+    rb.innerHTML = `<h2>Roadmap</h2><div class="rm">
+      <span class="rm-s ${rm.status==='approved'?'ok':'wip'}">${rm.status==='approved'?'✅ Approved':`🔄 v${rm.iteration||0}/5`}</span>
+      ${rm.status==='approved' ? '<p style="color:#8b949e;font-size:12px;margin-top:6px">Written to D:\\dev-env\\roadmap.md</p>' : ''}
+    </div>`;
+  }
+}
+
+async function load() {
+  document.getElementById('ts').textContent = '…';
+  try {
+    const d = await fetch(url()).then(r => r.json());
+    render(d);
+  } catch(e) {
+    document.getElementById('ts').textContent = `Error: ${e.message}`;
+  }
+}
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
