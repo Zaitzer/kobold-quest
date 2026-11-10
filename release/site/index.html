@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Joakim Skar</title>
-<meta name="description" content="Joakim Skar: mathematician (MSc) working with time series, change detection and industrial data.">
+<meta name="description" content="Joakim Skar: mathematician (MSc) who builds detectors for industrial sensor data.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one measured column. Name and thesis first, then a live change-detection
-   instrument as the centrepiece, then projects as ruled rows, method, background, contact. */
+/* Layout: one measured column, arranged as an argument: thesis, story, proof (live demo, work),
+   method, the open gap, background, and the ask. The signal colour means "alarm" and nothing else. */
 :root { color-scheme: light; }
 :root {
   --bg: #F4F7F8;
@@ -53,7 +53,7 @@ body {
 }
 .wrap { max-width: 1040px; margin: 0 auto; }
 a { color: var(--accent); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.1; }
 p { margin: 0; }
 .mono { font-family: var(--f-mono); }
@@ -67,9 +67,13 @@ p { margin: 0; }
 .bar nav a:hover { color: var(--ink); }
 
 /* hero */
-.hero { padding-block: 56px 40px; display: grid; gap: 28px; }
+.hero { padding-block: 52px 40px; display: grid; gap: 24px; }
 .hero h1 { font-size: clamp(44px, 9vw, 92px); font-weight: 700; letter-spacing: -.02em; }
-.lead { font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; max-width: 34em; }
+.thesis { font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; max-width: 34em; }
+.thesis strong { font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+.btn { display: inline-block; font: inherit; font-size: 14px; font-weight: 500; background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 14px; cursor: pointer; text-decoration: none; }
+.btn.ghost { background: transparent; color: var(--accent); border-color: var(--line); }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px 32px; margin: 0; padding-top: 20px; border-top: 1px solid var(--line); }
 .facts div { min-width: 0; }
 .facts dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -80,73 +84,89 @@ section { padding-block: 44px; border-top: 1px solid var(--line); }
 section > h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; margin-bottom: 8px; letter-spacing: -.01em; }
 .sub { color: var(--muted); max-width: 40em; margin-bottom: 24px; }
 
+/* story strip */
+.story { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 8px 40px; }
+.story p { font-size: clamp(17px, 2.1vw, 20px); line-height: 1.55; max-width: 36em; }
+.story p + p { margin-top: 12px; }
+.story .moral { font-weight: 600; }
+
 /* instrument */
-.instrument { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 18px; }
-.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 24px; }
+.instrument { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; }
+.scen { display: flex; flex-wrap: wrap; gap: 8px; }
+.scen button { font: inherit; font-size: 14px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.scen button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .ctl { min-width: 0; display: grid; gap: 4px; }
 .ctl label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
 .ctl output { font-family: var(--f-mono); color: var(--ink); }
 .ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
-.row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
-button.btn { font: inherit; font-size: 14px; font-weight: 500; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
-button.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 24px; padding-top: 14px; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 500; }
+details p { font-size: 14px; color: var(--muted); max-width: 46em; margin-top: 10px; }
+.settings { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
 #chart { width: 100%; }
 #chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 #chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
 #chart .cap { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-#chart .lbl-sig { fill: var(--signal); }
-.readout { display: grid; gap: 14px; }
-.verdict { font-size: 15px; min-height: 3em; }
+#chart .lbl-sig { fill: var(--signal); font-weight: 500; }
+.verdict { font-size: 15px; }
 .verdict b { font-weight: 600; }
 .mc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
 .mc dt { font-size: 12px; color: var(--muted); }
 .mc dd { margin: 2px 0 0; font-family: var(--f-mono); font-size: 20px; }
-.note { font-size: 13px; color: var(--muted); max-width: 46em; }
 
-/* projects */
-.proj { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 8px 40px; padding-block: 24px; border-top: 1px solid var(--line); }
+/* work */
+.proj { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 8px 40px; padding-block: 24px; border-top: 1px solid var(--line); }
 .proj:first-of-type { border-top: 0; padding-top: 0; }
-.proj h3 { font-size: 22px; font-weight: 700; }
+.proj h3 { font-size: 21px; font-weight: 700; }
 .tag { display: inline-block; margin-top: 8px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
 .tag.live { color: var(--accent); border-color: var(--accent); }
 .proj p { max-width: 40em; }
+.measure { margin-top: 10px; font-size: 14px; }
+.measure b { font-weight: 600; }
 .stack { margin-top: 10px; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
-.pending { margin-top: 6px; font-size: 13px; color: var(--muted); }
 
 /* method */
-.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 0; }
-.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 0 12px; padding-block: 14px; border-top: 1px solid var(--line); }
+.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 0 12px; padding-block: 12px; border-top: 1px solid var(--line); }
 .steps li:first-child { border-top: 0; padding-top: 0; }
-.steps li::before { content: counter(s); font-family: var(--f-mono); color: var(--accent); font-size: 15px; padding-top: 2px; }
+.steps li::before { content: counter(s); font-family: var(--f-mono); color: var(--accent); font-size: 15px; padding-top: 1px; }
 .steps strong { font-weight: 600; }
-.steps span { color: var(--muted); display: block; max-width: 40em; }
+.steps span { color: var(--muted); }
+
+/* the gap */
+.gap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px 48px; }
+.gap > div { min-width: 0; }
+.gap h3 { font-size: 13px; font-family: var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+.gap p { max-width: 36em; }
 
 /* background */
 .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px 48px; }
 .two > div { min-width: 0; }
 .two h3 { font-size: 18px; margin-bottom: 12px; }
-.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .tl li { min-width: 0; }
 .tl b { font-weight: 600; }
 .tl .when { font-family: var(--f-mono); font-size: 12px; color: var(--muted); display: block; }
 .tl p { color: var(--muted); font-size: 15px; }
-.skills { display: grid; gap: 14px; margin: 0; }
+.skills { display: grid; gap: 12px; margin: 0; }
 .skills dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .skills dd { margin: 2px 0 0; }
 
-/* contact */
-.contact { display: grid; gap: 10px; max-width: 460px; }
+/* the ask */
+.ask h2 { font-size: clamp(30px, 5vw, 48px); max-width: 16em; }
+.ask .sub { font-size: 18px; color: var(--ink); }
+.contact { display: grid; gap: 0; max-width: 480px; }
 .contact .item { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; justify-content: space-between; padding-block: 10px; border-top: 1px solid var(--line); }
 .contact .k { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .contact .v { overflow-wrap: anywhere; user-select: all; }
 footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 
 @media (max-width: 680px) {
-  .proj { grid-template-columns: minmax(0, 1fr); }
-  .hero { padding-block: 36px 28px; }
+  .proj, .story { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: 34px 28px; }
   section { padding-block: 34px; }
 }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 
 </head>
@@ -156,7 +176,7 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     <span class="mark">Joakim Skar</span>
     <nav aria-label="Sections">
       <a href="#demo">Demo</a>
-      <a href="#projects">Projects</a>
+      <a href="#work">Work</a>
       <a href="#method">Method</a>
       <a href="#background">Background</a>
       <a href="#contact">Contact</a>
@@ -167,82 +187,116 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     <div class="hero">
       <p class="eyebrow">Kristiansand, Norway &middot; MSc Mathematics</p>
       <h1>Joakim Skar</h1>
-      <p class="lead">I turn noisy measurements into decisions. Mathematician with ten years of Python, a thesis in stochastic analysis, and eight months next to a running nickel refinery.</p>
+      <p class="thesis">Plants record thousands of signals, and most of them go unread. But an alarm that cries wolf gets ignored, and one that comes late is useless. <strong>So I build detectors that respect the physics and the statistics, and I count false alarms as carefully as hits.</strong></p>
+      <div class="cta">
+        <a class="btn" href="#demo">Try a detector</a>
+        <a class="btn ghost" href="#contact">Get in touch</a>
+      </div>
       <dl class="facts">
         <div><dt>Education</dt><dd>MSc Mathematics, University of Agder, 2026</dd></div>
-        <div><dt>Focus</dt><dd>Time series, change detection, industrial data</dd></div>
-        <div><dt>Tools</dt><dd>Python, C++, C#, JavaScript</dd></div>
+        <div><dt>Plant experience</dt><dd>Process operator, Glencore Nikkelverk</dd></div>
+        <div><dt>Tools</dt><dd>Python (10+ years), C++, C#, JavaScript</dd></div>
         <div><dt>Available</dt><dd>From January 2027</dd></div>
       </dl>
     </div>
 
-    <section id="demo" aria-labelledby="demo-h">
-      <h2 id="demo-h">Change detection you can poke</h2>
-      <p class="sub">The detector behind my bearing-monitoring project, on synthetic data. A fault shifts the signal. Standardise against a healthy baseline, accumulate the evidence with CUSUM, and raise an alarm when it crosses the threshold <span class="mono">h</span>. Move the sliders to see the trade-off between catching the fault early and crying wolf.</p>
-
-      <div class="instrument">
-        <div class="controls">
-          <div class="ctl"><label for="shift">Fault size (in noise units) <output id="o-shift"></output></label><input id="shift" type="range" min="0.5" max="4" step="0.1" value="1.5"></div>
-          <div class="ctl"><label for="onset">Fault starts at sample <output id="o-onset"></output></label><input id="onset" type="range" min="120" max="260" step="10" value="180"></div>
-          <div class="ctl"><label for="k">Allowance k <output id="o-k"></output></label><input id="k" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
-          <div class="ctl"><label for="h">Threshold h <output id="o-h"></output></label><input id="h" type="range" min="2" max="15" step="0.5" value="8"></div>
-        </div>
-        <div class="row">
-          <button class="btn" id="resample" type="button">New noise</button>
-          <button class="btn ghost" id="reset" type="button">Reset sliders</button>
-        </div>
-        <div id="chart" role="img" aria-label="Two charts. Top: a standardised signal that shifts upward when the fault starts. Bottom: the CUSUM statistic rising until it crosses the alarm threshold."></div>
-        <div class="readout">
-          <p class="verdict" id="verdict" aria-live="polite"></p>
-          <dl class="mc">
-            <div><dt>Alarm before the fault</dt><dd id="mc-fa"></dd></div>
-            <div><dt>Fault detected</dt><dd id="mc-det"></dd></div>
-            <div><dt>Median delay</dt><dd id="mc-med"></dd></div>
-          </dl>
-          <p class="note">The three figures come from 500 simulated runs with the current sliders (fixed random seed, so they move smoothly). The first 100 samples are healthy and set the baseline with the median and MAD; monitoring starts at sample 100. All data here is generated in your browser.</p>
+    <section aria-labelledby="story-h">
+      <div class="story">
+        <h2 id="story-h" class="eyebrow">From the plant floor</h2>
+        <div>
+          <p>At Nikkelverk I found a floor drain connected to the wrong tank. It had been like that for months. The symptom was there the whole time: filters clogged more often than they should. I reported it, and it was fixed.</p>
+          <p class="moral">Since then I check where data comes from before I trust what it says.</p>
         </div>
       </div>
     </section>
 
-    <section id="projects" aria-labelledby="proj-h">
-      <h2 id="proj-h">Projects</h2>
-      <p class="sub">Code and data work, newest first.</p>
+    <section id="demo" aria-labelledby="demo-h">
+      <h2 id="demo-h">Every detector trades speed against false alarms</h2>
+      <p class="sub">A sensor signal with a fault that starts partway through, simulated in your browser. Pick a scenario and watch where the alarm fires.</p>
+
+      <div class="instrument">
+        <div class="scen" role="group" aria-label="Scenarios">
+          <button type="button" data-scen="typical" aria-pressed="true">Typical fault</button>
+          <button type="button" data-scen="small" aria-pressed="false">Fault too small</button>
+          <button type="button" data-scen="wolf" aria-pressed="false">Set too sensitive</button>
+          <button type="button" id="resample">New noise</button>
+        </div>
+        <div class="ctl">
+          <label for="shift">Fault size, in units of noise <output id="o-shift"></output></label>
+          <input id="shift" type="range" min="0.5" max="4" step="0.1" value="1.5">
+        </div>
+        <div id="chart" role="img" aria-label="Two charts. Top: a sensor signal that shifts upward when the fault starts. Bottom: the detector's accumulated evidence rising until it crosses the alarm threshold."></div>
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+        <p class="settings" id="settings"></p>
+        <dl class="mc">
+          <div><dt>Alarm before the fault</dt><dd id="mc-fa"></dd></div>
+          <div><dt>Fault caught</dt><dd id="mc-det"></dd></div>
+          <div><dt>Typical delay</dt><dd id="mc-med"></dd></div>
+        </dl>
+        <details>
+          <summary>Tune the detector</summary>
+          <div class="controls">
+            <div class="ctl"><label for="k">Allowance k (lower reacts to smaller faults) <output id="o-k"></output></label><input id="k" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
+            <div class="ctl"><label for="h">Alarm threshold h <output id="o-h"></output></label><input id="h" type="range" min="2" max="15" step="0.5" value="8"></div>
+            <div class="ctl"><label for="onset">Fault starts at sample <output id="o-onset"></output></label><input id="onset" type="range" min="120" max="260" step="10" value="180"></div>
+          </div>
+          <p>How it works: the first 100 samples are healthy and set the baseline, using the median and MAD so one odd reading cannot move it. From there, a CUSUM test adds up how far each sample sits above normal, minus the allowance k, and raises the alarm when the sum passes h. The three figures above come from 500 simulated runs with the current settings.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="work" aria-labelledby="work-h">
+      <h2 id="work-h">What I've built</h2>
+      <p class="sub">Time series, from the browser to the plant.</p>
 
       <article class="proj">
-        <div><h3>Bearing condition monitoring</h3><span class="tag live">In progress</span></div>
+        <div><h3>Bearing failures, caught by physics and statistics</h3><span class="tag live">In progress</span></div>
         <div>
-          <p>Physics-informed anomaly detection on the NASA/IMS bearing run-to-failure data. Expected fault frequencies come from the bearing geometry. Features are taken from the envelope spectrum around them, and a CUSUM test against a robust healthy baseline raises the alarm. I report false alarms and warning time before failure, not only accuracy.</p>
+          <p>The detector above, on real run-to-failure vibration data from NASA/IMS. The bearing's geometry says which frequencies a fault will show up at, and the detector watches exactly those.</p>
+          <p class="measure"><b>Measured against:</b> hours of warning before failure, and false alarms on the bearings that stayed healthy.</p>
           <p class="stack">Python &middot; NumPy &middot; SciPy &middot; pandas &middot; Matplotlib</p>
-          <p class="pending">Code and results will be published here.</p>
         </div>
       </article>
 
       <article class="proj">
-        <div><h3>Virtex</h3><span class="tag">Work</span></div>
+        <div><h3>Virtex: time-series analysis in the browser</h3><span class="tag">Work</span></div>
         <div>
-          <p>Web application for working with time-series data. I contributed to its further development, mainly in C++ compiled to WebAssembly, with Python and JavaScript, HTML and CSS around it.</p>
+          <p>A web application for working with time-series data. I contributed to its further development, mainly in C++ compiled to WebAssembly, with Python and JavaScript around it.</p>
           <p class="stack">C++ &middot; WebAssembly &middot; Python &middot; JavaScript</p>
         </div>
       </article>
 
       <article class="proj">
-        <div><h3>Master's thesis</h3><span class="tag">Research</span></div>
+        <div><h3>Thesis: randomness on curved spaces</h3><span class="tag">Research</span></div>
         <div>
-          <p>Brownian motion on manifolds. Stochastic analysis and differential geometry, University of Agder, 2026.</p>
+          <p>Brownian motion on manifolds: how a random walk behaves when the space itself is curved. Stochastic analysis and differential geometry, University of Agder, 2026.</p>
         </div>
       </article>
     </section>
 
     <section id="method" aria-labelledby="method-h">
       <h2 id="method-h">How I approach a monitoring problem</h2>
-      <p class="sub">The same five steps whether the data is a bearing, a pump or a conveyor.</p>
       <ol class="steps">
-        <li><div><strong>Start from the physics.</strong><span>What should a fault look like, and at which frequency? A bearing's geometry and shaft speed tell you where to look.</span></div></li>
-        <li><div><strong>Reduce the signal to a few meaningful features.</strong><span>Envelope spectrum, band energy, normalised so a gain change does not look like damage.</span></div></li>
-        <li><div><strong>Learn what healthy looks like, robustly.</strong><span>Median and MAD instead of mean and standard deviation, so one odd reading does not move the baseline.</span></div></li>
-        <li><div><strong>Test sequentially.</strong><span>CUSUM accumulates small deviations that a single-sample threshold would miss. Tune it against false alarms and detection delay.</span></div></li>
-        <li><div><strong>Report in the plant's language.</strong><span>A plot an operator can read, a lead time in hours, and an honest list of what the model cannot see.</span></div></li>
+        <li><div><strong>Start from the physics.</strong> <span>Know what a fault looks like before looking for it.</span></div></li>
+        <li><div><strong>Keep a few meaningful features.</strong> <span>Normalised, so a gain change does not look like damage.</span></div></li>
+        <li><div><strong>Learn healthy, robustly.</strong> <span>One odd reading should not move the baseline.</span></div></li>
+        <li><div><strong>Test sequentially.</strong> <span>Small deviations add up before a single reading looks wrong.</span></div></li>
+        <li><div><strong>Report in the plant's language.</strong> <span>A plot an operator can read, a warning time in hours, and what the model cannot see.</span></div></li>
       </ol>
+    </section>
+
+    <section aria-labelledby="gap-h">
+      <h2 id="gap-h">What I haven't done yet</h2>
+      <div class="gap">
+        <div>
+          <h3>The gap</h3>
+          <p>I haven't built production cloud pipelines, and I haven't worked in Cognite Data Fusion.</p>
+        </div>
+        <div>
+          <h3>How I'm closing it</h3>
+          <p>The bearing project is built as a pipeline, from raw files to alarms, with tests. Cognite Data Fusion is next. I taught myself to program in lower secondary school and have used Python for over ten years, so new tools come quickly.</p>
+        </div>
+      </div>
     </section>
 
     <section id="background" aria-labelledby="bg-h">
@@ -251,33 +305,32 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
         <div>
           <h3>Experience</h3>
           <ul class="tl">
-            <li><span class="when">2026</span><b>Glencore Nikkelverk, Kristiansand</b><p>Temporary process operator. Two departments in eight months. Kept the area running and clean, watched the process, and reported a piping misconnection that had gone unnoticed for months. It was fixed.</p></li>
+            <li><span class="when">2026</span><b>Glencore Nikkelverk, Kristiansand</b><p>Process operator (temporary), two departments in eight months.</p></li>
             <li><span class="when">Freelance</span><b>Mattehelten</b><p>Online mathematics tutor. Moved a student from grade 2 to 5.</p></li>
             <li><span class="when">Earlier</span><b>Virtex</b><p>Software developer on a time-series web application.</p></li>
-            <li><span class="when">Earlier</span><b>Alcoa Mosjøen</b><p>Temporary operator of the anode plant's overhead crane, on equal terms with the plant's experienced operators.</p></li>
+            <li><span class="when">Earlier</span><b>Alcoa Mosjøen</b><p>Overhead crane operator in the anode plant (temporary), on equal terms with experienced operators.</p></li>
           </ul>
         </div>
         <div>
           <h3>Skills</h3>
           <dl class="skills">
             <div><dt>Languages</dt><dd>Python (10+ years), C++, C#, JavaScript, HTML/CSS</dd></div>
-            <div><dt>Data and statistics</dt><dd>Time series, change detection, signal processing, robust statistics, anomaly detection</dd></div>
+            <div><dt>Data and statistics</dt><dd>Time series, change detection, signal processing, robust statistics</dd></div>
             <div><dt>Domain</dt><dd>Process industry, 10 ECTS chemistry, shift work and safety culture</dd></div>
-            <div><dt>Learning now</dt><dd>Cloud data pipelines and Cognite Data Fusion</dd></div>
             <div><dt>Education</dt><dd>MSc Mathematics (mathematical statistics, stochastic analysis), University of Agder</dd></div>
           </dl>
         </div>
       </div>
     </section>
 
-    <section id="contact" aria-labelledby="contact-h">
-      <h2 id="contact-h">Contact</h2>
-      <p class="sub">Open to data science roles in Norway from January 2027.</p>
+    <section id="contact" class="ask" aria-labelledby="contact-h">
+      <h2 id="contact-h">Have sensor data nobody trusts?</h2>
+      <p class="sub">I'd like to help make it useful. Available from January 2027.</p>
       <div class="contact" id="contact-list"></div>
     </section>
   </main>
 
-  <footer>Built by hand. The demo above runs on synthetic data and says so.</footer>
+  <footer>Joakim Skar, Kristiansand. The demo runs on synthetic data generated in your browser.</footer>
 </div>
 
 <script>
@@ -314,7 +367,12 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   renderContact();
 
   /* ---------- change-detection demo ---------- */
-  var N = 301, NB = 100, RUNS = 500, DEFAULTS = { shift: 1.5, onset: 180, k: 0.5, h: 8 };
+  var N = 301, NB = 100, RUNS = 500;
+  var SCENARIOS = {
+    typical: { shift: 1.5, onset: 180, k: 0.5, h: 8, seed: 7 },
+    small: { shift: 0.5, onset: 240, k: 0.5, h: 10, seed: 7 },
+    wolf: { shift: 1.5, onset: 180, k: 0.1, h: 2.5, seed: 7 }
+  };
   var $ = function (id) { return document.getElementById(id); };
   var ctl = { shift: $("shift"), onset: $("onset"), k: $("k"), h: $("h") };
   var seed = 7;
@@ -367,13 +425,12 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     delays.sort(function (a, b) { return a - b; });
     return { fa: fa / RUNS, det: delays.length / RUNS, med: delays.length ? delays[delays.length >> 1] : null };
   }
-  function pct(x) { return (x * 100).toFixed(1) + " %"; }
+  function pct(x) { return Math.round(x * 100) + " %"; }
 
-  function svgEl(s) { return s; }
   function draw(z, res, p) {
     var box = $("chart");
     var W = Math.max(280, box.clientWidth);
-    var padL = 40, padR = 10, topH = 170, botH = 130, capGap = 30, padT = 20;
+    var padL = 34, padR = 10, topH = 160, botH = 120, capGap = 30, padT = 20;
     var y0 = padT + topH + capGap, H = y0 + botH + 28;
     var x = function (i) { return padL + (i / (N - 1)) * (W - padL - padR); };
     var zmin = Math.floor(Math.min(-3, Math.min.apply(null, z))), zmax = Math.ceil(Math.max(3, Math.max.apply(null, z)));
@@ -383,30 +440,25 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     var o = [];
     o.push('<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">');
 
-    // baseline shading on both panels
     o.push('<rect x="' + x(0) + '" y="' + padT + '" width="' + (x(NB) - x(0)) + '" height="' + topH + '" fill="var(--grid)" opacity="0.7"/>');
     o.push('<rect x="' + x(0) + '" y="' + y0 + '" width="' + (x(NB) - x(0)) + '" height="' + botH + '" fill="var(--grid)" opacity="0.7"/>');
-    o.push('<text x="' + (x(0) + 6) + '" y="' + (padT + 13) + '">baseline</text>');
+    o.push('<text x="' + (x(0) + 6) + '" y="' + (padT + 13) + '">learning normal</text>');
 
-    // top gridlines + ticks
     var step = (zmax - zmin) > 10 ? 4 : 2, v;
     for (v = Math.ceil(zmin / step) * step; v <= zmax; v += step) {
       o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yT(v) + '" y2="' + yT(v) + '" stroke="var(--grid)" stroke-width="1"/>');
       o.push('<text x="' + (padL - 6) + '" y="' + (yT(v) + 4) + '" text-anchor="end">' + v + "</text>");
     }
-    o.push('<text class="cap" x="' + padL + '" y="' + (padT - 8) + '">Standardised signal z</text>');
+    o.push('<text class="cap" x="' + padL + '" y="' + (padT - 8) + '">Sensor signal (standardised)</text>');
 
-    // onset marker
     var xo = x(p.onset), anchorO = xo > W - 110 ? "end" : "start", dxo = anchorO === "end" ? -6 : 6;
     o.push('<line x1="' + xo + '" x2="' + xo + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>');
     o.push('<text x="' + (xo + dxo) + '" y="' + (padT + 13) + '" text-anchor="' + anchorO + '">fault starts</text>');
 
-    // signal trace
     var pts = z.map(function (val, i) { return x(i).toFixed(1) + "," + yT(Math.max(zmin, Math.min(zmax, val))).toFixed(1); }).join(" ");
     o.push('<polyline points="' + pts + '" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round" opacity="0.8"/>');
 
-    // bottom: cusum
-    o.push('<text class="cap" x="' + padL + '" y="' + (y0 - 10) + '">CUSUM statistic S</text>');
+    o.push('<text class="cap" x="' + padL + '" y="' + (y0 - 10) + '">Evidence of a fault (CUSUM)</text>');
     o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(0) + '" y2="' + yB(0) + '" stroke="var(--line)" stroke-width="1"/>');
     o.push('<text x="' + (padL - 6) + '" y="' + (yB(0) + 4) + '" text-anchor="end">0</text>');
     o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(p.h) + '" y2="' + yB(p.h) + '" stroke="var(--signal)" stroke-width="1.25" stroke-dasharray="6 4"/>');
@@ -415,19 +467,20 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     for (i = NB; i < N; i++) cp.push(x(i).toFixed(1) + "," + yB(Math.min(res.S[i], smax)).toFixed(1));
     o.push('<polyline points="' + cp.join(" ") + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>');
 
-    // x axis
     [0, 100, 200, 300].forEach(function (t) {
       o.push('<line x1="' + x(t) + '" x2="' + x(t) + '" y1="' + (y0 + botH) + '" y2="' + (y0 + botH + 4) + '" stroke="var(--muted)"/>');
       o.push('<text x="' + x(t) + '" y="' + (y0 + botH + 18) + '" text-anchor="' + (t === 0 ? "start" : t === 300 ? "end" : "middle") + '">' + t + "</text>");
     });
     o.push('<text x="' + (W - padR) + '" y="' + (y0 - 10) + '" text-anchor="end">sample</text>');
 
-    // alarm
     if (res.alarm >= 0) {
-      var xa = x(res.alarm), anchorA = xa > W - 90 ? "end" : "start", dxa = anchorA === "end" ? -6 : 6;
+      var xa = x(res.alarm), anchorA = xa > W - 150 ? "end" : "start", dxa = anchorA === "end" ? -6 : 6;
+      var lbl = res.alarm < p.onset ? "false alarm" : "alarm, " + (res.alarm - p.onset) + " samples after the fault";
       o.push('<line x1="' + xa + '" x2="' + xa + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--signal)" stroke-width="1.5"/>');
       o.push('<circle cx="' + xa + '" cy="' + yB(Math.min(res.S[res.alarm], smax)) + '" r="4.5" fill="var(--signal)"/>');
-      o.push('<text class="lbl-sig" x="' + (xa + dxa) + '" y="' + (padT + 28) + '" text-anchor="' + anchorA + '">alarm</text>');
+      o.push('<text class="lbl-sig" x="' + (xa + dxa) + '" y="' + (padT + 30) + '" text-anchor="' + anchorA + '">' + lbl + "</text>");
+    } else {
+      o.push('<text x="' + (W - padR) + '" y="' + (y0 + 14) + '" text-anchor="end">no alarm</text>');
     }
     o.push("</svg>");
     box.innerHTML = o.join("");
@@ -435,19 +488,20 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
 
   function update() {
     var p = params();
-    $("o-shift").textContent = p.shift.toFixed(1) + " σ";
+    $("o-shift").textContent = p.shift.toFixed(1);
     $("o-onset").textContent = p.onset;
     $("o-k").textContent = p.k.toFixed(2);
     $("o-h").textContent = p.h.toFixed(1);
+    $("settings").textContent = "Detector settings: allowance k = " + p.k.toFixed(2) + ", threshold h = " + p.h.toFixed(1);
 
     var z = genZ(mulberry32(seed * 9973 + 1), p);
     var res = cusum(z, p.k, p.h, true);
     draw(z, res, p);
 
     var msg;
-    if (res.alarm < 0) msg = "<b>No alarm in this run.</b> With these settings the fault is too small to stand out from the noise. Lower h or k, or make the fault bigger.";
-    else if (res.alarm < p.onset) msg = "<b>False alarm at sample " + res.alarm + "</b>, before the fault starts. The threshold is too low for this noise level.";
-    else msg = "<b>Alarm at sample " + res.alarm + "</b>, " + (res.alarm - p.onset) + " samples after the fault started.";
+    if (res.alarm < 0) msg = "<b>Missed.</b> The fault is too small to stand out from the noise with these settings.";
+    else if (res.alarm < p.onset) msg = "<b>False alarm</b> before anything was wrong. Operators learn to ignore a detector like this.";
+    else msg = "<b>Caught</b> " + (res.alarm - p.onset) + " samples after the fault started, with no false alarm.";
     $("verdict").innerHTML = msg;
 
     var mc = monteCarlo(p);
@@ -456,12 +510,20 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     $("mc-med").textContent = mc.med === null ? "–" : mc.med + " samples";
   }
 
-  Object.keys(ctl).forEach(function (key) { ctl[key].addEventListener("input", update); });
-  $("resample").addEventListener("click", function () { seed += 1; update(); });
-  $("reset").addEventListener("click", function () {
-    Object.keys(DEFAULTS).forEach(function (key) { ctl[key].value = DEFAULTS[key]; });
-    update();
+  function setPressed(name) {
+    document.querySelectorAll("[data-scen]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-scen") === name)); });
+  }
+  document.querySelectorAll("[data-scen]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var s = SCENARIOS[b.getAttribute("data-scen")];
+      ["shift", "onset", "k", "h"].forEach(function (key) { ctl[key].value = s[key]; });
+      seed = s.seed;
+      setPressed(b.getAttribute("data-scen"));
+      update();
+    });
   });
+  Object.keys(ctl).forEach(function (key) { ctl[key].addEventListener("input", function () { setPressed(""); update(); }); });
+  $("resample").addEventListener("click", function () { seed += 1; update(); });
   var rt;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(update, 120); });
   update();
