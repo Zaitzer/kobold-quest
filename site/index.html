@@ -109,6 +109,15 @@ details p { font-size: 14px; color: var(--muted); max-width: 46em; margin-top: 1
 #chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
 #chart .cap { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
 #chart .lbl-sig { fill: var(--signal); font-weight: 500; }
+.stripwrap { display: grid; gap: 6px; }
+.stripcap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#strip { display: block; width: 100%; height: 150px; }
+#chart .lbl-acc { fill: var(--accent); }
+.where { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; font-size: 14px; }
+.where dt { font-size: 12px; color: var(--muted); }
+.where dd { margin: 0; font-family: var(--f-mono); }
+.row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+button.btn:disabled { opacity: .5; cursor: default; }
 .verdict { font-size: 15px; }
 .verdict b { font-weight: 600; }
 .mc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -211,41 +220,54 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     </section>
 
     <section id="demo" aria-labelledby="demo-h">
-      <h2 id="demo-h">Every detector trades speed against false alarms</h2>
-      <p class="sub">A sensor signal with a fault that starts partway through, simulated in your browser. Pick a scenario and watch where the alarm fires.</p>
+      <h2 id="demo-h">A Fourier transform tells you not just that a bearing is failing, but where</h2>
+      <p class="sub">A bearing with a defect gets a small knock every time a ball rolls over it. The knocks come at a rate set by the bearing's geometry, so a Fourier transform turns them into peaks at frequencies you can compute in advance. Put a tracker on each of those frequencies and watch which one rises. The data streams in live, simulated in your browser.</p>
 
       <div class="instrument">
-        <div class="scen" role="group" aria-label="Scenarios">
-          <button type="button" data-scen="typical" aria-pressed="true">Typical fault</button>
-          <button type="button" data-scen="small" aria-pressed="false">Fault too small</button>
-          <button type="button" data-scen="wolf" aria-pressed="false">Set too sensitive</button>
-          <button type="button" id="resample">New noise</button>
+        <div class="scen" role="group" aria-label="Fault type">
+          <button type="button" data-type="BPFO" aria-pressed="true">Outer race fault</button>
+          <button type="button" data-type="BPFI" aria-pressed="false">Inner race fault</button>
+          <button type="button" data-type="BSF" aria-pressed="false">Ball fault</button>
+          <button type="button" data-type="none" aria-pressed="false">No fault</button>
         </div>
-        <div class="ctl">
-          <label for="shift">Fault size, in units of noise <output id="o-shift"></output></label>
-          <input id="shift" type="range" min="0.5" max="4" step="0.1" value="1.5">
+        <div class="row">
+          <button type="button" class="btn" id="play">Stream again</button>
+          <button type="button" class="btn ghost" id="resample">New noise</button>
         </div>
-        <div id="chart" role="img" aria-label="Two charts. Top: a sensor signal that shifts upward when the fault starts. Bottom: the detector's accumulated evidence rising until it crosses the alarm threshold."></div>
+        <div class="controls">
+          <div class="ctl"><label for="sev">Fault size at the end of the run <output id="o-sev"></output></label><input id="sev" type="range" min="0.3" max="3" step="0.1" value="1"></div>
+          <div class="ctl"><label for="snap">Snapshot to inspect <output id="o-snap"></output></label><input id="snap" type="range" min="0" max="99" step="1" value="99"></div>
+          <div class="ctl"><label for="zoom">Zoom on the vibration <output id="o-zoom"></output></label><input id="zoom" type="range" min="0" max="12" step="1" value="0"></div>
+        </div>
+        <div class="stripwrap">
+          <div class="stripcap"><span id="strip-cap">Vibration, streamed</span><span id="strip-lod"></span></div>
+          <canvas id="strip" role="img" aria-label="The raw vibration signal as it streams in. Zoom in to see individual knocks."></canvas>
+        </div>
+        <div id="chart" role="img" aria-label="Three charts. The envelope spectrum of the inspected snapshot with tracker bands at the ball, outer race and inner race frequencies; the three trackers over time; and the evidence of a fault for each tracker against the alarm threshold."></div>
         <p class="verdict" id="verdict" aria-live="polite"></p>
-        <p class="settings" id="settings"></p>
+        <dl class="where" id="where"></dl>
         <dl class="mc">
-          <div><dt>Alarm before the fault</dt><dd id="mc-fa"></dd></div>
-          <div><dt>Fault caught</dt><dd id="mc-det"></dd></div>
-          <div><dt>Typical delay</dt><dd id="mc-med"></dd></div>
+          <div><dt id="mc-ok-l">Right fault named</dt><dd id="mc-ok">&ndash;</dd></div>
+          <div><dt>False or wrong alarm</dt><dd id="mc-bad">&ndash;</dd></div>
+          <div><dt>Typical delay</dt><dd id="mc-med">&ndash;</dd></div>
         </dl>
+        <div class="row">
+          <button type="button" class="btn ghost" id="trials">Run 20 trials</button>
+          <p class="settings" id="mc-note"></p>
+        </div>
         <details>
-          <summary>Tune the detector</summary>
+          <summary>Tune the detector, and how it works</summary>
           <div class="controls">
             <div class="ctl"><label for="k">Allowance k (lower reacts to smaller faults) <output id="o-k"></output></label><input id="k" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
-            <div class="ctl"><label for="h">Alarm threshold h <output id="o-h"></output></label><input id="h" type="range" min="2" max="15" step="0.5" value="8"></div>
-            <div class="ctl"><label for="onset">Fault starts at sample <output id="o-onset"></output></label><input id="onset" type="range" min="120" max="260" step="10" value="180"></div>
+            <div class="ctl"><label for="h">Alarm threshold h <output id="o-h"></output></label><input id="h" type="range" min="4" max="24" step="0.5" value="14"></div>
           </div>
-          <p>How it works: the first 100 samples are healthy and set the baseline, using the median and MAD so one odd reading cannot move it. From there, a CUSUM test adds up how far each sample sits above normal, minus the allowance k, and raises the alarm when the sum passes h. The three figures above come from 500 simulated runs with the current settings.</p>
+          <p>Each snapshot is 0.2 seconds of vibration sampled at 20&#8239;480 Hz, a hundred snapshots per run. Each knock rings the bearing housing at its resonance, so the signal is squared to recover the knock rhythm, and a Fourier transform of that gives the envelope spectrum. A tracker sums the energy in a narrow band around its fault frequency and second harmonic, as a share of the whole spectrum, so a louder machine does not look like damage. The first 30 snapshots set what normal looks like, using the median and MAD. After that a CUSUM test per tracker adds up how far each snapshot sits above normal, minus the allowance k, and raises the alarm when the sum passes h. The tracker that crosses first names the fault.</p>
+          <p>The vibration strip holds 409&#8239;600 samples. Drawing them all would be slow, so they are kept in a min/max mipmap: each level stores the minimum and maximum of pairs from the level below, updated as each snapshot streams in. The strip picks the level where one entry covers about one pixel, so drawing costs the same at every zoom. Fully zoomed in, it draws the raw samples.</p>
         </details>
       </div>
     </section>
 
-    <section id="work" aria-labelledby="work-h">
+<section id="work" aria-labelledby="work-h">
       <h2 id="work-h">What I've built</h2>
       <p class="sub">Time series, from the browser to the plant.</p>
 
@@ -366,167 +388,536 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   }
   renderContact();
 
-  /* ---------- change-detection demo ---------- */
-  var N = 301, NB = 100, RUNS = 500;
-  var SCENARIOS = {
-    typical: { shift: 1.5, onset: 180, k: 0.5, h: 8, seed: 7 },
-    small: { shift: 0.5, onset: 240, k: 0.5, h: 10, seed: 7 },
-    wolf: { shift: 1.5, onset: 180, k: 0.1, h: 2.5, seed: 7 }
-  };
-  var $ = function (id) { return document.getElementById(id); };
-  var ctl = { shift: $("shift"), onset: $("onset"), k: $("k"), h: $("h") };
-  var seed = 7;
-
-  function mulberry32(a) {
-    return function () {
-      a |= 0; a = (a + 0x6D2B79F5) | 0;
-      var t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  /* ---------- bearing demo core: physics, signal, Fourier transform, trackers, mipmap ---------- */
+  var BM = (function () {
+    var FS = 20480, NFFT = 4096, NS = 100, NB = 30, ONSET = 60, DF = FS / NFFT;
+    var GEO = { n: 16, d: 0.331, D: 2.815, theta: 15.17, rpm: 2000 };
+    var rr = (GEO.d / GEO.D) * Math.cos((GEO.theta * Math.PI) / 180), fr = GEO.rpm / 60;
+    var F = {
+      fr: fr,
+      FTF: (fr / 2) * (1 - rr),
+      BPFO: ((GEO.n * fr) / 2) * (1 - rr),
+      BPFI: ((GEO.n * fr) / 2) * (1 + rr),
+      BSF: ((GEO.D * fr) / (2 * GEO.d)) * (1 - rr * rr)
     };
-  }
-  function gauss(r) {
-    var u = 0, v = 0;
-    while (u === 0) u = r();
-    while (v === 0) v = r();
-    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-  }
-  function median(a) {
-    var b = a.slice().sort(function (x, y) { return x - y; });
-    var m = b.length >> 1;
-    return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2;
-  }
-  function params() {
-    return { shift: +ctl.shift.value, onset: +ctl.onset.value, k: +ctl.k.value, h: +ctl.h.value };
-  }
-  function genZ(r, p) {
-    var x = new Array(N), i;
-    for (i = 0; i < N; i++) x[i] = gauss(r) + (i >= p.onset ? p.shift : 0);
-    var base = x.slice(0, NB);
-    var c = median(base);
-    var s = 1.4826 * median(base.map(function (v) { return Math.abs(v - c); })) || 1;
-    return x.map(function (v) { return (v - c) / s; });
-  }
-  function cusum(z, k, h, keep) {
-    var S = keep ? new Array(N).fill(0) : null, s = 0, alarm = -1, i;
-    for (i = NB; i < N; i++) {
-      s = Math.max(0, s + z[i] - k);
-      if (keep) S[i] = s;
-      if (alarm < 0 && s > h) { alarm = i; if (!keep) break; }
-    }
-    return { S: S, alarm: alarm };
-  }
-  function monteCarlo(p) {
-    var r = mulberry32(12345), fa = 0, delays = [], j;
-    for (j = 0; j < RUNS; j++) {
-      var res = cusum(genZ(r, p), p.k, p.h, false);
-      if (res.alarm >= 0) { if (res.alarm < p.onset) fa++; else delays.push(res.alarm - p.onset); }
-    }
-    delays.sort(function (a, b) { return a - b; });
-    return { fa: fa / RUNS, det: delays.length / RUNS, med: delays.length ? delays[delays.length >> 1] : null };
-  }
-  function pct(x) { return Math.round(x * 100) + " %"; }
-
-  function draw(z, res, p) {
-    var box = $("chart");
-    var W = Math.max(280, box.clientWidth);
-    var padL = 34, padR = 10, topH = 160, botH = 120, capGap = 30, padT = 20;
-    var y0 = padT + topH + capGap, H = y0 + botH + 28;
-    var x = function (i) { return padL + (i / (N - 1)) * (W - padL - padR); };
-    var zmin = Math.floor(Math.min(-3, Math.min.apply(null, z))), zmax = Math.ceil(Math.max(3, Math.max.apply(null, z)));
-    var yT = function (v) { return padT + (1 - (v - zmin) / (zmax - zmin)) * topH; };
-    var smax = Math.max(p.h * 1.25, Math.max.apply(null, res.S)) * 1.05;
-    var yB = function (v) { return y0 + (1 - v / smax) * botH; };
-    var o = [];
-    o.push('<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">');
-
-    o.push('<rect x="' + x(0) + '" y="' + padT + '" width="' + (x(NB) - x(0)) + '" height="' + topH + '" fill="var(--grid)" opacity="0.7"/>');
-    o.push('<rect x="' + x(0) + '" y="' + y0 + '" width="' + (x(NB) - x(0)) + '" height="' + botH + '" fill="var(--grid)" opacity="0.7"/>');
-    o.push('<text x="' + (x(0) + 6) + '" y="' + (padT + 13) + '">learning normal</text>');
-
-    var step = (zmax - zmin) > 10 ? 4 : 2, v;
-    for (v = Math.ceil(zmin / step) * step; v <= zmax; v += step) {
-      o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yT(v) + '" y2="' + yT(v) + '" stroke="var(--grid)" stroke-width="1"/>');
-      o.push('<text x="' + (padL - 6) + '" y="' + (yT(v) + 4) + '" text-anchor="end">' + v + "</text>");
-    }
-    o.push('<text class="cap" x="' + padL + '" y="' + (padT - 8) + '">Sensor signal (standardised)</text>');
-
-    var xo = x(p.onset), anchorO = xo > W - 110 ? "end" : "start", dxo = anchorO === "end" ? -6 : 6;
-    o.push('<line x1="' + xo + '" x2="' + xo + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>');
-    o.push('<text x="' + (xo + dxo) + '" y="' + (padT + 13) + '" text-anchor="' + anchorO + '">fault starts</text>');
-
-    var pts = z.map(function (val, i) { return x(i).toFixed(1) + "," + yT(Math.max(zmin, Math.min(zmax, val))).toFixed(1); }).join(" ");
-    o.push('<polyline points="' + pts + '" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round" opacity="0.8"/>');
-
-    o.push('<text class="cap" x="' + padL + '" y="' + (y0 - 10) + '">Evidence of a fault (CUSUM)</text>');
-    o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(0) + '" y2="' + yB(0) + '" stroke="var(--line)" stroke-width="1"/>');
-    o.push('<text x="' + (padL - 6) + '" y="' + (yB(0) + 4) + '" text-anchor="end">0</text>');
-    o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(p.h) + '" y2="' + yB(p.h) + '" stroke="var(--signal)" stroke-width="1.25" stroke-dasharray="6 4"/>');
-    o.push('<text class="lbl-sig" x="' + (padL - 6) + '" y="' + (yB(p.h) + 4) + '" text-anchor="end">h</text>');
-    var cp = [], i;
-    for (i = NB; i < N; i++) cp.push(x(i).toFixed(1) + "," + yB(Math.min(res.S[i], smax)).toFixed(1));
-    o.push('<polyline points="' + cp.join(" ") + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>');
-
-    [0, 100, 200, 300].forEach(function (t) {
-      o.push('<line x1="' + x(t) + '" x2="' + x(t) + '" y1="' + (y0 + botH) + '" y2="' + (y0 + botH + 4) + '" stroke="var(--muted)"/>');
-      o.push('<text x="' + x(t) + '" y="' + (y0 + botH + 18) + '" text-anchor="' + (t === 0 ? "start" : t === 300 ? "end" : "middle") + '">' + t + "</text>");
+    var TRACKS = [
+      { key: "BPFO", name: "outer race", short: "outer", f: F.BPFO },
+      { key: "BPFI", name: "inner race", short: "inner", f: F.BPFI },
+      { key: "BSF", name: "ball", short: "ball", f: F.BSF }
+    ];
+    var REL = 0.025, m, k;
+    TRACKS.forEach(function (t) {
+      t.bins = []; t.bands = [];
+      for (var hn = 1; hn <= 2; hn++) {
+        var c = hn * t.f, w = REL * c;
+        t.bands.push([c - w, c + w]);
+        for (k = Math.ceil((c - w) / DF); k <= Math.floor((c + w) / DF); k++) t.bins.push(k);
+      }
     });
-    o.push('<text x="' + (W - padR) + '" y="' + (y0 - 10) + '" text-anchor="end">sample</text>');
+    var LO = Math.ceil(20 / DF), HI = Math.floor(1000 / DF);
+    var KL = 160, KER = new Float64Array(KL), HANN = new Float64Array(NFFT);
+    for (m = 0; m < KL; m++) { var tt = m / FS; KER[m] = Math.exp(-tt * 1500) * Math.sin(2 * Math.PI * 4000 * tt); }
+    for (m = 0; m < NFFT; m++) HANN[m] = 0.5 - 0.5 * Math.cos((2 * Math.PI * m) / (NFFT - 1));
 
-    if (res.alarm >= 0) {
-      var xa = x(res.alarm), anchorA = xa > W - 150 ? "end" : "start", dxa = anchorA === "end" ? -6 : 6;
-      var lbl = res.alarm < p.onset ? "false alarm" : "alarm, " + (res.alarm - p.onset) + " samples after the fault";
-      o.push('<line x1="' + xa + '" x2="' + xa + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--signal)" stroke-width="1.5"/>');
-      o.push('<circle cx="' + xa + '" cy="' + yB(Math.min(res.S[res.alarm], smax)) + '" r="4.5" fill="var(--signal)"/>');
-      o.push('<text class="lbl-sig" x="' + (xa + dxa) + '" y="' + (padT + 30) + '" text-anchor="' + anchorA + '">' + lbl + "</text>");
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function gauss(r) {
+      var u = 0, v = 0;
+      while (u === 0) u = r();
+      while (v === 0) v = r();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+    function median(a) {
+      var b = Array.prototype.slice.call(a).sort(function (x, y) { return x - y; });
+      var mid = b.length >> 1;
+      return b.length % 2 ? b[mid] : (b[mid - 1] + b[mid]) / 2;
+    }
+    /* in-place iterative radix-2 FFT */
+    function fft(re, im) {
+      var n = re.length, i, j = 0, len, t;
+      for (i = 1; i < n; i++) {
+        var bit = n >> 1;
+        for (; j & bit; bit >>= 1) j ^= bit;
+        j ^= bit;
+        if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+      }
+      for (len = 2; len <= n; len <<= 1) {
+        var ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
+        for (i = 0; i < n; i += len) {
+          var cr = 1, ci = 0;
+          for (j = 0; j < half; j++) {
+            var a = i + j, b = a + half;
+            var xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr;
+            re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi;
+            var ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
+          }
+        }
+      }
+    }
+    /* 0.2 s of vibration: noise, plus a ringing knock every time a ball passes the defect */
+    function makeSnapshot(r, type, amp) {
+      var x = new Float32Array(NFFT), i;
+      for (i = 0; i < NFFT; i++) x[i] = gauss(r);
+      if (type !== "none" && amp > 0) {
+        var f = type === "BPFO" ? F.BPFO : type === "BPFI" ? F.BPFI : 2 * F.BSF;
+        var T = NFFT / FS, t = r() / f;
+        while (t < T) {
+          var a = amp * (1 + 0.1 * gauss(r));
+          if (type === "BPFI") a *= 0.6 + 0.4 * Math.cos(2 * Math.PI * F.fr * t);
+          if (type === "BSF") a *= 0.6 + 0.4 * Math.cos(2 * Math.PI * F.FTF * t);
+          var i0 = Math.floor(t * FS);
+          for (var q = 0; q < KL && i0 + q < NFFT; q++) x[i0 + q] += a * KER[q];
+          t += (1 + 0.01 * gauss(r)) / f;
+        }
+      }
+      return x;
+    }
+    /* squared envelope spectrum: square, remove the mean, window, Fourier transform, power */
+    function envSpectrum(x) {
+      var re = new Float64Array(NFFT), im = new Float64Array(NFFT), mean = 0, i;
+      for (i = 0; i < NFFT; i++) { re[i] = x[i] * x[i]; mean += re[i]; }
+      mean /= NFFT;
+      for (i = 0; i < NFFT; i++) re[i] = (re[i] - mean) * HANN[i];
+      fft(re, im);
+      var P = new Float32Array(NFFT / 2);
+      for (i = 0; i < NFFT / 2; i++) P[i] = re[i] * re[i] + im[i] * im[i];
+      return P;
+    }
+    function features(P) {
+      var tot = 0, kk;
+      for (kk = LO; kk <= HI; kk++) tot += P[kk];
+      return TRACKS.map(function (t) {
+        var s = 0;
+        t.bins.forEach(function (b) { s += P[b]; });
+        return Math.log10(s / tot);
+      });
+    }
+    function ampAt(s, sev) { return s < ONSET ? 0 : 4 * sev * ((s - ONSET + 1) / (NS - ONSET)); }
+
+    /* Min/max mipmap over a growing sample buffer. Level L entry i covers samples [i*2^L, (i+1)*2^L). */
+    function Mip(total) {
+      this.total = total; this.n = 0; this.absmax = 0;
+      this.raw = new Float32Array(total);
+      this.mins = [null]; this.maxs = [null];
+      for (var L = 1; (1 << L) <= total; L++) {
+        var len = Math.ceil(total / (1 << L));
+        this.mins.push(new Float32Array(len).fill(Infinity));
+        this.maxs.push(new Float32Array(len).fill(-Infinity));
+      }
+      this.top = this.mins.length - 1;
+    }
+    Mip.prototype.append = function (x) {
+      var a = this.n, b = a + x.length, i, L;
+      this.raw.set(x, a); this.n = b;
+      for (i = 0; i < x.length; i++) { var v = Math.abs(x[i]); if (v > this.absmax) this.absmax = v; }
+      for (L = 1; L <= this.top; L++) {
+        var lo = a >> L, hi = (b - 1) >> L, mn = this.mins[L], mx = this.maxs[L];
+        for (i = lo; i <= hi; i++) {
+          var c0 = 2 * i, c1 = c0 + 1, lmin, lmax;
+          if (L === 1) {
+            lmin = lmax = this.raw[c0];
+            if (c1 < b) { lmin = Math.min(lmin, this.raw[c1]); lmax = Math.max(lmax, this.raw[c1]); }
+          } else {
+            var pm = this.mins[L - 1], px = this.maxs[L - 1];
+            lmin = pm[c0]; lmax = px[c0];
+            if (c1 < pm.length) { lmin = Math.min(lmin, pm[c1]); lmax = Math.max(lmax, px[c1]); }
+          }
+          mn[i] = lmin; mx[i] = lmax;
+        }
+      }
+    };
+
+    /* One streamed run. step() adds one snapshot. */
+    function Run(type, sev, seed, keep) {
+      this.type = type; this.sev = sev; this.keep = keep;
+      this.r = mulberry32(seed * 7919 + 13);
+      this.s = 0; this.feats = []; this.Ps = []; this.base = null;
+      this.z = TRACKS.map(function () { return []; });
+      this.mip = keep ? new Mip(NS * NFFT) : null;
+    }
+    Run.prototype.done = function () { return this.s >= NS; };
+    Run.prototype.step = function () {
+      if (this.done()) return;
+      var x = makeSnapshot(this.r, this.type, ampAt(this.s, this.sev)), P = envSpectrum(x), f = features(P), j, self = this;
+      this.feats.push(f);
+      if (this.keep) { this.mip.append(x); this.Ps.push(P); }
+      this.s++;
+      if (this.s === NB) {
+        this.base = TRACKS.map(function (_, jj) {
+          var col = self.feats.map(function (ff) { return ff[jj]; }), c = median(col);
+          return { c: c, sc: 1.4826 * median(col.map(function (v) { return Math.abs(v - c); })) || 1 };
+        });
+        for (j = 0; j < TRACKS.length; j++) for (var i = 0; i < NB; i++) this.z[j].push((this.feats[i][j] - this.base[j].c) / this.base[j].sc);
+      } else if (this.s > NB) {
+        for (j = 0; j < TRACKS.length; j++) this.z[j].push((f[j] - this.base[j].c) / this.base[j].sc);
+      }
+    };
+
+    /* CUSUM per tracker on whatever has streamed so far; the first tracker over h names the fault */
+    function detect(z, kk, h) {
+      var S = [], first = [], j, i;
+      for (j = 0; j < z.length; j++) {
+        var row = [], s = 0;
+        first[j] = -1;
+        for (i = 0; i < z[j].length; i++) {
+          if (i < NB) { row.push(0); continue; }
+          s = Math.max(0, s + z[j][i] - kk);
+          row.push(s);
+          if (first[j] < 0 && s > h) first[j] = i;
+        }
+        S.push(row);
+      }
+      var alarm = -1, which = -1;
+      for (j = 0; j < first.length; j++) if (first[j] >= 0 && (alarm < 0 || first[j] < alarm)) { alarm = first[j]; which = j; }
+      return { S: S, alarm: alarm, which: which };
+    }
+    function outcome(type, det) {
+      if (det.alarm < 0) return type === "none" ? "quiet" : "miss";
+      if (type === "none" || det.alarm < ONSET) return "bad";
+      return TRACKS[det.which].key === type ? "ok" : "bad";
+    }
+    return { FS: FS, NFFT: NFFT, NS: NS, NB: NB, ONSET: ONSET, DF: DF, F: F, GEO: GEO, TRACKS: TRACKS, LO: LO, HI: HI,
+      Run: Run, detect: detect, outcome: outcome, median: median };
+  })();
+  /* ---------- end of bearing demo core ---------- */
+
+  /* ---------- bearing demo UI: streaming, mipmapped strip, charts ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var TOTAL = BM.NS * BM.NFFT;
+  var st = { type: "BPFO", sev: 1, seed: 3, k: 0.5, h: 14, run: null, det: null, sel: 0, follow: true, playing: false, live: false, last: 0, token: 0 };
+  var STYLE = [
+    { w: 2, dash: "", col: "--accent" },
+    { w: 1.5, dash: "5 3", col: "--ink" },
+    { w: 1.75, dash: "2 3", col: "--muted" }
+  ];
+
+  function tok(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  /* -- streaming -- */
+  function start(live) {
+    st.run = new BM.Run(st.type, st.sev, st.seed, true);
+    st.follow = true; st.playing = true; st.live = live && !REDUCED; st.last = 0;
+    var my = ++st.token;
+    resetTrials();
+    $("play").textContent = "Pause";
+    requestAnimationFrame(function tick(ts) {
+      if (my !== st.token || !st.playing) return;
+      var run = st.run;
+      if (st.live) {
+        if (ts - st.last >= 70) { st.last = ts; run.step(); }
+      } else {
+        var t0 = performance.now();
+        while (!run.done() && performance.now() - t0 < 14) run.step();
+      }
+      if (st.follow) st.sel = run.s - 1;
+      refresh();
+      if (run.done()) { st.playing = false; $("play").textContent = "Stream again"; }
+      else requestAnimationFrame(tick);
+    });
+  }
+  function togglePlay() {
+    var run = st.run;
+    if (!run || run.done()) { start(true); return; }
+    if (st.playing) { st.playing = false; $("play").textContent = "Resume"; return; }
+    st.playing = true; st.live = !REDUCED; $("play").textContent = "Pause";
+    var my = st.token;
+    requestAnimationFrame(function tick(ts) {
+      if (my !== st.token || !st.playing) return;
+      if (ts - st.last >= 70 || !st.live) { st.last = ts; st.run.step(); }
+      if (st.follow) st.sel = st.run.s - 1;
+      refresh();
+      if (st.run.done()) { st.playing = false; $("play").textContent = "Stream again"; }
+      else requestAnimationFrame(tick);
+    });
+  }
+
+  function refresh() {
+    var run = st.run;
+    st.det = BM.detect(run.z, st.k, st.h);
+    st.sel = Math.max(0, Math.min(st.sel, run.s - 1));
+    $("snap").value = st.sel;
+    $("o-snap").textContent = st.sel + 1 + " of " + BM.NS;
+    drawStrip();
+    drawCharts();
+    verdict();
+  }
+
+  /* -- the vibration strip: canvas, drawn from the min/max mipmap -- */
+  var stripCanvas = $("strip");
+  function drawStrip() {
+    var run = st.run; if (!run) return;
+    var mip = run.mip, cv = stripCanvas, dpr = window.devicePixelRatio || 1;
+    var W = Math.max(280, cv.clientWidth), H = 150;
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    var padL = 36, padR = 52, padT = 8, padB = 22, pw = W - padL - padR, ph = H - padT - padB;
+    var zoom = Math.pow(2, +$("zoom").value), span = TOTAL / zoom;
+    var centre = (st.sel + 0.5) * BM.NFFT;
+    var t0 = Math.max(0, Math.min(TOTAL - span, centre - span / 2)), t1 = t0 + span;
+    var spp = span / pw;
+    var YM = Math.max(4, Math.ceil(mip.absmax));
+    var X = function (smp) { return padL + ((smp - t0) / span) * pw; };
+    var Y = function (v) { return padT + (1 - (v + YM) / (2 * YM)) * ph; };
+    var cMuted = tok("--muted"), cGrid = tok("--grid"), cInk = tok("--ink"), cAcc = tok("--accent"), cLine = tok("--line");
+
+    // baseline region, inspected snapshot, onset
+    ctx.fillStyle = cGrid;
+    var b0 = Math.max(t0, 0), b1 = Math.min(t1, BM.NB * BM.NFFT);
+    if (b1 > b0) ctx.fillRect(X(b0), padT, X(b1) - X(b0), ph);
+    var s0 = Math.max(t0, st.sel * BM.NFFT), s1 = Math.min(t1, (st.sel + 1) * BM.NFFT);
+    if (s1 > s0 && zoom < 64) { ctx.globalAlpha = 0.12; ctx.fillStyle = cAcc; ctx.fillRect(X(s0), padT, X(s1) - X(s0), ph); ctx.globalAlpha = 1; }
+    ctx.strokeStyle = cLine; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, Y(0) + 0.5); ctx.lineTo(padL + pw, Y(0) + 0.5); ctx.stroke();
+    var on = BM.ONSET * BM.NFFT;
+    if (st.type !== "none" && on > t0 && on < t1) {
+      ctx.strokeStyle = cMuted; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(Math.round(X(on)) + 0.5, padT); ctx.lineTo(Math.round(X(on)) + 0.5, padT + ph); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // the signal
+    var n = mip.n, lodText;
+    ctx.strokeStyle = cInk; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (spp <= 1) {
+      var i0 = Math.max(0, Math.floor(t0)), i1 = Math.min(n - 1, Math.ceil(t1));
+      for (var i = i0; i <= i1; i++) { var xx = X(i), yy = Y(mip.raw[i]); if (i === i0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      lodText = "raw samples";
     } else {
-      o.push('<text x="' + (W - padR) + '" y="' + (y0 + 14) + '" text-anchor="end">no alarm</text>');
+      var L = Math.min(mip.top, Math.floor(Math.log2(spp))), bucket = 1 << L, mn = mip.mins[L], mx = mip.maxs[L];
+      for (var px = 0; px < pw; px++) {
+        var a = t0 + px * spp, b = a + spp;
+        if (a >= n) break;
+        var j0 = Math.floor(a / bucket), j1 = Math.min(mn.length - 1, Math.ceil(Math.min(b, n) / bucket) - 1);
+        var lo = Infinity, hi = -Infinity;
+        for (var jj = j0; jj <= j1; jj++) { if (mn[jj] < lo) lo = mn[jj]; if (mx[jj] > hi) hi = mx[jj]; }
+        if (lo === Infinity) continue;
+        var cx = padL + px + 0.5;
+        ctx.moveTo(cx, Y(hi)); ctx.lineTo(cx, Y(lo) + 0.01);
+      }
+      lodText = "mipmap level " + L + ": one entry per " + bucket.toLocaleString("en") + " samples";
+    }
+    ctx.stroke();
+
+    // "now" marker while streaming
+    if (n < TOTAL && n > t0 && n < t1) {
+      ctx.strokeStyle = cAcc; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(Math.round(X(n)) + 0.5, padT); ctx.lineTo(Math.round(X(n)) + 0.5, padT + ph); ctx.stroke();
+    }
+
+    // axis labels
+    ctx.fillStyle = cMuted; ctx.font = "11px " + tok("--f-mono");
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.fillText(String(YM), padL - 6, Y(YM) + 4); ctx.fillText("0", padL - 6, Y(0)); ctx.fillText(String(-YM), padL - 6, Y(-YM) - 4);
+    ctx.textBaseline = "alphabetic";
+    var ms = (span / BM.FS) * 1000;
+    if (zoom === 1) {
+      ctx.textAlign = "center";
+      [0, 20, 40, 60, 80, 100].forEach(function (s) { ctx.textAlign = s === 0 ? "left" : s === 100 ? "right" : "center"; ctx.fillText(String(s), X(s * BM.NFFT), H - 6); });
+    } else {
+      ctx.textAlign = "left"; ctx.fillText("0", padL, H - 6);
+      ctx.textAlign = "right"; ctx.fillText((ms >= 100 ? Math.round(ms) : ms.toFixed(ms >= 10 ? 0 : 1)) + " ms", padL + pw, H - 6);
+    }
+    $("strip-cap").textContent = zoom === 1 ? "Vibration, streamed (all 100 snapshots)" : "Vibration around snapshot " + (st.sel + 1) + " (" + (ms >= 10 ? Math.round(ms) : ms.toFixed(1)) + " ms shown)";
+    $("strip-lod").textContent = lodText;
+    $("o-zoom").textContent = zoom.toLocaleString("en") + "×";
+  }
+
+  /* -- spectrum, trackers and CUSUM: SVG -- */
+  function drawCharts() {
+    var run = st.run, det = st.det, box = $("chart");
+    var W = Math.max(280, box.clientWidth), padL = 36, padR = 52, pw = W - padL - padR;
+    var specH = 140, trkH = 130, cusH = 110, gap = 32, top = 20;
+    var y1 = top, y2 = y1 + specH + gap + 18, y3 = y2 + trkH + gap, H = y3 + cusH + 26;
+    var o = ['<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">'];
+    function T(x, y, s, cls, anchor) { o.push('<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '"' + (cls ? ' class="' + cls + '"' : "") + (anchor ? ' text-anchor="' + anchor + '"' : "") + ">" + s + "</text>"); }
+    function Ln(x1, ya, x2, yb, stroke, w, dash, op) { o.push('<line x1="' + x1.toFixed(1) + '" y1="' + ya.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + yb.toFixed(1) + '" stroke="var(' + stroke + ')" stroke-width="' + (w || 1) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (op ? ' opacity="' + op + '"' : "") + "/>"); }
+
+    // 1. envelope spectrum of the inspected snapshot
+    var P = run.Ps[st.sel], FMAX = 700, kmax = Math.floor(FMAX / BM.DF);
+    var fx = function (f) { return padL + (f / FMAX) * pw; };
+    T(padL, y1 - 8, "Envelope spectrum, snapshot " + (st.sel + 1) + " (dB)", "cap");
+    if (P) {
+      var ref = [], kk;
+      for (kk = BM.LO; kk <= BM.HI; kk++) ref.push(P[kk]);
+      var med = BM.median(ref) || 1, db = [], dmax = 20;
+      for (kk = 1; kk <= kmax; kk++) { var d = 10 * Math.log10(P[kk] / med + 1e-12); db.push(d); if (d > dmax) dmax = d; }
+      dmax = Math.ceil(dmax / 10) * 10;
+      var dmin = -10, fy = function (v) { return y1 + (1 - (Math.max(dmin, Math.min(dmax, v)) - dmin) / (dmax - dmin)) * specH; };
+      BM.TRACKS.forEach(function (t, ti) {
+        t.bands.forEach(function (bd, bi) {
+          if (bd[0] > FMAX) return;
+          o.push('<rect x="' + fx(bd[0]).toFixed(1) + '" y="' + y1 + '" width="' + Math.max(2, fx(bd[1]) - fx(bd[0])).toFixed(1) + '" height="' + specH + '" fill="var(--grid)"/>');
+          if (bi === 0) T(fx(t.f), y1 + 12 + (ti === 1 ? 13 : 0), t.key, "", "middle");
+        });
+      });
+      for (var v = 0; v <= dmax; v += 10) { Ln(padL, fy(v), padL + pw, fy(v), "--grid", 1); T(padL - 6, fy(v) + 4, String(v), "", "end"); }
+      var pts = db.map(function (dv, i) { return fx((i + 1) * BM.DF).toFixed(1) + "," + fy(dv).toFixed(1); }).join(" ");
+      o.push('<polyline points="' + pts + '" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round"/>');
+      [0, 100, 200, 300, 400, 500, 600, 700].forEach(function (f) { T(fx(f), y1 + specH + 16, f === 700 ? "700 Hz" : String(f), "", f === 0 ? "start" : f === 700 ? "end" : "middle"); });
+    }
+
+    // shared time axis for trackers and CUSUM
+    var sx = function (i) { return padL + ((i + 0.5) / BM.NS) * pw; };
+    var bx = function (s) { return padL + (s / BM.NS) * pw; };
+    function timeFrame(yTop, h) {
+      o.push('<rect x="' + bx(0).toFixed(1) + '" y="' + yTop + '" width="' + (bx(BM.NB) - bx(0)).toFixed(1) + '" height="' + h + '" fill="var(--grid)" opacity="0.7"/>');
+      if (st.type !== "none") Ln(bx(BM.ONSET), yTop, bx(BM.ONSET), yTop + h, "--muted", 1, "4 4");
+      Ln(sx(st.sel), yTop, sx(st.sel), yTop + h, "--accent", 1, "", 0.45);
+    }
+    function series(rows, ymap, yTop, h) {
+      var ends = [];
+      rows.forEach(function (row, j) {
+        var stv = STYLE[j], pts = [];
+        for (var i = BM.NB; i < row.length; i++) pts.push(sx(i).toFixed(1) + "," + ymap(row[i]).toFixed(1));
+        if (pts.length > 1) o.push('<polyline points="' + pts.join(" ") + '" fill="none" stroke="var(' + stv.col + ')" stroke-width="' + stv.w + '"' + (stv.dash ? ' stroke-dasharray="' + stv.dash + '"' : "") + ' stroke-linejoin="round"/>');
+        if (row.length > BM.NB) ends.push({ j: j, y: ymap(row[row.length - 1]) });
+      });
+      ends.sort(function (a, b) { return a.y - b.y; });
+      var e;
+      for (e = 0; e < ends.length; e++) { ends[e].y = Math.max(yTop + 4, ends[e].y); if (e > 0 && ends[e].y - ends[e - 1].y < 12) ends[e].y = ends[e - 1].y + 12; }
+      for (e = ends.length - 1; e >= 0; e--) { var lim = e === ends.length - 1 ? yTop + h - 4 : ends[e + 1].y - 12; if (ends[e].y > lim) ends[e].y = lim; }
+      ends.forEach(function (en) { T(padL + pw + 6, en.y + 4, BM.TRACKS[en.j].short, en.j === 0 ? "lbl-acc" : "", "start"); });
+    }
+
+    // 2. trackers
+    var z = run.z, zmax = 6, zmin = -4;
+    z.forEach(function (row) { for (var i = BM.NB; i < row.length; i++) { if (row[i] > zmax) zmax = row[i]; if (row[i] < zmin) zmin = row[i]; } });
+    var zstep = zmax - zmin > 40 ? 20 : zmax - zmin > 16 ? 8 : 4;
+    zmax = Math.ceil(zmax / zstep) * zstep; zmin = Math.floor(zmin / zstep) * zstep;
+    var zy = function (v) { return y2 + (1 - (v - zmin) / (zmax - zmin)) * trkH; };
+    T(padL, y2 - 8, "Energy at each fault frequency", "cap");
+    timeFrame(y2, trkH);
+    for (var zv = zmin; zv <= zmax; zv += zstep) { Ln(padL, zy(zv), padL + pw, zy(zv), "--grid", 1); T(padL - 6, zy(zv) + 4, String(zv), "", "end"); }
+    if (run.s < BM.NB) T(bx(BM.NB) + 8, y2 + trkH / 2, "learning normal…");
+    else T(bx(0) + 6, y2 + 13, "normal");
+    if (st.type !== "none") T(bx(BM.ONSET) + 6, y2 + 13, "fault starts");
+    series(z, zy, y2, trkH);
+
+    // 3. CUSUM
+    var smax = st.h * 1.3;
+    det.S.forEach(function (row) { row.forEach(function (s) { if (s > smax) smax = s; }); });
+    smax *= 1.05;
+    var cy = function (v) { return y3 + (1 - Math.min(v, smax) / smax) * cusH; };
+    T(padL, y3 - 8, "Fault evidence (CUSUM)", "cap");
+    timeFrame(y3, cusH);
+    Ln(padL, cy(0), padL + pw, cy(0), "--line", 1);
+    T(padL - 6, cy(0) + 4, "0", "", "end");
+    Ln(padL, cy(st.h), padL + pw, cy(st.h), "--signal", 1.25, "6 4");
+    T(padL - 6, cy(st.h) + 4, "h", "lbl-sig", "end");
+    series(det.S, cy, y3, cusH);
+    [0, 20, 40, 60, 80, 100].forEach(function (s) { T(bx(s), y3 + cusH + 16, String(s), "", s === 0 ? "start" : s === 100 ? "end" : "middle"); });
+    if (det.alarm >= 0) {
+      var xa = sx(det.alarm), right = xa > padL + pw - 150, wrong = st.type === "none" || det.alarm < BM.ONSET || BM.TRACKS[det.which].key !== st.type;
+      var lbl = (wrong ? "alarm: " : "alarm: ") + BM.TRACKS[det.which].name + (wrong ? " (wrong)" : "");
+      Ln(xa, y2, xa, y3 + cusH, "--signal", 1.5);
+      o.push('<circle cx="' + xa.toFixed(1) + '" cy="' + cy(det.S[det.which][det.alarm]).toFixed(1) + '" r="4.5" fill="var(--signal)"/>');
+      T(xa + (right ? -6 : 6), y3 + 14, lbl, "lbl-sig", right ? "end" : "start");
     }
     o.push("</svg>");
     box.innerHTML = o.join("");
   }
 
-  function update() {
-    var p = params();
-    $("o-shift").textContent = p.shift.toFixed(1);
-    $("o-onset").textContent = p.onset;
-    $("o-k").textContent = p.k.toFixed(2);
-    $("o-h").textContent = p.h.toFixed(1);
-    $("settings").textContent = "Detector settings: allowance k = " + p.k.toFixed(2) + ", threshold h = " + p.h.toFixed(1);
-
-    var z = genZ(mulberry32(seed * 9973 + 1), p);
-    var res = cusum(z, p.k, p.h, true);
-    draw(z, res, p);
-
-    var msg;
-    if (res.alarm < 0) msg = "<b>Missed.</b> The fault is too small to stand out from the noise with these settings.";
-    else if (res.alarm < p.onset) msg = "<b>False alarm</b> before anything was wrong. Operators learn to ignore a detector like this.";
-    else msg = "<b>Caught</b> " + (res.alarm - p.onset) + " samples after the fault started, with no false alarm.";
+  function verdict() {
+    var run = st.run, d = st.det, msg;
+    if (d.alarm >= 0) {
+      var t = BM.TRACKS[d.which];
+      if (st.type === "none" || d.alarm < BM.ONSET) msg = "<b>False alarm</b> on the " + t.name + " tracker at snapshot " + (d.alarm + 1) + ". Nothing was wrong yet.";
+      else if (t.key === st.type) msg = "<b>Caught:</b> " + t.name + " fault, flagged at snapshot " + (d.alarm + 1) + ", " + (d.alarm - BM.ONSET) + " snapshots after it began. The right tracker fired.";
+      else msg = "<b>Wrong diagnosis:</b> the alarm came at snapshot " + (d.alarm + 1) + ", but on the " + t.name + " tracker.";
+    } else if (!run.done()) {
+      msg = run.s < BM.NB ? "Learning what normal looks like: snapshot " + run.s + " of " + BM.NB + "." : "Watching: snapshot " + run.s + " of " + BM.NS + ", no alarm yet.";
+    } else {
+      msg = st.type === "none" ? "<b>No alarm</b> in " + (BM.NS - BM.NB) + " monitored snapshots. Correct: nothing was wrong." : "<b>Missed.</b> The fault never stood out from the noise with these settings.";
+    }
     $("verdict").innerHTML = msg;
-
-    var mc = monteCarlo(p);
-    $("mc-fa").textContent = pct(mc.fa);
-    $("mc-det").textContent = pct(mc.det);
-    $("mc-med").textContent = mc.med === null ? "–" : mc.med + " samples";
   }
 
-  function setPressed(name) {
-    document.querySelectorAll("[data-scen]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-scen") === name)); });
+  /* -- trials -- */
+  var trialToken = 0;
+  function resetTrials() {
+    trialToken++;
+    $("mc-ok").textContent = $("mc-bad").textContent = $("mc-med").textContent = "–";
+    $("mc-ok-l").textContent = st.type === "none" ? "Stayed quiet" : "Right fault named";
+    $("trials").disabled = false;
+    $("mc-note").textContent = "See how often it gets it right with these settings.";
   }
-  document.querySelectorAll("[data-scen]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var s = SCENARIOS[b.getAttribute("data-scen")];
-      ["shift", "onset", "k", "h"].forEach(function (key) { ctl[key].value = s[key]; });
-      seed = s.seed;
-      setPressed(b.getAttribute("data-scen"));
-      update();
+  function runTrials() {
+    var my = ++trialToken, T = { i: 0, n: 20, ok: 0, bad: 0, miss: 0, quiet: 0, d: [], run: null };
+    $("trials").disabled = true;
+    requestAnimationFrame(function tick() {
+      if (my !== trialToken) return;
+      var t0 = performance.now();
+      while (T.i < T.n && performance.now() - t0 < 10) {
+        if (!T.run) T.run = new BM.Run(st.type, st.sev, 1000 + T.i, false);
+        T.run.step();
+        if (T.run.done()) {
+          var det = BM.detect(T.run.z, st.k, st.h), oc = BM.outcome(st.type, det);
+          T[oc]++;
+          if (oc === "ok") T.d.push(det.alarm - BM.ONSET);
+          T.run = null; T.i++;
+        }
+      }
+      if (T.i < T.n) { $("mc-note").textContent = "Simulating run " + (T.i + 1) + " of " + T.n + "…"; requestAnimationFrame(tick); return; }
+      var pc = function (x) { return Math.round((x / T.n) * 100) + " %"; };
+      T.d.sort(function (a, b) { return a - b; });
+      $("mc-ok").textContent = pc(st.type === "none" ? T.quiet : T.ok);
+      $("mc-bad").textContent = pc(T.bad);
+      $("mc-med").textContent = T.d.length ? T.d[T.d.length >> 1] + " snapshots" : "–";
+      $("mc-note").textContent = "From " + T.n + " simulated runs with these settings.";
+      $("trials").disabled = false;
     });
+  }
+
+  /* -- physics readout -- */
+  (function () {
+    var F = BM.F, G = BM.GEO;
+    $("where").innerHTML =
+      "<div><dt>Where to look, from the geometry</dt><dd>" + G.n + " balls, " + G.d + "″ ball, " + G.D + "″ pitch, " + G.theta + "°, " + G.rpm + " rpm</dd></div>" +
+      "<div><dt>Ball</dt><dd>" + F.BSF.toFixed(1) + " Hz</dd></div>" +
+      "<div><dt>Outer race</dt><dd>" + F.BPFO.toFixed(1) + " Hz</dd></div>" +
+      "<div><dt>Inner race</dt><dd>" + F.BPFI.toFixed(1) + " Hz</dd></div>";
+  })();
+
+  /* -- wiring -- */
+  function setPressed(type) {
+    document.querySelectorAll("[data-type]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-type") === type)); });
+  }
+  document.querySelectorAll("[data-type]").forEach(function (b) {
+    b.addEventListener("click", function () { st.type = b.getAttribute("data-type"); setPressed(st.type); start(true); });
   });
-  Object.keys(ctl).forEach(function (key) { ctl[key].addEventListener("input", function () { setPressed(""); update(); }); });
-  $("resample").addEventListener("click", function () { seed += 1; update(); });
+  $("play").addEventListener("click", togglePlay);
+  $("resample").addEventListener("click", function () { st.seed += 1; start(true); });
+  var sevT;
+  $("sev").addEventListener("input", function () {
+    st.sev = +$("sev").value; $("o-sev").textContent = st.sev.toFixed(1) + "× noise";
+    clearTimeout(sevT); sevT = setTimeout(function () { start(true); }, 250);
+  });
+  $("snap").addEventListener("input", function () { st.follow = false; st.sel = +$("snap").value; refresh(); });
+  $("zoom").addEventListener("input", drawStrip);
+  function readKH() { st.k = +$("k").value; st.h = +$("h").value; $("o-k").textContent = st.k.toFixed(2); $("o-h").textContent = st.h.toFixed(1); }
+  ["k", "h"].forEach(function (id) { $(id).addEventListener("input", function () { readKH(); resetTrials(); if (st.run) refresh(); }); });
+  $("trials").addEventListener("click", runTrials);
   var rt;
-  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(update, 120); });
-  update();
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (st.run) { drawStrip(); drawCharts(); } }, 120); });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", drawStrip);
+  }
+  new MutationObserver(drawStrip).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  readKH();
+  $("o-sev").textContent = st.sev.toFixed(1) + "× noise";
+  start(false);
 })();
 </script>
 
