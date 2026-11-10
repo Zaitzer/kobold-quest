@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Joakim Skar</title>
+<meta name="description" content="Joakim Skar: mathematician (MSc) working with time series, change detection and industrial data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one measured column. Name and thesis first, then a live change-detection
+   instrument as the centrepiece, then projects as ruled rows, method, background, contact. */
+:root { color-scheme: light; }
+:root {
+  --bg: #F4F7F8;
+  --surface: #FFFFFF;
+  --ink: #0F1B24;
+  --muted: #566772;
+  --line: #D6DFE4;
+  --grid: #E4EAEE;
+  --accent: #0A6C8C;
+  --accent-ink: #FFFFFF;
+  --signal: #C2410C;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1319; --surface: #111C24; --ink: #E7EEF2; --muted: #94A5B0;
+    --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B; --signal: #FF8A4C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1319; --surface: #111C24; --ink: #E7EEF2; --muted: #94A5B0;
+  --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B; --signal: #FF8A4C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.1; }
+p { margin: 0; }
+.mono { font-family: var(--f-mono); }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.bar { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; align-items: baseline; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.bar .mark { font-family: var(--f-display); font-weight: 700; font-size: 18px; }
+.bar nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px; }
+.bar nav a { color: var(--muted); text-decoration: none; }
+.bar nav a:hover { color: var(--ink); }
+
+/* hero */
+.hero { padding-block: 56px 40px; display: grid; gap: 28px; }
+.hero h1 { font-size: clamp(44px, 9vw, 92px); font-weight: 700; letter-spacing: -.02em; }
+.lead { font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; max-width: 34em; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px 32px; margin: 0; padding-top: 20px; border-top: 1px solid var(--line); }
+.facts div { min-width: 0; }
+.facts dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 4px 0 0; font-size: 15px; }
+
+/* sections */
+section { padding-block: 44px; border-top: 1px solid var(--line); }
+section > h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; margin-bottom: 8px; letter-spacing: -.01em; }
+.sub { color: var(--muted); max-width: 40em; margin-bottom: 24px; }
+
+/* instrument */
+.instrument { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 18px; }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 24px; }
+.ctl { min-width: 0; display: grid; gap: 4px; }
+.ctl label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+.ctl output { font-family: var(--f-mono); color: var(--ink); }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+button.btn { font: inherit; font-size: 14px; font-weight: 500; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+button.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+#chart { width: 100%; }
+#chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+#chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+#chart .cap { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+#chart .lbl-sig { fill: var(--signal); }
+.readout { display: grid; gap: 14px; }
+.verdict { font-size: 15px; min-height: 3em; }
+.verdict b { font-weight: 600; }
+.mc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.mc dt { font-size: 12px; color: var(--muted); }
+.mc dd { margin: 2px 0 0; font-family: var(--f-mono); font-size: 20px; }
+.note { font-size: 13px; color: var(--muted); max-width: 46em; }
+
+/* projects */
+.proj { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 8px 40px; padding-block: 24px; border-top: 1px solid var(--line); }
+.proj:first-of-type { border-top: 0; padding-top: 0; }
+.proj h3 { font-size: 22px; font-weight: 700; }
+.tag { display: inline-block; margin-top: 8px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.tag.live { color: var(--accent); border-color: var(--accent); }
+.proj p { max-width: 40em; }
+.stack { margin-top: 10px; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.pending { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+/* method */
+.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 0; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 0 12px; padding-block: 14px; border-top: 1px solid var(--line); }
+.steps li:first-child { border-top: 0; padding-top: 0; }
+.steps li::before { content: counter(s); font-family: var(--f-mono); color: var(--accent); font-size: 15px; padding-top: 2px; }
+.steps strong { font-weight: 600; }
+.steps span { color: var(--muted); display: block; max-width: 40em; }
+
+/* background */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px 48px; }
+.two > div { min-width: 0; }
+.two h3 { font-size: 18px; margin-bottom: 12px; }
+.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.tl li { min-width: 0; }
+.tl b { font-weight: 600; }
+.tl .when { font-family: var(--f-mono); font-size: 12px; color: var(--muted); display: block; }
+.tl p { color: var(--muted); font-size: 15px; }
+.skills { display: grid; gap: 14px; margin: 0; }
+.skills dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.skills dd { margin: 2px 0 0; }
+
+/* contact */
+.contact { display: grid; gap: 10px; max-width: 460px; }
+.contact .item { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; justify-content: space-between; padding-block: 10px; border-top: 1px solid var(--line); }
+.contact .k { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.contact .v { overflow-wrap: anywhere; user-select: all; }
+footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+@media (max-width: 680px) {
+  .proj { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: 36px 28px; }
+  section { padding-block: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <span class="mark">Joakim Skar</span>
+    <nav aria-label="Sections">
+      <a href="#demo">Demo</a>
+      <a href="#projects">Projects</a>
+      <a href="#method">Method</a>
+      <a href="#background">Background</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">Kristiansand, Norway &middot; MSc Mathematics</p>
+      <h1>Joakim Skar</h1>
+      <p class="lead">I turn noisy measurements into decisions. Mathematician with ten years of Python, a thesis in stochastic analysis, and eight months next to a running nickel refinery.</p>
+      <dl class="facts">
+        <div><dt>Education</dt><dd>MSc Mathematics, University of Agder, 2026</dd></div>
+        <div><dt>Focus</dt><dd>Time series, change detection, industrial data</dd></div>
+        <div><dt>Tools</dt><dd>Python, C++, C#, JavaScript</dd></div>
+        <div><dt>Available</dt><dd>From January 2027</dd></div>
+      </dl>
+    </div>
+
+    <section id="demo" aria-labelledby="demo-h">
+      <h2 id="demo-h">Change detection you can poke</h2>
+      <p class="sub">The detector behind my bearing-monitoring project, on synthetic data. A fault shifts the signal. Standardise against a healthy baseline, accumulate the evidence with CUSUM, and raise an alarm when it crosses the threshold <span class="mono">h</span>. Move the sliders to see the trade-off between catching the fault early and crying wolf.</p>
+
+      <div class="instrument">
+        <div class="controls">
+          <div class="ctl"><label for="shift">Fault size (in noise units) <output id="o-shift"></output></label><input id="shift" type="range" min="0.5" max="4" step="0.1" value="1.5"></div>
+          <div class="ctl"><label for="onset">Fault starts at sample <output id="o-onset"></output></label><input id="onset" type="range" min="120" max="260" step="10" value="180"></div>
+          <div class="ctl"><label for="k">Allowance k <output id="o-k"></output></label><input id="k" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
+          <div class="ctl"><label for="h">Threshold h <output id="o-h"></output></label><input id="h" type="range" min="2" max="15" step="0.5" value="8"></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="resample" type="button">New noise</button>
+          <button class="btn ghost" id="reset" type="button">Reset sliders</button>
+        </div>
+        <div id="chart" role="img" aria-label="Two charts. Top: a standardised signal that shifts upward when the fault starts. Bottom: the CUSUM statistic rising until it crosses the alarm threshold."></div>
+        <div class="readout">
+          <p class="verdict" id="verdict" aria-live="polite"></p>
+          <dl class="mc">
+            <div><dt>Alarm before the fault</dt><dd id="mc-fa"></dd></div>
+            <div><dt>Fault detected</dt><dd id="mc-det"></dd></div>
+            <div><dt>Median delay</dt><dd id="mc-med"></dd></div>
+          </dl>
+          <p class="note">The three figures come from 500 simulated runs with the current sliders (fixed random seed, so they move smoothly). The first 100 samples are healthy and set the baseline with the median and MAD; monitoring starts at sample 100. All data here is generated in your browser.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" aria-labelledby="proj-h">
+      <h2 id="proj-h">Projects</h2>
+      <p class="sub">Code and data work, newest first.</p>
+
+      <article class="proj">
+        <div><h3>Bearing condition monitoring</h3><span class="tag live">In progress</span></div>
+        <div>
+          <p>Physics-informed anomaly detection on the NASA/IMS bearing run-to-failure data. Expected fault frequencies come from the bearing geometry. Features are taken from the envelope spectrum around them, and a CUSUM test against a robust healthy baseline raises the alarm. I report false alarms and warning time before failure, not only accuracy.</p>
+          <p class="stack">Python &middot; NumPy &middot; SciPy &middot; pandas &middot; Matplotlib</p>
+          <p class="pending">Code and results will be published here.</p>
+        </div>
+      </article>
+
+      <article class="proj">
+        <div><h3>Virtex</h3><span class="tag">Work</span></div>
+        <div>
+          <p>Web application for working with time-series data. I contributed to its further development, mainly in C++ compiled to WebAssembly, with Python and JavaScript, HTML and CSS around it.</p>
+          <p class="stack">C++ &middot; WebAssembly &middot; Python &middot; JavaScript</p>
+        </div>
+      </article>
+
+      <article class="proj">
+        <div><h3>MathWiki</h3><span class="tag">Side project</span></div>
+        <div>
+          <p>A wiki-style reference for mathematics, assembled and published by an automated pipeline and financed by ads.</p>
+          <p class="stack">Python &middot; automation</p>
+        </div>
+      </article>
+
+      <article class="proj">
+        <div><h3>Kobold Quest</h3><span class="tag">Hobby</span></div>
+        <div>
+          <p>A multiplayer tactical RPG for the phone's browser, played sideways. I design the game, write the story and draw the art. The engineering is done with Claude Code under my direction, with automated tests and releases.</p>
+          <p class="stack">JavaScript &middot; Node.js &middot; WebSockets &middot; automated tests and deploys</p>
+          <p class="pending"><a href="https://kobold.joakimskar.no">Play it</a></p>
+        </div>
+      </article>
+
+      <article class="proj">
+        <div><h3>Master's thesis</h3><span class="tag">Research</span></div>
+        <div>
+          <p>Brownian motion on manifolds. Stochastic analysis and differential geometry, University of Agder, 2026.</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="method" aria-labelledby="method-h">
+      <h2 id="method-h">How I approach a monitoring problem</h2>
+      <p class="sub">The same five steps whether the data is a bearing, a pump or a conveyor.</p>
+      <ol class="steps">
+        <li><div><strong>Start from the physics.</strong><span>What should a fault look like, and at which frequency? A bearing's geometry and shaft speed tell you where to look.</span></div></li>
+        <li><div><strong>Reduce the signal to a few meaningful features.</strong><span>Envelope spectrum, band energy, normalised so a gain change does not look like damage.</span></div></li>
+        <li><div><strong>Learn what healthy looks like, robustly.</strong><span>Median and MAD instead of mean and standard deviation, so one odd reading does not move the baseline.</span></div></li>
+        <li><div><strong>Test sequentially.</strong><span>CUSUM accumulates small deviations that a single-sample threshold would miss. Tune it against false alarms and detection delay.</span></div></li>
+        <li><div><strong>Report in the plant's language.</strong><span>A plot an operator can read, a lead time in hours, and an honest list of what the model cannot see.</span></div></li>
+      </ol>
+    </section>
+
+    <section id="background" aria-labelledby="bg-h">
+      <h2 id="bg-h">Background</h2>
+      <div class="two">
+        <div>
+          <h3>Experience</h3>
+          <ul class="tl">
+            <li><span class="when">2026</span><b>Glencore Nikkelverk, Kristiansand</b><p>Temporary process operator. Two departments in eight months. Kept the area running and clean, watched the process, and reported a piping misconnection that had gone unnoticed for months. It was fixed.</p></li>
+            <li><span class="when">Freelance</span><b>Mattehelten</b><p>Online mathematics tutor. Moved a student from grade 2 to 5.</p></li>
+            <li><span class="when">Earlier</span><b>Virtex</b><p>Software developer on a time-series web application.</p></li>
+            <li><span class="when">Earlier</span><b>Alcoa Mosjøen</b><p>Temporary operator of the anode plant's overhead crane, on equal terms with the plant's experienced operators.</p></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Skills</h3>
+          <dl class="skills">
+            <div><dt>Languages</dt><dd>Python (10+ years), C++, C#, JavaScript, HTML/CSS</dd></div>
+            <div><dt>Data and statistics</dt><dd>Time series, change detection, signal processing, robust statistics, anomaly detection</dd></div>
+            <div><dt>Domain</dt><dd>Process industry, 10 ECTS chemistry, shift work and safety culture</dd></div>
+            <div><dt>Learning now</dt><dd>Cloud data pipelines and Cognite Data Fusion</dd></div>
+            <div><dt>Education</dt><dd>MSc Mathematics (mathematical statistics, stochastic analysis), University of Agder</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <p class="sub">Open to data science roles in Norway from January 2027.</p>
+      <div class="contact" id="contact-list"></div>
+    </section>
+  </main>
+
+  <footer>Built by hand. The demo above runs on synthetic data and says so.</footer>
+</div>
+
+<script>
+(function () {
+  /* ---------- contact details: fill these in ---------- */
+  var CONTACT = { email: "", github: "https://github.com/Zaitzer", linkedin: "" };
+
+  function renderContact() {
+    var box = document.getElementById("contact-list");
+    var rows = [["Email", "email"], ["GitHub", "github"], ["LinkedIn", "linkedin"]];
+    rows.forEach(function (r) {
+      var val = CONTACT[r[1]];
+      if (!val) return;
+      var item = document.createElement("div"); item.className = "item";
+      var k = document.createElement("span"); k.className = "k"; k.textContent = r[0];
+      item.appendChild(k);
+      if (r[1] === "email") {
+        var v = document.createElement("span"); v.className = "v"; v.textContent = val;
+        var b = document.createElement("button"); b.type = "button"; b.className = "btn ghost"; b.textContent = "Copy";
+        b.addEventListener("click", function () {
+          try { navigator.clipboard.writeText(val).then(function () { b.textContent = "Copied"; }, function () { sel(v); }); }
+          catch (err) { sel(v); }
+        });
+        item.appendChild(v); item.appendChild(b);
+      } else {
+        var a = document.createElement("a"); a.className = "v"; a.href = val; a.target = "_blank"; a.rel = "noopener";
+        a.textContent = val.replace(/^https?:\/\//, "");
+        item.appendChild(a);
+      }
+      box.appendChild(item);
+    });
+    function sel(node) { var rg = document.createRange(); rg.selectNodeContents(node); var s = window.getSelection(); s.removeAllRanges(); s.addRange(rg); }
+  }
+  renderContact();
+
+  /* ---------- change-detection demo ---------- */
+  var N = 301, NB = 100, RUNS = 500, DEFAULTS = { shift: 1.5, onset: 180, k: 0.5, h: 8 };
+  var $ = function (id) { return document.getElementById(id); };
+  var ctl = { shift: $("shift"), onset: $("onset"), k: $("k"), h: $("h") };
+  var seed = 7;
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(r) {
+    var u = 0, v = 0;
+    while (u === 0) u = r();
+    while (v === 0) v = r();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  function median(a) {
+    var b = a.slice().sort(function (x, y) { return x - y; });
+    var m = b.length >> 1;
+    return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2;
+  }
+  function params() {
+    return { shift: +ctl.shift.value, onset: +ctl.onset.value, k: +ctl.k.value, h: +ctl.h.value };
+  }
+  function genZ(r, p) {
+    var x = new Array(N), i;
+    for (i = 0; i < N; i++) x[i] = gauss(r) + (i >= p.onset ? p.shift : 0);
+    var base = x.slice(0, NB);
+    var c = median(base);
+    var s = 1.4826 * median(base.map(function (v) { return Math.abs(v - c); })) || 1;
+    return x.map(function (v) { return (v - c) / s; });
+  }
+  function cusum(z, k, h, keep) {
+    var S = keep ? new Array(N).fill(0) : null, s = 0, alarm = -1, i;
+    for (i = NB; i < N; i++) {
+      s = Math.max(0, s + z[i] - k);
+      if (keep) S[i] = s;
+      if (alarm < 0 && s > h) { alarm = i; if (!keep) break; }
+    }
+    return { S: S, alarm: alarm };
+  }
+  function monteCarlo(p) {
+    var r = mulberry32(12345), fa = 0, delays = [], j;
+    for (j = 0; j < RUNS; j++) {
+      var res = cusum(genZ(r, p), p.k, p.h, false);
+      if (res.alarm >= 0) { if (res.alarm < p.onset) fa++; else delays.push(res.alarm - p.onset); }
+    }
+    delays.sort(function (a, b) { return a - b; });
+    return { fa: fa / RUNS, det: delays.length / RUNS, med: delays.length ? delays[delays.length >> 1] : null };
+  }
+  function pct(x) { return (x * 100).toFixed(1) + " %"; }
+
+  function svgEl(s) { return s; }
+  function draw(z, res, p) {
+    var box = $("chart");
+    var W = Math.max(280, box.clientWidth);
+    var padL = 40, padR = 10, topH = 170, botH = 130, capGap = 30, padT = 20;
+    var y0 = padT + topH + capGap, H = y0 + botH + 28;
+    var x = function (i) { return padL + (i / (N - 1)) * (W - padL - padR); };
+    var zmin = Math.floor(Math.min(-3, Math.min.apply(null, z))), zmax = Math.ceil(Math.max(3, Math.max.apply(null, z)));
+    var yT = function (v) { return padT + (1 - (v - zmin) / (zmax - zmin)) * topH; };
+    var smax = Math.max(p.h * 1.25, Math.max.apply(null, res.S)) * 1.05;
+    var yB = function (v) { return y0 + (1 - v / smax) * botH; };
+    var o = [];
+    o.push('<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">');
+
+    // baseline shading on both panels
+    o.push('<rect x="' + x(0) + '" y="' + padT + '" width="' + (x(NB) - x(0)) + '" height="' + topH + '" fill="var(--grid)" opacity="0.7"/>');
+    o.push('<rect x="' + x(0) + '" y="' + y0 + '" width="' + (x(NB) - x(0)) + '" height="' + botH + '" fill="var(--grid)" opacity="0.7"/>');
+    o.push('<text x="' + (x(0) + 6) + '" y="' + (padT + 13) + '">baseline</text>');
+
+    // top gridlines + ticks
+    var step = (zmax - zmin) > 10 ? 4 : 2, v;
+    for (v = Math.ceil(zmin / step) * step; v <= zmax; v += step) {
+      o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yT(v) + '" y2="' + yT(v) + '" stroke="var(--grid)" stroke-width="1"/>');
+      o.push('<text x="' + (padL - 6) + '" y="' + (yT(v) + 4) + '" text-anchor="end">' + v + "</text>");
+    }
+    o.push('<text class="cap" x="' + padL + '" y="' + (padT - 8) + '">Standardised signal z</text>');
+
+    // onset marker
+    var xo = x(p.onset), anchorO = xo > W - 110 ? "end" : "start", dxo = anchorO === "end" ? -6 : 6;
+    o.push('<line x1="' + xo + '" x2="' + xo + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>');
+    o.push('<text x="' + (xo + dxo) + '" y="' + (padT + 13) + '" text-anchor="' + anchorO + '">fault starts</text>');
+
+    // signal trace
+    var pts = z.map(function (val, i) { return x(i).toFixed(1) + "," + yT(Math.max(zmin, Math.min(zmax, val))).toFixed(1); }).join(" ");
+    o.push('<polyline points="' + pts + '" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round" opacity="0.8"/>');
+
+    // bottom: cusum
+    o.push('<text class="cap" x="' + padL + '" y="' + (y0 - 10) + '">CUSUM statistic S</text>');
+    o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(0) + '" y2="' + yB(0) + '" stroke="var(--line)" stroke-width="1"/>');
+    o.push('<text x="' + (padL - 6) + '" y="' + (yB(0) + 4) + '" text-anchor="end">0</text>');
+    o.push('<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + yB(p.h) + '" y2="' + yB(p.h) + '" stroke="var(--signal)" stroke-width="1.25" stroke-dasharray="6 4"/>');
+    o.push('<text class="lbl-sig" x="' + (padL - 6) + '" y="' + (yB(p.h) + 4) + '" text-anchor="end">h</text>');
+    var cp = [], i;
+    for (i = NB; i < N; i++) cp.push(x(i).toFixed(1) + "," + yB(Math.min(res.S[i], smax)).toFixed(1));
+    o.push('<polyline points="' + cp.join(" ") + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>');
+
+    // x axis
+    [0, 100, 200, 300].forEach(function (t) {
+      o.push('<line x1="' + x(t) + '" x2="' + x(t) + '" y1="' + (y0 + botH) + '" y2="' + (y0 + botH + 4) + '" stroke="var(--muted)"/>');
+      o.push('<text x="' + x(t) + '" y="' + (y0 + botH + 18) + '" text-anchor="' + (t === 0 ? "start" : t === 300 ? "end" : "middle") + '">' + t + "</text>");
+    });
+    o.push('<text x="' + (W - padR) + '" y="' + (y0 - 10) + '" text-anchor="end">sample</text>');
+
+    // alarm
+    if (res.alarm >= 0) {
+      var xa = x(res.alarm), anchorA = xa > W - 90 ? "end" : "start", dxa = anchorA === "end" ? -6 : 6;
+      o.push('<line x1="' + xa + '" x2="' + xa + '" y1="' + padT + '" y2="' + (y0 + botH) + '" stroke="var(--signal)" stroke-width="1.5"/>');
+      o.push('<circle cx="' + xa + '" cy="' + yB(Math.min(res.S[res.alarm], smax)) + '" r="4.5" fill="var(--signal)"/>');
+      o.push('<text class="lbl-sig" x="' + (xa + dxa) + '" y="' + (padT + 28) + '" text-anchor="' + anchorA + '">alarm</text>');
+    }
+    o.push("</svg>");
+    box.innerHTML = o.join("");
+  }
+
+  function update() {
+    var p = params();
+    $("o-shift").textContent = p.shift.toFixed(1) + " σ";
+    $("o-onset").textContent = p.onset;
+    $("o-k").textContent = p.k.toFixed(2);
+    $("o-h").textContent = p.h.toFixed(1);
+
+    var z = genZ(mulberry32(seed * 9973 + 1), p);
+    var res = cusum(z, p.k, p.h, true);
+    draw(z, res, p);
+
+    var msg;
+    if (res.alarm < 0) msg = "<b>No alarm in this run.</b> With these settings the fault is too small to stand out from the noise. Lower h or k, or make the fault bigger.";
+    else if (res.alarm < p.onset) msg = "<b>False alarm at sample " + res.alarm + "</b>, before the fault starts. The threshold is too low for this noise level.";
+    else msg = "<b>Alarm at sample " + res.alarm + "</b>, " + (res.alarm - p.onset) + " samples after the fault started.";
+    $("verdict").innerHTML = msg;
+
+    var mc = monteCarlo(p);
+    $("mc-fa").textContent = pct(mc.fa);
+    $("mc-det").textContent = pct(mc.det);
+    $("mc-med").textContent = mc.med === null ? "–" : mc.med + " samples";
+  }
+
+  Object.keys(ctl).forEach(function (key) { ctl[key].addEventListener("input", update); });
+  $("resample").addEventListener("click", function () { seed += 1; update(); });
+  $("reset").addEventListener("click", function () {
+    Object.keys(DEFAULTS).forEach(function (key) { ctl[key].value = DEFAULTS[key]; });
+    update();
+  });
+  var rt;
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(update, 120); });
+  update();
+})();
+</script>
+
+</body>
+</html>

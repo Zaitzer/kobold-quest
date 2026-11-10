@@ -9,7 +9,7 @@ and help a country that didn't bother to choose.
 
 ## What it is
 
-- **Platform:** the phone's browser, held sideways (joakimskar.no), with a desktop and Claude-page version from the same code.
+- **Platform:** the phone's browser, held sideways (kobold.joakimskar.no), with a desktop and Claude-page version from the same code.
 - **Genre:** an overworld adventure in the shape of Pokémon Ruby (towns, routes, field moves, a villain team),
   with small turn-based grid battles instead of monster catching.
 - **Pack:** Pip and up to three of the seven companions (a pack of four), each with a class, talents, a subclass and gear.

@@ -1,7 +1,13 @@
 # HTTPS certificates are fetched and renewed by Caddy automatically.
-joakimskar.no {
+# joakimskar.no is Joakim's portfolio (a static page from site/); the game lives on kobold.joakimskar.no.
+kobold.joakimskar.no {
 	encode gzip
 	reverse_proxy 127.0.0.1:8080
+}
+joakimskar.no {
+	root * /var/www/joakimskar
+	encode gzip
+	file_server
 }
 www.joakimskar.no, joakimskar.com, www.joakimskar.com {
 	redir https://joakimskar.no{uri} permanent

@@ -22,9 +22,12 @@ mv /opt/kobold-quest/server.new /opt/kobold-quest/server
 chown -R kobold:kobold /var/lib/kobold-quest
 cp kobold-quest.service /etc/systemd/system/kobold-quest.service
 systemctl daemon-reload && systemctl enable --now kobold-quest >/dev/null 2>&1 && systemctl restart kobold-quest
+echo "== website"
+# the portfolio on joakimskar.no (skipped when installing from an old tarball without site/)
+if [ -d site ]; then mkdir -p /var/www/joakimskar && cp -r site/. /var/www/joakimskar/ && chmod -R a+rX /var/www/joakimskar; fi
 echo "== https"
 cp Caddyfile /etc/caddy/Caddyfile && systemctl reload caddy || systemctl restart caddy
 echo "== firewall"
 ufw allow OpenSSH >/dev/null && ufw allow 80/tcp >/dev/null && ufw allow 443/tcp >/dev/null && ufw --force enable >/dev/null
 sleep 1
-curl -fsS http://127.0.0.1:8080/health >/dev/null && echo "Kobold Quest is running. Open https://joakimskar.no" || { echo "The game server did not start:"; journalctl -u kobold-quest -n 30 --no-pager; exit 1; }
+curl -fsS http://127.0.0.1:8080/health >/dev/null && echo "Kobold Quest is running. Open https://kobold.joakimskar.no" || { echo "The game server did not start:"; journalctl -u kobold-quest -n 30 --no-pager; exit 1; }

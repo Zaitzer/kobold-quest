@@ -18,11 +18,11 @@ the public later.
 |---|---|
 | Owner, creative director, producer | **Joakim** (GitHub `Zaitzer`, in-game admin "Zaitzer"), Norway (Europe/Oslo) |
 | Repo | `Zaitzer/kobold-quest`, branch `main` (Joakim also pushes drawings to it directly) |
-| Live website | https://joakimskar.no (Hetzner, 62.238.56.52). It pulls `main` every 2 minutes. `/status` shows the live `build` |
+| Live website | https://kobold.joakimskar.no (Hetzner, 62.238.56.52). It pulls `main` every 2 minutes. `/status` shows the live `build`. https://joakimskar.no is Joakim's portfolio (`site/`) |
 | The story as a shared doc | "Kobold Quest: The Hatching", https://claude.ai/artifact/4jH2s3L8WUDJtX65Z3EEeb (Claude Docs project `1e3288d2-8eaa-4d81-8f80-0b7558656300`). The repo's `docs/story-hatching.md` is the same story and the source of truth for building |
 | Player data | only on the server (`/var/lib/kobold-quest`), never in the repo |
 
-The cloud sandbox **cannot reach joakimskar.no**, so Joakim checks `/status` himself.
+The cloud sandbox **cannot reach kobold.joakimskar.no**, so Joakim checks `/status` himself.
 
 ## 3. Working with Joakim
 
@@ -36,7 +36,7 @@ The cloud sandbox **cannot reach joakimskar.no**, so Joakim checks `/status` him
 - In philosophical discussions he wants a more **Socratic** approach: ask more, tell less.
 - **He draws the art himself** in Paint.NET with a pen on a touch screen, and pushes with **GitHub Desktop** straight
   to `main`. So before every push, `git pull --rebase origin main`. The website picks his drawings up by itself.
-- **The game is played only on joakimskar.no** (Joakim, 23 Oct). There is no Claude page of the game any more.
+- **The game is played only on kobold.joakimskar.no** (Joakim, 23 Oct; the address changed on 10 Nov). There is no Claude page of the game any more.
 - He sometimes stops a long tool run (tests). Don't push until he says go.
 - Recent mode (19–22 Oct): **story and design first, no game changes** until Gate 1 is passed again.
 - **Design and balance (21–22 Oct):** he thinks mathematically (a mathematics master's). Look for **a rule before a number**:
@@ -118,7 +118,7 @@ node tools/package.js        # refresh release/ (what the server runs)
 git pull --rebase origin main && git add -A && git commit && git push   # = deploy; live in ~2 min
 ```
 
-Tell Joakim the build id (`release/server/BUILD`) to look for at https://joakimskar.no/status.
+Tell Joakim the build id (`release/server/BUILD`) to look for at https://kobold.joakimskar.no/status.
 
 **Commit trailer** (as the session's system reminder asks): end commit messages with
 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` and the session line it gives.

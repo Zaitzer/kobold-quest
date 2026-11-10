@@ -5,6 +5,8 @@ const T=fs.mkdtempSync(path.join(os.tmpdir(),'kqpack-')),D=T+'/kobold-quest';fs.
 /* every module of the server (a hand-kept list once left admin.js out of the release), its config and package.json */
 for(const f of fs.readdirSync(R+'/server').filter(f=>f.endsWith('.js')||f==='config.json'||f==='package.json'))fs.copyFileSync(R+'/server/'+f,D+'/server/'+f);
 fs.cpSync(R+'/server/node_modules',D+'/server/node_modules',{recursive:true});fs.cpSync(R+'/server/public',D+'/server/public',{recursive:true});
+/* the portfolio on joakimskar.no */
+fs.cpSync(R+'/site',D+'/site',{recursive:true});
 for(const f of ['install.sh','kq-update.sh','Caddyfile','kobold-quest.service','README.md'])fs.copyFileSync(R+'/deploy/'+f,D+'/'+f);
 const build=fs.readFileSync(R+'/dist/BUILD','utf8').trim();fs.writeFileSync(D+'/server/BUILD',build);
 /* the packed server must start and report this build, or nothing is released */

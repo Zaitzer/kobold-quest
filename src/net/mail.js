@@ -36,7 +36,7 @@ function letterHtml() {
     return (
       '<div class="rpdlg">' +
       who +
-      '<p>"My pigeons only fly from the website: joakimskar.no. Log in there and come see me."</p></div><div class="tbar">' +
+      '<p>"My pigeons only fly from the website: kobold.joakimskar.no. Log in there and come see me."</p></div><div class="tbar">' +
       button('net:mailclose', 'Leave', {cls: 'x'}) +
       '</div>'
     );

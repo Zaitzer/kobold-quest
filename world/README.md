@@ -9,7 +9,7 @@ these files.
 2. The first time, choose the **kobold-quest** folder (the one GitHub Desktop keeps). After that, "Open kobold-quest again".
 3. Edit, then **Save** (Ctrl+S). The **Problems** tab must say 0 before the game will take the change.
 4. In GitHub Desktop: commit and push. GitHub checks the world, builds the game and releases it ("World to the game" in the
-   repo's Actions); joakimskar.no has it about 2 minutes after that. A red cross in GitHub means a problem: open the editor and look
+   repo's Actions); kobold.joakimskar.no has it about 2 minutes after that. A red cross in GitHub means a problem: open the editor and look
    at the Problems tab.
 
 What the editor does:

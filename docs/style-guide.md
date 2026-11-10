@@ -16,7 +16,7 @@ size, and how to hand it over. The look itself is up to him; the "suggested" par
    underneath, then delete the template layer.
 3. **File → Save** (PNG, flatten) over the same file. Until you do, the game shows the stand-in. Keep the `.pdn` somewhere outside the repo if you want the layers.
 4. In GitHub Desktop: type a short summary (e.g. "Pip"), press **Commit to main**, then **Push origin**.
-5. About **2 minutes** later it's on joakimskar.no (reload the page).
+5. About **2 minutes** later it's on kobold.joakimskar.no (reload the page).
 
 The game takes it from there: it picks each row (by direction and facing; nothing is mirrored) and frame by what the character is doing,
 and uses the sheet wherever that character or tile appears (map, battles). Anything without a

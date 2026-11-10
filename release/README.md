@@ -1,4 +1,4 @@
-# Putting Kobold Quest on joakimskar.no
+# Putting Kobold Quest on kobold.joakimskar.no
 
 You need: the file `kobold-quest-server.tar.gz`, a small server, and access to your domains' DNS settings.
 It takes about 15 minutes the first time.
@@ -21,12 +21,11 @@ Where you bought the domains (for example Domeneshop), open the DNS settings for
 |---|---|---|
 | A | @ (or empty) | 1.2.3.4 |
 | A | www | 1.2.3.4 |
+| A | kobold | 1.2.3.4 |
 
-Do the same for **joakimskar.com**. Remove any other A or AAAA records for those names. The .com and www addresses
-all forward to https://joakimskar.no.
-
-This replaces anything that is on joakimskar.no today. If you'd rather keep the main address free, use
-`kobold.joakimskar.no` and change the first line of `Caddyfile` to match.
+Do the same for **joakimskar.com** (the `kobold` row is only needed on .no). Remove any other A or AAAA records for those
+names. The game is on https://kobold.joakimskar.no; https://joakimskar.no shows the portfolio from `site/`, and the .com and
+www addresses forward to it.
 
 ## 3. Install
 
@@ -38,7 +37,7 @@ ssh root@1.2.3.4 "tar xzf kobold-quest-server.tar.gz && kobold-quest/install.sh"
 ```
 
 It installs Node and Caddy, starts the game server, gets HTTPS certificates, and turns on a firewall that lets
-through only SSH and the web. When it prints **Kobold Quest is running**, open https://joakimskar.no. If the
+through only SSH and the web. When it prints **Kobold Quest is running**, open https://kobold.joakimskar.no. If the
 DNS change is still spreading, the HTTPS certificate can take a few minutes.
 
 ## Updating
@@ -56,7 +55,7 @@ scp root@1.2.3.4:/var/lib/kobold-quest/world.json .
 
 Logs: `ssh root@1.2.3.4 journalctl -u kobold-quest -n 50`
 
-## Automatic updates (how joakimskar.no runs)
+## Automatic updates (how kobold.joakimskar.no runs)
 
 The server was set up with `cloud-init.yaml`, which runs `bootstrap.sh`: it clones this repo and installs `kq-update`
 (`kq-update.sh`), which a timer runs every 2 minutes. When `main` has a commit that is not installed yet, it installs

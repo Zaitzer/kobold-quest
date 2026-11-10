@@ -1,6 +1,6 @@
 # Kobold Quest
 
-A sideways tactical RPG for the phone, played together on one shared server. Live at https://joakimskar.no.
+A sideways tactical RPG for the phone, played together on one shared server. Live at https://kobold.joakimskar.no. `site/` is the portfolio on https://joakimskar.no (deployed the same way).
 
 * `src/`, `styles/`, `index.html`: the game (ES modules, built into one page). See [ARCHITECTURE.md](ARCHITECTURE.md).
 * `server/`: the game server (accounts, the shared world, market, saves).
