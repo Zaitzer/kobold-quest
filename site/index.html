@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one measured column, arranged as an argument: thesis, story, proof (live demo, work),
-   method, the open gap, background, and the ask. The signal colour means "alarm" and nothing else. */
+/* Layout: one measured column, arranged as an argument: thesis, story, proof (a real analysis),
+   method, the open gap, background, and the ask. Chart series use the validated categorical order. */
 :root { color-scheme: light; }
 :root {
   --bg: #F4F7F8;
@@ -18,10 +18,10 @@
   --ink: #0F1B24;
   --muted: #566772;
   --line: #D6DFE4;
-  --grid: #E4EAEE;
+  --grid: #E8EDF0;
   --accent: #0A6C8C;
   --accent-ink: #FFFFFF;
-  --signal: #C2410C;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
   --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -29,13 +29,15 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0B1319; --surface: #111C24; --ink: #E7EEF2; --muted: #94A5B0;
-    --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B; --signal: #FF8A4C;
+    --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0B1319; --surface: #111C24; --ink: #E7EEF2; --muted: #94A5B0;
-  --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B; --signal: #FF8A4C;
+  --line: #243541; --grid: #1A2933; --accent: #5CC8E6; --accent-ink: #06222B;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
   color-scheme: dark;
 }
 
@@ -53,20 +55,17 @@ body {
 }
 .wrap { max-width: 1040px; margin: 0 auto; }
 a { color: var(--accent); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.1; }
 p { margin: 0; }
-.mono { font-family: var(--f-mono); }
-.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
 
-/* top bar */
 .bar { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; align-items: baseline; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .bar .mark { font-family: var(--f-display); font-weight: 700; font-size: 18px; }
 .bar nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px; }
 .bar nav a { color: var(--muted); text-decoration: none; }
 .bar nav a:hover { color: var(--ink); }
 
-/* hero */
 .hero { padding-block: 52px 40px; display: grid; gap: 24px; }
 .hero h1 { font-size: clamp(44px, 9vw, 92px); font-weight: 700; letter-spacing: -.02em; }
 .thesis { font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; max-width: 34em; }
@@ -79,63 +78,62 @@ p { margin: 0; }
 .facts dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .facts dd { margin: 4px 0 0; font-size: 15px; }
 
-/* sections */
 section { padding-block: 44px; border-top: 1px solid var(--line); }
 section > h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; margin-bottom: 8px; letter-spacing: -.01em; }
 .sub { color: var(--muted); max-width: 40em; margin-bottom: 24px; }
 
-/* story strip */
 .story { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 8px 40px; }
 .story p { font-size: clamp(17px, 2.1vw, 20px); line-height: 1.55; max-width: 36em; }
 .story p + p { margin-top: 12px; }
 .story .moral { font-weight: 600; }
 
-/* instrument */
-.instrument { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; }
-.scen { display: flex; flex-wrap: wrap; gap: 8px; }
-.scen button { font: inherit; font-size: 14px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
-.scen button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-.ctl { min-width: 0; display: grid; gap: 4px; }
-.ctl label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
-.ctl output { font-family: var(--f-mono); color: var(--ink); }
-.ctl input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
-.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 24px; padding-top: 14px; }
+/* the analysis */
+.qa { display: grid; gap: 4px; margin-bottom: 24px; max-width: 44em; }
+.qa p { color: var(--muted); }
+.qa b { color: var(--ink); font-weight: 600; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 22px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { font: inherit; font-size: 14px; background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.chips button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px 24px; margin: 0; }
+.tiles div { min-width: 0; }
+.tiles dt { font-size: 13px; color: var(--muted); }
+.tiles dd { margin: 2px 0 0; font-family: var(--f-mono); font-size: 24px; font-variant-numeric: tabular-nums; }
+.tiles dd small { font-size: 13px; color: var(--muted); }
+.fig { display: grid; gap: 8px; min-width: 0; }
+.fig h3 { font-size: 18px; }
+.fig .cap { font-size: 14px; color: var(--muted); max-width: 46em; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend i.ln { height: 2px; border-radius: 0; background: var(--ink); }
+.chart { position: relative; width: 100%; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.chart text.ink { fill: var(--ink); }
+.xhair { position: absolute; top: 0; width: 1px; background: var(--muted); opacity: .5; pointer-events: none; }
+.tip { position: absolute; z-index: 2; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; line-height: 1.45; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 140px; max-width: 220px; }
+.tip b { font-weight: 600; display: block; margin-bottom: 2px; }
+.tip .r { display: flex; justify-content: space-between; gap: 12px; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+.findings { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 46em; }
 details { border-top: 1px solid var(--line); padding-top: 12px; }
 summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 500; }
-details p { font-size: 14px; color: var(--muted); max-width: 46em; margin-top: 10px; }
-.settings { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
-#chart { width: 100%; }
-#chart svg { display: block; width: 100%; height: auto; overflow: visible; }
-#chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
-#chart .cap { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-#chart .lbl-sig { fill: var(--signal); font-weight: 500; }
-.stripwrap { display: grid; gap: 6px; }
-.stripcap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-#strip { display: block; width: 100%; height: 150px; }
-#chart .lbl-acc { fill: var(--accent); }
-.where { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; font-size: 14px; }
-.where dt { font-size: 12px; color: var(--muted); }
-.where dd { margin: 0; font-family: var(--f-mono); }
-.row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
-button.btn:disabled { opacity: .5; cursor: default; }
-.verdict { font-size: 15px; }
-.verdict b { font-weight: 600; }
-.mc { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 24px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
-.mc dt { font-size: 12px; color: var(--muted); }
-.mc dd { margin: 2px 0 0; font-family: var(--f-mono); font-size: 20px; }
+details .body { margin-top: 12px; display: grid; gap: 10px; font-size: 14px; color: var(--muted); max-width: 52em; }
+details ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.tablewrap { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 500; }
 
 /* work */
 .proj { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 8px 40px; padding-block: 24px; border-top: 1px solid var(--line); }
 .proj:first-of-type { border-top: 0; padding-top: 0; }
 .proj h3 { font-size: 21px; font-weight: 700; }
 .tag { display: inline-block; margin-top: 8px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
-.tag.live { color: var(--accent); border-color: var(--accent); }
 .proj p { max-width: 40em; }
-.measure { margin-top: 10px; font-size: 14px; }
-.measure b { font-weight: 600; }
 .stack { margin-top: 10px; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
 
-/* method */
 .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; }
 .steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 0 12px; padding-block: 12px; border-top: 1px solid var(--line); }
 .steps li:first-child { border-top: 0; padding-top: 0; }
@@ -143,18 +141,15 @@ button.btn:disabled { opacity: .5; cursor: default; }
 .steps strong { font-weight: 600; }
 .steps span { color: var(--muted); }
 
-/* the gap */
 .gap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px 48px; }
 .gap > div { min-width: 0; }
 .gap h3 { font-size: 13px; font-family: var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
 .gap p { max-width: 36em; }
 
-/* background */
 .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px 48px; }
 .two > div { min-width: 0; }
 .two h3 { font-size: 18px; margin-bottom: 12px; }
 .tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-.tl li { min-width: 0; }
 .tl b { font-weight: 600; }
 .tl .when { font-family: var(--f-mono); font-size: 12px; color: var(--muted); display: block; }
 .tl p { color: var(--muted); font-size: 15px; }
@@ -162,10 +157,9 @@ button.btn:disabled { opacity: .5; cursor: default; }
 .skills dt { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .skills dd { margin: 2px 0 0; }
 
-/* the ask */
 .ask h2 { font-size: clamp(30px, 5vw, 48px); max-width: 16em; }
 .ask .sub { font-size: 18px; color: var(--ink); }
-.contact { display: grid; gap: 0; max-width: 480px; }
+.contact { display: grid; max-width: 480px; }
 .contact .item { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; justify-content: space-between; padding-block: 10px; border-top: 1px solid var(--line); }
 .contact .k { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .contact .v { overflow-wrap: anywhere; user-select: all; }
@@ -175,6 +169,7 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   .proj, .story { grid-template-columns: minmax(0, 1fr); }
   .hero { padding-block: 34px 28px; }
   section { padding-block: 34px; }
+  .panel { padding: 14px; }
 }
 </style>
 
@@ -184,7 +179,7 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   <header class="bar">
     <span class="mark">Joakim Skar</span>
     <nav aria-label="Sections">
-      <a href="#demo">Demo</a>
+      <a href="#analysis">Analysis</a>
       <a href="#work">Work</a>
       <a href="#method">Method</a>
       <a href="#background">Background</a>
@@ -196,15 +191,15 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     <div class="hero">
       <p class="eyebrow">Kristiansand, Norway &middot; MSc Mathematics</p>
       <h1>Joakim Skar</h1>
-      <p class="thesis">Plants record thousands of signals, and most of them go unread. But an alarm that cries wolf gets ignored, and one that comes late is useless. <strong>So I build detectors that respect the physics and the statistics, and I count false alarms as carefully as hits.</strong></p>
+      <p class="thesis">Organisations collect more data than they read, and a report nobody trusts gets ignored. <strong>So I start from the question, check where every number comes from, and finish with an answer someone can act on.</strong></p>
       <div class="cta">
-        <a class="btn" href="#demo">Try a detector</a>
+        <a class="btn" href="#analysis">See an analysis</a>
         <a class="btn ghost" href="#contact">Get in touch</a>
       </div>
       <dl class="facts">
         <div><dt>Education</dt><dd>MSc Mathematics, University of Agder, 2026</dd></div>
-        <div><dt>Plant experience</dt><dd>Process operator, Glencore Nikkelverk</dd></div>
-        <div><dt>Tools</dt><dd>Python (10+ years), C++, C#, JavaScript</dd></div>
+        <div><dt>Industry</dt><dd>Process operator, Glencore Nikkelverk</dd></div>
+        <div><dt>Tools</dt><dd>Python (10+ years), statistics, C++</dd></div>
         <div><dt>Available</dt><dd>From January 2027</dd></div>
       </dl>
     </div>
@@ -219,64 +214,69 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
       </div>
     </section>
 
-    <section id="demo" aria-labelledby="demo-h">
-      <h2 id="demo-h">A Fourier transform tells you not just that a bearing is failing, but where</h2>
-      <p class="sub">A bearing with a defect gets a small knock every time a ball rolls over it. The knocks come at a rate set by the bearing's geometry, so a Fourier transform turns them into peaks at frequencies you can compute in advance. Put a tracker on each of those frequencies and watch which one rises. The data streams in live, simulated in your browser.</p>
+    <section id="analysis" aria-labelledby="an-h">
+      <h2 id="an-h">Norway exports power in wet years and imports it in dry ones</h2>
+      <div class="qa">
+        <p><b>Question:</b> who in the Nordics makes more electricity than they use, and what decides it?</p>
+        <p><b>Data:</b> yearly electricity data for 2000 to 2025 from Ember, via Our World in Data. Real figures, not a simulation.</p>
+      </div>
 
-      <div class="instrument">
-        <div class="scen" role="group" aria-label="Fault type">
-          <button type="button" data-type="BPFO" aria-pressed="true">Outer race fault</button>
-          <button type="button" data-type="BPFI" aria-pressed="false">Inner race fault</button>
-          <button type="button" data-type="BSF" aria-pressed="false">Ball fault</button>
-          <button type="button" data-type="none" aria-pressed="false">No fault</button>
+      <div class="panel">
+        <div class="chips" role="group" aria-label="Country" id="chips"></div>
+        <dl class="tiles" id="tiles"></dl>
+
+        <div class="fig">
+          <h3 id="figA-h"></h3>
+          <div class="legend" id="legendA"></div>
+          <div class="chart" id="chartA" role="img" aria-labelledby="figA-h"></div>
+          <p class="cap">Where the stack rises above the line, the country made more than it used and sold the rest abroad.</p>
         </div>
-        <div class="row">
-          <button type="button" class="btn" id="play">Stream again</button>
-          <button type="button" class="btn ghost" id="resample">New noise</button>
+
+        <div class="fig">
+          <h3 id="figB-h">Norway: the more water, the more it exports</h3>
+          <div class="chart" id="chartB" role="img" aria-labelledby="figB-h"></div>
+          <p class="cap" id="capB"></p>
         </div>
-        <div class="controls">
-          <div class="ctl"><label for="sev">Fault size at the end of the run <output id="o-sev"></output></label><input id="sev" type="range" min="0.3" max="3" step="0.1" value="1"></div>
-          <div class="ctl"><label for="snap">Snapshot to inspect <output id="o-snap"></output></label><input id="snap" type="range" min="0" max="99" step="1" value="99"></div>
-          <div class="ctl"><label for="zoom">Zoom on the vibration <output id="o-zoom"></output></label><input id="zoom" type="range" min="0" max="12" step="1" value="0"></div>
+
+        <div class="fig">
+          <h3 id="figC-h">How much CO&#8322; each kilowatt-hour costs</h3>
+          <div class="chart" id="chartC" role="img" aria-labelledby="figC-h"></div>
+          <p class="cap">Grams of CO&#8322; equivalents per kilowatt-hour generated. The selected country is highlighted.</p>
         </div>
-        <div class="stripwrap">
-          <div class="stripcap"><span id="strip-cap">Vibration, streamed</span><span id="strip-lod"></span></div>
-          <canvas id="strip" role="img" aria-label="The raw vibration signal as it streams in. Zoom in to see individual knocks."></canvas>
+
+        <div class="fig">
+          <h3>What the data says</h3>
+          <ul class="findings" id="findings"></ul>
         </div>
-        <div id="chart" role="img" aria-label="Three charts. The envelope spectrum of the inspected snapshot with tracker bands at the ball, outer race and inner race frequencies; the three trackers over time; and the evidence of a fault for each tracker against the alarm threshold."></div>
-        <p class="verdict" id="verdict" aria-live="polite"></p>
-        <dl class="where" id="where"></dl>
-        <dl class="mc">
-          <div><dt id="mc-ok-l">Right fault named</dt><dd id="mc-ok">&ndash;</dd></div>
-          <div><dt>False or wrong alarm</dt><dd id="mc-bad">&ndash;</dd></div>
-          <div><dt>Typical delay</dt><dd id="mc-med">&ndash;</dd></div>
-        </dl>
-        <div class="row">
-          <button type="button" class="btn ghost" id="trials">Run 20 trials</button>
-          <p class="settings" id="mc-note"></p>
-        </div>
+
+        <details id="tableview">
+          <summary id="table-sum">Show the numbers</summary>
+          <div class="tablewrap" id="table"></div>
+        </details>
         <details>
-          <summary>Tune the detector, and how it works</summary>
-          <div class="controls">
-            <div class="ctl"><label for="k">Allowance k (lower reacts to smaller faults) <output id="o-k"></output></label><input id="k" type="range" min="0.1" max="1.5" step="0.05" value="0.5"></div>
-            <div class="ctl"><label for="h">Alarm threshold h <output id="o-h"></output></label><input id="h" type="range" min="4" max="24" step="0.5" value="14"></div>
+          <summary>How I did it</summary>
+          <div class="body">
+            <p>Source: the Our World in Data energy dataset (legacy release, CC BY 4.0), which takes its electricity figures from Ember's yearly electricity data. Six countries, 2000 to 2025, all in terawatt-hours (TWh).</p>
+            <ul>
+              <li>Fossil is coal, gas and oil together. Bio and other is bioenergy plus other renewables.</li>
+              <li>Checked that the sources add up to total generation for every country and year, and that generation plus net imports equals demand. Both hold to within 0.01 TWh.</li>
+              <li>Iceland has no 2025 figures in this release, so its latest year is 2024.</li>
+              <li>The Norway trend line is ordinary least squares; r is the Pearson correlation over all 26 years. A correlation over 26 points shows a pattern, not a mechanism: the mechanism here is that water in the reservoirs decides how much Norway can produce.</li>
+            </ul>
           </div>
-          <p>Each snapshot is 0.2 seconds of vibration sampled at 20&#8239;480 Hz, a hundred snapshots per run. Each knock rings the bearing housing at its resonance, so the signal is squared to recover the knock rhythm, and a Fourier transform of that gives the envelope spectrum. A tracker sums the energy in a narrow band around its fault frequency and second harmonic, as a share of the whole spectrum, so a louder machine does not look like damage. The first 30 snapshots set what normal looks like, using the median and MAD. After that a CUSUM test per tracker adds up how far each snapshot sits above normal, minus the allowance k, and raises the alarm when the sum passes h. The tracker that crosses first names the fault.</p>
-          <p>The vibration strip holds 409&#8239;600 samples. Drawing them all would be slow, so they are kept in a min/max mipmap: each level stores the minimum and maximum of pairs from the level below, updated as each snapshot streams in. The strip picks the level where one entry covers about one pixel, so drawing costs the same at every zoom. Fully zoomed in, it draws the raw samples.</p>
         </details>
       </div>
     </section>
 
-<section id="work" aria-labelledby="work-h">
+    <section id="work" aria-labelledby="work-h">
       <h2 id="work-h">What I've built</h2>
-      <p class="sub">Time series, from the browser to the plant.</p>
+      <p class="sub">Data work, from the browser to the thesis.</p>
 
       <article class="proj">
-        <div><h3>Bearing failures, caught by physics and statistics</h3><span class="tag live">In progress</span></div>
+        <div><h3>Nordic electricity analysis</h3><span class="tag">Analysis</span></div>
         <div>
-          <p>The detector above, on real run-to-failure vibration data from NASA/IMS. The bearing's geometry says which frequencies a fault will show up at, and the detector watches exactly those.</p>
-          <p class="measure"><b>Measured against:</b> hours of warning before failure, and false alarms on the bearings that stayed healthy.</p>
-          <p class="stack">Python &middot; NumPy &middot; SciPy &middot; pandas &middot; Matplotlib</p>
+          <p>The analysis above: a question, a public dataset, consistency checks, three charts and the answer.</p>
+          <p class="stack">Python &middot; pandas &middot; JavaScript &middot; SVG</p>
         </div>
       </article>
 
@@ -297,13 +297,13 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     </section>
 
     <section id="method" aria-labelledby="method-h">
-      <h2 id="method-h">How I approach a monitoring problem</h2>
+      <h2 id="method-h">How I work with data</h2>
       <ol class="steps">
-        <li><div><strong>Start from the physics.</strong> <span>Know what a fault looks like before looking for it.</span></div></li>
-        <li><div><strong>Keep a few meaningful features.</strong> <span>Normalised, so a gain change does not look like damage.</span></div></li>
-        <li><div><strong>Learn healthy, robustly.</strong> <span>One odd reading should not move the baseline.</span></div></li>
-        <li><div><strong>Test sequentially.</strong> <span>Small deviations add up before a single reading looks wrong.</span></div></li>
-        <li><div><strong>Report in the plant's language.</strong> <span>A plot an operator can read, a warning time in hours, and what the model cannot see.</span></div></li>
+        <li><div><strong>Start from the question.</strong> <span>Who will act on the answer, and what would change their mind?</span></div></li>
+        <li><div><strong>Check where the data comes from.</strong> <span>Who measured it, how, and what is missing.</span></div></li>
+        <li><div><strong>Clean it, and write down every choice.</strong> <span>So someone else can repeat it and get the same numbers.</span></div></li>
+        <li><div><strong>Use the simplest method that answers it.</strong> <span>A clear average beats a model nobody can explain.</span></div></li>
+        <li><div><strong>Finish with the answer.</strong> <span>One sentence, one chart, and what the data cannot tell you.</span></div></li>
       </ol>
     </section>
 
@@ -312,11 +312,11 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
       <div class="gap">
         <div>
           <h3>The gap</h3>
-          <p>I haven't built production cloud pipelines, and I haven't worked in Cognite Data Fusion.</p>
+          <p>I haven't worked as an analyst inside a company, with its own data and reporting tools.</p>
         </div>
         <div>
           <h3>How I'm closing it</h3>
-          <p>The bearing project is built as a pipeline, from raw files to alarms, with tests. Cognite Data Fusion is next. I taught myself to program in lower secondary school and have used Python for over ten years, so new tools come quickly.</p>
+          <p>I build analyses on public data here, end to end, from raw files to the answer. I taught myself to program in lower secondary school and have used Python for over ten years, so new tools come quickly.</p>
         </div>
       </div>
     </section>
@@ -337,7 +337,7 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
           <h3>Skills</h3>
           <dl class="skills">
             <div><dt>Languages</dt><dd>Python (10+ years), C++, C#, JavaScript, HTML/CSS</dd></div>
-            <div><dt>Data and statistics</dt><dd>Time series, change detection, signal processing, robust statistics</dd></div>
+            <div><dt>Data and statistics</dt><dd>Statistics, time series, data cleaning, visualisation</dd></div>
             <div><dt>Domain</dt><dd>Process industry, 10 ECTS chemistry, shift work and safety culture</dd></div>
             <div><dt>Education</dt><dd>MSc Mathematics (mathematical statistics, stochastic analysis), University of Agder</dd></div>
           </dl>
@@ -346,13 +346,13 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
     </section>
 
     <section id="contact" class="ask" aria-labelledby="contact-h">
-      <h2 id="contact-h">Have sensor data nobody trusts?</h2>
-      <p class="sub">I'd like to help make it useful. Available from January 2027.</p>
+      <h2 id="contact-h">Have data nobody has time to read?</h2>
+      <p class="sub">I'd like to help turn it into answers. Available from January 2027.</p>
       <div class="contact" id="contact-list"></div>
     </section>
   </main>
 
-  <footer>Joakim Skar, Kristiansand. The demo runs on synthetic data generated in your browser.</footer>
+  <footer>Joakim Skar, Kristiansand. Electricity data: Ember, via Our World in Data (CC BY 4.0).</footer>
 </div>
 
 <script>
@@ -388,536 +388,220 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   }
   renderContact();
 
-  /* ---------- bearing demo core: physics, signal, Fourier transform, trackers, mipmap ---------- */
-  var BM = (function () {
-    var FS = 20480, NFFT = 4096, NS = 100, NB = 30, ONSET = 60, DF = FS / NFFT;
-    var GEO = { n: 16, d: 0.331, D: 2.815, theta: 15.17, rpm: 2000 };
-    var rr = (GEO.d / GEO.D) * Math.cos((GEO.theta * Math.PI) / 180), fr = GEO.rpm / 60;
-    var F = {
-      fr: fr,
-      FTF: (fr / 2) * (1 - rr),
-      BPFO: ((GEO.n * fr) / 2) * (1 - rr),
-      BPFI: ((GEO.n * fr) / 2) * (1 + rr),
-      BSF: ((GEO.D * fr) / (2 * GEO.d)) * (1 - rr * rr)
-    };
-    var TRACKS = [
-      { key: "BPFO", name: "outer race", short: "outer", f: F.BPFO },
-      { key: "BPFI", name: "inner race", short: "inner", f: F.BPFI },
-      { key: "BSF", name: "ball", short: "ball", f: F.BSF }
-    ];
-    var REL = 0.025, m, k;
-    TRACKS.forEach(function (t) {
-      t.bins = []; t.bands = [];
-      for (var hn = 1; hn <= 2; hn++) {
-        var c = hn * t.f, w = REL * c;
-        t.bands.push([c - w, c + w]);
-        for (k = Math.ceil((c - w) / DF); k <= Math.floor((c + w) / DF); k++) t.bins.push(k);
-      }
-    });
-    var LO = Math.ceil(20 / DF), HI = Math.floor(1000 / DF);
-    var KL = 160, KER = new Float64Array(KL), HANN = new Float64Array(NFFT);
-    for (m = 0; m < KL; m++) { var tt = m / FS; KER[m] = Math.exp(-tt * 1500) * Math.sin(2 * Math.PI * 4000 * tt); }
-    for (m = 0; m < NFFT; m++) HANN[m] = 0.5 - 0.5 * Math.cos((2 * Math.PI * m) / (NFFT - 1));
-
-    function mulberry32(a) {
-      return function () {
-        a |= 0; a = (a + 0x6D2B79F5) | 0;
-        var t = Math.imul(a ^ (a >>> 15), 1 | a);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    }
-    function gauss(r) {
-      var u = 0, v = 0;
-      while (u === 0) u = r();
-      while (v === 0) v = r();
-      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-    }
-    function median(a) {
-      var b = Array.prototype.slice.call(a).sort(function (x, y) { return x - y; });
-      var mid = b.length >> 1;
-      return b.length % 2 ? b[mid] : (b[mid - 1] + b[mid]) / 2;
-    }
-    /* in-place iterative radix-2 FFT */
-    function fft(re, im) {
-      var n = re.length, i, j = 0, len, t;
-      for (i = 1; i < n; i++) {
-        var bit = n >> 1;
-        for (; j & bit; bit >>= 1) j ^= bit;
-        j ^= bit;
-        if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
-      }
-      for (len = 2; len <= n; len <<= 1) {
-        var ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
-        for (i = 0; i < n; i += len) {
-          var cr = 1, ci = 0;
-          for (j = 0; j < half; j++) {
-            var a = i + j, b = a + half;
-            var xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr;
-            re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi;
-            var ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
-          }
-        }
-      }
-    }
-    /* 0.2 s of vibration: noise, plus a ringing knock every time a ball passes the defect */
-    function makeSnapshot(r, type, amp) {
-      var x = new Float32Array(NFFT), i;
-      for (i = 0; i < NFFT; i++) x[i] = gauss(r);
-      if (type !== "none" && amp > 0) {
-        var f = type === "BPFO" ? F.BPFO : type === "BPFI" ? F.BPFI : 2 * F.BSF;
-        var T = NFFT / FS, t = r() / f;
-        while (t < T) {
-          var a = amp * (1 + 0.1 * gauss(r));
-          if (type === "BPFI") a *= 0.6 + 0.4 * Math.cos(2 * Math.PI * F.fr * t);
-          if (type === "BSF") a *= 0.6 + 0.4 * Math.cos(2 * Math.PI * F.FTF * t);
-          var i0 = Math.floor(t * FS);
-          for (var q = 0; q < KL && i0 + q < NFFT; q++) x[i0 + q] += a * KER[q];
-          t += (1 + 0.01 * gauss(r)) / f;
-        }
-      }
-      return x;
-    }
-    /* squared envelope spectrum: square, remove the mean, window, Fourier transform, power */
-    function envSpectrum(x) {
-      var re = new Float64Array(NFFT), im = new Float64Array(NFFT), mean = 0, i;
-      for (i = 0; i < NFFT; i++) { re[i] = x[i] * x[i]; mean += re[i]; }
-      mean /= NFFT;
-      for (i = 0; i < NFFT; i++) re[i] = (re[i] - mean) * HANN[i];
-      fft(re, im);
-      var P = new Float32Array(NFFT / 2);
-      for (i = 0; i < NFFT / 2; i++) P[i] = re[i] * re[i] + im[i] * im[i];
-      return P;
-    }
-    function features(P) {
-      var tot = 0, kk;
-      for (kk = LO; kk <= HI; kk++) tot += P[kk];
-      return TRACKS.map(function (t) {
-        var s = 0;
-        t.bins.forEach(function (b) { s += P[b]; });
-        return Math.log10(s / tot);
-      });
-    }
-    function ampAt(s, sev) { return s < ONSET ? 0 : 4 * sev * ((s - ONSET + 1) / (NS - ONSET)); }
-
-    /* Min/max mipmap over a growing sample buffer. Level L entry i covers samples [i*2^L, (i+1)*2^L). */
-    function Mip(total) {
-      this.total = total; this.n = 0; this.absmax = 0;
-      this.raw = new Float32Array(total);
-      this.mins = [null]; this.maxs = [null];
-      for (var L = 1; (1 << L) <= total; L++) {
-        var len = Math.ceil(total / (1 << L));
-        this.mins.push(new Float32Array(len).fill(Infinity));
-        this.maxs.push(new Float32Array(len).fill(-Infinity));
-      }
-      this.top = this.mins.length - 1;
-    }
-    Mip.prototype.append = function (x) {
-      var a = this.n, b = a + x.length, i, L;
-      this.raw.set(x, a); this.n = b;
-      for (i = 0; i < x.length; i++) { var v = Math.abs(x[i]); if (v > this.absmax) this.absmax = v; }
-      for (L = 1; L <= this.top; L++) {
-        var lo = a >> L, hi = (b - 1) >> L, mn = this.mins[L], mx = this.maxs[L];
-        for (i = lo; i <= hi; i++) {
-          var c0 = 2 * i, c1 = c0 + 1, lmin, lmax;
-          if (L === 1) {
-            lmin = lmax = this.raw[c0];
-            if (c1 < b) { lmin = Math.min(lmin, this.raw[c1]); lmax = Math.max(lmax, this.raw[c1]); }
-          } else {
-            var pm = this.mins[L - 1], px = this.maxs[L - 1];
-            lmin = pm[c0]; lmax = px[c0];
-            if (c1 < pm.length) { lmin = Math.min(lmin, pm[c1]); lmax = Math.max(lmax, px[c1]); }
-          }
-          mn[i] = lmin; mx[i] = lmax;
-        }
-      }
-    };
-
-    /* One streamed run. step() adds one snapshot. */
-    function Run(type, sev, seed, keep) {
-      this.type = type; this.sev = sev; this.keep = keep;
-      this.r = mulberry32(seed * 7919 + 13);
-      this.s = 0; this.feats = []; this.Ps = []; this.base = null;
-      this.z = TRACKS.map(function () { return []; });
-      this.mip = keep ? new Mip(NS * NFFT) : null;
-    }
-    Run.prototype.done = function () { return this.s >= NS; };
-    Run.prototype.step = function () {
-      if (this.done()) return;
-      var x = makeSnapshot(this.r, this.type, ampAt(this.s, this.sev)), P = envSpectrum(x), f = features(P), j, self = this;
-      this.feats.push(f);
-      if (this.keep) { this.mip.append(x); this.Ps.push(P); }
-      this.s++;
-      if (this.s === NB) {
-        this.base = TRACKS.map(function (_, jj) {
-          var col = self.feats.map(function (ff) { return ff[jj]; }), c = median(col);
-          return { c: c, sc: 1.4826 * median(col.map(function (v) { return Math.abs(v - c); })) || 1 };
-        });
-        for (j = 0; j < TRACKS.length; j++) for (var i = 0; i < NB; i++) this.z[j].push((this.feats[i][j] - this.base[j].c) / this.base[j].sc);
-      } else if (this.s > NB) {
-        for (j = 0; j < TRACKS.length; j++) this.z[j].push((f[j] - this.base[j].c) / this.base[j].sc);
-      }
-    };
-
-    /* CUSUM per tracker on whatever has streamed so far; the first tracker over h names the fault */
-    function detect(z, kk, h) {
-      var S = [], first = [], j, i;
-      for (j = 0; j < z.length; j++) {
-        var row = [], s = 0;
-        first[j] = -1;
-        for (i = 0; i < z[j].length; i++) {
-          if (i < NB) { row.push(0); continue; }
-          s = Math.max(0, s + z[j][i] - kk);
-          row.push(s);
-          if (first[j] < 0 && s > h) first[j] = i;
-        }
-        S.push(row);
-      }
-      var alarm = -1, which = -1;
-      for (j = 0; j < first.length; j++) if (first[j] >= 0 && (alarm < 0 || first[j] < alarm)) { alarm = first[j]; which = j; }
-      return { S: S, alarm: alarm, which: which };
-    }
-    function outcome(type, det) {
-      if (det.alarm < 0) return type === "none" ? "quiet" : "miss";
-      if (type === "none" || det.alarm < ONSET) return "bad";
-      return TRACKS[det.which].key === type ? "ok" : "bad";
-    }
-    return { FS: FS, NFFT: NFFT, NS: NS, NB: NB, ONSET: ONSET, DF: DF, F: F, GEO: GEO, TRACKS: TRACKS, LO: LO, HI: HI,
-      Run: Run, detect: detect, outcome: outcome, median: median };
-  })();
-  /* ---------- end of bearing demo core ---------- */
-
-  /* ---------- bearing demo UI: streaming, mipmapped strip, charts ---------- */
-  var $ = function (id) { return document.getElementById(id); };
-  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  var TOTAL = BM.NS * BM.NFFT;
-  var st = { type: "BPFO", sev: 1, seed: 3, k: 0.5, h: 14, run: null, det: null, sel: 0, follow: true, playing: false, live: false, last: 0, token: 0 };
-  var STYLE = [
-    { w: 2, dash: "", col: "--accent" },
-    { w: 1.5, dash: "5 3", col: "--ink" },
-    { w: 1.75, dash: "2 3", col: "--muted" }
+  /* ---------- the analysis: data from Ember via Our World in Data ---------- */
+  var DATA = {"Norway":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hydro":[141.82,120.46,129.37,105.48,108.78,135.69,119.37,133.66,139.04,125.28,116.74,120.28,141.72,128.14,135.47,137.3,142.81,142.37,138.98,125.29,141.8,143.97,128.24,136.71,139.55,144.77],"wind":[0.03,0.03,0.08,0.22,0.25,0.5,0.64,0.89,0.91,0.97,0.87,1.29,1.54,1.88,2.22,2.52,2.11,2.85,3.87,5.52,9.91,11.76,14.8,13.96,14.6,13.56],"solar":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.08,0.11,0.17,0.36,0.53,0.53],"nuclear":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"fossil":[0.41,0.58,0.54,0.64,0.71,0.73,0.82,1.17,0.84,4.49,5.18,4.02,2.59,2.72,2.94,2.93,2.88,2.79,2.89,2.76,2.29,1.07,1.97,2.35,2.19,1.61],"bio":[0.26,0.25,0.25,0.33,0.36,0.33,0.39,0.39,0.4,0.23,0.35,0.34,0.33,0.4,0.25,0.25,0.23,0.26,0.2,0.25,0.24,0.22,0.24,0.25,0.24,0.34],"gen":[142.52,121.32,130.24,106.67,110.1,137.25,121.22,136.11,141.19,130.97,123.14,125.93,146.18,133.14,140.88,143.0,148.03,148.27,145.94,133.83,154.32,157.13,145.42,153.63,157.11,160.81],"demand":[123.47,124.89,120.53,114.54,121.55,125.21,122.07,126.08,127.33,121.99,130.69,122.85,128.36,128.13,125.3,128.35,131.62,133.11,135.79,133.87,133.85,139.55,132.9,135.89,138.67,137.71],"imp":[-19.05,3.57,-9.71,7.87,11.45,-12.04,0.85,-10.03,-13.86,-8.98,7.55,-3.08,-17.82,-5.01,-15.58,-14.65,-16.41,-15.16,-10.15,0.04,-20.47,-17.58,-12.52,-17.74,-18.44,-23.1],"ci":[25.75,26.87,26.49,27.75,27.88,26.96,27.88,28.58,27.48,39.09,42.88,38.36,32.15,33.95,33.93,33.64,33.1,32.98,33.1,33.48,30.39,26.92,29.64,30.46,29.66,28.11],"pop":[4490864,4513650,4538016,4564666,4591739,4623120,4660487,4709017,4768097,4828625,4889160,4952969,5018453,5080126,5137397,5189777,5235974,5276807,5311751,5347733,5379275,5408082,5456796,5519167,5576656,5623074]},"Sweden":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hydro":[78.58,79.06,66.36,53.54,60.12,72.8,61.72,66.16,69.07,65.85,66.4,66.43,78.93,61.36,63.76,75.31,62.02,65.14,62.21,65.37,72.39,73.89,69.87,66.19,64.61,68.24],"wind":[0.46,0.48,0.61,0.68,0.86,0.93,0.98,1.43,2.0,2.49,3.49,6.11,7.17,9.84,11.24,16.32,15.48,17.61,16.62,19.85,27.52,27.25,33.25,34.25,40.45,38.9],"solar":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.02,0.04,0.05,0.1,0.14,0.23,0.41,0.68,1.05,1.53,1.98,3.11,4.16,4.43],"nuclear":[57.32,72.11,68.11,67.42,77.49,72.38,66.98,66.97,63.89,52.17,57.83,60.47,64.04,66.46,64.88,56.35,63.1,65.7,68.55,66.13,49.2,52.97,51.94,48.47,50.67,47.1],"fossil":[4.77,6.17,7.44,9.24,5.89,4.76,5.24,4.42,4.6,4.62,8.53,5.72,4.09,3.88,2.93,3.15,3.66,3.47,3.66,3.35,2.44,3.06,2.88,2.33,2.08,2.08],"bio":[4.1,3.78,4.18,4.51,7.2,7.49,8.36,9.84,10.34,11.46,12.19,11.54,12.19,11.45,10.7,10.77,11.49,12.08,11.91,13.04,11.18,13.08,13.13,11.7,10.18,9.96],"gen":[145.23,161.6,146.7,135.39,151.56,158.36,143.28,148.82,149.9,136.6,148.45,150.28,166.44,153.03,153.56,162.0,155.89,164.23,163.36,168.42,163.78,171.78,173.05,166.05,172.15,170.71],"demand":[149.91,154.31,152.06,148.22,149.46,150.97,149.32,150.14,147.94,141.29,150.53,143.05,146.87,143.03,137.94,139.4,144.16,145.24,146.14,142.26,138.78,146.21,139.83,137.56,138.71,137.11],"imp":[4.68,-7.29,5.36,12.83,-2.1,-7.39,6.04,1.32,-1.96,4.69,2.08,-7.23,-19.57,-10.0,-15.62,-22.6,-11.73,-18.99,-17.22,-26.16,-25.0,-25.57,-33.22,-28.49,-33.44,-33.6],"ci":[44.89,46.78,56.24,68.54,48.03,43.13,49.69,46.03,47.83,51.1,63.73,52.3,44.7,44.7,40.18,40.86,42.98,42.5,42.73,42.34,38.71,41.74,41.03,38.42,34.91,35.26],"pop":[8872099,8896018,8925045,8958434,8993805,9029771,9080628,9148280,9219903,9298738,9378234,9449263,9519477,9600620,9696438,9799483,9923281,10057864,10175400,10279120,10353682,10416134,10487335,10551493,10606993,10656636]},"Denmark":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hydro":[0.03,0.03,0.03,0.02,0.03,0.02,0.02,0.03,0.03,0.02,0.02,0.02,0.02,0.01,0.02,0.02,0.02,0.02,0.01,0.02,0.02,0.02,0.01,0.02,0.02,0.02],"wind":[4.24,4.31,4.88,5.56,6.59,6.61,6.1,7.17,6.93,6.73,7.81,9.77,10.27,11.12,13.08,14.13,12.78,14.78,13.9,16.15,16.33,16.05,19.02,19.39,20.41,19.21],"solar":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.1,0.52,0.6,0.6,0.74,0.75,0.95,0.96,1.18,1.31,2.38,3.66,3.78,4.45],"nuclear":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"fossil":[30.28,31.69,32.31,37.9,30.71,26.28,36.25,28.84,26.38,26.18,26.32,20.94,15.73,18.65,14.05,9.85,12.01,9.1,9.46,6.3,5.13,6.82,6.73,4.61,3.79,2.94],"bio":[1.3,1.51,1.88,2.49,2.91,3.17,3.07,3.1,3.14,3.32,4.59,4.37,4.45,4.31,4.29,4.18,4.85,6.25,5.89,5.94,5.92,8.72,7.02,6.21,7.06,6.68],"gen":[35.85,37.54,39.1,45.97,40.24,36.08,45.44,39.14,36.48,36.25,38.75,35.11,30.57,34.61,32.04,28.78,30.4,30.9,30.21,29.37,28.58,32.92,35.16,33.89,35.06,33.3],"demand":[36.51,36.97,37.03,37.42,37.37,37.45,38.51,38.19,37.93,36.58,37.61,36.43,35.78,35.69,34.89,34.69,35.46,35.46,35.43,35.18,35.46,37.79,36.52,37.02,38.77,40.67],"imp":[0.66,-0.57,-2.07,-8.55,-2.87,1.37,-6.93,-0.95,1.45,0.33,-1.14,1.32,5.21,1.08,2.85,5.91,5.06,4.56,5.22,5.81,6.88,4.87,1.36,3.13,3.71,7.37],"ci":[627.89,630.79,618.67,651.51,581.26,552.66,635.34,597.09,577.3,582.9,540.39,486.47,431.14,472.41,400.75,313.76,360.86,282.85,296.92,204.29,188.94,222.97,203.64,151.96,131.77,114.41],"pop":[5339659,5358825,5375967,5390621,5404594,5419550,5437425,5461604,5493762,5523169,5547865,5570848,5591911,5615333,5643795,5683698,5728196,5765164,5793824,5814618,5831529,5856774,5902901,5948134,5977417,6002515]},"Finland":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hydro":[14.66,13.2,10.78,9.59,15.07,13.78,11.49,14.18,17.11,12.69,12.92,12.45,16.86,12.84,13.4,16.77,15.8,14.77,13.3,12.42,15.88,15.79,13.49,15.2,14.3,12.44],"wind":[0.08,0.07,0.06,0.09,0.12,0.17,0.16,0.19,0.26,0.28,0.29,0.48,0.49,0.77,1.11,2.33,3.07,4.79,5.84,6.02,8.26,8.51,12.02,15.04,20.48,22.58],"solar":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.01,0.01,0.02,0.05,0.09,0.15,0.22,0.3,0.39,0.72,0.94,0.98],"nuclear":[22.48,22.77,22.3,22.73,22.72,23.27,22.91,23.42,22.96,23.53,22.8,23.19,22.99,23.61,23.58,23.25,23.2,22.48,22.79,23.87,23.29,23.6,25.34,34.31,32.6,32.82],"fossil":[24.11,30.14,32.79,42.49,37.49,23.83,36.92,33.43,26.62,26.83,33.66,26.13,18.86,22.02,18.24,14.83,15.14,13.57,15.3,12.86,10.02,10.33,8.17,4.91,3.84,3.01],"bio":[8.64,8.27,8.99,9.38,10.44,9.51,10.81,9.95,10.4,8.73,10.97,11.24,11.2,12.01,11.76,11.42,11.52,11.86,12.91,13.29,11.57,13.58,12.76,11.34,10.39,10.47],"gen":[69.97,74.45,74.92,84.28,85.84,70.56,82.29,81.17,77.35,72.06,80.64,73.5,70.41,71.26,68.1,68.61,68.75,67.52,70.23,68.61,69.24,72.11,72.17,81.52,82.55,82.3],"demand":[81.85,84.41,86.84,89.13,90.71,87.57,93.69,93.73,90.12,84.15,91.14,87.35,87.85,86.97,86.07,84.95,87.7,87.95,90.17,88.65,84.34,89.88,84.69,83.24,85.73,87.78],"imp":[11.88,9.96,11.92,4.85,4.87,17.01,11.4,12.56,12.77,12.09,10.5,13.85,17.44,15.71,17.97,16.34,18.95,20.43,19.94,20.04,15.1,17.77,12.52,1.72,3.18,5.48],"ci":[246.82,284.89,316.2,371.38,325.37,230.87,335.76,309.1,246.15,276.16,314.86,268.16,215.17,257.65,226.43,182.04,199.56,186.17,193.37,171.55,130.27,135.63,129.97,81.21,66.63,57.47],"pop":[5176197,5187970,5200548,5212958,5228147,5246078,5266248,5288715,5313379,5338854,5363347,5388236,5413978,5439057,5461686,5479719,5495468,5508398,5515730,5521754,5529616,5541069,5569300,5601185,5617311,5623328]},"Iceland":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"hydro":[6.29,6.51,6.91,7.02,7.06,6.95,7.22,8.31,12.3,12.16,12.51,12.38,12.21,12.75,12.55,13.54,13.09,13.89,13.68,13.33,12.92,13.58,13.94,14.1,13.46],"wind":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.01,0.0,0.01,0.01,0.01,0.01,0.01,0.01],"solar":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01],"nuclear":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"fossil":[0.0,0.0,0.01,0.01,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"bio":[1.32,1.45,1.43,1.41,1.48,1.66,2.63,3.58,4.04,4.55,4.23,4.47,5.08,5.24,5.24,5.0,5.07,5.17,6.01,6.02,5.96,5.8,5.92,5.7,5.57],"gen":[7.61,7.96,8.35,8.44,8.54,8.61,9.85,11.89,16.34,16.71,16.74,16.85,17.29,17.99,17.8,18.55,18.17,19.07,19.69,19.36,18.89,19.39,19.87,19.81,19.05],"demand":[7.61,7.96,8.35,8.44,8.54,8.61,9.85,11.89,16.34,16.71,16.74,16.85,17.29,17.99,17.8,18.55,18.17,19.07,19.69,19.36,18.89,19.39,19.87,19.81,19.05],"imp":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"ci":[26.28,25.13,26.35,27.25,26.93,26.71,27.41,27.75,26.93,27.53,27.48,27.3,27.76,27.79,28.09,27.49,27.52,27.27,28.44,28.41,28.06,27.85,27.68,27.76,27.82],"pop":[281293,285058,287609,289616,292172,296852,303883,311662,317519,318619,318163,319139,320851,323891,327517,330962,335571,343537,352860,360709,366626,372647,380368,387559,393404]},"Germany":{"year":[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hydro":[21.73,22.73,23.12,18.32,20.75,19.64,20.03,21.17,20.44,19.03,20.95,17.67,21.75,23.0,19.59,18.98,20.55,20.15,17.69,19.73,18.72,19.66,17.62,21.24,23.83,19.56],"wind":[9.35,10.46,15.86,19.09,26.02,27.77,31.32,40.51,41.38,39.42,38.55,49.86,51.68,52.74,58.5,80.62,79.92,105.69,109.95,125.89,132.11,114.16,124.81,140.54,141.6,136.03],"solar":[0.0,0.1,0.2,0.31,0.56,1.31,2.27,3.14,4.51,6.72,11.96,19.99,26.74,30.62,35.45,38.08,37.56,38.76,44.32,45.22,49.5,49.34,60.3,63.87,74.13,89.62],"nuclear":[169.61,171.3,164.84,165.06,167.07,163.05,167.27,140.53,148.49,134.93,140.56,107.97,99.46,97.29,97.13,91.79,84.63,76.32,76.0,75.07,64.38,69.13,34.71,7.22,0.0,0.0],"fossil":[363.93,369.76,374.43,390.3,384.56,386.86,390.37,401.13,389.43,356.95,378.24,372.6,376.95,380.45,359.69,359.24,367.76,352.46,333.35,283.85,250.88,277.2,280.63,222.4,205.13,204.73],"bio":[4.33,4.59,5.31,8.95,10.64,14.71,18.94,24.62,28.04,30.91,33.95,36.91,43.23,45.59,48.39,50.46,51.1,51.08,50.97,50.33,51.16,49.34,48.81,51.45,51.3,50.53],"gen":[568.95,578.94,583.76,602.03,609.6,613.34,630.2,631.1,632.29,587.96,624.21,605.0,619.81,629.69,618.75,639.17,641.52,644.46,632.28,600.09,566.75,578.83,566.88,506.72,495.99,500.47],"demand":[572.01,582.6,593.76,598.76,606.98,608.77,613.22,614.54,612.19,575.69,609.26,601.23,599.27,597.5,584.87,590.89,591.0,592.0,583.54,567.42,547.72,560.25,539.62,515.94,522.26,520.27],"imp":[3.06,3.66,10.0,-3.27,-2.62,-4.57,-16.98,-16.56,-20.1,-12.27,-14.95,-3.77,-20.54,-32.19,-33.88,-48.28,-50.52,-52.46,-48.74,-32.67,-19.03,-18.58,-27.26,9.22,26.27,19.8],"ci":[573.16,565.48,569.62,570.01,554.71,546.3,536.21,551.81,525.41,521.55,516.65,529.67,534.16,538.04,521.68,503.59,498.3,469.71,454.55,392.51,355.61,394.64,419.74,362.92,336.38,329.65],"pop":[81797255,81933882,82068328,82111619,82092706,82046733,81701971,81298546,81110780,80935276,80830916,80857877,80916391,81041581,81376078,82077546,82760102,83104010,83368507,83559184,83628711,83697080,84086227,84548233,84552234,84075075]}};
+  var COUNTRIES = ["Norway", "Sweden", "Denmark", "Finland", "Iceland", "Germany"];
+  var SOURCES = [
+    { k: "hydro", name: "Hydro", v: "--s1" },
+    { k: "fossil", name: "Fossil", v: "--s2" },
+    { k: "wind", name: "Wind", v: "--s3" },
+    { k: "solar", name: "Solar", v: "--s4" },
+    { k: "nuclear", name: "Nuclear", v: "--s5" },
+    { k: "bio", name: "Bio and other", v: "--s6" }
   ];
+  var st = { c: "Norway" };
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (v, d) { return v.toLocaleString("en", { minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }); };
+  var last = function (c) { return DATA[c].year.length - 1; };
 
-  function tok(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function niceStep(range, target) {
+    var raw = range / (target || 5), p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  }
+  function svgOpen(W, H) { return ['<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">']; }
+  function T(o, x, y, s, anchor, cls) { o.push('<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : "") + (cls ? ' class="' + cls + '"' : "") + ">" + s + "</text>"); }
+  function L(o, x1, y1, x2, y2, col, w, dash) { o.push('<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(' + col + ')" stroke-width="' + (w || 1) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + "/>"); }
+  function nudge(labels, lo, hi) {
+    labels.sort(function (a, b) { return a.y - b.y; });
+    var i;
+    for (i = 0; i < labels.length; i++) { labels[i].y = Math.max(lo, labels[i].y); if (i > 0 && labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13; }
+    for (i = labels.length - 1; i >= 0; i--) { var lim = i === labels.length - 1 ? hi : labels[i + 1].y - 13; if (labels[i].y > lim) labels[i].y = lim; }
+    return labels;
+  }
 
-  /* -- streaming -- */
-  function start(live) {
-    st.run = new BM.Run(st.type, st.sev, st.seed, true);
-    st.follow = true; st.playing = true; st.live = live && !REDUCED; st.last = 0;
-    var my = ++st.token;
-    resetTrials();
-    $("play").textContent = "Pause";
-    requestAnimationFrame(function tick(ts) {
-      if (my !== st.token || !st.playing) return;
-      var run = st.run;
-      if (st.live) {
-        if (ts - st.last >= 70) { st.last = ts; run.step(); }
-      } else {
-        var t0 = performance.now();
-        while (!run.done() && performance.now() - t0 < 14) run.step();
+  /* hover: each chart registers a function (px, py) -> {html, x, y, cross} */
+  function attachHover(box) {
+    var tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true;
+    var xh = document.createElement("div"); xh.className = "xhair"; xh.hidden = true;
+    function move(ev) {
+      if (!box._hover) return;
+      var r = box.getBoundingClientRect(), px = ev.clientX - r.left, py = ev.clientY - r.top, h = box._hover(px, py);
+      if (!h) { tip.hidden = true; xh.hidden = true; return; }
+      tip.innerHTML = h.html; tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight, x = h.x + 14, y = Math.max(0, h.y - th / 2);
+      if (x + tw > r.width) x = h.x - tw - 14;
+      tip.style.left = Math.max(0, x) + "px"; tip.style.top = Math.min(y, r.height - th) + "px";
+      if (h.cross) { xh.hidden = false; xh.style.left = h.x + "px"; xh.style.top = h.cross[0] + "px"; xh.style.height = (h.cross[1] - h.cross[0]) + "px"; } else xh.hidden = true;
+    }
+    function leave() { tip.hidden = true; xh.hidden = true; }
+    box.addEventListener("pointermove", move);
+    box.addEventListener("pointerdown", move);
+    box.addEventListener("pointerleave", leave);
+    box._chrome = [tip, xh];
+  }
+  function mount(box, svg) {
+    box.innerHTML = svg;
+    box._chrome.forEach(function (el) { el.hidden = true; box.appendChild(el); });
+  }
+  function row(color, label, value) { return '<div class="r"><span>' + (color ? '<i style="background:var(' + color + ')"></i>' : "") + label + "</span><span>" + value + "</span></div>"; }
+
+  /* A: generation by source, stacked, with demand as a line */
+  function drawA() {
+    var box = $("chartA"), d = DATA[st.c], n = d.year.length;
+    var W = Math.max(280, box.clientWidth), H = 280, pl = 44, pr = 50, pt = 12, pb = 26, pw = W - pl - pr, ph = H - pt - pb;
+    var ymax = 0, i, j;
+    for (i = 0; i < n; i++) ymax = Math.max(ymax, d.gen[i], d.demand[i]);
+    var step = niceStep(ymax, 4); ymax = Math.ceil((ymax * 1.04) / step) * step;
+    var X = function (i) { return pl + (i / (n - 1)) * pw; }, Y = function (v) { return pt + (1 - v / ymax) * ph; };
+    var o = svgOpen(W, H);
+    for (var v = 0; v <= ymax + 1e-9; v += step) { L(o, pl, Y(v), pl + pw, Y(v), v === 0 ? "--line" : "--grid", 1); T(o, pl - 6, Y(v) + 4, fmt(v, 0), "end"); }
+    var base = new Array(n).fill(0);
+    SOURCES.forEach(function (s) {
+      var top = base.map(function (b, i) { return b + d[s.k][i]; });
+      if (Math.max.apply(null, d[s.k]) > 0) {
+        var path = "M" + X(0).toFixed(1) + "," + Y(top[0]).toFixed(1);
+        for (i = 1; i < n; i++) path += "L" + X(i).toFixed(1) + "," + Y(top[i]).toFixed(1);
+        for (i = n - 1; i >= 0; i--) path += "L" + X(i).toFixed(1) + "," + Y(base[i]).toFixed(1);
+        o.push('<path d="' + path + 'Z" fill="var(' + s.v + ')" stroke="var(--surface)" stroke-width="1.5" stroke-linejoin="round"/>');
       }
-      if (st.follow) st.sel = run.s - 1;
-      refresh();
-      if (run.done()) { st.playing = false; $("play").textContent = "Stream again"; }
-      else requestAnimationFrame(tick);
+      base = top;
     });
-  }
-  function togglePlay() {
-    var run = st.run;
-    if (!run || run.done()) { start(true); return; }
-    if (st.playing) { st.playing = false; $("play").textContent = "Resume"; return; }
-    st.playing = true; st.live = !REDUCED; $("play").textContent = "Pause";
-    var my = st.token;
-    requestAnimationFrame(function tick(ts) {
-      if (my !== st.token || !st.playing) return;
-      if (ts - st.last >= 70 || !st.live) { st.last = ts; st.run.step(); }
-      if (st.follow) st.sel = st.run.s - 1;
-      refresh();
-      if (st.run.done()) { st.playing = false; $("play").textContent = "Stream again"; }
-      else requestAnimationFrame(tick);
-    });
-  }
-
-  function refresh() {
-    var run = st.run;
-    st.det = BM.detect(run.z, st.k, st.h);
-    st.sel = Math.max(0, Math.min(st.sel, run.s - 1));
-    $("snap").value = st.sel;
-    $("o-snap").textContent = st.sel + 1 + " of " + BM.NS;
-    drawStrip();
-    drawCharts();
-    verdict();
-  }
-
-  /* -- the vibration strip: canvas, drawn from the min/max mipmap -- */
-  var stripCanvas = $("strip");
-  function drawStrip() {
-    var run = st.run; if (!run) return;
-    var mip = run.mip, cv = stripCanvas, dpr = window.devicePixelRatio || 1;
-    var W = Math.max(280, cv.clientWidth), H = 150;
-    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
-    var ctx = cv.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    var padL = 36, padR = 52, padT = 8, padB = 22, pw = W - padL - padR, ph = H - padT - padB;
-    var zoom = Math.pow(2, +$("zoom").value), span = TOTAL / zoom;
-    var centre = (st.sel + 0.5) * BM.NFFT;
-    var t0 = Math.max(0, Math.min(TOTAL - span, centre - span / 2)), t1 = t0 + span;
-    var spp = span / pw;
-    var YM = Math.max(4, Math.ceil(mip.absmax));
-    var X = function (smp) { return padL + ((smp - t0) / span) * pw; };
-    var Y = function (v) { return padT + (1 - (v + YM) / (2 * YM)) * ph; };
-    var cMuted = tok("--muted"), cGrid = tok("--grid"), cInk = tok("--ink"), cAcc = tok("--accent"), cLine = tok("--line");
-
-    // baseline region, inspected snapshot, onset
-    ctx.fillStyle = cGrid;
-    var b0 = Math.max(t0, 0), b1 = Math.min(t1, BM.NB * BM.NFFT);
-    if (b1 > b0) ctx.fillRect(X(b0), padT, X(b1) - X(b0), ph);
-    var s0 = Math.max(t0, st.sel * BM.NFFT), s1 = Math.min(t1, (st.sel + 1) * BM.NFFT);
-    if (s1 > s0 && zoom < 64) { ctx.globalAlpha = 0.12; ctx.fillStyle = cAcc; ctx.fillRect(X(s0), padT, X(s1) - X(s0), ph); ctx.globalAlpha = 1; }
-    ctx.strokeStyle = cLine; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(padL, Y(0) + 0.5); ctx.lineTo(padL + pw, Y(0) + 0.5); ctx.stroke();
-    var on = BM.ONSET * BM.NFFT;
-    if (st.type !== "none" && on > t0 && on < t1) {
-      ctx.strokeStyle = cMuted; ctx.setLineDash([4, 4]);
-      ctx.beginPath(); ctx.moveTo(Math.round(X(on)) + 0.5, padT); ctx.lineTo(Math.round(X(on)) + 0.5, padT + ph); ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    // the signal
-    var n = mip.n, lodText;
-    ctx.strokeStyle = cInk; ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (spp <= 1) {
-      var i0 = Math.max(0, Math.floor(t0)), i1 = Math.min(n - 1, Math.ceil(t1));
-      for (var i = i0; i <= i1; i++) { var xx = X(i), yy = Y(mip.raw[i]); if (i === i0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
-      lodText = "raw samples";
-    } else {
-      var L = Math.min(mip.top, Math.floor(Math.log2(spp))), bucket = 1 << L, mn = mip.mins[L], mx = mip.maxs[L];
-      for (var px = 0; px < pw; px++) {
-        var a = t0 + px * spp, b = a + spp;
-        if (a >= n) break;
-        var j0 = Math.floor(a / bucket), j1 = Math.min(mn.length - 1, Math.ceil(Math.min(b, n) / bucket) - 1);
-        var lo = Infinity, hi = -Infinity;
-        for (var jj = j0; jj <= j1; jj++) { if (mn[jj] < lo) lo = mn[jj]; if (mx[jj] > hi) hi = mx[jj]; }
-        if (lo === Infinity) continue;
-        var cx = padL + px + 0.5;
-        ctx.moveTo(cx, Y(hi)); ctx.lineTo(cx, Y(lo) + 0.01);
-      }
-      lodText = "mipmap level " + L + ": one entry per " + bucket.toLocaleString("en") + " samples";
-    }
-    ctx.stroke();
-
-    // "now" marker while streaming
-    if (n < TOTAL && n > t0 && n < t1) {
-      ctx.strokeStyle = cAcc; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(Math.round(X(n)) + 0.5, padT); ctx.lineTo(Math.round(X(n)) + 0.5, padT + ph); ctx.stroke();
-    }
-
-    // axis labels
-    ctx.fillStyle = cMuted; ctx.font = "11px " + tok("--f-mono");
-    ctx.textAlign = "right"; ctx.textBaseline = "middle";
-    ctx.fillText(String(YM), padL - 6, Y(YM) + 4); ctx.fillText("0", padL - 6, Y(0)); ctx.fillText(String(-YM), padL - 6, Y(-YM) - 4);
-    ctx.textBaseline = "alphabetic";
-    var ms = (span / BM.FS) * 1000;
-    if (zoom === 1) {
-      ctx.textAlign = "center";
-      [0, 20, 40, 60, 80, 100].forEach(function (s) { ctx.textAlign = s === 0 ? "left" : s === 100 ? "right" : "center"; ctx.fillText(String(s), X(s * BM.NFFT), H - 6); });
-    } else {
-      ctx.textAlign = "left"; ctx.fillText("0", padL, H - 6);
-      ctx.textAlign = "right"; ctx.fillText((ms >= 100 ? Math.round(ms) : ms.toFixed(ms >= 10 ? 0 : 1)) + " ms", padL + pw, H - 6);
-    }
-    $("strip-cap").textContent = zoom === 1 ? "Vibration, streamed (all 100 snapshots)" : "Vibration around snapshot " + (st.sel + 1) + " (" + (ms >= 10 ? Math.round(ms) : ms.toFixed(1)) + " ms shown)";
-    $("strip-lod").textContent = lodText;
-    $("o-zoom").textContent = zoom.toLocaleString("en") + "×";
-  }
-
-  /* -- spectrum, trackers and CUSUM: SVG -- */
-  function drawCharts() {
-    var run = st.run, det = st.det, box = $("chart");
-    var W = Math.max(280, box.clientWidth), padL = 36, padR = 52, pw = W - padL - padR;
-    var specH = 140, trkH = 130, cusH = 110, gap = 32, top = 20;
-    var y1 = top, y2 = y1 + specH + gap + 18, y3 = y2 + trkH + gap, H = y3 + cusH + 26;
-    var o = ['<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">'];
-    function T(x, y, s, cls, anchor) { o.push('<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '"' + (cls ? ' class="' + cls + '"' : "") + (anchor ? ' text-anchor="' + anchor + '"' : "") + ">" + s + "</text>"); }
-    function Ln(x1, ya, x2, yb, stroke, w, dash, op) { o.push('<line x1="' + x1.toFixed(1) + '" y1="' + ya.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + yb.toFixed(1) + '" stroke="var(' + stroke + ')" stroke-width="' + (w || 1) + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + (op ? ' opacity="' + op + '"' : "") + "/>"); }
-
-    // 1. envelope spectrum of the inspected snapshot
-    var P = run.Ps[st.sel], FMAX = 700, kmax = Math.floor(FMAX / BM.DF);
-    var fx = function (f) { return padL + (f / FMAX) * pw; };
-    T(padL, y1 - 8, "Envelope spectrum, snapshot " + (st.sel + 1) + " (dB)", "cap");
-    if (P) {
-      var ref = [], kk;
-      for (kk = BM.LO; kk <= BM.HI; kk++) ref.push(P[kk]);
-      var med = BM.median(ref) || 1, db = [], dmax = 20;
-      for (kk = 1; kk <= kmax; kk++) { var d = 10 * Math.log10(P[kk] / med + 1e-12); db.push(d); if (d > dmax) dmax = d; }
-      dmax = Math.ceil(dmax / 10) * 10;
-      var dmin = -10, fy = function (v) { return y1 + (1 - (Math.max(dmin, Math.min(dmax, v)) - dmin) / (dmax - dmin)) * specH; };
-      BM.TRACKS.forEach(function (t, ti) {
-        t.bands.forEach(function (bd, bi) {
-          if (bd[0] > FMAX) return;
-          o.push('<rect x="' + fx(bd[0]).toFixed(1) + '" y="' + y1 + '" width="' + Math.max(2, fx(bd[1]) - fx(bd[0])).toFixed(1) + '" height="' + specH + '" fill="var(--grid)"/>');
-          if (bi === 0) T(fx(t.f), y1 + 12 + (ti === 1 ? 13 : 0), t.key, "", "middle");
-        });
-      });
-      for (var v = 0; v <= dmax; v += 10) { Ln(padL, fy(v), padL + pw, fy(v), "--grid", 1); T(padL - 6, fy(v) + 4, String(v), "", "end"); }
-      var pts = db.map(function (dv, i) { return fx((i + 1) * BM.DF).toFixed(1) + "," + fy(dv).toFixed(1); }).join(" ");
-      o.push('<polyline points="' + pts + '" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linejoin="round"/>');
-      [0, 100, 200, 300, 400, 500, 600, 700].forEach(function (f) { T(fx(f), y1 + specH + 16, f === 700 ? "700 Hz" : String(f), "", f === 0 ? "start" : f === 700 ? "end" : "middle"); });
-    }
-
-    // shared time axis for trackers and CUSUM
-    var sx = function (i) { return padL + ((i + 0.5) / BM.NS) * pw; };
-    var bx = function (s) { return padL + (s / BM.NS) * pw; };
-    function timeFrame(yTop, h) {
-      o.push('<rect x="' + bx(0).toFixed(1) + '" y="' + yTop + '" width="' + (bx(BM.NB) - bx(0)).toFixed(1) + '" height="' + h + '" fill="var(--grid)" opacity="0.7"/>');
-      if (st.type !== "none") Ln(bx(BM.ONSET), yTop, bx(BM.ONSET), yTop + h, "--muted", 1, "4 4");
-      Ln(sx(st.sel), yTop, sx(st.sel), yTop + h, "--accent", 1, "", 0.45);
-    }
-    function series(rows, ymap, yTop, h) {
-      var ends = [];
-      rows.forEach(function (row, j) {
-        var stv = STYLE[j], pts = [];
-        for (var i = BM.NB; i < row.length; i++) pts.push(sx(i).toFixed(1) + "," + ymap(row[i]).toFixed(1));
-        if (pts.length > 1) o.push('<polyline points="' + pts.join(" ") + '" fill="none" stroke="var(' + stv.col + ')" stroke-width="' + stv.w + '"' + (stv.dash ? ' stroke-dasharray="' + stv.dash + '"' : "") + ' stroke-linejoin="round"/>');
-        if (row.length > BM.NB) ends.push({ j: j, y: ymap(row[row.length - 1]) });
-      });
-      ends.sort(function (a, b) { return a.y - b.y; });
-      var e;
-      for (e = 0; e < ends.length; e++) { ends[e].y = Math.max(yTop + 4, ends[e].y); if (e > 0 && ends[e].y - ends[e - 1].y < 12) ends[e].y = ends[e - 1].y + 12; }
-      for (e = ends.length - 1; e >= 0; e--) { var lim = e === ends.length - 1 ? yTop + h - 4 : ends[e + 1].y - 12; if (ends[e].y > lim) ends[e].y = lim; }
-      ends.forEach(function (en) { T(padL + pw + 6, en.y + 4, BM.TRACKS[en.j].short, en.j === 0 ? "lbl-acc" : "", "start"); });
-    }
-
-    // 2. trackers
-    var z = run.z, zmax = 6, zmin = -4;
-    z.forEach(function (row) { for (var i = BM.NB; i < row.length; i++) { if (row[i] > zmax) zmax = row[i]; if (row[i] < zmin) zmin = row[i]; } });
-    var zstep = zmax - zmin > 40 ? 20 : zmax - zmin > 16 ? 8 : 4;
-    zmax = Math.ceil(zmax / zstep) * zstep; zmin = Math.floor(zmin / zstep) * zstep;
-    var zy = function (v) { return y2 + (1 - (v - zmin) / (zmax - zmin)) * trkH; };
-    T(padL, y2 - 8, "Energy at each fault frequency", "cap");
-    timeFrame(y2, trkH);
-    for (var zv = zmin; zv <= zmax; zv += zstep) { Ln(padL, zy(zv), padL + pw, zy(zv), "--grid", 1); T(padL - 6, zy(zv) + 4, String(zv), "", "end"); }
-    if (run.s < BM.NB) T(bx(BM.NB) + 8, y2 + trkH / 2, "learning normal…");
-    else T(bx(0) + 6, y2 + 13, "normal");
-    if (st.type !== "none") T(bx(BM.ONSET) + 6, y2 + 13, "fault starts");
-    series(z, zy, y2, trkH);
-
-    // 3. CUSUM
-    var smax = st.h * 1.3;
-    det.S.forEach(function (row) { row.forEach(function (s) { if (s > smax) smax = s; }); });
-    smax *= 1.05;
-    var cy = function (v) { return y3 + (1 - Math.min(v, smax) / smax) * cusH; };
-    T(padL, y3 - 8, "Fault evidence (CUSUM)", "cap");
-    timeFrame(y3, cusH);
-    Ln(padL, cy(0), padL + pw, cy(0), "--line", 1);
-    T(padL - 6, cy(0) + 4, "0", "", "end");
-    Ln(padL, cy(st.h), padL + pw, cy(st.h), "--signal", 1.25, "6 4");
-    T(padL - 6, cy(st.h) + 4, "h", "lbl-sig", "end");
-    series(det.S, cy, y3, cusH);
-    [0, 20, 40, 60, 80, 100].forEach(function (s) { T(bx(s), y3 + cusH + 16, String(s), "", s === 0 ? "start" : s === 100 ? "end" : "middle"); });
-    if (det.alarm >= 0) {
-      var xa = sx(det.alarm), right = xa > padL + pw - 150, wrong = st.type === "none" || det.alarm < BM.ONSET || BM.TRACKS[det.which].key !== st.type;
-      var lbl = (wrong ? "alarm: " : "alarm: ") + BM.TRACKS[det.which].name + (wrong ? " (wrong)" : "");
-      Ln(xa, y2, xa, y3 + cusH, "--signal", 1.5);
-      o.push('<circle cx="' + xa.toFixed(1) + '" cy="' + cy(det.S[det.which][det.alarm]).toFixed(1) + '" r="4.5" fill="var(--signal)"/>');
-      T(xa + (right ? -6 : 6), y3 + 14, lbl, "lbl-sig", right ? "end" : "start");
-    }
+    var dl = d.demand.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+    o.push('<polyline points="' + dl + '" fill="none" stroke="var(--surface)" stroke-width="5" stroke-linejoin="round"/>');
+    o.push('<polyline points="' + dl + '" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>');
+    var labs = nudge([{ y: Y(d.demand[n - 1]) + 4, t: "used", cls: "ink" }, { y: Y(d.gen[n - 1]) + 4, t: "made", cls: "" }], pt + 8, pt + ph);
+    labs.forEach(function (lb) { T(o, pl + pw + 6, lb.y, lb.t, "start", lb.cls); });
+    for (i = 0; i < n; i++) if ((d.year[i] % 5 === 0) || i === n - 1) { if (i === n - 1 && d.year[i] % 5 !== 0 && d.year[i] % 5 < 3) continue; T(o, X(i), H - 8, String(d.year[i]), i === 0 ? "start" : i === n - 1 ? "end" : "middle"); }
+    T(o, pl, pt - 2 < 10 ? 10 : pt - 2, "TWh", "start");
     o.push("</svg>");
-    box.innerHTML = o.join("");
+    mount(box, o.join(""));
+    box._hover = function (px) {
+      if (px < pl - 10 || px > pl + pw + 10) return null;
+      var i = Math.max(0, Math.min(n - 1, Math.round(((px - pl) / pw) * (n - 1))));
+      var html = "<b>" + st.c + ", " + d.year[i] + "</b>";
+      for (j = SOURCES.length - 1; j >= 0; j--) { var s = SOURCES[j]; if (d[s.k][i] > 0.004) html += row(s.v, s.name, fmt(d[s.k][i])); }
+      html += row("", "Made", fmt(d.gen[i])) + row("", "Used", fmt(d.demand[i]));
+      html += row("", d.imp[i] > 0 ? "Imported" : "Exported", fmt(Math.abs(d.imp[i])));
+      return { html: html, x: X(i), y: Y(d.gen[i]), cross: [pt, pt + ph] };
+    };
   }
 
-  function verdict() {
-    var run = st.run, d = st.det, msg;
-    if (d.alarm >= 0) {
-      var t = BM.TRACKS[d.which];
-      if (st.type === "none" || d.alarm < BM.ONSET) msg = "<b>False alarm</b> on the " + t.name + " tracker at snapshot " + (d.alarm + 1) + ". Nothing was wrong yet.";
-      else if (t.key === st.type) msg = "<b>Caught:</b> " + t.name + " fault, flagged at snapshot " + (d.alarm + 1) + ", " + (d.alarm - BM.ONSET) + " snapshots after it began. The right tracker fired.";
-      else msg = "<b>Wrong diagnosis:</b> the alarm came at snapshot " + (d.alarm + 1) + ", but on the " + t.name + " tracker.";
-    } else if (!run.done()) {
-      msg = run.s < BM.NB ? "Learning what normal looks like: snapshot " + run.s + " of " + BM.NB + "." : "Watching: snapshot " + run.s + " of " + BM.NS + ", no alarm yet.";
-    } else {
-      msg = st.type === "none" ? "<b>No alarm</b> in " + (BM.NS - BM.NB) + " monitored snapshots. Correct: nothing was wrong." : "<b>Missed.</b> The fault never stood out from the noise with these settings.";
-    }
-    $("verdict").innerHTML = msg;
+  /* B: Norway, hydro output against net imports, with a least-squares line */
+  function fit(xs, ys) {
+    var n = xs.length, mx = 0, my = 0, i;
+    for (i = 0; i < n; i++) { mx += xs[i]; my += ys[i]; }
+    mx /= n; my /= n;
+    var sxy = 0, sxx = 0, syy = 0;
+    for (i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) * (xs[i] - mx); syy += (ys[i] - my) * (ys[i] - my); }
+    var b = sxy / sxx;
+    return { b: b, a: my - b * mx, r: sxy / Math.sqrt(sxx * syy) };
+  }
+  var NO = DATA.Norway, NOFIT = fit(NO.hydro, NO.imp);
+  function drawB() {
+    var box = $("chartB"), d = NO, n = d.year.length;
+    var W = Math.max(280, box.clientWidth), H = 280, pl = 44, pr = 14, pt = 16, pb = 34, pw = W - pl - pr, ph = H - pt - pb;
+    var xmin = Math.floor(Math.min.apply(null, d.hydro) / 10) * 10, xmax = Math.ceil(Math.max.apply(null, d.hydro) / 10) * 10;
+    var ymin = Math.floor(Math.min.apply(null, d.imp) / 5) * 5, ymax = Math.ceil(Math.max.apply(null, d.imp) / 5) * 5;
+    var X = function (v) { return pl + ((v - xmin) / (xmax - xmin)) * pw; }, Y = function (v) { return pt + (1 - (v - ymin) / (ymax - ymin)) * ph; };
+    var o = svgOpen(W, H), v;
+    for (v = ymin; v <= ymax; v += 5) { L(o, pl, Y(v), pl + pw, Y(v), v === 0 ? "--muted" : "--grid", 1); T(o, pl - 6, Y(v) + 4, (v > 0 ? "+" : "") + v, "end"); }
+    for (v = xmin; v <= xmax; v += 10) T(o, X(v), H - 16, String(v), v === xmin ? "start" : v === xmax ? "end" : "middle");
+    T(o, pl + pw, H - 2, "hydropower made, TWh", "end");
+    T(o, pl + pw, Y(ymax) + 10, "imported more", "end");
+    T(o, pl + 4, Y(ymin) - 4, "exported more", "start");
+    L(o, X(xmin), Y(NOFIT.a + NOFIT.b * xmin), X(xmax), Y(NOFIT.a + NOFIT.b * xmax), "--muted", 1.25, "6 4");
+    var hi = 0, lo = 0, i;
+    for (i = 0; i < n; i++) { if (d.imp[i] > d.imp[hi]) hi = i; if (d.imp[i] < d.imp[lo]) lo = i; }
+    for (i = 0; i < n; i++) o.push('<circle cx="' + X(d.hydro[i]).toFixed(1) + '" cy="' + Y(d.imp[i]).toFixed(1) + '" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>');
+    [hi, lo].forEach(function (k) { var px = X(d.hydro[k]), right = px > pl + pw - 50; T(o, px + (right ? -8 : 8), Y(d.imp[k]) + 4, String(d.year[k]), right ? "end" : "start", "ink"); });
+    o.push("</svg>");
+    mount(box, o.join(""));
+    box._hover = function (px, py) {
+      var best = -1, bd = 24 * 24;
+      for (var i = 0; i < n; i++) { var dx = X(d.hydro[i]) - px, dy = Y(d.imp[i]) - py, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = i; } }
+      if (best < 0) return null;
+      return { html: "<b>Norway, " + d.year[best] + "</b>" + row("--s1", "Hydro made", fmt(d.hydro[best]) + " TWh") + row("", d.imp[best] > 0 ? "Imported" : "Exported", fmt(Math.abs(d.imp[best])) + " TWh"), x: X(d.hydro[best]), y: Y(d.imp[best]) };
+    };
+    var nImp = NO.imp.filter(function (x) { return x > 0; }).length;
+    $("capB").innerHTML = "Each dot is one year, 2000 to " + NO.year[n - 1] + ". Correlation r = " + fmt(NOFIT.r, 2).replace("-", "−") + ". Along the dashed line, each extra TWh of hydropower means about " + fmt(-NOFIT.b, 1) + " TWh less imported. Norway was a net importer in " + nImp + " of " + n + " years.";
   }
 
-  /* -- trials -- */
-  var trialToken = 0;
-  function resetTrials() {
-    trialToken++;
-    $("mc-ok").textContent = $("mc-bad").textContent = $("mc-med").textContent = "–";
-    $("mc-ok-l").textContent = st.type === "none" ? "Stayed quiet" : "Right fault named";
-    $("trials").disabled = false;
-    $("mc-note").textContent = "See how often it gets it right with these settings.";
-  }
-  function runTrials() {
-    var my = ++trialToken, T = { i: 0, n: 20, ok: 0, bad: 0, miss: 0, quiet: 0, d: [], run: null };
-    $("trials").disabled = true;
-    requestAnimationFrame(function tick() {
-      if (my !== trialToken) return;
-      var t0 = performance.now();
-      while (T.i < T.n && performance.now() - t0 < 10) {
-        if (!T.run) T.run = new BM.Run(st.type, st.sev, 1000 + T.i, false);
-        T.run.step();
-        if (T.run.done()) {
-          var det = BM.detect(T.run.z, st.k, st.h), oc = BM.outcome(st.type, det);
-          T[oc]++;
-          if (oc === "ok") T.d.push(det.alarm - BM.ONSET);
-          T.run = null; T.i++;
-        }
-      }
-      if (T.i < T.n) { $("mc-note").textContent = "Simulating run " + (T.i + 1) + " of " + T.n + "…"; requestAnimationFrame(tick); return; }
-      var pc = function (x) { return Math.round((x / T.n) * 100) + " %"; };
-      T.d.sort(function (a, b) { return a - b; });
-      $("mc-ok").textContent = pc(st.type === "none" ? T.quiet : T.ok);
-      $("mc-bad").textContent = pc(T.bad);
-      $("mc-med").textContent = T.d.length ? T.d[T.d.length >> 1] + " snapshots" : "–";
-      $("mc-note").textContent = "From " + T.n + " simulated runs with these settings.";
-      $("trials").disabled = false;
+  /* C: carbon intensity for every country, the selected one highlighted */
+  function drawC() {
+    var box = $("chartC"), W = Math.max(280, box.clientWidth), H = 260, pl = 44, pr = 64, pt = 12, pb = 26, pw = W - pl - pr, ph = H - pt - pb;
+    var y0 = 2000, y1 = 2025, ymax = 0;
+    COUNTRIES.forEach(function (c) { ymax = Math.max(ymax, Math.max.apply(null, DATA[c].ci)); });
+    var step = niceStep(ymax, 4); ymax = Math.ceil(ymax / step) * step;
+    var X = function (y) { return pl + ((y - y0) / (y1 - y0)) * pw; }, Y = function (v) { return pt + (1 - v / ymax) * ph; };
+    var o = svgOpen(W, H), v, labels = [];
+    for (v = 0; v <= ymax + 1e-9; v += step) { L(o, pl, Y(v), pl + pw, Y(v), v === 0 ? "--line" : "--grid", 1); T(o, pl - 6, Y(v) + 4, String(v), "end"); }
+    var order = COUNTRIES.filter(function (c) { return c !== st.c; }).concat([st.c]);
+    order.forEach(function (c) {
+      var d = DATA[c], sel = c === st.c, pts = d.year.map(function (y, i) { return X(y).toFixed(1) + "," + Y(d.ci[i]).toFixed(1); }).join(" ");
+      if (sel) o.push('<polyline points="' + pts + '" fill="none" stroke="var(--surface)" stroke-width="5" stroke-linejoin="round"/>');
+      o.push('<polyline points="' + pts + '" fill="none" stroke="var(' + (sel ? "--accent" : "--muted") + ')" stroke-width="' + (sel ? 2.25 : 1.25) + '" stroke-linejoin="round"' + (sel ? "" : ' opacity="0.55"') + "/>");
+      var k = d.year.length - 1;
+      labels.push({ y: Y(d.ci[k]) + 4, t: c, cls: sel ? "ink" : "", x: X(d.year[k]) });
     });
+    nudge(labels, pt + 8, pt + ph + 4).forEach(function (lb) { T(o, pl + pw + 6, lb.y, lb.t, "start", lb.cls); });
+    [2000, 2005, 2010, 2015, 2020, 2025].forEach(function (y) { T(o, X(y), H - 8, String(y), y === 2000 ? "start" : y === 2025 ? "end" : "middle"); });
+    o.push("</svg>");
+    mount(box, o.join(""));
+    box._hover = function (px) {
+      if (px < pl - 10 || px > pl + pw + 10) return null;
+      var y = Math.max(y0, Math.min(y1, Math.round(y0 + ((px - pl) / pw) * (y1 - y0))));
+      var rows = COUNTRIES.map(function (c) { var i = DATA[c].year.indexOf(y); return { c: c, v: i < 0 ? null : DATA[c].ci[i] }; }).filter(function (r) { return r.v !== null; });
+      rows.sort(function (a, b) { return b.v - a.v; });
+      var html = "<b>" + y + ", g CO₂e per kWh</b>" + rows.map(function (r) { return row("", r.c === st.c ? "<b style=\"display:inline\">" + r.c + "</b>" : r.c, fmt(r.v, 0)); }).join("");
+      var sel = DATA[st.c], si = sel.year.indexOf(y);
+      return { html: html, x: X(y), y: si < 0 ? pt + 20 : Y(sel.ci[si]), cross: [pt, pt + ph] };
+    };
   }
 
-  /* -- physics readout -- */
-  (function () {
-    var F = BM.F, G = BM.GEO;
-    $("where").innerHTML =
-      "<div><dt>Where to look, from the geometry</dt><dd>" + G.n + " balls, " + G.d + "″ ball, " + G.D + "″ pitch, " + G.theta + "°, " + G.rpm + " rpm</dd></div>" +
-      "<div><dt>Ball</dt><dd>" + F.BSF.toFixed(1) + " Hz</dd></div>" +
-      "<div><dt>Outer race</dt><dd>" + F.BPFO.toFixed(1) + " Hz</dd></div>" +
-      "<div><dt>Inner race</dt><dd>" + F.BPFI.toFixed(1) + " Hz</dd></div>";
-  })();
-
-  /* -- wiring -- */
-  function setPressed(type) {
-    document.querySelectorAll("[data-type]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-type") === type)); });
+  function tiles() {
+    var d = DATA[st.c], i = last(st.c), net = d.imp[i];
+    $("tiles").innerHTML =
+      "<div><dt>Made, " + d.year[i] + "</dt><dd>" + fmt(d.gen[i]) + " <small>TWh</small></dd></div>" +
+      "<div><dt>Used</dt><dd>" + fmt(d.demand[i]) + " <small>TWh</small></dd></div>" +
+      "<div><dt>" + (net > 0 ? "Imported" : "Exported") + "</dt><dd>" + fmt(Math.abs(net)) + " <small>TWh</small></dd></div>" +
+      "<div><dt>From fossil fuels</dt><dd>" + fmt((d.fossil[i] / d.gen[i]) * 100, 0) + " <small>%</small></dd></div>";
+    $("figA-h").textContent = st.c + ": electricity made by source, and electricity used";
+    $("legendA").innerHTML = SOURCES.map(function (s) { return '<span><i style="background:var(' + s.v + ')"></i>' + s.name + "</span>"; }).join("") + '<span><i class="ln"></i>Used</span>';
   }
-  document.querySelectorAll("[data-type]").forEach(function (b) {
-    b.addEventListener("click", function () { st.type = b.getAttribute("data-type"); setPressed(st.type); start(true); });
+
+  function findings() {
+    var c = st.c, d = DATA[c], i = last(c), net = d.imp[i], big = SOURCES.slice().sort(function (a, b) { return d[b.k][i] - d[a.k][i]; })[0];
+    var out = [];
+    out.push(c + " made " + fmt(d.gen[i]) + " TWh and used " + fmt(d.demand[i]) + " TWh in " + d.year[i] + (Math.abs(net) < 0.05 ? ", so it made almost exactly what it used, with no trade to speak of." : ", so it " + (net > 0 ? "imported " : "exported ") + fmt(Math.abs(net)) + " TWh, " + fmt((Math.abs(net) / d.demand[i]) * 100, 0) + " % of its own use.") + " Its largest source was " + big.name.toLowerCase() + ", at " + fmt((d[big.k][i] / d.gen[i]) * 100, 0) + " %.");
+    var drop = COUNTRIES.map(function (cc) { var dd = DATA[cc], k = dd.ci.length - 1; return { c: cc, f: 1 - dd.ci[k] / dd.ci[0], y: dd.year[k] }; }).sort(function (a, b) { return b.f - a.f; });
+    out.push(drop[0].c + " cut the carbon intensity of its electricity the most since 2000, by " + fmt(drop[0].f * 100, 0) + " %. " + (c === drop[0].c ? "" : (function () { var me = drop.filter(function (x) { return x.c === c; })[0]; return c + "’s " + (me.f >= 0 ? "fell" : "rose") + " by " + fmt(Math.abs(me.f) * 100, 0) + " %" + (me.f < 0 ? ", from an already low level." : "."); })()));
+    var NOn = NO.year.length, med = NO.hydro.slice().sort(function (a, b) { return a - b; }), m = (med[(NOn - 1) >> 1] + med[NOn >> 1]) / 2;
+    var impYears = NO.year.filter(function (_, k) { return NO.imp[k] > 0; }), dry = impYears.filter(function (y) { return NO.hydro[NO.year.indexOf(y)] < m; }).length;
+    out.push((dry === impYears.length ? "Every one of the " + impYears.length + " years" : dry + " of the " + impYears.length + " years") + " Norway imported more than it exported had below-median hydro output. What decides Norway's trade is mostly how much rain and snow fill the reservoirs.");
+    $("findings").innerHTML = out.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+  }
+
+  function table() {
+    var d = DATA[st.c], cols = SOURCES.map(function (s) { return [s.k, s.name]; }).concat([["gen", "Made"], ["demand", "Used"], ["imp", "Net imports"], ["ci", "g CO₂e/kWh"]]);
+    var h = "<table><thead><tr><th>Year</th>" + cols.map(function (c) { return "<th>" + c[1] + "</th>"; }).join("") + "</tr></thead><tbody>";
+    for (var i = d.year.length - 1; i >= 0; i--) h += "<tr><td>" + d.year[i] + "</td>" + cols.map(function (c) { return "<td>" + fmt(d[c[0]][i], c[0] === "ci" ? 0 : 2) + "</td>"; }).join("") + "</tr>";
+    $("table").innerHTML = h + "</tbody></table>";
+    $("table-sum").textContent = "Show the numbers for " + st.c + " (TWh)";
+  }
+
+  function render() { tiles(); drawA(); drawB(); drawC(); findings(); table(); }
+
+  $("chips").innerHTML = COUNTRIES.map(function (c) { return '<button type="button" data-c="' + c + '" aria-pressed="' + (c === st.c) + '">' + c + "</button>"; }).join("");
+  $("chips").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-c]"); if (!b) return;
+    st.c = b.getAttribute("data-c");
+    Array.prototype.forEach.call($("chips").children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    render();
   });
-  $("play").addEventListener("click", togglePlay);
-  $("resample").addEventListener("click", function () { st.seed += 1; start(true); });
-  var sevT;
-  $("sev").addEventListener("input", function () {
-    st.sev = +$("sev").value; $("o-sev").textContent = st.sev.toFixed(1) + "× noise";
-    clearTimeout(sevT); sevT = setTimeout(function () { start(true); }, 250);
-  });
-  $("snap").addEventListener("input", function () { st.follow = false; st.sel = +$("snap").value; refresh(); });
-  $("zoom").addEventListener("input", drawStrip);
-  function readKH() { st.k = +$("k").value; st.h = +$("h").value; $("o-k").textContent = st.k.toFixed(2); $("o-h").textContent = st.h.toFixed(1); }
-  ["k", "h"].forEach(function (id) { $(id).addEventListener("input", function () { readKH(); resetTrials(); if (st.run) refresh(); }); });
-  $("trials").addEventListener("click", runTrials);
+  ["chartA", "chartB", "chartC"].forEach(function (id) { attachHover($(id)); });
   var rt;
-  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (st.run) { drawStrip(); drawCharts(); } }, 120); });
-  if (window.matchMedia) {
-    var mq = window.matchMedia("(prefers-color-scheme: dark)");
-    if (mq.addEventListener) mq.addEventListener("change", drawStrip);
-  }
-  new MutationObserver(drawStrip).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-
-  readKH();
-  $("o-sev").textContent = st.sev.toFixed(1) + "× noise";
-  start(false);
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { drawA(); drawB(); drawC(); }, 120); });
+  render();
 })();
 </script>
 
