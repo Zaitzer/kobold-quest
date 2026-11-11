@@ -126,6 +126,15 @@ table { border-collapse: collapse; font-family: var(--f-mono); font-size: 12px; 
 th, td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th { color: var(--muted); font-weight: 500; }
 
+.comp { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 0 40px; }
+.comp li { padding-block: 10px; border-top: 1px solid var(--line); min-width: 0; }
+.roles { display: grid; }
+.role { display: grid; grid-template-columns: minmax(0, 160px) minmax(0, 1fr); gap: 4px 40px; padding-block: 20px; border-top: 1px solid var(--line); }
+.role:first-child { border-top: 0; padding-top: 0; }
+.role .when { font-family: var(--f-mono); font-size: 13px; color: var(--muted); padding-top: 3px; }
+.role h3 { font-size: 20px; font-weight: 700; }
+.role .org { color: var(--muted); margin-top: 2px; }
+.role ul { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 6px; max-width: 46em; }
 /* work */
 .proj { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 8px 40px; padding-block: 24px; border-top: 1px solid var(--line); }
 .proj:first-of-type { border-top: 0; padding-top: 0; }
@@ -166,7 +175,7 @@ th { color: var(--muted); font-weight: 500; }
 footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
 
 @media (max-width: 680px) {
-  .proj, .story { grid-template-columns: minmax(0, 1fr); }
+  .proj, .story, .role { grid-template-columns: minmax(0, 1fr); }
   .hero { padding-block: 34px 28px; }
   section { padding-block: 34px; }
   .panel { padding: 14px; }
@@ -179,42 +188,96 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
   <header class="bar">
     <span class="mark">Joakim Skar</span>
     <nav aria-label="Sections">
+      <a href="#experience">Experience</a>
+      <a href="#skills">Skills</a>
       <a href="#analysis">Analysis</a>
-      <a href="#work">Work</a>
-      <a href="#method">Method</a>
-      <a href="#background">Background</a>
+      <a href="#education">Education</a>
       <a href="#contact">Contact</a>
     </nav>
   </header>
 
   <main>
     <div class="hero">
-      <p class="eyebrow">Kristiansand, Norway &middot; MSc Mathematics</p>
+      <p class="eyebrow">Mathematician (MSc) &middot; Data analysis &middot; Kristiansand, Norway</p>
       <h1>Joakim Skar</h1>
-      <p class="thesis">Organisations collect more data than they read, and a report nobody trusts gets ignored. <strong>So I start from the question, check where every number comes from, and finish with an answer someone can act on.</strong></p>
+      <p class="thesis">Mathematician with experience from software development and the process industry. Available for data analysis roles from January 2027.</p>
       <div class="cta">
-        <a class="btn" href="#analysis">See an analysis</a>
-        <a class="btn ghost" href="#contact">Get in touch</a>
+        <a class="btn" href="#experience">Experience</a>
+        <a class="btn ghost" href="#contact">Contact</a>
       </div>
-      <dl class="facts">
-        <div><dt>Education</dt><dd>MSc Mathematics, University of Agder, 2026</dd></div>
-        <div><dt>Industry</dt><dd>Process operator, Glencore Nikkelverk</dd></div>
-        <div><dt>Tools</dt><dd>Python (10+ years), statistics, C++</dd></div>
-        <div><dt>Available</dt><dd>From January 2027</dd></div>
-      </dl>
     </div>
 
-    <section aria-labelledby="story-h">
-      <div class="story">
-        <h2 id="story-h" class="eyebrow">From the plant floor</h2>
-        <div>
-          <p>At Nikkelverk I found a floor drain connected to the wrong tank. It had been like that for months. The symptom was there the whole time: filters clogged more often than they should. I reported it, and it was fixed.</p>
-          <p class="moral">Since then I check where data comes from before I trust what it says.</p>
-        </div>
+    <section id="skills" aria-labelledby="skills-h">
+      <h2 id="skills-h">Core competencies</h2>
+      <ul class="comp">
+        <li>Statistics, regression analysis and statistical machine learning</li>
+        <li>Stochastic analysis and stochastic differential equations, including rough path theory</li>
+        <li>Reading and applying mathematical research literature</li>
+        <li>Time-series data: visualisation, interpolation and forecasting</li>
+        <li>Python (10+ years), C++, C#, JavaScript</li>
+        <li>Data quality and deviation follow-up in production</li>
+        <li>SQL and Excel (basic)</li>
+      </ul>
+    </section>
+
+    <section id="experience" aria-labelledby="exp-h">
+      <h2 id="exp-h">Experience</h2>
+      <div class="roles">
+        <article class="role">
+          <div class="when">Mar 2026 &ndash; Dec 2026</div>
+          <div>
+            <h3>Process Operator (temporary)</h3>
+            <p class="org">Glencore Nikkelverk AS, Kristiansand</p>
+            <ul>
+              <li>Operations in two departments: feeding nickel matte to the process line and monitoring water treatment and parts of precious-metal processing, then packing of finished product.</li>
+              <li>Quality assurance of product weights through daily zero calibration of scales and reconciliation of manual and digital records.</li>
+              <li>Identified and reported a misconnected floor drain affecting downstream filtration; the deviation was corrected.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="role">
+          <div class="when">Jan 2024 &ndash; Apr 2025</div>
+          <div>
+            <h3>Software Developer</h3>
+            <p class="org">Virtex AS</p>
+            <ul>
+              <li>Full-stack development in a two-person company on GammaView (real-time visualisation of millions of time-series points) and GammaVib (vibration analysis on Raspberry Pi devices).</li>
+              <li>Developed a forecasting prototype based on running linear regression with a forgetting factor.</li>
+              <li>Implemented B&eacute;zier interpolation in C++ and designed front-end iconography.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="role">
+          <div class="when">Freelance</div>
+          <div>
+            <h3>Mathematics Tutor</h3>
+            <p class="org">Mattehelten</p>
+            <ul>
+              <li>One-to-one tuition and follow-up; a student improved from grade 2 to grade 5.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="role">
+          <div class="when">2018</div>
+          <div>
+            <h3>Crane Operator (temporary)</h3>
+            <p class="org">Alcoa Mosj&oslash;en</p>
+            <ul>
+              <li>Operated the anode plant&rsquo;s overhead crane with the same responsibilities as permanent operators.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="role">
+          <div class="when">Mar 2026 &ndash;</div>
+          <div>
+            <h3>Chair of the Board</h3>
+            <p class="org">Kristiansand Fencing Club</p>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section id="analysis" aria-labelledby="an-h">
+<section id="analysis" aria-labelledby="an-h">
       <h2 id="an-h">Norway exports power in wet years and imports it in dry ones</h2>
       <div class="qa">
         <p><b>Question:</b> who in the Nordics makes more electricity than they use, and what decides it?</p>
@@ -268,86 +331,31 @@ footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
       </div>
     </section>
 
-    <section id="work" aria-labelledby="work-h">
-      <h2 id="work-h">What I've built</h2>
-      <p class="sub">Data work, from the browser to the thesis.</p>
-
-      <article class="proj">
-        <div><h3>Nordic electricity analysis</h3><span class="tag">Analysis</span></div>
-        <div>
-          <p>The analysis above: a question, a public dataset, consistency checks, three charts and the answer.</p>
-          <p class="stack">Python &middot; pandas &middot; JavaScript &middot; SVG</p>
-        </div>
-      </article>
-
-      <article class="proj">
-        <div><h3>Virtex: time-series analysis in the browser</h3><span class="tag">Work</span></div>
-        <div>
-          <p>A web application for working with time-series data. I contributed to its further development, mainly in C++ compiled to WebAssembly, with Python and JavaScript around it.</p>
-          <p class="stack">C++ &middot; WebAssembly &middot; Python &middot; JavaScript</p>
-        </div>
-      </article>
-
-      <article class="proj">
-        <div><h3>Thesis: randomness on curved spaces</h3><span class="tag">Research</span></div>
-        <div>
-          <p>Brownian motion on manifolds: how a random walk behaves when the space itself is curved. Stochastic analysis and differential geometry, University of Agder, 2026.</p>
-        </div>
-      </article>
-    </section>
-
-    <section id="method" aria-labelledby="method-h">
-      <h2 id="method-h">How I work with data</h2>
-      <ol class="steps">
-        <li><div><strong>Start from the question.</strong> <span>Who will act on the answer, and what would change their mind?</span></div></li>
-        <li><div><strong>Check where the data comes from.</strong> <span>Who measured it, how, and what is missing.</span></div></li>
-        <li><div><strong>Clean it, and write down every choice.</strong> <span>So someone else can repeat it and get the same numbers.</span></div></li>
-        <li><div><strong>Use the simplest method that answers it.</strong> <span>A clear average beats a model nobody can explain.</span></div></li>
-        <li><div><strong>Finish with the answer.</strong> <span>One sentence, one chart, and what the data cannot tell you.</span></div></li>
-      </ol>
-    </section>
-
-    <section aria-labelledby="gap-h">
-      <h2 id="gap-h">What I haven't done yet</h2>
-      <div class="gap">
-        <div>
-          <h3>The gap</h3>
-          <p>I haven't worked as an analyst inside a company, with its own data and reporting tools.</p>
-        </div>
-        <div>
-          <h3>How I'm closing it</h3>
-          <p>I build analyses on public data here, end to end, from raw files to the answer. I taught myself to program in lower secondary school and have used Python for over ten years, so new tools come quickly.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="background" aria-labelledby="bg-h">
-      <h2 id="bg-h">Background</h2>
+        <section id="education" aria-labelledby="edu-h">
+      <h2 id="edu-h">Education</h2>
       <div class="two">
         <div>
-          <h3>Experience</h3>
           <ul class="tl">
-            <li><span class="when">2026</span><b>Glencore Nikkelverk, Kristiansand</b><p>Process operator (temporary), two departments in eight months.</p></li>
-            <li><span class="when">Freelance</span><b>Mattehelten</b><p>Online mathematics tutor. Moved a student from grade 2 to 5.</p></li>
-            <li><span class="when">Earlier</span><b>Virtex</b><p>Software developer on a time-series web application.</p></li>
-            <li><span class="when">Earlier</span><b>Alcoa Mosjøen</b><p>Overhead crane operator in the anode plant (temporary), on equal terms with experienced operators.</p></li>
+            <li><span class="when">2026</span><b>MSc Mathematics, University of Agder</b><p>Thesis: Brownian motion on manifolds (stochastic analysis and differential geometry).</p></li>
+            <li><span class="when">2022</span><b>BSc Mathematics, University of Agder</b></li>
+            <li><span class="when">2022</span><b>One-year programme in philosophy, University of Agder</b></li>
+            <li><span class="when">2020</span><b>One-year programme in mathematics, University of Agder</b></li>
+            <li><span class="when">Earlier</span><b>Game development, Danvik folk high school</b><p>Games built from scratch in C# and Unity.</p></li>
           </ul>
         </div>
         <div>
-          <h3>Skills</h3>
           <dl class="skills">
-            <div><dt>Languages</dt><dd>Python (10+ years), C++, C#, JavaScript, HTML/CSS</dd></div>
-            <div><dt>Data and statistics</dt><dd>Statistics, time series, data cleaning, visualisation</dd></div>
-            <div><dt>Domain</dt><dd>Process industry, 10 ECTS chemistry, shift work and safety culture</dd></div>
-            <div><dt>Education</dt><dd>MSc Mathematics (mathematical statistics, stochastic analysis), University of Agder</dd></div>
+            <div><dt>Relevant coursework</dt><dd>Stochastic differential equations; topology and measure theory; statistics; statistical machine learning; linear algebra; programming with applications in mathematics; nonlinear differential equations and dynamical systems; general chemistry; introductory physics</dd></div>
+            <div><dt>Certificates</dt><dd>Forklift (T4), overhead crane (G4), lifting gear (G11), driving licence class B</dd></div>
+            <div><dt>Languages</dt><dd>Norwegian, English</dd></div>
           </dl>
         </div>
       </div>
     </section>
 
     <section id="contact" class="ask" aria-labelledby="contact-h">
-      <h2 id="contact-h">Have data nobody has time to read?</h2>
-      <p class="sub">I'd like to help turn it into answers. Available from January 2027.</p>
+      <h2 id="contact-h">Contact</h2>
+      <p class="sub">Available from January 2027.</p>
       <div class="contact" id="contact-list"></div>
     </section>
   </main>
